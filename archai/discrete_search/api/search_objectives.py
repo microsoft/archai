@@ -43,7 +43,7 @@ class SearchObjectives():
 
     def add_objective(self, name: str,
                       model_evaluator: Union[ModelEvaluator, AsyncModelEvaluator],
-                      higher_is_better: bool, expensive: bool = True,
+                      higher_is_better: bool, compute_intensive: bool = True,
                       constraint: Optional[Tuple[float, float]] = None):
         """Adds an objective function to the `SearchObjectives` object.
 
@@ -54,12 +54,12 @@ class SearchObjectives():
 
             higher_is_better (bool): Weather the objective should be maximized (`True`) or minimized (`False`).
 
-            expensive (bool, optional): If `True`, the objective is considered computationally expensive and
+            compute_intensive (bool, optional): If `True`, the objective is considered computationally expensive and
                 will be estimated using surrogate models when possible. Defaults to `True`.
 
             constraint (Optional[Tuple[float, float]], optional): Optional objective constraint used to filter 
                 out candidate architectures. Expects `(lower_bound, upper_bound)` tuple. Can only be set
-                if `expensive=False`. Defaults to None.
+                if `compute_intensive` is set to `False`. Defaults to None.
         """
         assert isinstance(model_evaluator, (ModelEvaluator, AsyncModelEvaluator))
         assert name not in dict(self.objs, **self.extra_constraints),\
@@ -71,9 +71,9 @@ class SearchObjectives():
             'constraint': constraint
         }
 
-        if expensive:
+        if compute_intensive:
             assert constraint is None,\
-                'Constraints can only be set for cheap objectives (expensive=False).'
+                'Constraints can only be set for cheap objectives (compute_intensive=False).'
             self.exp_objs[name] = obj
         else:
             self.cheap_objs[name] = obj

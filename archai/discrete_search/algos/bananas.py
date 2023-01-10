@@ -38,7 +38,7 @@ class MoBananasSearch(Searcher):
                 Bayesian Optimization algorithms.
             
             search_objectives (SearchObjectives): Search objectives. Expensive objectives 
-                (registered with `expensive=True`) will be estimated using a surrogate model
+                (registered with `compute_intensive=True`) will be estimated using a surrogate model
                 during certain parts of the search. Cheap objectives will be always evaluated
                 directly.
             

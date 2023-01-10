@@ -31,7 +31,7 @@ def test_eval_all_objs(sample_input, models):
     
     search_objectives.add_objective(
         'Number of parameters', TorchNumParameters(), 
-        higher_is_better=False, expensive=False,
+        higher_is_better=False, compute_intensive=False,
         constraint=(0.0, 5e5),
     )
 
@@ -62,7 +62,7 @@ def test_eval_subsets(sample_input, models):
     
     search_objectives.add_objective(
         'Flops', TorchFlops(sample_args=sample_input), 
-        higher_is_better=False, expensive=False,
+        higher_is_better=False, compute_intensive=False,
         constraint=(0.0, float('inf'))
     )
 
@@ -110,7 +110,7 @@ def test_eval_cache(sample_input, models):
     so.add_objective(
         'Flops', TorchFlops(sample_args=sample_input), 
         higher_is_better=False,
-        expensive=False, constraint=(0.0, float('inf'))
+        compute_intensive=False, constraint=(0.0, float('inf'))
     )
 
     so.add_objective(
