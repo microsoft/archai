@@ -1,0 +1,3 @@
+git+https://github.com/microsoft/archai.git@94690eef4dab8a1d932a1be5d2db61709c1d49fc
+einops
+opt_einsum
