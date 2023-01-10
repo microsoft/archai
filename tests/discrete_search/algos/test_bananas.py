@@ -17,7 +17,7 @@ def test_bananas(output_dir, search_space, search_objectives, surrogate_model):
         search_space=search_space, search_objectives=search_objectives, dataset_provider=None, 
         output_dir=output_dir, surrogate_model=surrogate_model,
         num_iters=30, init_num_models=20, mutations_per_parent=10,
-        num_parents=10, num_mutations=15
+        num_parents=10, num_candidates=15
     )
     
     search_results = algo.search()

@@ -28,7 +28,43 @@ class MoBananasSearch(Searcher):
                  surrogate_model: Optional[Predictor] = None,
                  num_iters: int = 10, init_num_models: int = 10,
                  num_parents: int = 10, mutations_per_parent: int = 5,
-                 num_mutations: int = 10, seed: int = 1):
+                 num_candidates: int = 10, seed: int = 1):
+        """Implementation of the multi-objective version of BANANAS algorithm described in
+        "Bag of Baselines for Multi-objective Joint Neural Architecture Search 
+        and Hyperparameter Optimization" (https://arxiv.org/abs/2105.01015).
+
+        Args:
+            search_space (BayesOptSearchSpace): Discrete search space compatible with 
+                Bayesian Optimization algorithms.
+            
+            search_objectives (SearchObjectives): Search objectives. Expensive objectives 
+                (registered with `expensive=True`) will be estimated using a surrogate model
+                during certain parts of the search. Cheap objectives will be always evaluated
+                directly.
+            
+            dataset_provider (DatasetProvider): Dataset provider.
+            output_dir (str): Output directory.
+            
+            surrogate_model (Optional[Predictor], optional): Surrogate model. If `None`, 
+                a `PredictiveDNNEnsemble` will be used. Defaults to None.
+            
+            num_iters (int, optional): Number of iterations.
+                Defaults to 10.
+
+            init_num_models (int, optional): Number of initial models to evaluate.
+                Defaults to 10.
+
+            num_parents (int, optional): Number of parents to select for each iteration.
+                Defaults to 10.
+
+            mutations_per_parent (int, optional): Number of mutations to apply to each parent.
+                Defaults to 5.
+
+            num_candidates (int, optional): Number of selected models to add to evaluate in
+                the next iteration. Defaults to 10.
+
+            seed (int, optional): Random seed. Defaults to 1.
+        """
 
         assert isinstance(search_space, BayesOptSearchSpace)
         assert isinstance(search_space, EvolutionarySearchSpace)
@@ -53,7 +89,7 @@ class MoBananasSearch(Searcher):
         self.init_num_models = init_num_models
         self.num_parents = num_parents
         self.mutations_per_parent = mutations_per_parent
-        self.num_mutations = num_mutations
+        self.num_candidates = num_candidates
 
         # Utils
         self.logger = create_logger(str(self.output_dir / 'log.log'), enable_stdout=True) 
@@ -200,14 +236,14 @@ class MoBananasSearch(Searcher):
             self.logger.info(f'Calculating cheap objectives {list(self.so.cheap_objs.keys())} for new architectures')
             cheap_objs = self.so.eval_cheap_objs(mutated, self.dataset_provider)
 
-            # Selects `num_mutations`-archtiectures for next iteration using Thompson Sampling
+            # Selects `num_candidates`-archtiectures for next iteration using Thompson Sampling
             selected_indices = self.thompson_sampling(
-                mutated, self.num_mutations,
+                mutated, self.num_candidates,
                 pred_expensive_objs, cheap_objs
             )
             unseen_pop = [mutated[i] for i in selected_indices]
             
-            self.logger.info(f'Best {self.num_mutations} candidate architectures were selected for the next iteration')
+            self.logger.info(f'Best {self.num_candidates} candidate architectures were selected for the next iteration')
 
             # Save plots and reports
             self.search_state.save_all_2d_pareto_evolution_plots(self.output_dir)
