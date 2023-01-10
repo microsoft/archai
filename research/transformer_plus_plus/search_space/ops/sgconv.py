@@ -143,8 +143,6 @@ def Activation(activation=None, size=None, dim=-1):
         return nn.Sigmoid()
     elif activation == 'modrelu':
         return Modrelu(size)
-    elif activation == 'sqrelu':
-        return SquaredReLU()
     elif activation == 'ln':
         return TransposedLN(dim)
     else:
