@@ -25,7 +25,24 @@ class RegularizedEvolutionSearch(Searcher):
                  pareto_sample_size: int = 40, 
                  history_size: int = 100,
                  seed: int = 1):
-        
+        """Implementation of the Regularized Evolution algorithm described in "Regularized Evolution for
+        Image Classifier Architecture Search" (https://arxiv.org/abs/1802.01548v7).
+
+        Args:
+            search_space (EvolutionarySearchSpace): Discrete search space compatible with evolutionary algorithms
+            search_objectives (SearchObjectives): Search objectives
+            dataset_provider (DatasetProvider): Dataset provider used to evaluate models
+            output_dir (str): Output directory
+            num_iters (int, optional): Number of search iterations. Defaults to 10.
+            init_num_models (int, optional): Number of initial models. Defaults to 10.
+            initial_population_paths (Optional[List[str]], optional): Paths to initial population. If None, then
+                `init_num_models` random models are used. Defaults to None.
+            pareto_sample_size (int, optional): Number of models to sample from the pareto frontier. 
+                Defaults to 40.
+            history_size (int, optional): Number of models to keep in the history. 
+                Defaults to 100.
+            seed (int, optional): Random seed. Defaults to 1.
+        """
         assert isinstance(search_space, EvolutionarySearchSpace), \
             f'{str(search_space.__class__)} is not compatible with {str(self.__class__)}'
         

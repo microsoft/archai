@@ -24,7 +24,36 @@ class EvolutionParetoSearch(Searcher):
                  num_random_mix: int = 5, max_unseen_population: int = 100,
                  mutations_per_parent: int = 1, num_crossovers: int = 5, 
                  seed: int = 1):
+        """Evolutionary multi-objective search algorithm that greedily evolves Pareto frontier models
+        from a population using mutations and crossovers. 
         
+        Starting from an evaluated random subset of models, in each iteration the algorithm evaluates new subset of
+        models generated from mutations (`mutation_per_parent`) and crossovers (`num_crossovers`) of the current pareto frontier
+        and a new random subset of models (`num_random_mix`). The process is repeated until `num_iters` is reached.
+
+        Args:
+            search_space (EvolutionarySearchSpace): Discrete search space compatible with evolutionary algorithms
+            search_objectives (SearchObjectives): Search objectives
+            dataset_provider (DatasetProvider): Dataset provider
+            output_dir (str): Output directory
+            num_iters (int, optional): Number of iterations. Defaults to 10.
+            init_num_models (int, optional): Number of initial models to evaluate. Defaults to 10.
+            
+            initial_population_paths (Optional[List[str]], optional): List of paths to the initial population of 
+                models. If None, `init_num_models` random models are used. Defaults to None.
+            
+            num_random_mix (int, optional): Number of random models to mix with the population 
+                in each iteration. Defaults to 5.
+            
+            max_unseen_population (int, optional): Maximum number of unseen models to evaluate 
+                in each iteration. Defaults to 100.
+            
+            mutations_per_parent (int, optional): Number of distincrt mutations generated for each Pareto
+                frontier member. Defaults to 1.
+
+            num_crossovers (int, optional): Total number of crossovers generated per iteration. Defaults to 5.
+            seed (int, optional): Random seed. Defaults to 1.
+        """        
         assert isinstance(search_space, EvolutionarySearchSpace), \
             f'{str(search_space.__class__)} is not compatible with {str(self.__class__)}'
         

@@ -22,7 +22,21 @@ class LocalSearch(Searcher):
                  output_dir: str, num_iters: int = 10,
                  init_num_models: int = 10, initial_population_paths: Optional[List[str]] = None, 
                  mutations_per_parent: int = 1, seed: int = 1):
-        
+        """Local search algorithm. In each iteration, the algorithm generates a new population by
+        mutating the current Pareto frontier. The process is repeated until `num_iters` is reached.
+
+        Args:
+            search_space (EvolutionarySearchSpace): Discrete search space compatible with evolutionary algorithms
+            search_objectives (SearchObjectives): Search objectives
+            dataset_provider (DatasetProvider): Dataset provider used to evaluate models
+            output_dir (str): Output directory
+            num_iters (int, optional): Number of search iterations. Defaults to 10.
+            init_num_models (int, optional): Number of initial models. Defaults to 10.
+            initial_population_paths (Optional[List[str]], optional): Paths to initial population.
+                If None, then `init_num_models` random models are used. Defaults to None.
+            mutations_per_parent (int, optional): Number of mutations per parent. Defaults to 1.
+            seed (int, optional): Random seed. Defaults to 1.
+        """
         assert isinstance(search_space, EvolutionarySearchSpace), \
             f'{str(search_space.__class__)} is not compatible with {str(self.__class__)}'
         

@@ -21,7 +21,18 @@ class RandomSearch(Searcher):
                  dataset_provider: DatasetProvider,
                  output_dir: str, num_iters: int = 10,
                  samples_per_iter: int = 10, seed: int = 1):
-        
+        """Random search algorithm that evaluates random samples from the
+        search space in each iteration until `num_iters` is reached.
+
+        Args:
+            search_space (DiscreteSearchSpace): Discrete search space
+            search_objectives (SearchObjectives): Search objectives
+            dataset_provider (DatasetProvider): Dataset provider used to evaluate models
+            output_dir (str): Output directory
+            num_iters (int, optional): Number of search iterations. Defaults to 10.
+            samples_per_iter (int, optional): Number of samples per iteration. Defaults to 10.
+            seed (int, optional): Random seed. Defaults to 1.
+        """        
         assert isinstance(search_space, DiscreteSearchSpace), \
             f'{str(search_space.__class__)} is not compatible with {str(self.__class__)}'
         
