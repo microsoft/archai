@@ -9,15 +9,15 @@ data:
     - dataset_disk: "/data/dataroot/dummy"
   num_proc: 128
   mapping_column_name: "code"
-  encoded_dataset_path: "/data1/the_pile_30B_encoded_2048"
+  encoded_dataset_path: "/data/codedatasets/only_python_the_stack_encoded_16384"
 tokenizer:
   tokenizer_file: "Salesforce/codegen-350M-mono"
   pad_token: "<|endoftext|>"
-  model_max_length: 2048
+  model_max_length: 16384
 model:
   model_type: "codegen_sgconv"
   vocab_size: 50295
-  n_positions: 2048
+  n_positions: 16384
   n_embd: 768
   n_layer: 12
   n_head: 12

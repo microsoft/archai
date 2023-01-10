@@ -371,10 +371,27 @@
             "name": "Train SGConv",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/examples/research_projects/sgconv/run_experiment.py",
+            "module": "torch.distributed.run",
+            "justMyCode": true,
             "console": "integratedTerminal",
-            "args": ["${cwd}/examples/research_projects/sgconv/configs/clm-codegen-sgconv-sm.yaml",
-                    "-o", "~/logdir"]
+            "args": ["--nproc_per_node",
+                     "1",
+                     "${cwd}/examples/research_projects/sgconv/run_experiment.py",
+                     "${cwd}/examples/research_projects/sgconv/configs/clm-codegen-sgconv-sm.yaml",
+                     "-o", "~/logdir"]
+        },
+        {
+            "name": "Generate Model",
+            "type": "python",
+            "request": "launch",
+            "program": "${cwd}/examples/nlp/eval/text_generation.py",
+            "console": "integratedTerminal",
+            "args": ["~/logdir/codegen_sgconv/checkpoint-90",
+                     "Salesforce/codegen-350M-mono",
+                     "Who is the President of USA?"],
+            "env": {
+                        "HF_DATASETS_IN_MEMORY_MAX_SIZE": "858993459200"
+                    }
         },
         {
             "name": "Pre Tokenize Dataset",
