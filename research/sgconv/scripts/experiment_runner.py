@@ -13,7 +13,7 @@ from src.modeling_codegen_hard_coded import (
     CodeGenHardCodedForCausalLM,
 )
 from src.modeling_codegen_sgconv import CodeGenSGConvConfig, CodeGenSGConvForCausalLM
-from src.utils import load_collator, load_config
+from research.sgconv.scripts.utils import load_collator, load_config
 from transformers import (
     AutoConfig,
     AutoModelForCausalLM,

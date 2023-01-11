@@ -4,7 +4,7 @@
 import argparse
 import os
 
-from src.experiment import Experiment
+from research.sgconv.src.experiment_runner import Experiment
 
 from archai.nlp.file_utils import check_available_checkpoint
 
