@@ -4,16 +4,18 @@
 import os
 from typing import Optional, Union
 
-from src.modeling_codegen_conv_att import (
+from archai.nlp.models.modeling_codegen_conv_att import (
     CodeGenConvAttConfig,
     CodeGenConvAttForCausalLM,
 )
-from src.modeling_codegen_hard_coded import (
+from archai.nlp.models.modeling_codegen_hard_coded import (
     CodeGenHardCodedConfig,
     CodeGenHardCodedForCausalLM,
 )
-from src.modeling_codegen_sgconv import CodeGenSGConvConfig, CodeGenSGConvForCausalLM
-from research.sgconv.scripts.utils import load_collator, load_config
+from archai.nlp.models.modeling_codegen_sgconv import (
+    CodeGenSGConvConfig, CodeGenSGConvForCausalLM
+)
+from archai.nlp.models.utils import load_collator, load_config
 from transformers import (
     AutoConfig,
     AutoModelForCausalLM,
@@ -39,7 +41,7 @@ AutoModelForCausalLM.register(CodeGenHardCodedConfig, CodeGenHardCodedForCausalL
 AutoModelForCausalLM.register(CodeGenSGConvConfig, CodeGenSGConvForCausalLM)
 
 
-class Experiment:
+class ExperimentRunner:
     def __init__(
         self,
         experiment_config: Union[str, os.PathLike],

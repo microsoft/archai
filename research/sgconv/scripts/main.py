@@ -4,7 +4,7 @@
 import argparse
 import os
 
-from research.sgconv.src.experiment_runner import Experiment
+from experiment_runner import ExperimentRunner
 
 from archai.nlp.file_utils import check_available_checkpoint
 
@@ -34,7 +34,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    experiment = Experiment(args.experiment_config_file, output_dir=args.output_dir)
+    experiment = ExperimentRunner(args.experiment_config_file, output_dir=args.output_dir)
 
     # Asserts that resume_from_checkpoint will be a valid boolean
     # when pre-trained checkpoints exists

@@ -4,10 +4,19 @@
 import argparse
 
 import torch
-from transformers import AutoModelForCausalLM, StoppingCriteriaList
+from transformers import AutoModelForCausalLM, AutoConfig, StoppingCriteriaList
 
 from archai.nlp.datasets.hf.tokenizer_utils import ArchaiPreTrainedTokenizerFast
 from archai.nlp.eval.harness import MultipleTokenStoppingCriteria
+
+from archai.nlp.models.modeling_codegen_sgconv import (
+    CodeGenSGConvConfig, CodeGenSGConvForCausalLM
+)
+
+# Register internal models to be compatible with auto classes
+AutoConfig.register("codegen_sgconv", CodeGenSGConvConfig)
+AutoModelForCausalLM.register(CodeGenSGConvConfig, CodeGenSGConvForCausalLM)
+
 
 # Stop-tokens used to stop the generation
 STOP_TOKENS = ["\nclass", "\ndef", "\n#", "\nif", "\nprint"]

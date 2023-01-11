@@ -376,22 +376,20 @@
             "console": "integratedTerminal",
             "args": ["--nproc_per_node",
                      "1",
-                     "${cwd}/examples/research_projects/sgconv/run_experiment.py",
-                     "${cwd}/examples/research_projects/sgconv/configs/clm-codegen-sgconv-sm.yaml",
+                     "${cwd}/research/sgconv/scripts/main.py",
+                     "${cwd}/research/sgconv/confs/clm-codegen-sgconv-sm.yaml",
                      "-o", "~/logdir"]
         },
         {
-            "name": "Generate Model",
+            "name": "Generate Text from Model",
             "type": "python",
             "request": "launch",
             "program": "${cwd}/examples/nlp/eval/text_generation.py",
             "console": "integratedTerminal",
-            "args": ["~/logdir/codegen_sgconv/checkpoint-90",
+            "justMyCode": false,
+            "args": ["~/logdir/codegen_sgconv/checkpoint-30",
                      "Salesforce/codegen-350M-mono",
                      "Who is the President of USA?"],
-            "env": {
-                        "HF_DATASETS_IN_MEMORY_MAX_SIZE": "858993459200"
-                    }
         },
         {
             "name": "Pre Tokenize Dataset",
