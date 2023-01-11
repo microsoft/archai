@@ -91,7 +91,7 @@ def test_combinations():
     print('elapsed', elapsed, 'combs', combs)
 
 def imagenet_test():
-    conf = Config('benchmarks/confs/algos/darts.yaml;benchmarks/confs/datasets/imagenet.yaml',)
+    conf = Config('confs/algos/darts.yaml;confs/datasets/imagenet.yaml',)
     conf_loader = conf['nas']['eval']['loader']
     data_loaders = data.get_data(conf_loader)
 

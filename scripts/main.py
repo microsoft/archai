@@ -56,9 +56,9 @@ def main():
             runner_type:Type[ExperimentRunner] = runner_types[algo]
 
             # get the conf files for algo and dataset
-            algo_conf_filepath = f'benchmarks/confs/algos/{algo}.yaml' if args.full \
-                                               else f'benchmarks/confs/algos/{algo}_toy.yaml'
-            dataset_conf_filepath = f'benchmarks/confs/datasets/{dataset}.yaml'
+            algo_conf_filepath = f'confs/algos/{algo}.yaml' if args.full \
+                                               else f'confs/algos/{algo}_toy.yaml'
+            dataset_conf_filepath = f'confs/datasets/{dataset}.yaml'
             conf_filepaths = ';'.join((algo_conf_filepath, dataset_conf_filepath))
 
             runner = runner_type(conf_filepaths,

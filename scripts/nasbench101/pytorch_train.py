@@ -14,7 +14,7 @@ def main():
 
     #model = model_builder.build(model_builder.EXAMPLE_DESC_MATRIX, model_builder.EXAMPLE_VERTEX_OPS)
     nsds= Nasbench101Dataset('~/dataroot/nasbench_ds/nasbench_full.pkl')
-    conf = common_init(config_filepath='benchmarks/confs/algos/nasbench101.yaml')
+    conf = common_init(config_filepath='confs/algos/nasbench101.yaml')
     conf_eval = conf['nas']['eval']
     conf_loader = conf_eval['loader']
     conf_trainer = conf_eval['trainer']

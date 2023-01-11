@@ -74,7 +74,7 @@ def main():
     parser.add_argument('--dataroot', type=str, default=_default_dataroot(), #TODO:should read from conf_dataset
                         help='path to dataroot on local drive')
     parser.add_argument('--dataset', type=str, default='cifar10',
-                        help='Name of the dataset for which benchmarks/confs/dataset/name.yaml should exist and have name of folder or tar file it resides in')
+                        help='Name of the dataset for which confs/dataset/name.yaml should exist and have name of folder or tar file it resides in')
     args, extra_args = parser.parse_known_args()
 
     pt_data_dir = os.environ.get('PT_DATA_DIR', '')
@@ -83,7 +83,7 @@ def main():
     pt_data_dir = utils.full_path(pt_data_dir)
     print('pt_data_dir:', pt_data_dir)
 
-    conf_data_filepath = f'benchmarks/confs/datasets/{args.dataset}.yaml'
+    conf_data_filepath = f'confs/datasets/{args.dataset}.yaml'
     print('conf_data_filepath:', conf_data_filepath)
 
     conf = Config(config_filepath=conf_data_filepath) #TODO: use common.create_config so env vars and pt stuff taken care of

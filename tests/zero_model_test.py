@@ -16,7 +16,7 @@ def requires_gpu(test_fn: Callable):
 
 @requires_gpu
 def test_darts_zero_model():
-    conf = common_init(config_filepath='benchmarks/confs/algos/darts.yaml')
+    conf = common_init(config_filepath='confs/algos/darts.yaml')
     conf_search = conf['nas']['search']
     model_desc = conf_search['model_desc']
 
@@ -29,7 +29,7 @@ def test_darts_zero_model():
 
 @requires_gpu
 def test_petridish_zero_model():
-    conf = common_init(config_filepath='benchmarks/confs/algos/petridish_toy.yaml')
+    conf = common_init(config_filepath='confs/algos/petridish_toy.yaml')
     conf_search = conf['nas']['search']
     model_desc = conf_search['model_desc']
 

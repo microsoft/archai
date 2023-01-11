@@ -25,7 +25,9 @@ def train_test(conf_eval:Config):
 
 
 if __name__ == '__main__':
-    conf = common_init(config_filepath='benchmarks/confs/algos/resnet.yaml;benchmarks/confs/datasets/cifar100.yaml')
+    conf = common_init(config_filepath='confs/algos/resnet.yaml')
     conf_eval = conf['nas']['eval']
 
     train_test(conf_eval)
+
+
