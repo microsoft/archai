@@ -387,9 +387,9 @@
             "program": "${cwd}/examples/nlp/eval/text_generation.py",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "args": ["~/logdir/codegen_sgconv/checkpoint-30",
+            "args": ["~/logdi/codegen_sgconv/checkpoint-8300",
                      "Salesforce/codegen-350M-mono",
-                     "Who is the President of USA?"],
+                     "def randomforest():\n"],
         },
         {
             "name": "Pre Tokenize Dataset",
