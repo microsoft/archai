@@ -9,7 +9,7 @@ import os
 
 from archai.nlp.file_utils import check_available_checkpoint
 
-from training.experiment import Experiment
+from transformer_plus_plus.training.experiment import Experiment
 
 
 def parse_args() -> argparse.Namespace:
