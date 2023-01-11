@@ -1,4 +1,4 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Custom Model definitions."""
+"""Custom model and op definitions that can be reused everywhere."""

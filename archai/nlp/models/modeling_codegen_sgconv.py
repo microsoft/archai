@@ -5,7 +5,7 @@ from typing import Optional, Tuple, Union
 
 import torch
 import torch.utils.checkpoint
-from src.gconv import GConv
+from sgconv import GConv
 from torch import nn
 from transformers.models.codegen.configuration_codegen import CodeGenConfig
 from transformers.models.codegen.modeling_codegen import (
