@@ -7,7 +7,7 @@ from torchvision import transforms
 from archai.common.ml_utils import channel_norm
 
 if __name__ == '__main__':
-    conf = Config(config_filepath='benchmarks/confs/datasets/flower102.yaml')
+    conf = Config(config_filepath='confs/datasets/flower102.yaml')
 
     conf_dataset = conf['dataset']
 

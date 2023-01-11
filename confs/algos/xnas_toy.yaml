@@ -1,0 +1,3 @@
+# in toy mode, load the confif for algo and then override with common settings for toy mode
+# any additional algo specific toy mode settings will go in this file
+__include__: ['xnas.yaml', 'toy_common.yaml']

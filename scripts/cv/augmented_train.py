@@ -5,7 +5,7 @@ from archai.cv.augmented_train import train_and_eval
 
 
 if __name__ == '__main__':
-    conf = common_init(config_filepath='benchmarks/confs/aug_train_cifar.yaml',
+    conf = common_init(config_filepath='confs/aug/aug_train_cifar.yaml',
                        param_args=["--autoaug.loader.aug", "fa_reduced_cifar10",
                                    "--common.experiment_name", "autoaug_train"])
     import time
