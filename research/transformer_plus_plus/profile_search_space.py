@@ -7,7 +7,7 @@ from tqdm import tqdm
 from archai.nlp.eval.profiler import profile
 from transformers import AutoTokenizer, GPT2Config
 
-from search_space.search_space import (
+from transformer_plus_plus.search_space.search_space import (
     build_single_op_ss,
     build_single_op_per_layer_ss,
     build_mixed_attention_hom_ss,
