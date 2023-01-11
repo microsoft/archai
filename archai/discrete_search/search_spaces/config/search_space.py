@@ -1,9 +1,6 @@
 from overrides import overrides
-from collections import OrderedDict
 from random import Random
-from copy import deepcopy
 from typing import List, Type
-import json
 
 import numpy as np
 import torch
@@ -41,11 +38,11 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
     
     @overrides
     def save_arch(self, model: ArchaiModel, path: str) -> None:
-        model.metadata['config'].to_json(path)
+        model.metadata['config'].to_file(path)
     
     @overrides
     def load_arch(self, path: str) -> ArchaiModel:
-        config = ArchConfig.from_json(path)
+        config = ArchConfig.from_file(path)
         model = self.model_cls(config, **self.model_kwargs)
         
         return ArchaiModel(
