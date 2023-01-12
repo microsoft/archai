@@ -10,7 +10,7 @@ from archai.common.timing import MeasureTime, print_all_timings, print_timing, g
 from archai.common.common import logger, common_init
 
 
-conf = common_init(config_filepath='benchmarks/confs/algos/darts.yaml',
+conf = common_init(config_filepath='confs/algos/darts.yaml',
                     param_args=['--common.experiment_name', 'restnet_test'])
 
 conf_eval = conf['nas']['eval']
