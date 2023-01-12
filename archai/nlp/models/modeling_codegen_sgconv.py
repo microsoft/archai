@@ -70,13 +70,13 @@ class CodeGenSGConv(nn.Module):
 
         self.embed_dim = config.hidden_size
         self.num_attention_heads = config.num_attention_heads
-        self.head_dim = self.embed_dim //  self.num_attention_heads
+        # self.head_dim = self.embed_dim //  self.num_attention_heads
 
-        if self.head_dim * self.num_attention_heads != self.embed_dim:
-            raise ValueError(
-                f"embed_dim must be divisible by num_attention_heads (got `embed_dim`: {self.embed_dim} and"
-                f" `num_attention_heads`: {self.num_attention_heads})."
-            )
+        # if self.head_dim * self.num_attention_heads != self.embed_dim:
+        #     raise ValueError(
+        #         f"embed_dim must be divisible by num_attention_heads (got `embed_dim`: {self.embed_dim} and"
+        #         f" `num_attention_heads`: {self.num_attention_heads})."
+        #     )
 
         # NOTE: bidirectional must be false in autoregressive
         self.gconv = GConv(d_model=self.embed_dim,
@@ -99,7 +99,7 @@ class CodeGenSGConv(nn.Module):
         use_cache: Optional[bool] = False
     ):
 
-        # Potential BUG: causal leakage? Seems no because of FFT
+        # NOTE:No causal leakage due to FFT! 
         y, _ = self.gconv(hidden_states, return_kernel=False)
 
         return y

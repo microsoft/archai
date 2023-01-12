@@ -6,10 +6,10 @@ collator:
   mlm: False
 data:
   dataset:
-    - dataset_disk: "/mnt/archai_nlp/datasets/dummy"
+    - dataset_disk: "/data/dataroot/dummy"
   num_proc: 128
   mapping_column_name: "code"
-  encoded_dataset_path: "/mnt/archai_nlp/datasets/only_python_the_stack_encoded_8192"
+  encoded_dataset_path: "/data/codedatasets/only_python_the_stack_encoded_8192"
 tokenizer:
   tokenizer_file: "Salesforce/codegen-350M-mono"
   pad_token: "<|endoftext|>"
@@ -18,8 +18,8 @@ model:
   model_type: "codegen_sgconv"
   vocab_size: 50295
   n_positions: 8192
-  n_embd: 768
-  n_layer: 12
+  n_embd: 512
+  n_layer: 6
   n_head: 12
   n_inner: null
   rotary_dim: 32
@@ -39,7 +39,7 @@ model:
   summary_use_proj: true
   tie_word_embeddings: false
   use_cache: false
-  sgconv_d_state: 64
+  sgconv_d_state: 128
   sgconv_channels: 1
   sgconv_kernel_dim: 128
   sgconv_decay_min: 2
@@ -64,4 +64,4 @@ trainer:
   eval_steps: 5
   seed: 1234
   fp16: true
-  tf32: false
+  tf32: true
