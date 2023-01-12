@@ -94,8 +94,14 @@ class ExperimentRunner:
 
         tokenizer_file = self.tokenizer_config.pop("tokenizer_file", "")
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_file, **self.tokenizer_config)
+        logger.info("Loaded tokenizer")
 
         collator = load_collator(self.collator_name, tokenizer=tokenizer, **self.collator_config)
+        logger.info("Loaded collator")
+
+        config = AutoConfig.for_model(self.model_type, **self.model_config)
+        model = AutoModelForCausalLM.from_config(config=config)
+        logger.info("Loaded config and model")
 
         with training_args.main_process_first(desc="loading and preparing dataset"):
             datasets = [
@@ -113,8 +119,7 @@ class ExperimentRunner:
             else:
                 dataset = load_dataset(dataset_disk=pre_encoded_path)
 
-        config = AutoConfig.for_model(self.model_type, **self.model_config)
-        model = AutoModelForCausalLM.from_config(config=config)
+        logger.info("Loaded dataset")
 
         trainer = HfTrainer(
             model=model,
@@ -124,7 +129,9 @@ class ExperimentRunner:
             train_dataset=dataset["train"],
             eval_dataset=dataset["validation"] if "validation" in dataset else None,
         )
+        logger.info("Instantiated HfTrainer object")
 
+        logger.info("Entering training loop")
         trainer_output = trainer.train(resume_from_checkpoint=resume_from_checkpoint)
 
         trainer.save_metrics("train", trainer_output.metrics)

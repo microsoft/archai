@@ -84,12 +84,15 @@ extras_require["tests"] = filter_dependencies("flake8", "nbval", "pytest")
 extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
 
 install_requires = filter_dependencies(
+    "einops",
     "h5py",
     "hyperopt",
     "kaleido",
     "matplotlib",
+    "omegaconf",
     "onnx",
     "onnxruntime",
+    "opt_einsum",
     "overrides",
     "plotly",
     "psutil",
