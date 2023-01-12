@@ -11,5 +11,5 @@ set -o xtrace
 # conda install -y -c conda-forge pickle5
 
 conda install -y -c anaconda pydot graphviz
-bash scripts/apex_install.sh
+bash apex_install.sh
 pip install -e .[dev]

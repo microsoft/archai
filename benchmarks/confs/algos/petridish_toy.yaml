@@ -1,9 +1,0 @@
-# in toy mode, load the config for algo and then override with common settings for toy mode
-# any additional algo specific toy mode settings will go in this file
-__include__: ['petridish.yaml', 'toy_common.yaml']
-
-nas:
-  search:
-    petridish:
-      sampling_max_try: 1
-      max_hull_points: 2
