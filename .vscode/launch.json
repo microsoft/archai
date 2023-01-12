@@ -377,7 +377,7 @@
             "args": ["--nproc_per_node",
                      "1",
                      "${cwd}/research/sgconv/scripts/main.py",
-                     "${cwd}/research/sgconv/confs/clm-codegen-sgconv-sm.yaml",
+                     "${cwd}/research/sgconv/confs/clm-codegen-sgconv-template.yaml",
                      "-o", "~/logdir"]
         },
         {
