@@ -12,7 +12,7 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob import BlobServiceClient
 from azure.data.tables import TableServiceClient, UpdateMode
 
-from archai.discrete_search import AsyncObjective, DatasetProvider, ArchaiModel
+from archai.discrete_search import AsyncModelEvaluator, DatasetProvider, ArchaiModel
 
 
 def get_utc_date():
@@ -21,7 +21,7 @@ def get_utc_date():
     return current_date.isoformat()
 
 
-class RemoteAzureBenchmarkObjective(AsyncObjective):
+class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
     def __init__(self, 
                  input_shape: Union[Tuple, List[Tuple]],
                  connection_string: str,

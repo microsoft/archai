@@ -6,27 +6,30 @@ from overrides import overrides
 import onnxruntime as rt
 
 from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.cv.datasets.dataset_provider import DatasetProvider
-from archai.discrete_search.api.objective import Objective
+from archai.discrete_search.api.dataset_provider import DatasetProvider
+from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.common.timing import MeasureBlockTime
 
 
-class AvgOnnxLatency(Objective):
-    higher_is_better: bool = False
-
-    def __init__(self, input_shape: Union[Tuple, List[Tuple]], num_trials: int = 1,
+class AvgOnnxLatency(ModelEvaluator):
+    def __init__(self, input_shape: Union[Tuple[int, ...], List[Tuple[int, ...]]], num_trials: int = 1,
                  input_dtype: str = 'torch.FloatTensor', rand_range: Tuple[float, float] = (0.0, 1.0),
                  export_kwargs: Optional[Dict] = None, inf_session_kwargs: Optional[Dict] = None):
-        """Uses the average ONNX Latency (in seconds) of an architecture as an objective function for
-        minimization.
+        """Evaluates the average ONNX Latency (in seconds) of an architecture. The latency is measured
+        by running the model on random inputs and averaging the latency over `num_trials` trials.
 
         Args:
-            input_shape (Union[Tuple, List[Tuple]]): Model Input shape or list of model input shapes.
-            num_trials (int, optional): Number of trials. Defaults to 1.
-            export_kwargs (Optional[Dict], optional): Optional dictionary of key-value args passed to
-                `torch.onnx.export`. Defaults to None.
-            inf_session_kwargs (Optional[Dict], optional): Optional dictionary of key-value args 
-                passed to `onnxruntime.InferenceSession()`. Defaults to None.
+            input_shape (Union[Tuple, List[Tuple]]): input shape(s) of the model. If a list of shapes
+                is provided, the model is assumed to have multiple inputs.
+            
+            num_trials (int, optional): Number of trials to run. Defaults to 1.
+            input_dtype (str, optional): Data type of the input. Defaults to 'torch.FloatTensor'.
+            rand_range (Tuple[float, float], optional): Range of random values to use for the input.
+            export_kwargs (Optional[Dict], optional): Keyword arguments to pass to `torch.onnx.export`.
+                Defaults to None.
+            
+            inf_session_kwargs (Optional[Dict], optional): Keyword arguments to pass to `onnxruntime.InferenceSession`.
+                Defaults to None.
         """
         input_shapes = [input_shape] if isinstance(input_shape, tuple) else input_shape            
         

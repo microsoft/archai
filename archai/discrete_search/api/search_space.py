@@ -2,10 +2,9 @@
 # Licensed under the MIT license.
 
 from abc import abstractmethod
-from typing import List, Union
+from typing import List
 from overrides.enforce import EnforceOverrides
 
-import torch
 import numpy as np
 from archai.discrete_search.api.archai_model import ArchaiModel
 
@@ -111,19 +110,3 @@ class BayesOptSearchSpace(DiscreteSearchSpace, EnforceOverrides):
         Returns:
             np.ndarray: Fixed-length vector representation of `arch`
         """
-
-
-class RLSearchSpace(DiscreteSearchSpace, EnforceOverrides):
-    ''' Base class for Discrete Search Spaces compatible with Reinforcement Learning search algorithms. '''
-    
-    @abstractmethod
-    def get(self, idx_vector: float) -> ArchaiModel:
-        ''' Gets a ArchaiModel from the search space using `idx_vector`. '''
-
-    @abstractmethod
-    def step(self):
-        pass
-
-    @abstractmethod
-    def reset(self):
-        pass

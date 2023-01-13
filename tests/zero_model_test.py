@@ -26,7 +26,6 @@ def test_darts_zero_model():
     y, aux = m(torch.rand((1, 3, 32, 32)))
     assert isinstance(y, torch.Tensor) and y.shape==(1,10) and aux is None
 
-
 @requires_gpu
 def test_petridish_zero_model():
     conf = common_init(config_filepath='confs/algos/petridish_toy.yaml')

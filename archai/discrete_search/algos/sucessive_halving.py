@@ -8,18 +8,17 @@ from pathlib import Path
 
 from archai.common.utils import create_logger
 from archai.discrete_search import (
-    Objective, AsyncObjective,
-    DiscreteSearchSpace, DatasetProvider, Searcher,
-    SearchResults
+    SearchObjectives,
+    DiscreteSearchSpace, DatasetProvider, Searcher
 )
 
-from archai.discrete_search.utils import get_non_dominated_sorting
-from archai.discrete_search.utils.evaluation import evaluate_models
+from archai.discrete_search.algos.utils import get_non_dominated_sorting
+from archai.discrete_search.algos.utils import SearchResults
 
 
 class SucessiveHalvingSearch(Searcher):
     def __init__(self, search_space: DiscreteSearchSpace, 
-                 objectives: Dict[str, Union[Objective, AsyncObjective]], 
+                 objectives: SearchObjectives, 
                  dataset_provider: DatasetProvider,
                  output_dir: str, num_iters: int = 10,
                  init_num_models: int = 10,
@@ -70,10 +69,12 @@ class SucessiveHalvingSearch(Searcher):
             )
 
             self.logger.info(f'Evaluating {len(selected_models)} models with budget {current_budget}..')
-            results = evaluate_models(selected_models, self.objectives, self.dataset_provider, budgets={
-                obj_name: current_budget
-                for obj_name in self.objectives
-            })
+            results = self.objectives.eval_all_objs(
+                selected_models, self.dataset_provider, budgets={
+                    obj_name: current_budget
+                    for obj_name in self.objectives.objs
+                }
+            )
 
             # Logs results and saves iteration models
             self.search_state.add_iteration_results(

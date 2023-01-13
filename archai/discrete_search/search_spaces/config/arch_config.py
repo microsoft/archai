@@ -1,8 +1,8 @@
-from typing import Dict, Union, Any
+from typing import Dict, Union, Any, Optional
 from collections import OrderedDict
 from copy import deepcopy
 import json
-
+import yaml
 
 def build_arch_config(config_dict: Dict) -> 'ArchConfig':
     """Builds an `ArchConfig` object from a sampled config dictionary.
@@ -108,13 +108,13 @@ class ArchConfig():
             if not remove_metadata_info or not k.startswith('_')
         )
 
-    def to_json(self, path: str) -> None:        
+    def to_file(self, path: str) -> None:        
         d = self.to_dict()
-        json.dump(d, open(path, 'w', encoding='utf-8'), indent=4)
+        yaml.dump(d, open(path, 'w', encoding='utf-8'), default_flow_style=False, sort_keys=False)
 
     @classmethod
-    def from_json(cls, path: str) -> 'ArchConfig':
-        d = json.load(open(path, encoding='utf-8'), object_pairs_hook=OrderedDict)
+    def from_file(cls, path: str) -> 'ArchConfig':
+        d = yaml.load(open(path, 'r', encoding='utf-8'), Loader=yaml.Loader)
         return build_arch_config(d)
 
 

@@ -8,26 +8,17 @@ from typing import List, Optional
 from overrides import overrides
 from torch import nn
 
-from archai.discrete_search import ArchaiModel, DatasetProvider, Objective
+from archai.discrete_search import ArchaiModel, DatasetProvider, ModelEvaluator
 
 
-class TotalParamsProxy(Objective):
-    """Implement an objective that calculates the number of total parameters
-    of a PyTorch model.
-
-    """
-
-    higher_is_better: bool = True
-
+class TotalParamsProxy(ModelEvaluator):
     def __init__(self, trainable_only: Optional[bool] = True) -> None:
-        """Initialize the `TotalParamsProxy` instance.
+        """Counts the total number of trainable parameters
 
         Args:
             trainable_only: A flag indicating whether only trainable parameters
-                should be counted.
-
+                should be counted. Defaults to True.
         """
-
         self.trainable_only = trainable_only
 
     @overrides
@@ -39,24 +30,21 @@ class TotalParamsProxy(Objective):
         return total_params
 
 
-class NonEmbeddingParamsProxy(Objective):
-    """Implement an objective that calculates the number of non-embedding parameters
-    of a PyTorch model.
-
-    """
-
-    higher_is_better: bool = True
-
+class NonEmbeddingParamsProxy(ModelEvaluator):
     def __init__(self, exclude_cls: Optional[List[nn.Module]] = None, trainable_only: Optional[bool] = True) -> None:
-        """Initialize the `NonEmbeddingParamsProxy` instance.
+        """Total number of non-embedding parameters.
+            Used as a proxy for the perplexity of decoder-only transformer LMs.
+
+            From: "LiteTransformerSearch: Training-free Neural Architecture Search for
+                Efficient Language Models", Javaheripi et. al, 2022
 
         Args:
-            exclude_cls: A list of `nn.Module` classes to be ignored
-                during parameter counting.
-            trainable_only: A flag indicating whether only trainable parameters
-                should be counted.
-
-        """
+            exclude_cls (Optional[List[nn.Module]], optional): List of PyTorch module classes
+                to exclude from parameter counting. If `None`, defaults to `[torch.nn.Embedding]`.
+                Defaults to None.
+            trainable_only (Optional[bool], optional): A flag indicating whether only trainable parameters
+                should be counted. Defaults to True.
+        """        
 
         self.exclude_cls = [nn.Embedding] or exclude_cls
         self.trainable_only = trainable_only

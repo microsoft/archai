@@ -4,10 +4,10 @@ import tempfile
 import ray
 from overrides import overrides
 
-from archai.discrete_search import (
-    ArchaiModel, DiscreteSearchSpace,
-    DatasetProvider, Objective, AsyncObjective
-)
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_space import DiscreteSearchSpace
+from archai.discrete_search.api.dataset_provider import DatasetProvider
+from archai.discrete_search.api.model_evaluator import ModelEvaluator, AsyncModelEvaluator
 
 
 def ray_wrap_training_fn(training_fn):
@@ -18,12 +18,11 @@ def ray_wrap_training_fn(training_fn):
     return stateful_training_fn
 
 
-class ProgressiveTraining(Objective):
+class ProgressiveTraining(ModelEvaluator):
     def __init__(self, search_space: DiscreteSearchSpace, 
-                 training_fn: Callable, higher_is_better: bool = False):
+                 training_fn: Callable):
         self.search_space = search_space
         self.training_fn = training_fn
-        self.higher_is_better = higher_is_better
 
         # Training state buffer (e.g optimizer state) for each architecture id
         self.training_states = {}
@@ -41,11 +40,10 @@ class ProgressiveTraining(Objective):
         return metric_result
 
 
-class RayProgressiveTraining(AsyncObjective):
+class RayProgressiveTraining(AsyncModelEvaluator):
     def __init__(self, search_space: DiscreteSearchSpace, 
-                 training_fn: Callable, higher_is_better: bool = False,
-                 timeout: Optional[float] = None, force_stop: bool = False, 
-                 **ray_kwargs):
+                 training_fn: Callable, timeout: Optional[float] = None,
+                 force_stop: bool = False, **ray_kwargs):
 
         self.search_space = search_space
         
@@ -54,7 +52,6 @@ class RayProgressiveTraining(AsyncObjective):
         else:
             self.compute_fn = ray.remote(ray_wrap_training_fn(training_fn))
         
-        self.higher_is_better = higher_is_better
         self.timeout = timeout
         self.force_stop = force_stop
 

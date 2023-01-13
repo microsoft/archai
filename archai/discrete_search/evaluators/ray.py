@@ -4,8 +4,8 @@ import ray
 from overrides import overrides
 
 from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.discrete_search.api.dataset import DatasetProvider
-from archai.discrete_search.api.objective import Objective, AsyncObjective
+from archai.discrete_search.api.dataset_provider import DatasetProvider
+from archai.discrete_search.api.model_evaluator import ModelEvaluator, AsyncModelEvaluator
 
 
 def _wrap_metric_calculate(class_method):
@@ -14,22 +14,23 @@ def _wrap_metric_calculate(class_method):
     return calculate
 
 
-class RayParallelObjective(AsyncObjective):
-    def __init__(self, obj: Objective, timeout: Optional[float] = None, force_stop: bool = False, 
-                 **ray_kwargs):
-        """Wraps a synchronous `Objective` object into an `AsyncObjective` with parallel execution using Ray.
-        `RayParallelObjective` expects a stateless objective function as input, meaning that 
-        any `Objective.eval(arch, ...)` call cannot alter the state of `obj` or `arch` in any way. 
+class RayParallelEvaluator(AsyncModelEvaluator):
+    def __init__(self, obj: ModelEvaluator, timeout: Optional[float] = None,
+                 force_stop: bool = False, **ray_kwargs):
+        """Wraps a `ModelEvaluator` object into an `AsyncModelEvaluator` with parallel execution using Ray.
+        `RayParallelEvaluator` expects a stateless objective function as input, meaning that 
+        any `ModelEvaluator.evaluate(arch, ...)` will not alter the state of `obj` or `arch` in any way. 
 
         Args:
-            obj (Objective): A `Objective` object
-            timeout (Optional[float], optional): Timeout for `receive_all`. Jobs not finished after the time limit
+            obj (ModelEvaluator): A `ModelEvaluator` object
+            timeout (Optional[float], optional): Timeout for receiving results from Ray. If None, then
+                Ray will wait indefinitely for results. If timeout is reached, then incomplete tasks
                 are canceled and returned as None. Defaults to None.
             force_stop (bool, optional): If incomplete tasks (within `timeout` seconds) should be force-killed. If 
                 set to `False`, Ray will just send a `KeyboardInterrupt` signal to the process.
             **ray_kwargs: Key-value arguments for ray.remote(), e.g: num_gpus, num_cpus, max_task_retries.
         """        
-        assert isinstance(obj, Objective)
+        assert isinstance(obj, ModelEvaluator)
 
         # Wraps metric.calculate as a standalone function. This only works with stateless metrics
         if ray_kwargs:
@@ -37,7 +38,6 @@ class RayParallelObjective(AsyncObjective):
         else:
             self.compute_fn = ray.remote(_wrap_metric_calculate(obj.evaluate))
         
-        self.higher_is_better = obj.higher_is_better
         self.timeout = timeout
         self.force_stop = force_stop
         self.object_refs = []

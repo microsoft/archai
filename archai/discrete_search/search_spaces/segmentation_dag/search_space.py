@@ -97,7 +97,7 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
             model_stats = tw.ModelStats(model, input_tensor_shape, clone_model=True)
             is_valid = (model_stats.MAdd >= self.min_mac and model_stats.MAdd <= self.max_mac)
 
-        return is_valid, model_stats.MAdd
+        return is_valid, None if not is_valid else model_stats.MAdd
 
     def load_from_graph(self, graph: List[Dict], channels_per_scale: Dict,
                         post_upsample_layers: int = 1) -> ArchaiModel:

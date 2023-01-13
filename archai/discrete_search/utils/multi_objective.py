@@ -1,21 +1,21 @@
-from typing import Dict, List, Union
+from typing import Dict, List
 
 import numpy as np
-from tqdm import tqdm
 
-from archai.discrete_search import ArchaiModel, AsyncObjective, Objective
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_objectives import SearchObjectives
 
 
 def get_pareto_frontier(models: List[ArchaiModel], 
                         evaluation_results: Dict[str, np.ndarray],
-                        objectives: Dict[str, Union[Objective, AsyncObjective]]) -> Dict:
-    assert len(objectives) == len(evaluation_results)
+                        objectives: SearchObjectives) -> Dict:
+    assert all(obj_name in objectives.objs for obj_name in evaluation_results)
     assert all(len(r) == len(models) for r in evaluation_results.values())
 
     # Inverts maximization objectives 
     inverted_results = {
-        obj_name: (-obj_results if objectives[obj_name].higher_is_better else obj_results)
-        for obj_name, obj_results in evaluation_results.items()
+        obj_name: (-obj_r if objectives.objs[obj_name]['higher_is_better'] else obj_r)
+        for obj_name, obj_r in evaluation_results.items()
     }
 
     # Converts results to an array of shape (len(models), len(objectives))
@@ -37,22 +37,23 @@ def get_pareto_frontier(models: List[ArchaiModel],
 
 def get_non_dominated_sorting(models: List[ArchaiModel],
                               evaluation_results: Dict[str, np.ndarray],
-                              objectives: Dict[str, Union[Objective, AsyncObjective]]) -> List[Dict]:
-    assert len(objectives) == len(evaluation_results)
+                              objectives: SearchObjectives) -> List[Dict]:
+    assert all(obj_name in objectives.objs for obj_name in evaluation_results)
     assert all(len(r) == len(models) for r in evaluation_results.values())
 
     # Inverts maximization objectives 
     inverted_results = {
-        obj_name: (-obj_results if objectives[obj_name].higher_is_better else obj_results)
-        for obj_name, obj_results in evaluation_results.items()
+        obj_name: (-obj_r if objectives.objs[obj_name]['higher_is_better'] else obj_r)
+        for obj_name, obj_r in evaluation_results.items()
     }
 
     # Converts results to an array of shape (len(models), len(objectives))
     results_array = np.vstack(list(inverted_results.values())).T
 
-    frontiers = np.array(
-        _find_non_dominated_sorting(results_array)
-    )
+    frontiers = [
+        np.array(frontier) 
+        for frontier in _find_non_dominated_sorting(results_array)
+    ]
 
     return [{
         'models': [models[idx] for idx in frontier],

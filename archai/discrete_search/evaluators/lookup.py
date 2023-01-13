@@ -4,14 +4,14 @@ import re
 
 import nats_bench
 
-from archai.discrete_search import Objective, ArchaiModel
+from archai.discrete_search import ModelEvaluator, ArchaiModel
 from archai.discrete_search.search_spaces.natsbench_tss.search_space import NatsbenchTssSearchSpace
 from archai.cv.datasets.dataset_provider import DatasetProvider
 
 
-class NatsbenchMetric(Objective):
+class NatsbenchMetric(ModelEvaluator):
     def __init__(self, search_space: NatsbenchTssSearchSpace,
-                 metric_name: str, higher_is_better: bool,
+                 metric_name: str,
                  epochs: Optional[int] = None,
                  raise_not_found: bool = True, 
                  more_info_kwargs: Optional[Dict[str, Any]] = None,
@@ -21,7 +21,6 @@ class NatsbenchMetric(Objective):
 
         self.search_space = search_space
         self.metric_name = metric_name
-        self.higher_is_better = higher_is_better
         self.epochs = epochs
 
         self.archid_pattern = re.compile(f'natsbench-tss-([0-9]+)')

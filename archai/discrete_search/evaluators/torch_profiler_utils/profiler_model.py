@@ -2,7 +2,6 @@
 # Licensed under the MIT License.
 # https://github.com/microsoft/DeepSpeed/blob/master/deepspeed/profiling/flops_profiler/profiler.py
 
-"""Profiler-based model."""
 
 import time
 from functools import partial
@@ -10,7 +9,7 @@ from typing import List, Optional
 
 import torch
 
-from archai.nlp.eval.profiler.profiler_utils import (
+from archai.discrete_search.evaluators.torch_profiler_utils.hooks import (
     FLOPS,
     MACS,
     disable_functional_hooks,
@@ -21,13 +20,13 @@ from archai.nlp.eval.profiler.profiler_utils import (
 
 
 class ProfilerModel:
-    """Prepares a model for profiler-based evaluation."""
+    """Prepares a model to be used with profilling."""
 
     def __init__(self, model: torch.nn.Module) -> None:
-        """Initialize the profiler with a PyTorch model.
+        """Initializes with custom arguments and keyword arguments.
 
         Args:
-            model: The PyTorch model to profile.
+            model: Pre-trained model.
 
         """
 
@@ -36,11 +35,10 @@ class ProfilerModel:
         self.is_patched = False
 
     def start(self, ignore_layers: Optional[List[str]] = None) -> None:
-        """Start profiling the model.
+        """Starts profiling.
 
         Args:
-            ignore_layers: A list of layer names to ignore during profiling.
-                If not provided, all layers will be included in the profiling.
+            ignore_layers: Layers to be ignored when profiling.
 
         """
 
@@ -100,7 +98,7 @@ class ProfilerModel:
         self.is_patched = True
 
     def stop(self) -> None:
-        """Stop profiling the model."""
+        """Stops profiling."""
 
         if self.is_profiling and self.is_patched:
             disable_functional_hooks()
@@ -131,7 +129,7 @@ class ProfilerModel:
         self.model.apply(remove_hooks)
 
     def reset(self) -> None:
-        """Reset the profiler."""
+        """Resets the profiler."""
 
         def reset_attrs(module: torch.nn.Module) -> None:
             module.__flops__ = 0
@@ -144,7 +142,7 @@ class ProfilerModel:
         self.model.apply(reset_attrs)
 
     def end(self) -> None:
-        """End the profiler."""
+        """Ends the profiler."""
 
         if not self.is_profiling:
             return
@@ -169,10 +167,10 @@ class ProfilerModel:
         self.model.apply(remove_attrs)
 
     def get_flops(self) -> int:
-        """Get the number of floating point operations (FLOPs) performed by the model.
+        """Gets the model's number of FLOPs.
 
         Returns:
-            The number of FLOPs performed by the model.
+            (int): Number of floating point operations.
 
         """
 
@@ -185,10 +183,10 @@ class ProfilerModel:
         return _get(self.model)
 
     def get_macs(self) -> int:
-        """Get the number of multiply-accumulate operations (MACs) performed by the model.
+        """Gets the model's number of MACs.
 
         Returns:
-            The number of MACs performed by the model.
+            (int): Number of multiply-accumulate operations.
 
         """
 
@@ -201,20 +199,20 @@ class ProfilerModel:
         return _get(self.model)
 
     def get_params(self) -> int:
-        """Get the number of parameters in the model.
+        """Gets the model's total number of parameters.
 
         Returns:
-            The number of parameters in the model.
+            (int): Number of parameters.
 
         """
 
         return self.model.__params__
 
     def get_latency(self) -> float:
-        """Get the latency of the model.
+        """Gets the model's latency.
 
         Returns:
-            The latency of the model, in seconds.
+            (float): Latency (seconds).
 
         """
 
@@ -228,10 +226,10 @@ class ProfilerModel:
         return _get(self.model)
 
     def get_peak_memory(self) -> float:
-        """Get the peak memory usage of the model.
+        """Gets the model's peak memory.
 
         Returns:
-            The peak memory usage of the model, in bytes.
+            (float): Peak memory (bytes).
 
         """
 
