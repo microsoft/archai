@@ -15,7 +15,7 @@ from archai.discrete_search import (
 from archai.discrete_search import BayesOptSearchSpace, EvolutionarySearchSpace
 from archai.discrete_search.api.predictor import Predictor, MeanVar
 from archai.discrete_search.predictors import PredictiveDNNEnsemble
-from archai.discrete_search.api.dataset import DatasetProvider
+from archai.discrete_search.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.searcher import Searcher
 
 

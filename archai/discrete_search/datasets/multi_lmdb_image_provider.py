@@ -57,7 +57,7 @@ class MultiTensorpackLmdbImageProvider(DatasetProvider):
             assert all(k in d for d in self.datasets), f'`{k}` must be specified for all datasets'
 
     @overrides
-    def get_train_val_datasets(self) -> Tuple[Dataset, Dataset]:
+    def get_datasets(self, load_train:bool, load_test:bool, transform_train, transform_test) -> Tuple[Dataset, Dataset]:
         tr_d = torch.utils.data.ConcatDataset([
             TensorpackLmdbImageDataset(
                 str(self._dataroot / d['tr_lmdb']), **d, augmentation_fn=transform_train

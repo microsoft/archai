@@ -5,7 +5,7 @@ import torch
 from overrides import overrides
 
 from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.datasets.dataset_provider import DatasetProvider
+from archai.discrete_search.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.evaluators.torch_profiler_utils import profile
 

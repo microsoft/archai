@@ -6,7 +6,7 @@ from overrides import overrides
 
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
-from archai.discrete_search.api.dataset import DatasetProvider
+from archai.discrete_search.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.model_evaluator import ModelEvaluator, AsyncModelEvaluator
 
 

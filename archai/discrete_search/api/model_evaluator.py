@@ -7,7 +7,7 @@ from typing import List, Optional, Union
 from overrides import EnforceOverrides
 
 from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.discrete_search.api.dataset import DatasetProvider
+from archai.discrete_search.api.dataset_provider import DatasetProvider
 
 
 class ModelEvaluator(EnforceOverrides):
