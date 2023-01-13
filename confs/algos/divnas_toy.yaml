@@ -1,0 +1,13 @@
+# in toy mode, load the confif for algo and then override with common settings for toy mode
+# any additional algo specific toy mode settings will go in this file
+__include__: ['divnas.yaml', 'toy_common.yaml']
+
+# disable seed train and post train by setting the epochs to 0
+nas:
+  search:
+    seed_train:
+      trainer:
+        epochs: 0 # number of epochs model will be trained before search
+    post_train:
+      trainer:
+        epochs: 0 # number of epochs model will be trained after search

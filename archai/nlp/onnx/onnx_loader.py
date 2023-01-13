@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX-loading utilities.
-"""
+"""ONNX-loading utilities."""
 
 from os import environ
 
@@ -14,13 +13,16 @@ logger = logging_utils.get_logger(__name__)
 
 
 def load_from_onnx(onnx_model_path: str) -> InferenceSession:
-    """Loads an ONNX-based model from file.
+    """Load an ONNX-based model from file.
+
+    This function loads an ONNX-based model from the specified file path and
+    returns an ONNX inference session. Performance optimization constants are set as well.
 
     Args:
         onnx_model_path: Path to the ONNX model file.
 
     Returns:
-        (InferenceSession): ONNX inference session.
+        ONNX inference session.
 
     """
 

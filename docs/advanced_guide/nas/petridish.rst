@@ -67,7 +67,7 @@ If a model in the search stage finishes it is sent to a ray child process (``sel
 Now let's look at some key parameters in the configuration file :github:`benchmarks/confs/algos/petridish.yaml` which controls key aspects of the pareto-frontier search process.
 
 .. code-block:: yaml
-    
+
     petridish:
         convex_hull_eps: 0.025 # tolerance
         max_madd: 200000000 # if any parent model reaches this many multiply-additions then the search is terminated or it reaches maximum number of parent pool size

@@ -1,15 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterator, Mapping, Type, Optional, Tuple, List, Dict
-import math
+from typing import Optional, Tuple, Dict
 import copy
-import random
-import os
 
 from overrides import EnforceOverrides
-
-from torch.utils.data.dataloader import DataLoader
 
 from archai.common.common import logger
 
@@ -17,11 +12,10 @@ from archai.common.config import Config
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.common.trainer import Trainer
-from archai.nas.model_desc import CellType, ModelDesc
-from archai.datasets import data
+from archai.nas.model_desc import ModelDesc
+from archai.cv.datasets import data
 from archai.nas.model import Model
-from archai.common.metrics import EpochMetrics, Metrics
-from archai.common import utils
+from archai.common.metrics import Metrics
 from archai.nas.finalizers import Finalizers
 
 

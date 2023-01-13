@@ -12,8 +12,8 @@ from archai.common.config import Config
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.operations import MultiOp, Op
 
-from . import model_matrix
-from .nasbench101_op import NasBench101Op
+from archai.algos.nasbench101 import model_matrix
+from archai.algos.nasbench101.nasbench101_op import NasBench101Op
 
 class NasBench101CellBuilder(ModelDescBuilder):
     @overrides

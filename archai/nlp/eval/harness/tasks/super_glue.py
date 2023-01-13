@@ -8,6 +8,7 @@ https://w4ngatang.github.io/static/papers/superglue.pdf
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+from overrides import overrides
 
 from archai.nlp.eval.harness.harness_task import HarnessTask
 from archai.nlp.eval.harness.harness_utils import (
@@ -18,7 +19,7 @@ from archai.nlp.eval.harness.harness_utils import (
 
 
 class AXbHarnessTask(HarnessTask):
-    """Defines the AX-b task."""
+    """AX-b harness task."""
 
     def __init__(
         self,
@@ -40,21 +41,25 @@ class AXbHarnessTask(HarnessTask):
             metric_config_name="axb",
         )
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         return f"{sample['sentence1']}\nQuestion: {sample['sentence2']} True or False?\nAnswer:"
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         available_labels = {0: "True", 1: "False"}
         label = sample["label"]
 
         return f" {available_labels[label]}"
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_true = call_factory.log_likelihood(context, " True")
         ll_false = call_factory.log_likelihood(context, " False")
 
         return ll_true, ll_false
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         ll_true, ll_false = results
 
@@ -65,7 +70,7 @@ class AXbHarnessTask(HarnessTask):
 
 
 class AXgHarnessTask(HarnessTask):
-    """Defines the AX-g task."""
+    """AX-g harness task."""
 
     def __init__(
         self,
@@ -87,21 +92,25 @@ class AXgHarnessTask(HarnessTask):
             metric_config_name="axg",
         )
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         return f"{sample['premise']}\nQuestion: {sample['hypothesis']} True or False?\nAnswer:"
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         available_labels = {0: "True", 1: "False"}
         label = sample["label"]
 
         return f" {available_labels[label]}"
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_true = call_factory.log_likelihood(context, " True")
         ll_false = call_factory.log_likelihood(context, " False")
 
         return ll_true, ll_false
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         ll_true, ll_false = results
 
@@ -112,7 +121,7 @@ class AXgHarnessTask(HarnessTask):
 
 
 class BoolQHarnessTask(HarnessTask):
-    """Defines the BoolQ task."""
+    """BoolQ harness task."""
 
     def __init__(
         self,
@@ -138,21 +147,25 @@ class BoolQHarnessTask(HarnessTask):
     def has_test_set(self) -> bool:
         return False
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         return f"{sample['passage']}\nQuestion: {sample['question']}?\nAnswer:"
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         available_labels = {0: "no", 1: "yes"}
         label = sample["label"]
 
         return f" {available_labels[label]}"
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_no = call_factory.log_likelihood(context, " no")
         ll_yes = call_factory.log_likelihood(context, " yes")
 
         return ll_no, ll_yes
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         ll_no, ll_yes = results
 
@@ -163,7 +176,7 @@ class BoolQHarnessTask(HarnessTask):
 
 
 class CBHarnessTask(HarnessTask):
-    """Defines the CB task."""
+    """CB harness task."""
 
     def __init__(
         self,
@@ -189,15 +202,18 @@ class CBHarnessTask(HarnessTask):
     def has_test_set(self) -> bool:
         return False
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         return f"{sample['premise']}\nQuestion: {sample['hypothesis']}. True, False or Neither?\nAnswer:"
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         available_labels = {0: "True", 1: "False", 2: "Neither"}
         label = sample["label"]
 
         return f" {available_labels[label]}"
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_true = call_factory.log_likelihood(context, " True")
         ll_false = call_factory.log_likelihood(context, " False")
@@ -205,6 +221,7 @@ class CBHarnessTask(HarnessTask):
 
         return ll_true, ll_false, ll_neither
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         prediction = np.argmax(results)
         reference = sample["label"]
@@ -213,7 +230,7 @@ class CBHarnessTask(HarnessTask):
 
 
 class COPAHarnessTask(HarnessTask):
-    """Defines the COPA task."""
+    """COPA harness task."""
 
     def __init__(
         self,
@@ -242,6 +259,7 @@ class COPAHarnessTask(HarnessTask):
     def _get_text_from_choice(self, choice: str) -> str:
         return choice[0].lower() + choice[1:]
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         connector = {"cause": "because", "effect": "therefore"}
 
@@ -250,11 +268,13 @@ class COPAHarnessTask(HarnessTask):
 
         return f"{premise} {question}"
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         choice = sample["choice1"] if sample["label"] == 0 else sample["choice2"]
 
         return f" {self._get_text_from_choice(choice)}"
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         choice1 = f" {self._get_text_from_choice(sample['choice1'])}"
         choice2 = f" {self._get_text_from_choice(sample['choice2'])}"
@@ -264,6 +284,7 @@ class COPAHarnessTask(HarnessTask):
 
         return ll_choice1, ll_choice2
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         prediction = np.argmax(results)
         reference = sample["label"]
@@ -272,7 +293,7 @@ class COPAHarnessTask(HarnessTask):
 
 
 class MultiRCHarnessTask(HarnessTask):
-    """Defines the MultiRC task."""
+    """MultiRC harness task."""
 
     def __init__(
         self,
@@ -303,12 +324,15 @@ class MultiRCHarnessTask(HarnessTask):
 
         return f" {answer}\nIs the answer correct? {text_label}"
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         return f"{sample['paragraph']}\nQuestion: {sample['question']}\nAnswer:"
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         return self._get_answer_from_sample(sample["answer"], sample["label"])
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         false = self._get_answer_from_sample(sample["answer"], False)
         true = self._get_answer_from_sample(sample["answer"], True)
@@ -318,6 +342,7 @@ class MultiRCHarnessTask(HarnessTask):
 
         return ll_false, ll_true
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         ll_false, ll_true = results
 
@@ -328,7 +353,7 @@ class MultiRCHarnessTask(HarnessTask):
 
 
 class ReCoRDHarnessTask(HarnessTask):
-    """Defines the ReCoRD task."""
+    """ReCoRD harness task."""
 
     def __init__(
         self,
@@ -357,6 +382,7 @@ class ReCoRDHarnessTask(HarnessTask):
     def _get_answer_from_sample(self, query: str, entity: str) -> str:
         return f"  - {query}".replace("@placeholder", entity)
 
+    @overrides
     def _pre_process_sample(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "passage": sample["passage"],
@@ -365,6 +391,7 @@ class ReCoRDHarnessTask(HarnessTask):
             "answers": sorted(list(set(sample["answers"]))),
         }
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         passage, *highlights = sample["passage"].strip().split("\n@highlight\n")
 
@@ -374,15 +401,18 @@ class ReCoRDHarnessTask(HarnessTask):
 
         return text
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         return self._get_answer_from_sample(sample["query"], sample["answers"][0])
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         return [
             call_factory.log_likelihood(context, self._get_answer_from_sample(sample["query"], entity))
             for entity in sample["entities"]
         ]
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         pred_idx = np.argmax(np.array([result for result in results]))
 
@@ -393,7 +423,7 @@ class ReCoRDHarnessTask(HarnessTask):
 
 
 class WiCHarnessTask(HarnessTask):
-    """Defines the WiC task."""
+    """WiC harness task."""
 
     def __init__(
         self,
@@ -419,22 +449,26 @@ class WiCHarnessTask(HarnessTask):
     def has_test_set(self) -> bool:
         return False
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         word = sample["sentence1"][sample["start1"] : sample["end1"]]
         return f"Sentence 1: {sample['sentence1']}\nSentence 2: {sample['sentence2']}\nQuestion: Is the word '{word}' used in the same way in the two sentences above?\nAnswer:"
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         available_labels = {0: "no", 1: "yes"}
         label = sample["label"]
 
         return f" {available_labels[label]}"
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_no = call_factory.log_likelihood(context, " no")
         ll_yes = call_factory.log_likelihood(context, " yes")
 
         return ll_no, ll_yes
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         ll_no, ll_yes = results
 
@@ -445,7 +479,7 @@ class WiCHarnessTask(HarnessTask):
 
 
 class WSCHarnessTask(HarnessTask):
-    """Defines the WSC task."""
+    """WSC harness task."""
 
     def __init__(
         self,
@@ -471,6 +505,7 @@ class WSCHarnessTask(HarnessTask):
     def has_test_set(self) -> bool:
         return False
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         raw_passage = sample["text"]
         pre_passage = " ".join(raw_passage.split()[: sample["span2_index"]])
@@ -482,18 +517,21 @@ class WSCHarnessTask(HarnessTask):
 
         return f'Passage: {passage}\nQuestion: In the passage above, does the pronoun "{pronoun}" refer to "{noun}"?\nAnswer:'
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         available_labels = {0: "no", 1: "yes"}
         label = sample["label"]
 
         return f" {available_labels[label]}"
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         ll_no = call_factory.log_likelihood(context, " no")
         ll_yes = call_factory.log_likelihood(context, " yes")
 
         return ll_no, ll_yes
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         ll_no, ll_yes = results
 

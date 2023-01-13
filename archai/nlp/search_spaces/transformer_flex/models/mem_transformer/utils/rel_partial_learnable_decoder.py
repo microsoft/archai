@@ -4,8 +4,7 @@
 # Copyright (c) 2018, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0.
 
-"""Relational Partial-Learnable Decoder.
-"""
+"""Relational Partial-Learnable Decoder."""
 
 from typing import Optional
 

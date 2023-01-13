@@ -1,19 +1,19 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""GPT-2 ONNX configuration.
-"""
+"""GPT-2 ONNX configuration."""
 
 from typing import Any, Mapping, Optional, Tuple
 
 import torch
+from overrides import overrides
 from transformers.configuration_utils import PretrainedConfig
 
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig, OnnxConfigWithPast
 
 
 class GPT2OnnxConfig(OnnxConfigWithPast):
-    """Implements a GPT-2 ONNX configuration (with past key/values support)."""
+    """GPT-2 ONNX configuration (with past key/values support)."""
 
     def __init__(
         self,
@@ -37,7 +37,7 @@ class GPT2OnnxConfig(OnnxConfigWithPast):
 
 
 class GPT2FlexOnnxConfig(OnnxConfigWithPast):
-    """Implements a GPT-2 Flex ONNX configuration (with past key/values support)."""
+    """GPT-2 Flex ONNX configuration (with past key/values support)."""
 
     def __init__(
         self, config: PretrainedConfig, task: Optional[str] = "causal-lm", use_past: Optional[bool] = False
@@ -56,6 +56,7 @@ class GPT2FlexOnnxConfig(OnnxConfigWithPast):
     def ort_graph_optimizer_args(self) -> Tuple[Any, ...]:
         return (self.num_attention_heads[0], self.hidden_size)
 
+    @overrides
     def generate_dummy_inputs(
         self, batch_size: int = 2, seq_len: int = 8, past_seq_len: int = 8
     ) -> Mapping[str, torch.Tensor]:

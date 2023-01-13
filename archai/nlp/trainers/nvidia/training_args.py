@@ -31,13 +31,13 @@ class NvidiaTrainingArguments:
         dataset_dir: Dataset folder.
         dataset_cache_dir: Dataset cache folder.
         dataset_refresh_cache: Whether cache should be refreshed.
-        vocab: Name of the tokenizer.
+        vocab: Name of the vocabulary/tokenizer.
         vocab_size: Size of the vocabulary.
         iterator_roll: Whether iterator should be rolled.
         global_batch_size: Global batch size.
         per_device_global_batch_size: Individual GPU batch size.
         seq_len: Sequence length.
-        strategy: Multi-GPU strategy.
+        strategy: Distributed training strategy.
         local_rank: Local rank of process.
         find_unused_parameters: Whether unused parameters should be found.
         max_steps: Maximum number of training steps.

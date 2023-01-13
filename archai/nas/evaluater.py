@@ -1,27 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, Optional, Tuple
-import importlib
-import sys
-import string
-import os
+from typing import Dict, Optional
 
-import torch
 from torch import nn
-from torch.utils.data.dataloader import DataLoader
 
-from overrides import overrides, EnforceOverrides
+from overrides import EnforceOverrides
 
 from archai.common.trainer import Trainer
 from archai.common.config import Config
 from archai.common.common import logger
-from archai.datasets import data
+from archai.cv.datasets import data
 from archai.nas.model_desc import ModelDesc
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas import nas_utils
 from archai.common import ml_utils, utils
-from archai.common.metrics import EpochMetrics, Metrics
+from archai.common.metrics import Metrics
 from archai.nas.model import Model
 from archai.common.checkpoint import CheckPoint
 

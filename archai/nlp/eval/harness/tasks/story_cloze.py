@@ -8,13 +8,14 @@ https://arxiv.org/pdf/1604.01696.pdf
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+from overrides import overrides
 
 from archai.nlp.eval.harness.harness_task import HarnessTask
 from archai.nlp.eval.harness.harness_utils import HarnessCall, call_factory
 
 
 class StoryCloze2016HarnessTask(HarnessTask):
-    """Defines the StoryCloze 2016 task."""
+    """StoryCloze 2016 harness task."""
 
     def __init__(
         self,
@@ -39,6 +40,7 @@ class StoryCloze2016HarnessTask(HarnessTask):
             metric_config_name=None,
         )
 
+    @overrides
     def _create_inputs(self, sample: Dict[str, Any]) -> str:
         return " ".join(
             [
@@ -49,16 +51,19 @@ class StoryCloze2016HarnessTask(HarnessTask):
             ]
         )
 
+    @overrides
     def _create_label(self, sample: Dict[str, Any]) -> str:
         labels = [sample["sentence_quiz1"], sample["sentence_quiz2"]]
         return " " + labels[sample["answer_right_ending"] - 1]
 
+    @overrides
     def create_sampling_calls(self, sample: Dict[str, Any], context: str) -> Tuple[HarnessCall, ...]:
         choices = [sample["sentence_quiz1"], sample["sentence_quiz2"]]
         lls = [call_factory.log_likelihood(context, f" {choice}") for choice in choices]
 
         return lls
 
+    @overrides
     def compute_results(self, sample: Dict[str, Any], results: Tuple[Any, ...]) -> None:
         prediction = np.argmax(results)
         reference = sample["answer_right_ending"] - 1
@@ -67,7 +72,7 @@ class StoryCloze2016HarnessTask(HarnessTask):
 
 
 class StoryCloze2018HarnessTask(StoryCloze2016HarnessTask):
-    """Defines the StoryCloze 2018 task."""
+    """StoryCloze 2018 harness task."""
 
     def __init__(
         self,

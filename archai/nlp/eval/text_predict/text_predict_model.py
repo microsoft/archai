@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Text Predict-based model.
-"""
+"""Text Predict-based model."""
 
 import functools
 import os
@@ -17,18 +16,18 @@ from archai.nlp.eval.text_predict.text_predict_utils import LRUCache
 
 
 class TextPredictModel:
-    """Wraps a model for Text Predict."""
+    """Wrapper for a model used in the Text Predict framework."""
 
     def __init__(
         self,
         space_token_id: int,
         max_seq_length: Optional[int] = 30,
     ) -> None:
-        """Overrides initialization method.
+        """Initialize the `TextPredictModel` with the given arguments.
 
         Args:
-            space_token_id: Space token identifier.
-            max_seq_length: Maximum sequence length.
+            space_token_id: The identifier for the space token.
+            max_seq_length: The maximum length of the input sequence.
 
         """
 
@@ -37,13 +36,13 @@ class TextPredictModel:
 
     @functools.lru_cache(maxsize=1024)
     def _create_fixed_length_tensor(self, inputs: Tuple[int, ...]) -> torch.Tensor:
-        """Creates a PyTorch-ready tensor with fixed sequence length.
+        """Create a PyTorch-compatible tensor with a fixed sequence length.
 
         Args:
-            inputs: Inputs to be converted to tensor.
+            inputs: The input tokens to be converted to a tensor.
 
         Returns:
-            (torch.Tensor): Tensor with shape (batch_size x max_seq_length).
+            A tensor with shape (batch_size x max_seq_length).
 
         """
 
@@ -59,13 +58,13 @@ class TextPredictModel:
         return tensor
 
     def get_loss(self, input_ids: Tuple[int, ...]) -> float:
-        """Calculates the model's loss.
+        """Calculate the loss of the model on the given input tokens.
 
         Args:
-            input_ids: Input tokens.
+            input_ids: The input tokens.
 
         Returns:
-            (float): Loss.
+            The loss.
 
         """
 
@@ -89,13 +88,13 @@ class TextPredictModel:
 
     @functools.lru_cache(maxsize=1024)
     def get_next_token_probs(self, input_ids: Tuple[int, ...]) -> List[float]:
-        """Calculates the probabilities of next token.
+        """Calculate the probabilities of next token.
 
         Args:
-            input_ids: Input tokens.
+            input_ids: The input tokens.
 
         Returns:
-            (List[float]): Next token's probabilities.
+            Next token's probabilities.
 
         """
 
@@ -109,13 +108,13 @@ class TextPredictModel:
 
     @functools.lru_cache(maxsize=1024)
     def get_top_next_token_probs(self, input_ids: Tuple[int, ...]) -> Tuple[int, float]:
-        """Calculates the probability of top-1 next token.
+        """Calculate the probability of top-1 next token.
 
         Args:
-            input_ids: Input tokens.
+            input_ids: The input tokens.
 
         Returns:
-            (Tuple[int, float]): Top-1 next token's identifier and probability.
+            Tuple with top-1 next token and probability.
 
         """
 
@@ -126,7 +125,7 @@ class TextPredictModel:
 
 
 class TextPredictTorchModel(TextPredictModel):
-    """Wraps a PyTorch model for Text Predict."""
+    """Wrapper for a PyTorch model used in the Text Predict framework."""
 
     def __init__(
         self,
@@ -135,13 +134,13 @@ class TextPredictTorchModel(TextPredictModel):
         max_seq_length: Optional[int] = 30,
         device: Optional[str] = None,
     ) -> None:
-        """Overrides initialization method.
+        """Override initialization method.
 
         Args:
-            model: PyTorch model.
-            space_token_id: Space token identifier.
-            max_seq_length: Maximum sequence length.
-            device: Device where model should be placed.
+            model: A PyTorch model.
+            space_token_id: The space token identifier.
+            max_seq_length: The maximum sequence length.
+            device: The device where the model should be placed.
 
         """
 
@@ -155,7 +154,7 @@ class TextPredictTorchModel(TextPredictModel):
 
 
 class TextPredictONNXModel(TextPredictModel):
-    """Wraps an ONNX model for Text Predict."""
+    """Wrapper for an ONNX model used in the Text Predict framework."""
 
     def __init__(
         self,
@@ -163,12 +162,12 @@ class TextPredictONNXModel(TextPredictModel):
         space_token_id: int,
         max_seq_length: Optional[int] = 30,
     ) -> None:
-        """Overrides initialization method.
+        """Override initialization method.
 
         Args:
-            onnx_model_path: Path to the ONNX model file.
-            space_token_id: Space token identifier.
-            max_seq_length: Maximum sequence length.
+            onnx_model_path: A path to the ONNX model file.
+            space_token_id: The space token identifier.
+            max_seq_length: The maximum sequence length.
 
         """
 
@@ -197,15 +196,15 @@ class TextPredictONNXModel(TextPredictModel):
         min_cutoff: Optional[int] = 1,
         max_cutoff: Optional[int] = 4,
     ) -> Tuple[List[int], int]:
-        """Retrieves past key/values from cache.
+        """Retrieve past key/values from cache.
 
         Args:
-            input_ids: Input tokens.
-            min_cutoff: Minimum cutoff of the cache.
-            max_cutoff: Maximum cutoff of the cache.
+            input_ids: The input tokens.
+            min_cutoff: The minimum cutoff of the cache.
+            max_cutoff: The maximum cutoff of the cache.
 
         Returns:
-            (Tuple[List[int], int]): Past key/values and their length.
+            Tuple with past key/values and their length.
 
         """
 
@@ -220,11 +219,11 @@ class TextPredictONNXModel(TextPredictModel):
         return None, len(input_ids)
 
     def _update_past_cache(self, input_ids: Tuple[int, ...], past_ids: List[int]) -> None:
-        """Updates the past key/values cache.
+        """Update the past key/values cache.
 
         Args:
-            input_ids: Input tokens.
-            past_ids: Past key/values.
+            input_ids: The input tokens.
+            past_ids: The past key/values.
 
         """
 
@@ -235,13 +234,13 @@ class TextPredictONNXModel(TextPredictModel):
 
     @functools.lru_cache(maxsize=1024)
     def get_next_token_probs(self, input_ids: Tuple[int, ...]) -> List[float]:
-        """Calculates the probabilities of next token.
+        """Calculate the probabilities of next token.
 
         Args:
-            input_ids: Input tokens.
+            input_ids: The input tokens.
 
         Returns:
-            (List[float]): Next token's probabilities.
+            A list with the next tokens' probabilities.
 
         """
 
@@ -288,13 +287,13 @@ class TextPredictONNXModel(TextPredictModel):
         return probs.tolist()
 
     def get_loss(self, input_ids: Tuple[int, ...]) -> float:
-        """Calculates the model's loss.
+        """Calculate the model's loss.
 
         Args:
-            input_ids: Inputs.
+            input_ids: The input tokens.
 
         Returns:
-            (float): Loss.
+            The loss.
 
         """
 

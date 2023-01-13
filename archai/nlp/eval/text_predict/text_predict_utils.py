@@ -1,21 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Text Predict-based utilities, such as caching mechanism.
-"""
+"""Text Predict-based utilities, such as caching mechanism."""
 
 from collections import OrderedDict
 from typing import Any, Optional
 
 
 class LRUCache(OrderedDict):
-    """Implements functools.lru_cache() with an OrderedDict to avoid
-    unhashable results.
+    """Least-Recently Used (LRU) Cache.
+
+    This class extends the OrderedDict class to implement a cache with LRU eviction policy.
 
     """
 
     def __init__(self, maxsize: Optional[int] = 128) -> None:
-        """Overrides initialization method with custom arguments.
+        """Initialize an `LRUCache` object.
 
         Args:
             maxsize: Maximum size of the cache.
@@ -27,13 +27,13 @@ class LRUCache(OrderedDict):
         self.maxsize = maxsize
 
     def __getitem__(self, key: str) -> Any:
-        """Retrieves a value from the cache.
+        """Retrieve a value from the cache.
 
         Args:
-            key: Key to retrieve the value.
+            key: Key of the value to be retrieved.
 
         Returns:
-            (Any): Value.
+            Value associated with the key.
 
         """
 
@@ -43,7 +43,7 @@ class LRUCache(OrderedDict):
         return value
 
     def __setitem__(self, key: str, value: Any) -> None:
-        """Sets a value in the cache.
+        """Set a value in the cache.
 
         Args:
             key: Key to set the value.

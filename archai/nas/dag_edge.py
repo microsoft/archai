@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, List, Optional, Tuple
+from typing import List, Optional
 
 import torch
 from torch import nn

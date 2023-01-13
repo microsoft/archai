@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""PyTorch-based manual evaluation.
-"""
+"""PyTorch-based manual evaluation."""
 
 import copy
 import math
@@ -25,18 +24,18 @@ def manual_evaluate(
     n_seed_tokens: Optional[int] = 1,
     n_accuracy_type: Optional[int] = 1,
 ) -> Dict[str, Any]:
-    """Manually evaluates a PyTorch model.
+    """Evaluate a PyTorch model.
 
     Args:
-        torch_model: An already instantiated PyTorch-based model.
+        torch_model: A PyTorch model to be evaluated.
         eval_dataset: Evaluation (testing) dataset.
-        data_collator: Collation function to be applied into data loader.
-        batch_size: Size of batches.
-        n_seed_tokens: Number of seed tokens.
-        n_accuracy_type: Number of accuracies to be used, e.g., acc@1, acc@2, ..., acc@n.
+        data_collator: Collation function to be applied to the data in the dataset.
+        batch_size: Size of batches to use when iterating through the dataset.
+        n_seed_tokens: Number of seed tokens to use when generating sequences.
+        n_accuracy_type: Number of accuracies to calculate, ranging from "acc@1" to "acc@n".
 
     Returns:
-        (Dict[str, Any]): A dictionary holding the evaluation metrics.
+        A dictionary containing the evaluation metrics and runtime statistics.
 
     """
 

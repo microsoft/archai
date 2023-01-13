@@ -48,3 +48,5 @@ def test_nvidia_training_arguments():
     assert args.lr_scheduler_decay_rate == 0.5
     assert not args.qat
     assert not args.mixed_qat
+
+    os.rmdir("tmp")

@@ -1,13 +1,6 @@
 Tokenizer Utilities
 ===================
 
-Special Token Enumerator
-------------------------
-
-.. automodule:: archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum
-   :members:
-   :undoc-members:
-
 Token Configuration
 -------------------
 

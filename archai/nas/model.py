@@ -1,22 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Tuple, Optional, Any, List
-from collections import OrderedDict
+from typing import Iterable, Tuple, Optional
 import numpy as np
-import yaml
-import os
 
 import torch
 from torch import nn, Tensor
 from overrides import overrides
 
-from archai.nas.arch_params import ArchParams
 from archai.nas.cell import Cell
 from archai.nas.operations import Op, DropPath_
 from archai.nas.model_desc import ModelDesc, AuxTowerDesc, CellDesc
-from archai.common.common import logger
-from archai.common import utils, ml_utils
+from archai.common import ml_utils
 from archai.nas.arch_module import ArchModule
 
 class Model(ArchModule):

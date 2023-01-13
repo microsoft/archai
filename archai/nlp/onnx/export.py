@@ -1,17 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX-related export and validation.
-"""
+"""ONNX-related export and validation."""
 
 from itertools import chain
 from typing import Optional
 
 import numpy as np
 import torch
-from onnxruntime import InferenceSession, SessionOptions
 
 from archai.nlp import logging_utils
+from archai.nlp.onnx.config_utils.codegen_onnx_config import CodeGenOnnxConfig
 from archai.nlp.onnx.config_utils.gpt2_onnx_config import (
     GPT2FlexOnnxConfig,
     GPT2OnnxConfig,
@@ -22,7 +21,7 @@ from archai.nlp.onnx.onnx_loader import load_from_onnx
 
 logger = logging_utils.get_logger(__name__)
 
-AVAILABLE_ONNX_CONFIGS = {"gpt2": GPT2OnnxConfig, "gpt2-flex": GPT2FlexOnnxConfig}
+AVAILABLE_ONNX_CONFIGS = {"codegen": CodeGenOnnxConfig, "gpt2": GPT2OnnxConfig, "gpt2-flex": GPT2FlexOnnxConfig}
 
 
 def validate_onnx_outputs(
@@ -31,13 +30,17 @@ def validate_onnx_outputs(
     onnx_model_path: str,
     atol: float,
 ) -> None:
-    """Validates the ONNX outputs.
+    """Validate the outputs of an ONNX model against a reference PyTorch model.
 
     Args:
-        onnx_config: ONNX configuration.
-        reference_model: PyTorch reference model.
+        onnx_config: Configuration for ONNX model.
+        reference_model: PyTorch model to use as reference.
         onnx_model_path: Path to the ONNX model.
-        atol: Tolerance value.
+        atol: Tolerance value for comparing the model outputs.
+
+    Raises:
+        ValueError: If the shapes or values of the ONNX model outputs do not match
+            the reference model outputs within the specified tolerance.
 
     """
 
@@ -77,11 +80,11 @@ def validate_onnx_outputs(
             onnx_inputs[name] = value.numpy()
 
     # Performs the ONNX inference session
-    onnx_named_outputs = [output for output in onnx_config.outputs.keys()]
+    onnx_named_outputs = [output for output in onnx_config.get_outputs().keys()]
     onnx_outputs = session.run(onnx_named_outputs, onnx_inputs)
 
     # Checks whether subset of ONNX outputs is valid
-    ref_outputs_set, onnx_outputs_set = set(ref_outputs_dict.keys()), set(onnx_config.outputs)
+    ref_outputs_set, onnx_outputs_set = set(ref_outputs_dict.keys()), set(onnx_config.get_outputs())
     if not onnx_outputs_set.issubset(ref_outputs_set):
         error = f"Unmatched outputs: {onnx_outputs_set} (ONNX) and {ref_outputs_set} (reference)"
         logger.error(error)
@@ -90,7 +93,7 @@ def validate_onnx_outputs(
         logger.debug(f"Matched outputs: {onnx_outputs_set}")
 
     # Checks whether shapes and values are within expected tolerance
-    for name, ort_value in zip(onnx_config.outputs, onnx_outputs):
+    for name, ort_value in zip(onnx_config.get_outputs(), onnx_outputs):
         logger.debug(f"Validating output: {name}")
 
         ref_value = ref_outputs_dict[name].detach().numpy()
@@ -120,19 +123,19 @@ def export_to_onnx(
     opset: Optional[int] = 11,
     atol: Optional[float] = 1e-4,
 ) -> OnnxConfig:
-    """Exports a pre-trained model to ONNX.
+    """Export a pre-trained PyTorch model to ONNX format.
 
     Args:
-        model: Instance of model to be exported.
-        output_model_path: Path to save the exported model.
+        model: Instance of the PyTorch model to be exported.
+        output_model_path: Path to save the exported ONNX model.
         task: Task identifier to use proper inputs/outputs.
-        use_past: Whether past key/values (`use_cache`) should be used.
-        share_weights: Whether embedding/softmax weights should be shared.
+        use_past: Whether to include past key/values in the model.
+        share_weights: Whether to share the embedding and softmax weights.
         opset: Set of operations to use with ONNX.
         atol: Tolerance between input and exported model.
 
     Returns:
-        (OnnxConfig): ONNX configuration of model that was exported.
+        ONNX configuration of the model that was exported.
 
     """
 
@@ -149,15 +152,17 @@ def export_to_onnx(
     )
 
     model = prepare_model_for_onnx(model, model_type)
-    dynamic_axes = {name: axes for name, axes in chain(onnx_config.inputs.items(), onnx_config.outputs.items())}
+    dynamic_axes = {
+        name: axes for name, axes in chain(onnx_config.get_inputs().items(), onnx_config.get_outputs().items())
+    }
 
     torch.onnx.export(
         model,
         (onnx_config.generate_dummy_inputs(),),
         f=output_model_path,
         export_params=True,
-        input_names=list(onnx_config.inputs.keys()),
-        output_names=list(onnx_config.outputs.keys()),
+        input_names=list(onnx_config.get_inputs().keys()),
+        output_names=list(onnx_config.get_outputs().keys()),
         dynamic_axes=dynamic_axes,
         opset_version=opset,
         do_constant_folding=True,

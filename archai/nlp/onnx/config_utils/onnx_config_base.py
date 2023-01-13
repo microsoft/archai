@@ -1,19 +1,26 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX-based configuration.
-"""
+"""ONNX-based configuration."""
 
 import copy
 from collections import OrderedDict
 from typing import Any, Mapping, Optional, Tuple
 
 import torch
+from overrides import overrides
+from overrides.enforce import EnforceOverrides
 from transformers.configuration_utils import PretrainedConfig
 
 
-class OnnxConfig:
-    """Implements the base ONNX configuration."""
+class OnnxConfig(EnforceOverrides):
+    """Base ONNX configuration.
+
+    This class defines a base ONNX configuration for a specific task, which includes the
+    input and output structure required for ONNX models, as well as additional properties
+    and methods for handling ONNX Runtime graph optimization.
+
+    """
 
     DEFAULT_TASK_OUTPUTS = {"causal-lm": OrderedDict({"probs": {0: "batch_size"}})}
 
@@ -22,11 +29,12 @@ class OnnxConfig:
         config: PretrainedConfig,
         task: Optional[str] = "causal-lm",
     ) -> None:
-        """Initializes by verifying whether `task` is supported.
+        """Initialize the ONNX configuration by verifying whether the
+            specified `task` is supported.
 
         Args:
-            config: Model's configuration.
-            task: Type of task that the exported model will be used.
+            config: Configuration of the model being exported.
+            task: Type of task that the exported model will be used for.
 
         """
 
@@ -37,10 +45,10 @@ class OnnxConfig:
 
     @property
     def is_ort_graph_optimizable(self) -> bool:
-        """Supports additional ONNX Runtime graph optimization.
+        """Whether configuation support additional ONNX Runtime graph optimization.
 
         Returns:
-            (bool): Whether configuration supports additional graph optimization.
+            Whether configuration supports additional graph optimization.
 
         """
 
@@ -48,32 +56,30 @@ class OnnxConfig:
 
     @property
     def ort_graph_optimizer_args(self) -> Tuple[Any, ...]:
-        """ONNX Runtime additional graph optimization arguments.
+        """Get the ONNX Runtime additional graph optimization arguments.
 
         Returns:
-            (Tuple[Any, ...]): Additional arguments used by the ORT graph optimizer.
+            Additional arguments used by the ORT graph optimizer.
 
         """
 
         return None
 
-    @property
-    def inputs(self) -> Mapping[str, Mapping[int, str]]:
-        """ONNX-based inputs structure.
+    def get_inputs(self) -> Mapping[str, Mapping[int, str]]:
+        """Get the ONNX-based inputs structure.
 
         Returns:
-            (Mapping[str, Mapping[int, str]]): ONNX-based inputs.
+            ONNX-based inputs.
 
         """
 
         return OrderedDict({"input_ids": {0: "batch_size", 1: "seq_len"}})
 
-    @property
-    def outputs(self) -> Mapping[str, Mapping[int, str]]:
-        """ONNX-based outputs structure.
+    def get_outputs(self) -> Mapping[str, Mapping[int, str]]:
+        """Get the ONNX-based outputs structure.
 
         Returns:
-            (Mapping[str, Mapping[int, str]]): ONNX-based outputs.
+            ONNX-based outputs.
 
         """
 
@@ -82,14 +88,14 @@ class OnnxConfig:
     def generate_dummy_inputs(
         self, batch_size: Optional[int] = 2, seq_len: Optional[int] = 8
     ) -> Mapping[str, torch.Tensor]:
-        """Generates dummy inputs for the ONNX exporter.
+        """Generate dummy inputs for the ONNX exporter.
 
         Args:
             batch_size: Batch size.
             seq_len: Sequence length.
 
         Returns:
-            (Mapping[str, Any]): Keyword arguments for the model's forward.
+            Keyword arguments for the model's `forward()` function.
 
         """
 
@@ -102,7 +108,12 @@ class OnnxConfig:
 
 
 class OnnxConfigWithPast(OnnxConfig):
-    """Implements the base ONNX configuration with support for past key/values."""
+    """ONNX configuration with support for past key/values.
+
+    This class is a subclass of `OnnxConfig` that adds the ability to use past key/values
+    (also known as 'use_cache') in the model's ONNX export.
+
+    """
 
     def __init__(
         self,
@@ -111,15 +122,16 @@ class OnnxConfigWithPast(OnnxConfig):
         use_past: Optional[bool] = False,
         past_key_values: Optional[int] = 2,
     ) -> None:
-        """Overrides initialization and defines whether past key/values are used.
+        """Initialize the ONNX configuration with past key/values.
 
         Args:
             config: Model's configuration.
-            task: Type of task that the exported model will be used.
-            use_past: Whether past key/values (`use_cache`) should be used.
+            task: Type of task that the exported model will be used for.
+            use_past: Whether past key/values should be used.
             past_key_values: Number of past-related information (2 for key and values).
 
         """
+
         super().__init__(config, task=task)
 
         if use_past:
@@ -132,10 +144,10 @@ class OnnxConfigWithPast(OnnxConfig):
 
     @property
     def hidden_size(self) -> int:
-        """Dimensionality of hidden units.
+        """Get the dimensionality of hidden units.
 
         Returns:
-            (int): Hidden units size.
+            Hidden units size.
 
         """
 
@@ -146,10 +158,10 @@ class OnnxConfigWithPast(OnnxConfig):
 
     @property
     def num_layers(self) -> int:
-        """Number of layers.
+        """Get the number of layers.
 
         Returns:
-            (int): Number of layers.
+            Number of layers.
 
         """
 
@@ -160,10 +172,10 @@ class OnnxConfigWithPast(OnnxConfig):
 
     @property
     def num_attention_heads(self) -> int:
-        """Number of attention heads.
+        """Get the number of attention heads.
 
         Returns:
-            (int): Number of attention heads.
+            Number of attention heads.
 
         """
 
@@ -172,16 +184,9 @@ class OnnxConfigWithPast(OnnxConfig):
 
         return self.config.num_attention_heads
 
-    @property
-    def inputs(self) -> Mapping[str, Mapping[int, str]]:
-        """ONNX-based inputs structure.
-
-        Returns:
-            (Mapping[str, Mapping[int, str]]): ONNX-based inputs.
-
-        """
-
-        inputs = super().inputs
+    @overrides
+    def get_inputs(self) -> Mapping[str, Mapping[int, str]]:
+        inputs = super().get_inputs()
 
         if self.use_past:
             for i in range(self.num_layers):
@@ -190,16 +195,9 @@ class OnnxConfigWithPast(OnnxConfig):
 
         return inputs
 
-    @property
-    def outputs(self) -> Mapping[str, Mapping[int, str]]:
-        """ONNX-based outputs structure.
-
-        Returns:
-            (Mapping[str, Mapping[int, str]]): ONNX-based outputs.
-
-        """
-
-        outputs = super().outputs
+    @overrides
+    def get_outputs(self) -> Mapping[str, Mapping[int, str]]:
+        outputs = super().get_outputs()
 
         if self.use_past:
             for i in range(self.num_layers):
@@ -209,10 +207,11 @@ class OnnxConfigWithPast(OnnxConfig):
 
         return outputs
 
+    @overrides
     def generate_dummy_inputs(
         self, batch_size: Optional[int] = 2, seq_len: Optional[int] = 8, past_seq_len: Optional[int] = 8
     ) -> Mapping[str, torch.Tensor]:
-        """Generates dummy inputs for the ONNX exporter.
+        """Generate dummy inputs for the ONNX exporter.
 
         Args:
             batch_size: Batch size.
@@ -220,7 +219,7 @@ class OnnxConfigWithPast(OnnxConfig):
             past_seq_len: Past key/values sequence length.
 
         Returns:
-            (Mapping[str, Any]): Keyword arguments for the model's forward.
+            Keyword arguments for the model's `forward()` function.
 
         """
 

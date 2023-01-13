@@ -1,8 +1,0 @@
-__include__: './dataroot.yaml' # default dataset settings are for cifar
-
-dataset:
-    name: "food101"
-    n_classes: 101
-    channels: 3 # number of channels in image
-    max_batches: -1 # if >= 0 then only these many batches are generated (useful for debugging)
-    storage_name: 'food-101' # name of folder or tar file to copy from cloud storage

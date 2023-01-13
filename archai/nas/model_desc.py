@@ -4,7 +4,7 @@
 
 
 from enum import Enum
-from typing import Mapping, Optional, List, Tuple, Union
+from typing import Mapping, Optional, List, Union
 import pathlib
 import os
 import torch
@@ -24,7 +24,7 @@ Note: All classes in this file needs to be deepcopy compatible because
 # Each tensor shape is list
 # A layer can output multiple tensors so its shapes are TensorShapes
 # list of all layer outputs is TensorShapesList]
-TensorShape=List[Union[float]]
+TensorShape=List[Union[int, float]]
 TensorShapes=List[TensorShape]
 TensorShapesList=List[TensorShapes]
 

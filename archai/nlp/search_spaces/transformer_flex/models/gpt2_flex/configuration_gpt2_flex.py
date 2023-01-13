@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""GPT-2 Flexible Transformer configuration.
-"""
+"""GPT-2 Flexible Transformer configuration."""
 
 from typing import Optional
 

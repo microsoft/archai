@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Quantization-based classes, methods and definitions.
-"""
+"""Quantization-based classes, methods and definitions."""
 
 from archai.nlp.quantization.mixed_qat import MixedQAT
 from archai.nlp.quantization.ptq import (

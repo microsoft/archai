@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX-compliant forward functions.
-"""
+"""ONNX-compliant forward functions."""
 
 from typing import Dict, Optional, Tuple
 
@@ -15,14 +14,17 @@ def gpt2_onnx_forward(
     input_ids: torch.LongTensor,
     past_key_values: Optional[Tuple[torch.FloatTensor, ...]] = None,
 ) -> Dict[str, torch.FloatTensor]:
-    """Overrides the GPT-2 forward by returning probabilities and past key/values.
+    """Forward pass through the GPT-2 model with ONNX exportability.
+
+    This method overrides the default GPT-2 forward method and returns
+    both output probabilities and past key/values.
 
     Args:
         input_ids: Input tensor.
         past_key_values: Past pre-computed key/values tensor.
 
     Returns:
-        (Dict[str, torch.FloatTensor]): Output probabilities and past key/values.
+        Output probabilities and past key/values.
 
     """
 

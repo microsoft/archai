@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""NVIDIA's Memory Transformer configuration.
-"""
+"""NVIDIA Memory Transformer configuration."""
 
 from transformers.models.transfo_xl.configuration_transfo_xl import TransfoXLConfig
 

@@ -5,7 +5,6 @@ import os
 import sys
 from datetime import date
 
-
 # Adds path to local extension
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -37,9 +36,7 @@ exclude_patterns = [
     "scripts/**",
     "tests/**",
 ]
-extlinks = {
-    "github": ("https://github.com/microsoft/archai/tree/main/%s", "%s") 
-}
+extlinks = {"github": ("https://github.com/microsoft/archai/tree/main/%s", "%s")}
 source_suffix = ".rst"
 master_doc = "index"
 language = "en"

@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Pipeline for performing Post-Training Quantization (PTQ).
-"""
+"""Pipeline for performing Post-Training Quantization (PTQ)."""
 
 from typing import List, Optional
 
@@ -24,10 +23,10 @@ logger = logging_utils.get_logger(__name__)
 
 
 class GemmQuant(QuantOperatorBase):
-    """Implements a quantized version of the Gemm operator."""
+    """Quantized version of the Gemm operator."""
 
     def __init__(self, onnx_quantizer: ONNXQuantizer, onnx_node: NodeProto) -> None:
-        """Overrides initialization method with custom arguments.
+        """Override initialization method with custom arguments.
 
         Args:
             onnx_quantizer: An instance of the quantizer itself.
@@ -38,7 +37,13 @@ class GemmQuant(QuantOperatorBase):
         super().__init__(onnx_quantizer, onnx_node)
 
     def quantize(self) -> None:
-        """Quantizes a Gemm node into QGemm."""
+        """Quantize a Gemm node into QGemm.
+
+        This method replaces the original `Gemm` node with a `QGemm` node, which is a quantized
+        version of the `Gemm` operator. It also adds a `Cast` node to cast the output of `QGemm`
+        to float, and an `Add` node to sum the remaining bias to the `Gemm` output.
+
+        """
 
         node = self.node
         assert node.op_type == "Gemm"
@@ -86,7 +91,7 @@ class GemmQuant(QuantOperatorBase):
 
 
 def add_new_quant_operators() -> None:
-    """Adds support for new quantization operators by changing
+    """Add support for new quantization operators by changing
     internal onnxruntime registry dictionaries.
 
     """
@@ -97,13 +102,16 @@ def add_new_quant_operators() -> None:
 
 
 def dynamic_quantization_onnx(onnx_model_path: str) -> str:
-    """Performs the dynamic quantization over an ONNX model.
+    """Perform dynamic quantization on an ONNX model.
+
+    The quantized model is saved to a new file with "-int8" appended
+    to the original file name.
 
     Args:
         onnx_model_path: Path to the ONNX model to be quantized.
 
     Returns:
-        (str): Path to the dynamic quantized ONNX model.
+        Path to the dynamic quantized ONNX model.
 
     """
 
@@ -123,11 +131,14 @@ def dynamic_quantization_onnx(onnx_model_path: str) -> str:
 def dynamic_quantization_torch(
     model: torch.nn.Module, embedding_layers: Optional[List[str]] = ["word_emb", "transformer.wpe", "transformer.wte"]
 ) -> None:
-    """Performs the dynamic quantization over a PyTorch model.
+    """Perform dynamic quantization on a PyTorch model.
+
+    This function performs dynamic quantization on the input PyTorch model, including
+    any specified embedding layers.
 
     Args:
         model: PyTorch model to be quantized.
-        embedding_layers: List with string-based identifiers of embedding layers.
+        embedding_layers: List of string-based identifiers of embedding layers to be quantized.
 
     """
 

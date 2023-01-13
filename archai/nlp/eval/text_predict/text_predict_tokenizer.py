@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Text Predict-based tokenizer.
-"""
+"""Text Predict-based tokenizer."""
 
 import functools
 import re
@@ -21,7 +20,7 @@ SEPARATOR_TOKENS_SET = set(SEPARATOR_TOKENS)
 
 
 class TextPredictTokenizer:
-    """Wraps a tokenizer for Text Predict."""
+    """Wrapper for a tokenizer used in the Text Predict framework."""
 
     BOS_TEXT = "\n "
     FILTER_TOKENS_CACHE_SIZE = 65536
@@ -32,10 +31,10 @@ class TextPredictTokenizer:
     REGEX_NEW_LINE = re.compile("\s*[\r\n]+\s*", re.MULTILINE | re.DOTALL)
 
     def __init__(self, tokenizer: Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast]) -> None:
-        """Overrides initialization method.
+        """Initialize a `TextPredictTokenizer`.
 
         Args:
-            tokenizer: Pre-trained tokenizer.
+            tokenizer: A pre-trained tokenizer.
 
         """
 
@@ -43,33 +42,33 @@ class TextPredictTokenizer:
         self.filter_tokens_cache = LRUCache(self.FILTER_TOKENS_CACHE_SIZE)
 
     def __iter__(self) -> int:
-        """Provides an iterator over the tokenizer's vocabulary.
+        """Provide an iterator over the tokenizer's vocabulary.
 
-        Returns:
-            (int): Token identifier from vocabulary.
+        Yields:
+            Token identifier.
 
         """
 
         yield from self.tokenizer.vocab
 
     def __len__(self) -> int:
-        """Provides the length of vocabulary.
+        """Return the length of vocabulary.
 
         Args:
-            (int): Length of vocabulary.
+            Length of vocabulary.
 
         """
 
         return len(self.tokenizer.vocab)
 
     def __getitem__(self, idx: int) -> str:
-        """Retrieves a string-based token based on identifier.
+        """Return a string-based token based on identifier.
 
         Args:
             idx: Token identifier.
 
         Returns:
-            (str): String-based token.
+            Token.
 
         """
 
@@ -77,10 +76,10 @@ class TextPredictTokenizer:
 
     @property
     def bos_token_id(self) -> int:
-        """Begin-of-sentence token identifier.
+        """Return the begin-of-sentence token identifier.
 
         Returns:
-            (int): Begin-of-sentence token identifier.
+            Begin-of-sentence token identifier.
 
         """
 
@@ -88,10 +87,10 @@ class TextPredictTokenizer:
 
     @cached_property
     def separator_tokens(self) -> Set:
-        """Computes the available tokens separators.
+        """Compute the tokens separators.
 
         Returns:
-            (Set): Available token separators.
+            Token separators.
 
         """
 
@@ -99,10 +98,10 @@ class TextPredictTokenizer:
 
     @cached_property
     def upper_tokens(self) -> Set:
-        """Computes the available upper-cased tokens.
+        """Compute the upper-cased tokens.
 
         Returns:
-            (Set): Available upper-cased tokens.
+            Upper-cased tokens.
 
         """
 
@@ -112,26 +111,26 @@ class TextPredictTokenizer:
 
     @functools.lru_cache(maxsize=128)
     def encode(self, text: str) -> List[int]:
-        """Encodes text with the tokenizer.
+        """Encode text with the tokenizer.
 
         Args:
-            text: Text to be encoded.
+            text: The text to be encoded.
 
         Returns:
-            (List[int]): Encoded tokens.
+            A list of encoded tokens.
 
         """
 
         return self.tokenizer.encode(text)
 
     def decode(self, tokens: List[int]) -> str:
-        """Decodes text with the tokenizer.
+        """Decode tokens with the tokenizer.
 
         Args:
-            tokens: Tokens to be decoded.
+            tokens: The tokens to be decoded.
 
         Returns:
-            (str): Decoded tokens.
+            The decoded text.
 
         """
 
@@ -141,10 +140,10 @@ class TextPredictTokenizer:
         """Core computation to filter tokens according to the supplied prefix.
 
         Args:
-            filter_prefix: Prefix to filter tokens.
+            filter_prefix: The prefix to filter tokens.
 
         Returns:
-            (Tuple[int, ...]): Filtered tokens.
+            A list of filtered tokens.
 
         """
 
@@ -184,13 +183,13 @@ class TextPredictTokenizer:
 
     @functools.lru_cache(maxsize=32768)
     def filter_tokens(self, filter_prefix: str) -> Tuple[int, ...]:
-        """Filters tokens according to the supplied prefix.
+        """Filter tokens according to the supplied prefix.
 
         Args:
-            filter_prefix: Prefix to filter tokens.
+            filter_prefix: The prefix to filter tokens.
 
         Returns:
-            (Tuple[int, ...]): Filtered tokens.
+            A list of filtered tokens.
 
         """
 
@@ -199,14 +198,14 @@ class TextPredictTokenizer:
         return filtered_tokens
 
     def clean_text(self, text: str, add_bos_text: Optional[bool] = True) -> str:
-        """Performs pre-processing to clean text.
+        """Perform pre-processing to clean text.
 
         Args:
-            text: Input text.
-            add_bos_text: Whether `BOS_TEXT` should be added or not.
+            text: The text to be cleaned.
+            add_bos_text: Whether to add the begin-of-sentence text.
 
         Returns:
-            (str): Cleaned text.
+            The cleaned text.
 
         """
 
@@ -223,13 +222,13 @@ class TextPredictTokenizer:
         return text
 
     def find_context_and_prefix(self, text: str) -> Tuple[str, str]:
-        """Finds context and prefix from input text.
+        """Find context and prefix from input text.
 
         Args:
-            text: Input text.
+            text: The text to be processed.
 
         Returns:
-            (Tuple[str, str]): Context and prefix from text.
+            A tuple of context and prefix.
 
         """
 

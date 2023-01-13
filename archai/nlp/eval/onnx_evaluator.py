@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX-based manual evaluation.
-"""
+"""ONNX-based manual evaluation."""
 
 import copy
 import math
@@ -19,14 +18,19 @@ from archai.nlp.eval.eval_utils import lm_accuracy
 
 
 def generate(onnx_session: InferenceSession, max_length: Optional[int] = 1, **inputs) -> torch.LongTensor:
-    """Manually generates a set of tokens through greedy search.
+    """Generate a sequence of tokens using greedy search with an ONNX model.
+
+    This function generates a sequence of tokens by repeatedly running the provided
+    ONNX session with the given inputs, and selecting the token with the highest
+    predicted probability at each step. The process is repeated for the specified
+    maximum number of steps.
 
     Args:
-        onnx_session: An already instantiated ONNX-based session.
-        max_length: Maximum amount of generated tokens.
+        onnx_session: An already instantiated ONNX-based session to use for prediction.
+        max_length: Maximum number of tokens to generate.
 
     Returns:
-        (torch.LongTensor): Tensor holding the input + predicted tokens.
+        Tensor holding the input tokens plus the predicted tokens.
 
     """
 
@@ -52,18 +56,18 @@ def manual_evaluate(
     n_seed_tokens: Optional[int] = 1,
     n_accuracy_type: Optional[int] = 1,
 ) -> Dict[str, Any]:
-    """Manually evaluates an ONNX model.
+    """Evaluate an ONNX model.
 
     Args:
-        onnx_session: An already instantiated ONNX-based session.
+        onnx_session: An already instantiated ONNX-based session to use for prediction.
         eval_dataset: Evaluation (testing) dataset.
-        data_collator: Collation function to be applied into data loader.
-        batch_size: Size of batches.
-        n_seed_tokens: Number of seed tokens.
-        n_accuracy_type: Number of accuracies to be used, e.g., acc@1, acc@2, ..., acc@n.
+        data_collator: Collation function to be applied to the data in the dataset.
+        batch_size: Size of batches to use when iterating through the dataset.
+        n_seed_tokens: Number of seed tokens to use when generating sequences.
+        n_accuracy_type: Number of accuracies to calculate, ranging from "acc@1" to "acc@n".
 
     Returns:
-        (Dict[str, Any]): A dictionary holding the evaluation metrics.
+        A dictionary containing the evaluation metrics and runtime statistics.
 
     """
 

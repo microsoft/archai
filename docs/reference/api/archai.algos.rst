@@ -7,7 +7,7 @@ Algorithms
 
 .. toctree::
    :maxdepth: 2
-   
+
    archai.algos.darts
    archai.algos.didarts
    archai.algos.divnas

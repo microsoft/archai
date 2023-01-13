@@ -11,7 +11,7 @@ from __future__ import print_function
 import copy
 import numpy as np
 
-from . import graph_util
+from archai.algos.nasbench101 import graph_util
 
 # Graphviz is optional and only required for visualization.
 try:

@@ -2,8 +2,7 @@
 # Licensed under the Apache License, Version 2.0.
 # https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/LanguageModeling/Transformer-XL/pytorch/data_utils.py
 
-"""Language Modeling-based iterators.
-"""
+"""Language modeling-based iterators."""
 
 from typing import Generator, Iterator, List, Optional, Tuple
 
@@ -15,7 +14,7 @@ from archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base import VocabBase
 
 
 class LMOrderedIterator:
-    """Implements an ordered-token iterator, e.g., there is no padding as tokens are contiguous."""
+    """Iterator that provides contiguous batches of input tokens without padding."""
 
     def __init__(
         self,
@@ -27,10 +26,10 @@ class LMOrderedIterator:
         ext_len: Optional[int] = 0,
         warmup: Optional[bool] = True,
     ) -> None:
-        """Initializes by sharding inputs across GPUs, if distributed training is available.
+        """Initialize the iterator with the input sequence and batch parameters.
 
         Args:
-            input_ids: Inputs.
+            input_ids: Input sequence of tokens.
             bsz: Batch size.
             bptt: Sequence length (backpropagation through time).
             device: Device to place the iterator.
@@ -51,7 +50,9 @@ class LMOrderedIterator:
         # Divides cleanly the inputs into batches and trims the remaining elements
         n_step = input_ids.size(0) // bsz
         input_ids = input_ids[: n_step * bsz]
-        self.input_ids = input_ids.view(bsz, -1).contiguous().pin_memory()
+        self.input_ids = input_ids.view(bsz, -1).contiguous()
+        if device != "cpu":
+            self.input_ids = self.input_ids.pin_memory()
 
         # Creates warmup batches if memory is being used
         if mem_len and warmup:
@@ -71,6 +72,10 @@ class LMOrderedIterator:
     def roll(self, seed: int) -> None:
         """Rolls/shifts the data according to a random seed.
 
+        This method shuffles the input sequence for each batch in the iterator by
+        rolling/shifting the data according to the specified seed. This is useful for
+        creating diverse training data and preventing overfitting.
+
         Args:
             seed: Seed used to roll/shift the data.
 
@@ -88,15 +93,14 @@ class LMOrderedIterator:
             self.input_ids[i, :] = row
 
     def get_batch(self, i: int, bptt: Optional[int] = None) -> Tuple[torch.LongTensor, torch.LongTensor, int, bool]:
-        """Gets a batch of `bptt` size.
+        """Get a batch of `bptt` size.
 
         Args:
             i: Identifier of batch.
             bptt: Sequence length.
 
         Returns:
-            (Tuple[torch.LongTensor, torch.LongTensor, int, bool]): Inputs, labels,
-                sequence length and whether it is a warmup batch.
+            Tuple of inputs, labels, sequence length and whether batch is from warmup.
 
         """
 
@@ -118,13 +122,22 @@ class LMOrderedIterator:
         return input_ids, labels, seq_len, warmup
 
     def get_fixlen_iter(self, start: Optional[int] = 0) -> Generator[Tuple, None, None]:
-        """Gets a fixed-length iterator.
+        """Return a generator for generating fixed-length batches.
+
+        This method returns a generator that yields fixed-length batches of the specified size,
+        starting from the specified starting point. The batches are contiguous in the original
+        sequence.
 
         Args:
-            start: Starting point.
+            start: Starting point for the generator.
 
         Yields:
-            (Generator[Tuple, None, None]): Fixed-length batches.
+            Fixed-length batches.
+
+        Example:
+            >>> for batch in iterator.get_fixlen_iter():
+            >>>     # Process the batch.
+            >>>     pass
 
         """
 
@@ -142,16 +155,25 @@ class LMOrderedIterator:
         min_len: Optional[int] = 5,
         max_std: Optional[float] = 3.0,
     ) -> Generator[Tuple, None, None]:
-        """Gets a variable-length iterator.
+        """Return a generator for generating variable-length batches.
+
+        This method returns a generator that yields variable-length batches of data,
+        starting from the specified starting point. The length of each batch is determined
+        by a Gaussian distribution with the specified mean and standard deviation.
 
         Args:
-            start: Starting point.
+            start: Starting point for the generator.
             std: Standard deviation.
             min_len: Minimum length.
             max_std: Max standard deviation.
 
         Yields:
-            (Generator[Tuple, None, None]): Variable-length batches.
+            Variable-length batches.
+
+        Example:
+            >>> for batch in iterator.get_varlen_iter():
+            >>>     # Process the batch.
+            >>>     pass
 
         """
 
@@ -170,10 +192,10 @@ class LMOrderedIterator:
                 break
 
     def __iter__(self) -> Generator[Tuple, None, None]:
-        """Defaults standard iteration to fixed-length batches.
+        """Default the standard iteration to fixed-length batches.
 
-        Returns:
-            (Generator[Tuple, None, None]): Fixed-length batches.
+        Yields:
+            Fixed-length batches.
 
         """
 
@@ -181,8 +203,8 @@ class LMOrderedIterator:
 
 
 class LMMultiFileIterator:
-    """Implements a multi-file non-ordered iterator, e.g., tokens are contiguous yet they come
-    from different files.
+    """Multi-file non-ordered iterator, i.e. tokens come from different
+    files but are contiguous.
 
     """
 
@@ -198,7 +220,7 @@ class LMMultiFileIterator:
         n_chunks: Optional[int] = 16,
         shuffle: Optional[bool] = False,
     ) -> None:
-        """Initializes by adding support to multi-file inputs and sharding files
+        """Initialize by adding support to multi-file inputs and sharding files
             across GPUs, if distributed training is available.
 
         Args:
@@ -235,18 +257,18 @@ class LMMultiFileIterator:
         self.paths = paths_chunks[rank]
 
     def roll(self, seed: Optional[int] = 0) -> None:
-        """Backward compatibility for using same APIs."""
+        """Backward compatibility for using same API."""
 
         return None
 
     def get_sequences(self, path: str) -> torch.LongTensor:
-        """Gets sequences from a file.
+        """Get a tensor of sequences from an input file.
 
         Args:
-            path: Input file.
+            path: A path to the input file.
 
         Returns:
-            (torch.LongTensor): Tensor with encoded inputs from file.
+            Tensor with encoded inputs.
 
         """
 
@@ -257,13 +279,13 @@ class LMMultiFileIterator:
         return sequences
 
     def stream_iterator(self, iterator: Iterator) -> Generator[Tuple, None, None]:
-        """Creates a streaming-based iterator.
+        """Create a streaming-based iterator.
 
         Args:
             iterator: Iterator with chunks of sequences.
 
         Yields:
-            (Generator[Tuple, None, None]): Stream-based batch.
+            Stream-based batch.
 
         """
 
@@ -311,10 +333,10 @@ class LMMultiFileIterator:
             input_ids.resize_(input_ids.size(0), n_retain + self.bptt)
 
     def __iter__(self) -> Generator[Tuple, None, None]:
-        """Defaults standard iteration to stream-based batches.
+        """Default the standard iteration to stream-based batches.
 
-        Returns:
-            (Generator[Tuple, None, None]): Stream-based batches.
+        Yields:
+            Stream-based batches.
 
         """
 

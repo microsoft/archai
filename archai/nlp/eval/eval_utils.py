@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-"""Evaluation-related utilities.
-"""
+"""Evaluation-related utilities."""
 
 from typing import Any, Dict, Optional
 
@@ -11,14 +10,19 @@ import torch
 
 
 def lm_accuracy(predictions: np.ndarray, references: np.ndarray) -> Dict[str, float]:
-    """Calculates a language modeling-compatible accuracy.
+    """Calculate language modeling accuracy.
+
+    This function calculates the accuracy score for language modeling by comparing
+    the predictions and ground-truth labels. Any predictions or references with a
+    value of -100 are ignored.
 
     Args:
-        predictions: Predictions.
-        references: Ground-truth labels.
+        predictions: 1D array of predictions.
+        references: 1D array of ground-truth labels.
 
     Returns:
-        (Dict[str, float]): Accuracy score for language modeling.
+        Dictionary with a single key, "lm_accuracy", and the corresponding accuracy
+            score as a float.
 
     """
 
@@ -39,16 +43,21 @@ def fixed_length_perplexity(
     max_length: Optional[int] = 512,
     stride: Optional[int] = 512,
 ) -> Dict[str, float]:
-    """Calculates the fixed-length perplexity.
+    """Calculate the fixed-length perplexity of a pre-trained model on a given dataset.
+
+    This function calculates the perplexity of the given model on the input data,
+    using a sliding window approach with the specified maximum length and stride.
+    Any input tokens that fall outside the current window are masked with a value of -100.
 
     Args:
-        model: Pre-trained model.
-        input_ids: Encoded data to be evaluated.
-        max_length: Maximum length of sequences.
+        model: Pre-trained model to evaluate.
+        input_ids: Encoded input data to evaluate the model on.
+        max_length: Maximum length of sequences to consider.
         stride: Sliding window size.
 
     Returns:
-        (Dict[str, float]): Fixed-length perplexity.
+        Dictionary with a single key, "fixed_length_perplexity", and the
+            corresponding perplexity score as a float.
 
     """
 
@@ -78,17 +87,24 @@ def fixed_length_perplexity(
 
 
 class cached_property(property):
-    """Mimics the @property decorator but caches the output."""
+    """Decorator that caches the output of the decorated function.
+
+    This class is a subclass of the built-in `property` class, and can be used to
+    decorate a function in a class in the same way as the `@property` decorator.
+    The output of the decorated function is cached on the first call,
+    and subsequent calls will return the cached value rather than re-running the function.
+
+    """
 
     def __get__(self, obj: Any, obj_type: Optional[Any] = None) -> Any:
-        """Returns either an object or its cached version.
+        """Return the value of the decorated function, or its cached version.
 
         Args:
-            obj: Object to be returned.
+            obj: Object that the decorated function belongs to.
             obj_type: Optional argument for compatibility.
 
         Returns:
-            (Any): Object or its cached version.
+            Value of the decorated function, or its cached version.
 
         """
 

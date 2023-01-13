@@ -2,3 +2,8 @@
 # Licensed under the MIT license.
 
 *.sh text eol=lf 
+
+# Removes documentation and jupyter notebooks from stats
+docs/** linguist-vendored
+*.ipynb linguist-language=Python
+

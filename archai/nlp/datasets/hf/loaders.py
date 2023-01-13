@@ -107,7 +107,7 @@ def load_dataset(
         )
 
     if not isinstance(dataset, (DatasetDict, IterableDatasetDict)):
-        dataset = map_dataset_to_dict(dataset, splits=dataset_split)
+        dataset = map_dataset_to_dict(dataset, dataset_split)
 
     n_samples_list = map_to_list(n_samples, len(dataset.items()))
     for split, n_samples in zip(dataset.keys(), n_samples_list):

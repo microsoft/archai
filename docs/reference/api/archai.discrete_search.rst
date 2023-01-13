@@ -3,7 +3,7 @@ Discrete Search
 
 .. toctree::
    :maxdepth: 2
-   
+
    archai.discrete_search.algos
    archai.discrete_search.api
    archai.discrete_search.datasets

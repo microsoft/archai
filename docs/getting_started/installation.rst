@@ -16,26 +16,32 @@ PyPI provides a convenient way to install Python packages, as it allows users to
 
     pip install archai
 
+The default installation only includes the core functionality of Archai, e.g., NAS-related packages. To install additional functionalities, use the following commands:
+
+* Computer Vision: ``pip install archai[cv]``.
+* Natural Language Processing: ``pip install archai[nlp]``.
+* Built-in Modules (all modules above): ``pip install archai[all]``.
+
 Source
 ------
 
 Installing from source ensures that the latest version of the package is used, including any unpublished changes that have not yet been released on PyPI. This allows developers to stay up-to-date with the latest changes, and ensure that their code is compatible with the latest version of the package.
 
-.. tab:: Linux
+.. tab:: Linux/MacOS
 
     .. code-block:: sh
 
         git clone https://github.com/microsoft/archai.git
-        cd archai
+        cd archai/scripts
         install.sh
 
 .. tab:: Windows
 
-    .. code-block:: sh
+    .. code-block:: bat
 
         git clone https://github.com/microsoft/archai.git
-        cd archai
-        install.bat
+        cd archai/scripts
+        .\install.bat
 
 Docker
 ------

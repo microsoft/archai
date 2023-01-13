@@ -1,30 +1,20 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterator, Mapping, Type, Optional, Tuple, List
+from typing import Iterator, Optional, Tuple
 import math
-import copy
-import random
 import os
 
-import torch
-import tensorwatch as tw
-from torch.utils.data.dataloader import DataLoader
 import yaml
 
 from overrides import overrides
 
 from archai.common.common import logger
-from archai.common.checkpoint import CheckPoint
 from archai.common.config import Config
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas import nas_utils
-from archai.nas.model_desc import CellType, ModelDesc
-from archai.common.trainer import Trainer
-from archai.datasets import data
-from archai.nas.model import Model
-from archai.common.metrics import EpochMetrics, Metrics
+from archai.common.metrics import Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 from archai.nas.searcher import ModelMetrics, Searcher, SearchResult

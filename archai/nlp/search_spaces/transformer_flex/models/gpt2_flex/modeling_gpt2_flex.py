@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""GPT-2 Flexible Transformer.
-"""
+"""GPT-2 Flexible Transformer."""
 
 from typing import Optional
 
@@ -25,23 +24,12 @@ from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gp
 
 
 class GPT2FlexAttention(GPT2Attention):
-    """Implements a GPT-2 Attention flexible layer."""
-
     def __init__(
         self,
         config: GPT2FlexConfig,
         is_cross_attention: Optional[bool] = False,
         layer_idx: Optional[int] = None,
     ) -> None:
-        """Overrides with custom initialization.
-
-        Args:
-            config: Dictionary holding model's configuration.
-            is_cross_attention: Whether attention is standard or cross-attention.
-            layer_idx: Number of current layer (identifier).
-
-        """
-
         nn.Module.__init__(self)
 
         max_positions = config.max_position_embeddings
@@ -83,17 +71,7 @@ class GPT2FlexAttention(GPT2Attention):
 
 
 class GPT2FlexMLP(GPT2MLP):
-    """Implements a GPT-2 Multi-Layer Perceptron flexible layer."""
-
     def __init__(self, intermediate_size: int, config: GPT2FlexConfig) -> None:
-        """Overrides with custom initialization.
-
-        Args:
-            intermediate_size: Size of inner dimension.
-            config: Dictionary holding model's configuration.
-
-        """
-
         nn.Module.__init__(self)
 
         embed_dim = config.hidden_size
@@ -106,16 +84,6 @@ class GPT2FlexMLP(GPT2MLP):
         self.primer_square = config.primer_square
 
     def forward(self, hidden_states: torch.FloatTensor) -> torch.FloatTensor:
-        """Overrides forward method to add PrimerEZ-square primitive.
-
-        Args:
-            hidden_states: Input hidden states.
-
-        Returns:
-            (torch.FloatTensor): Output hidden states.
-
-        """
-
         hidden_states = self.c_fc(hidden_states)
         hidden_states = self.act(hidden_states)
 
@@ -129,17 +97,7 @@ class GPT2FlexMLP(GPT2MLP):
 
 
 class GPT2FlexBlock(GPT2Block):
-    """Implements a GPT-2 flexible block."""
-
     def __init__(self, config: GPT2FlexConfig, layer_idx: Optional[int] = None) -> None:
-        """Overrides with custom initialization.
-
-        Args:
-            config: Dictionary holding model's configuration.
-            layer_idx: Number of current layer (identifier).
-
-        """
-
         nn.Module.__init__(self)
 
         hidden_size = config.hidden_size
@@ -157,18 +115,9 @@ class GPT2FlexBlock(GPT2Block):
 
 
 class GPT2FlexModel(GPT2Model):
-    """Implements a GPT-2 flexible model."""
-
     config_class = GPT2FlexConfig
 
     def __init__(self, config: GPT2FlexConfig) -> None:
-        """Overrides with custom initialization.
-
-        Args:
-            config: Dictionary holding model's configuration.
-
-        """
-
         GPT2PreTrainedModel.__init__(self, config)
 
         self.embed_dim = config.hidden_size
@@ -188,18 +137,9 @@ class GPT2FlexModel(GPT2Model):
 
 
 class GPT2FlexLMHeadModel(GPT2LMHeadModel):
-    """Implements a GPT-2 language modeling flexible head."""
-
     config_class = GPT2FlexConfig
 
     def __init__(self, config: GPT2FlexConfig) -> None:
-        """Overrides with custom initialization.
-
-        Args:
-            config: Dictionary holding model's configuration.
-
-        """
-
         GPT2PreTrainedModel.__init__(self, config)
 
         self.transformer = GPT2FlexModel(config)

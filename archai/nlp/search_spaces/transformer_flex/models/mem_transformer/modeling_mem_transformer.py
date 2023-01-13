@@ -4,8 +4,7 @@
 # Copyright (c) 2018, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0.
 
-"""NVIDIA's Memory Transformer.
-"""
+"""NVIDIA Memory Transformer."""
 
 from typing import List, Optional, Tuple
 

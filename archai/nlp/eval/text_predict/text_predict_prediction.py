@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Text Predict-based predictions and sequences.
-"""
+"""Text Predict-based predictions and sequences."""
 
 from __future__ import annotations
 
@@ -24,7 +23,7 @@ from archai.nlp.eval.text_predict.text_predict_tokenizer import TextPredictToken
 
 
 class TextPredictPrediction:
-    """Defines a single prediction from Text Predict."""
+    """Single prediction from Text Predict."""
 
     # Constants for P(Accept) calculation
     a = 0.04218
@@ -40,16 +39,16 @@ class TextPredictPrediction:
         end_with_complete_word: Optional[bool] = None,
         has_matched: Optional[bool] = None,
     ) -> None:
-        """Overrides initialization method.
+        """Override initialization method.
 
         Args:
-            text: Predicted text.
-            probability: Probability of prediction.
-            score: Score of prediction.
-            input_ids: Input identifiers.
-            token_ids: Token identifiers
-            end_with_complete_word: Whether prediction ends with a complete word.
-            has_matched: Whether prediction has matched the reference.
+            text: The predicted text.
+            probability: The probability of the prediction.
+            score: The score of the prediction.
+            input_ids: The input identifiers.
+            token_ids: The token identifiers.
+            end_with_complete_word: Whether the prediction ends with a complete word.
+            has_matched: Whether the prediction has matched the reference.
 
         """
 
@@ -65,50 +64,50 @@ class TextPredictPrediction:
         self.has_matched = has_matched
 
     def __len__(self) -> int:
-        """Length of the prediction.
+        """Return the length of the prediction.
 
         Returns:
-            (int): Prediction length.
+            Prediction length.
 
         """
 
         return len(str(self))
 
     def __str__(self) -> str:
-        """String representation of the prediction.
+        """Return the string representation of the prediction.
 
         Returns:
-            (str): Predicted text.
+            String representation.
 
         """
 
         return self.text.rstrip()
 
     def __repr__(self) -> str:
-        """Print representation of the prediction.
+        """Return the print representation of the prediction.
 
         Returns:
-            (str): Prediction, probability and score.
+            Print representation.
 
         """
 
         return f"({self.text}, {self.probability:.5f}, {self.score():.3f})"
 
     def p_match(self) -> float:
-        """Probability of prediction being matched.
+        """Return the probability of the prediction being matched.
 
         Returns:
-            (float): Match probability.
+            Match probability.
 
         """
 
         return self.probability
 
     def p_accept(self) -> float:
-        """Probability of prediction being accepted.
+        """Return the probability of the prediction being accepted.
 
         Returns:
-            (float): Accept probability.
+            Accept probability.
 
         """
 
@@ -120,10 +119,10 @@ class TextPredictPrediction:
         return result
 
     def p_accept_given_match(self) -> float:
-        """Probability of prediction being accepted given match.
+        """Return the probability of the prediction being accepted given a match.
 
         Returns:
-            (float): Accept probability given match.
+            Accept probability given match.
 
         """
 
@@ -135,20 +134,20 @@ class TextPredictPrediction:
         return result
 
     def p_char_accept(self) -> float:
-        """Probability of characters from prediction being accepted.
+        """Return the probability of the characters from the prediction being accepted.
 
         Returns:
-            (float): Character accept probability.
+            Character accept probability.
 
         """
 
         return len(self) * self.p_accept()
 
     def all_ids(self) -> Tuple[int, ...]:
-        """Combines the `input_ids` and `token_ids` from the prediction.
+        """Return the combined `input_ids` and `token_ids` of the prediction.
 
         Returns:
-            (Tuple[int, ...]): Combined `input_ids` and `token_ids`.
+            Combined `input_ids` and `token_ids`.
 
         """
 
@@ -158,10 +157,10 @@ class TextPredictPrediction:
         return self.input_ids + self.token_ids
 
     def length_type(self) -> str:
-        """Defines the type of prediction based on its length.
+        """Return the type of the prediction based on its length.
 
         Returns:
-            (str): Type based on prediction length.
+            Type based on prediction length.
 
         """
 
@@ -179,10 +178,10 @@ class TextPredictPrediction:
         return "3:L"
 
     def word_count(self) -> int:
-        """Calculates the number of words in the prediction.
+        """Return the number of words in the prediction.
 
         Returns:
-            (int): Amount of words in prediction.
+            Amount of words in prediction.
 
         """
 
@@ -192,20 +191,20 @@ class TextPredictPrediction:
         return len(re.findall(r"\s+", self.text.strip())) + 1
 
     def is_empty(self) -> bool:
-        """Calculates whether prediction is empty or not.
+        """Return whether prediction is empty or not.
 
-        Args:
-            (bool): Whether prediction is empty or not.
+        Returns:
+            Whether prediction is empty or not.
 
         """
 
         return len(self.text) == 0
 
     def to_dict(self) -> Dict[str, Any]:
-        """Calculates meta-information about the prediction.
+        """Return meta-information about the prediction.
 
         Returns:
-            (Dict[str, Any]): Meta-information about prediction.
+            Meta-information about prediction.
 
         """
 
@@ -224,10 +223,10 @@ class TextPredictPrediction:
 
     @classmethod
     def empty(cls: TextPredictPrediction) -> TextPredictPrediction:
-        """Creates an empty prediction.
+        """Create an empty prediction.
 
         Returns:
-            (TextPredictPrediction): Empty prediction.
+            Empty prediction.
 
         """
 
@@ -241,16 +240,16 @@ class TextPredictPrediction:
         probability: float,
         token_id: int,
     ) -> TextPredictPrediction:
-        """Creates the next prediction given a previous prediction.
+        """Create the next prediction given a previous prediction.
 
         Args:
-            prediction: Previous prediction.
-            text: Next prediction text.
-            probability: Next prediction probability.
-            token_id: Next prediction token identifier.
+            prediction: The previous prediction.
+            text: The next prediction text.
+            probability: The next prediction probability.
+            token_id: The next prediction token identifier.
 
         Returns:
-            (TextPredictPrediction): Next prediction.
+            Next prediction.
 
         """
 
@@ -264,7 +263,17 @@ class TextPredictPrediction:
 
 @dataclass
 class TextPredictionPosition:
-    """Represents the position from a Text Predict-based prediction."""
+    """Represents the position from a Text Predict-based prediction.
+
+    Args:
+        line_id: The line identifier.
+        char_id: The character identifier.
+        body: The body (context) of information.
+        body_continued: The continued body (reference) of information.
+        prediction: The prediction for this position.
+        time: The time spent to calculate the prediction.
+
+    """
 
     line_id: str = field(metadata={"help": "Line identifier."})
 
@@ -280,10 +289,10 @@ class TextPredictionPosition:
 
     @property
     def unique_id(self) -> str:
-        """Unique identifier of position.
+        """Return the unique identifier of position.
 
         Returns:
-            (str): Unique identifier.
+            Unique identifier.
 
         """
 
@@ -291,13 +300,13 @@ class TextPredictionPosition:
 
     @classmethod
     def from_ljson(cls: TextPredictionPosition, line: str) -> TextPredictionPosition:
-        """Loads a position from a .ljson file.
+        """Load a position from a .ljson file.
 
         Args:
             line: Encoded line with .ljson.
 
         Returns:
-            (TextPredictionPosition): Text Predict-based position.
+            Text Predict-based position.
 
         """
 
@@ -334,10 +343,10 @@ class TextPredictionPosition:
         )
 
     def to_ljson(self) -> str:
-        """Converts position to a .ljson encoded string.
+        """Convert position to a .ljson encoded string.
 
         Returns:
-            (str): Encoded position with .ljson.
+            Encoded position with .ljson.
 
         """
 
@@ -406,13 +415,13 @@ class TextPredictionSequence(OrderedDict):
         file_path: str,
         **kwargs,
     ) -> TextPredictionSequence:
-        """Loads a sequence (list of positions) from a file.
+        """Load a sequence (list of positions) from a file.
 
         Args:
-            file_path: Path to load the sequence.
+            file_path: The path to a file with the sequence data.
 
         Returns:
-            (TextPredictionSequence): Instance of sequence.
+            Instance of sequence.
 
         """
 
@@ -430,13 +439,13 @@ class TextPredictionSequence(OrderedDict):
         file_path: str,
         **kwargs,
     ) -> TextPredictionSequence:
-        """Loads a sequence (list of positions) from a .ljson file.
+        """Load a sequence (list of positions) from a .ljson file.
 
         Args:
-            file_path: Path to load the sequence.
+            file_path: The path to a file with the sequence data.
 
         Returns:
-            (TextPredictionSequence): Instance of sequence.
+            Instance of sequence.
 
         """
 
@@ -458,14 +467,14 @@ class TextPredictionSequence(OrderedDict):
         new_document_regex: Optional[str] = "\\n\\n+",
         **kwargs,
     ) -> TextPredictionSequence:
-        """Loads a sequence (list of positions) from a .txt file.
+        """Load a sequence (list of positions) from a .txt file.
 
         Args:
-            file_path: Path to load the sequence.
-            new_document_regex: Regex to identify a new document.
+            file_path: The path to a file with the sequence data.
+            new_document_regex: The regex to identify a new document.
 
         Returns:
-            (TextPredictionSequence): Instance of sequence.
+            Instance of sequence.
 
         """
 
@@ -493,13 +502,13 @@ class TextPredictionSequence(OrderedDict):
         return sequence
 
     def _filter_keys_char_id(self, char_id: Optional[int] = None) -> List[str]:
-        """Filters keys based on the character identifier.
+        """Filter keys based on the character identifier.
 
         Args:
-            char_id: Character identifier.
+            char_id: The character identifier.
 
         Returns:
-            (List[str]): Filtered keys.
+            A list of filtered keys.
 
         """
 
@@ -507,10 +516,10 @@ class TextPredictionSequence(OrderedDict):
 
     @cached_property
     def word_count(self) -> int:
-        """Calculates the word count of sequence.
+        """Calculate the word count of sequence.
 
         Returns:
-            (int): Sequence word count.
+            The word count.
 
         """
 
@@ -522,10 +531,10 @@ class TextPredictionSequence(OrderedDict):
         return word_count
 
     def save(self, output_dir: str) -> None:
-        """Saves predictions, scoring summary and triggered predictions to output files.
+        """Save predictions, scoring summary and triggered predictions to output files.
 
         Args:
-            output_dir: Output folder.
+            output_dir: The output directory.
 
         """
 
@@ -550,10 +559,10 @@ class TextPredictionSequence(OrderedDict):
             self.triggered_preds.to_csv(triggered_prediction_file_path, index=False)
 
     def get_predictions(self) -> pd.DataFrame:
-        """Converts instance into a data frame of predictions.
+        """Convert instance into a data frame of predictions.
 
         Returns:
-            (pd.DataFrame): Predictions data frame.
+            A data frame of predictions.
 
         """
 
@@ -617,14 +626,14 @@ class TextPredictionSequence(OrderedDict):
     def calculate_triggered_predictions(
         self, min_score: float, predictions_df: Optional[pd.Series] = None
     ) -> pd.DataFrame:
-        """Calculates the triggered predictions.
+        """Calculate the triggered predictions.
 
         Args:
-            min_score: Minimum score.
-            predictions_df: Predictions data frame.
+            min_score: The minimum score.
+            predictions_df: The predictions data frame.
 
         Returns:
-            (pd.DataFrame): Triggered predictions data frame.
+            A data frame of triggered predictions.
 
         """
 
@@ -672,14 +681,14 @@ class TextPredictionSequence(OrderedDict):
         return triggered_df
 
     def calculate_perplexity(self, model: TextPredictModel, tokenizer: TextPredictTokenizer) -> float:
-        """Calculates the perplexity of sequence.
+        """Calculate the perplexity of sequence.
 
         Args:
             model: Text Predict-based model used to calculate the perplexity.
             tokenizer: Text Predict-based tokenizer used to calculate the perplexity.
 
         Returns:
-            (float): Perplexity of sequence.
+            The perplexity of the sequence.
 
         """
 
@@ -706,16 +715,16 @@ class TextPredictionSequence(OrderedDict):
         tokenizer: TextPredictTokenizer,
         min_score: Optional[float] = None,
     ) -> OrderedDict:
-        """Scores the triggered predictions.
+        """Score the triggered predictions.
 
         Args:
-            triggered_df: Triggered predictions.
-            min_score: Minimum score.
+            triggered_df: The triggered predictions data frame.
+            min_score: The minimum score.
             model: Text Predict-based model used to calculate the perplexity.
             tokenizer: Text Predict-based tokenizer used to calculate the perplexity.
 
         Returns:
-            (OrderedDict): Score-based meta-information.
+            A dictionary of the triggered predictions and their scores.
 
         """
 

@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""BBPE-based tokenizer.
-"""
+"""Byte-BPE-based tokenizer."""
 
 import json
 import os
@@ -16,17 +15,17 @@ from transformers import PreTrainedTokenizerFast
 from archai.common import utils
 from archai.nlp import logging_utils
 from archai.nlp.datasets.nvidia import distributed_utils
-from archai.nlp.datasets.nvidia.tokenizer_utils.special_token_enum import (
+from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import (
     SpecialTokenEnum,
+    TokenConfig,
 )
-from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import TokenConfig
 from archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base import VocabBase
 
 logger = logging_utils.get_logger(__name__)
 
 
 class BbpeVocab(VocabBase):
-    """Implements a BBPE-based vocabulary/tokenizer."""
+    """Byte-BPE-based vocabulary/tokenizer."""
 
     def __init__(
         self,
@@ -45,7 +44,7 @@ class BbpeVocab(VocabBase):
         encode_special_tokens: Optional[bool] = False,
         decode_special_tokens: Optional[bool] = False,
     ) -> None:
-        """Defines the tokenization pipeline.
+        """Define the tokenization pipeline.
 
         Args:
             save_path: Path to save the vocabulary.
@@ -95,24 +94,10 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def __len__(self):
-        """Length of the vocabulary.
-
-        Returns:
-            (int): Length of the vocabulary.
-
-        """
-
         return len(self._tokenizer)
 
     @overrides
     def train(self, filepaths: List[str]) -> None:
-        """Trains tokenizer from a list of files.
-
-        Args:
-            filepaths: List of paths to input files.
-
-        """
-
         with distributed_utils.sync_workers() as rank:
             if rank == 0:
                 logger.info(f"Training vocabulary with size = {self.vocab_size} at {self._tokenizer_filepath} ...")
@@ -126,19 +111,10 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def is_trained(self) -> bool:
-        """Checks whether vocabulary has been trained.
-
-        Returns:
-            (bool): Whether vocabulary has been trained.
-
-        """
-
         return os.path.isfile(self._tokenizer_filepath)
 
     @overrides
     def load(self) -> None:
-        """Loads pre-trained tokenizer."""
-
         self._tokenizer = PreTrainedTokenizerFast(
             tokenizer_file=self._tokenizer_filepath,
             model_max_length=self.model_max_length,
@@ -158,16 +134,6 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def encode_text(self, text: str) -> List[int]:
-        """Encodes text into tokens.
-
-        Args:
-            text: Input text.
-
-        Returns:
-            (List[int]): Encoded text (tokens).
-
-        """
-
         text = self._preprocess_text(text)
 
         # Always set add_special_tokens=False because Huggingface's implementation is buggy
@@ -182,65 +148,25 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def decode_text(self, ids: List[int]) -> str:
-        """Decodes tokens into text.
-
-        Args:
-            ids: Tokens.
-
-        Returns:
-            (str): Decoded tokens (text).
-
-        """
-
         return self._tokenizer.decode(ids, skip_special_tokens=self.decode_special_tokens)
 
     @overrides
     def special_token_id(self, sp: SpecialTokenEnum) -> int:
-        """Gets the identifier of special token.
-
-        Args:
-            sp: Special token's enumerator.
-
-        Returns:
-            (int): Special token's identifier.
-
-        """
-
         return self.token_to_id(self._config.special_token_name(sp))
 
     @overrides
     def token_to_id(self, t: str) -> int:
-        """Converts a string-based token to its identifier.
-
-        Args:
-            t: String-based token.
-
-        Returns:
-            (int): Token's identifier.
-
-        """
-
         return self._tokenizer.convert_tokens_to_ids(t)
 
     @overrides
     def id_to_token(self, id: int) -> str:
-        """Converts a token identifier to its string-based representation.
-
-        Args:
-            id: Token's identifier.
-
-        Returns:
-            (str): String-based token.
-
-        """
-
         return self._tokenizer.convert_ids_to_tokens(id)
 
     def _rewrite_json_sorted(self, filepaths: List[str]) -> None:
-        """Re-writes a sorted version of the vocabulary.
+        """Re-write a sorted version of the vocabulary.
 
         Args:
-            filepaths: Input files.
+            filepaths: A list of paths to input files.
 
         """
 
@@ -272,7 +198,7 @@ class BbpeVocab(VocabBase):
             f.write(json.dumps(tok_json, ensure_ascii=False, indent=2))
 
     def _finalize_tokenizer(self) -> None:
-        """Finalizes the tokenizer by padding the vocabulary."""
+        """Finalize the tokenizer by padding the vocabulary."""
 
         if self.pad_vocab_size:
             vocab_size = len(self._tokenizer)
@@ -283,13 +209,13 @@ class BbpeVocab(VocabBase):
                 self._tokenizer.add_tokens([token])
 
     def _preprocess_text(self, text: str) -> str:
-        """Pre-processes the text.
+        """Pre-process the text.
 
         Args:
-            text: Input text.
+            text: The input text.
 
         Returns:
-            (str): Pre-processed text.
+            Pre-processed text.
 
         """
 
@@ -308,13 +234,13 @@ class BbpeVocab(VocabBase):
         return text
 
     def _count_token_freq(self, filepaths: List[str]) -> Counter:
-        """Counts the frequency of tokens.
+        """Count the frequency of tokens.
 
         Args:
-            filepaths: Input files.
+            filepaths: A list of paths to input files.
 
         Returns:
-            (Counter): Tokens' frequencies.
+            Tokens' frequencies.
 
         """
 
@@ -342,7 +268,7 @@ class BbpeVocab(VocabBase):
         """Inner loop of tokenizer's training.
 
         Args:
-            filepaths: Input files.
+            filepaths: A list of paths to input files.
             dropout: Dropout ratio.
             added_tokens: Additional tokens.
 

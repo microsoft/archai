@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Harness-based tasks classes.
-"""
+"""Harness-based tasks classes."""
 
 from archai.nlp.eval.harness.tasks.arc import (
     ARCChallengeHarnessTask,

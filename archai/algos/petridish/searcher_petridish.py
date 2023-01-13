@@ -33,7 +33,7 @@ from archai.nas import nas_utils
 from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
 from archai.common.trainer import Trainer
-from archai.datasets import data
+from archai.cv.datasets import data
 from archai.nas.model import Model
 from archai.common.metrics import Metrics
 from archai.common import utils

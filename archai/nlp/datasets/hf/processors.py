@@ -22,7 +22,7 @@ from archai.nlp.datasets.hf.tokenizer_utils.pre_trained_tokenizer import (
 
 def map_dataset_to_dict(
     dataset: Union[Dataset, IterableDataset, List[Dataset], List[IterableDataset]],
-    splits: Optional[Union[str, List[str]]] = None,
+    splits: Union[str, List[str]],
 ) -> Union[DatasetDict, IterableDatasetDict]:
     """Map a dataset or list of datasets to a dictionary.
 
@@ -155,7 +155,7 @@ def shuffle_dataset(dataset: Union[Dataset, IterableDataset], seed: int) -> Unio
 def tokenize_dataset(
     examples: List[str],
     tokenizer: Optional[Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast]] = None,
-    mapping_column_name: Optional[Union[str, List[str]]] = "text",
+    mapping_column_name: Optional[List[str]] = None,
     truncate: Optional[Union[bool, str]] = True,
     padding: Optional[Union[bool, str]] = "max_length",
     **kwargs,
@@ -174,6 +174,9 @@ def tokenize_dataset(
 
     """
 
+    if mapping_column_name is None:
+        mapping_column_name = ["text"]
+
     examples_mapping = tuple(examples[column_name] for column_name in mapping_column_name)
 
     return tokenizer(*examples_mapping, truncation=truncate, padding=padding)
@@ -182,12 +185,12 @@ def tokenize_dataset(
 def tokenize_contiguous_dataset(
     examples: List[str],
     tokenizer: Optional[Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast]] = None,
-    mapping_column_name: Optional[Union[str, List[str]]] = "text",
+    mapping_column_name: Optional[List[str]] = None,
     model_max_length: Optional[int] = 1024,
     **kwargs,
 ) -> Dict[str, Any]:
     """Tokenize a list of examples using a specified tokenizer and
-        with contiguous-length batches (no truncation nor padding).
+    with contiguous-length batches (no truncation nor padding).
 
     Args:
         examples: A list of examples to be tokenized.
@@ -221,13 +224,13 @@ def tokenize_contiguous_dataset(
 def tokenize_nsp_dataset(
     examples: List[str],
     tokenizer: Optional[Union[AutoTokenizer, ArchaiPreTrainedTokenizerFast]] = None,
-    mapping_column_name: Optional[Union[str, List[str]]] = "text",
+    mapping_column_name: Optional[List[str]] = None,
     truncate: Optional[Union[bool, str]] = True,
     padding: Optional[Union[bool, str]] = "max_length",
     **kwargs,
 ) -> Dict[str, Any]:
     """Tokenizes a list of examples using a specified tokenizer and
-        with next-sentence prediction (NSP).
+    with next-sentence prediction (NSP).
 
     Args:
         examples: A list of examples to be tokenized.
@@ -240,6 +243,9 @@ def tokenize_nsp_dataset(
         Tokenized examples with NSP labels.
 
     """
+
+    if mapping_column_name is None:
+        mapping_column_name = ["text"]
 
     assert len(mapping_column_name) == 1, "`mapping_column_name` must have a single value."
     examples_mapping = examples[mapping_column_name[0]]

@@ -1,9 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Pipeline for performing PyTorch-based Quantization Aware Training (QAT).
-"""
+"""Pipeline for performing PyTorch-based Quantization-Aware Training (QAT)."""
 
+import copy
 from typing import Any, Dict, Optional
 
 import torch
@@ -37,14 +37,15 @@ from archai.nlp import logging_utils
 logger = logging_utils.get_logger(__name__)
 
 
-def qat_to_float_modules(model: torch.nn.Module) -> torch.nn.Module:
-    """Changes QAT-ready modules to float-based modules.
+def qat_to_float_modules(model: torch.nn.Module) -> None:
+    """Convert QAT-ready modules to float-based modules.
+
+    This function converts all QAT-ready modules in the input model to float-based modules.
+    It does this recursively, so all sub-modules within the input model will also be
+    converted if applicable.
 
     Args:
-        model: QAT-ready module.
-
-    Returns:
-        (torch.nn.Module): Float-based module.
+        model: QAT-ready module to be converted.
 
     """
 
@@ -56,24 +57,25 @@ def qat_to_float_modules(model: torch.nn.Module) -> torch.nn.Module:
         else:
             qat_to_float_modules(module)
 
-    return model
-
 
 def float_to_qat_modules(
     model: torch.nn.Module,
     module_mapping: Optional[Dict[torch.nn.Module, torch.nn.Module]] = DYNAMIC_QAT_MODULE_MAP,
     qconfig: Optional[Dict[torch.nn.Module, Any]] = None,
     **kwargs
-) -> torch.nn.Module:
-    """Changes float-based modules to QAT-ready modules.
+) -> None:
+    """Convert float-based modules to QAT-ready modules.
+
+    This function converts all float-based modules in the input model to QAT-ready
+    modules using the provided module mapping. It does this recursively, so all sub-modules
+    within the input model will also be converted if applicable.
+
+    A quantization configuration can also be supplied.
 
     Args:
-        model: Float-based module.
+        model: Float-based module to be converted.
         module_mapping: Maps between float and QAT-ready modules.
-        qconfig: Quantization configuration.
-
-    Returns:
-        (torch.nn.Module): QAT-ready module.
+        qconfig: Quantization configuration to be used for the conversion.
 
     """
 
@@ -89,29 +91,39 @@ def float_to_qat_modules(
         else:
             float_to_qat_modules(module, module_mapping=module_mapping, qconfig=qconfig, **kwargs)
 
-    return model
-
 
 def prepare_with_qat(
-    model: torch.nn.Module, onnx_compatible: Optional[bool] = False, backend: Optional[str] = "qnnpack", **kwargs
+    model: torch.nn.Module,
+    inplace: Optional[bool] = True,
+    onnx_compatible: Optional[bool] = False,
+    backend: Optional[str] = "qnnpack",
+    **kwargs
 ) -> torch.nn.Module:
-    """Prepares a float-based model and inserts QAT-based modules and configurations.
+    """Prepare a float-based PyTorch model for quantization-aware training (QAT).
+
+    This function modifies the input model in place by inserting
+    QAT-based modules and configurations.
 
     Args:
-        model: Float-based module.
-        onnx_compatible: Whether QAT-ready module is compatible with ONNX.
-        backend: Quantization backend.
+        model: Float-based PyTorch module to be prepared for QAT.
+        inplace: Whether the prepared QAT model should replace the original model.
+        onnx_compatible: Whether the prepared QAT model should be compatible with ONNX.
+        backend: Quantization backend to be used.
 
     Returns:
-        (torch.nn.Module): QAT-ready module.
+        The input model, modified in place (or not) to be ready for QAT.
 
     """
 
     logger.info("Preparing model with QAT ...")
 
+    prepared_model = model
+    if not inplace:
+        prepared_model = copy.deepcopy(model)
+
     qconfig = torch.quantization.get_default_qat_qconfig(backend)
     module_mapping = ONNX_DYNAMIC_QAT_MODULE_MAP if onnx_compatible else DYNAMIC_QAT_MODULE_MAP
 
-    float_to_qat_modules(model, module_mapping=module_mapping, qconfig=qconfig, **kwargs)
+    float_to_qat_modules(prepared_model, module_mapping=module_mapping, qconfig=qconfig, **kwargs)
 
-    return model
+    return prepared_model

@@ -12,8 +12,8 @@ from overrides import overrides
 
 from torch.utils.data import Dataset, Subset
 
-from archai.discrete_search.datasets.dataset_provider import DatasetProvider
-from archai.datasets.providers.lmdb_image_provider import TensorpackLmdbImageDataset
+from archai.cv.datasets.dataset_provider import DatasetProvider
+from archai.discrete_search.datasets.lmdb_image_provider import TensorpackLmdbImageDataset
 
 
 class MultiTensorpackLmdbImageProvider(DatasetProvider):

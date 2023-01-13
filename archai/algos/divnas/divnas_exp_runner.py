@@ -10,9 +10,9 @@ from archai.nas.exp_runner import ExperimentRunner
 from archai.nas.arch_trainer import ArchTrainer, TArchTrainer
 from archai.algos.darts.bilevel_arch_trainer import BilevelArchTrainer
 from archai.algos.gumbelsoftmax.gs_arch_trainer import GsArchTrainer
-from .divnas_model_desc_builder import DivnasModelDescBuilder
-from .divnas_finalizers import DivnasFinalizers
-from .divnas_rank_finalizer import DivnasRankFinalizers
+from archai.algos.divnas.divnas_model_desc_builder import DivnasModelDescBuilder
+from archai.algos.divnas.divnas_finalizers import DivnasFinalizers
+from archai.algos.divnas.divnas_rank_finalizer import DivnasRankFinalizers
 from archai.nas.finalizers import Finalizers
 
 class DivnasExperimentRunner(ExperimentRunner):

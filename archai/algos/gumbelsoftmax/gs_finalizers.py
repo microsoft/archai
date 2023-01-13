@@ -12,7 +12,7 @@ import os
 from archai.common.common import get_conf
 from archai.common.common import get_expdir
 from archai.common.common import logger
-from archai.datasets.data import get_data
+from archai.cv.datasets.data import get_data
 from archai.nas.model import Model
 from archai.nas.cell import Cell
 from archai.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc

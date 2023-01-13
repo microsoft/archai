@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX export-related utilities, such as model preparation and weight sharing.
-"""
+"""ONNX export-related utilities, such as model preparation and weight sharing."""
 
 import types
 
@@ -14,15 +13,15 @@ from archai.nlp.onnx.onnx_forward import gpt2_onnx_forward
 
 
 def prepare_model_for_onnx(model: torch.nn.Module, model_type: str) -> torch.nn.Module:
-    """Prepares model for ONNX export by replacing forward function and
-        performing any additional pre-processing.
+    """Prepare a PyTorch model for ONNX export by modifying the forward function and performing
+    any additional pre-processing steps.
 
     Args:
-        model: Instance of model.
+        model: Instance of the model to prepare for ONNX export.
         model_type: Type of model.
 
     Returns:
-        (torch.nn.Module): PyTorch model prepared for ONNX export.
+        The prepared PyTorch model, ready for ONNX export.
 
     """
 
@@ -41,7 +40,7 @@ def prepare_model_for_onnx(model: torch.nn.Module, model_type: str) -> torch.nn.
 
 
 def weight_sharing(onnx_model_path: str, model_type: str) -> None:
-    """Shares weights between embedding and softmax layers.
+    """Share weights between embedding and softmax layers in an ONNX model.
 
     Args:
         onnx_model_path: Path to the ONNX model that will have weights shared.

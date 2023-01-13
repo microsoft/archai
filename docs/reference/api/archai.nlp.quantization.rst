@@ -29,7 +29,7 @@ Post-Training Quantization (PTQ)
    :members:
    :undoc-members:
 
-Quantization Aware Training (QAT)
+Quantization-Aware Training (QAT)
 ---------------------------------
 
 .. automodule:: archai.nlp.quantization.qat

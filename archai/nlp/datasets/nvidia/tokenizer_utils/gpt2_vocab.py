@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""GPT2-based tokenizer.
-"""
+"""GPT2-based tokenizer."""
 
 from typing import Optional
 
@@ -10,7 +9,7 @@ from archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab import BbpeVocab
 
 
 class Gpt2Vocab(BbpeVocab):
-    """Implements a GPT-2 based vocabulary/tokenizer."""
+    """GPT-2 based vocabulary/tokenizer."""
 
     def __init__(
         self,
@@ -27,7 +26,7 @@ class Gpt2Vocab(BbpeVocab):
         add_prefix_new_line: Optional[bool] = True,
         sorted_vocab: Optional[bool] = True,
     ) -> None:
-        """Defines the tokenization pipeline.
+        """Define the tokenization pipeline.
 
         Args:
             save_path: Path to save the vocabulary.

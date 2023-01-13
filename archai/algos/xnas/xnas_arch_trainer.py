@@ -21,9 +21,9 @@ from archai.nas.model import Model
 from archai.nas.model_desc import CellType
 from archai.common.checkpoint import CheckPoint
 from archai.common.common import logger
-from archai.datasets import data
+from archai.cv.datasets import data
 from archai.common.common import get_conf
-from .xnas_op import XnasOp
+from archai.algos.xnas.xnas_op import XnasOp
 
 
 class XnasArchTrainer(ArchTrainer):

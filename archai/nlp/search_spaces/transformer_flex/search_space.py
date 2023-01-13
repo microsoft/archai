@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Transformer-Flex Search Space.
-"""
+"""Transformer-Flex Search Space."""
 
 import json
 from copy import deepcopy
@@ -42,6 +41,17 @@ AutoModelForCausalLM.register(MemTransformerConfig, MemTransformerLMHeadModel)
 
 
 class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
+    """Search space for Transformer models with flexible architecture.
+
+    This class allows defining a search space for Transformer models with flexible architectures,
+    using evolutionary or Bayesian optimization algorithms.
+
+    The search space can be customized to include different values for hyperparameters,
+    such as the number of layers, embedding dimensions, and number of attention heads.
+    It also supports different Transformer variants, such as CodeGen, GPT-2, and Transformer-XL.
+
+    """
+
     _DEFAULT_MODELS = {
         "codegen": {"d_model": "n_embd", "d_inner": "n_inner", "n_head": "n_head", "n_layer": "n_layer"},
         "gpt2": {
@@ -93,6 +103,25 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         att_dropout_rate: Optional[float] = 0.0,
         random_seed: Optional[int] = 1,
     ) -> None:
+        """Initializes a `TransformerFlexSearchSpace` object.
+
+        Args:
+            arch_type: Type of Transformer architecture.
+                Must be one of `gpt2`, `gpt2-flex`, `mem-transformer`, `opt`, `transfo-xl`.
+            min_layers: Minimum number of layers in the model.
+            max_layers: Maximum number of layers in the model.
+            d_inner_options: List of options for the intermediate dimension (`d_inner`).
+            d_model_options: List of options for the model dimension (`d_model`).
+            n_head_options: List of options for the number of attention heads (`n_head`).
+            share_d_inner: Whether to share the intermediate dimension (`d_inner`) across layers.
+            mutation_prob: Probability of mutating a hyperparameter during evolution.
+            vocab_size: Size of the vocabulary.
+            max_sequence_length: Maximum sequence length.
+            att_dropout_rate: Dropout rate for attention.
+            random_seed: Random seed for reproducibility.
+
+        """
+
         assert (
             arch_type in self._DEFAULT_MODELS
         ), f"The value of `arch_type` must be one of {list(self._DEFAULT_MODELS.keys())}"
@@ -116,6 +145,16 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.att_dropout_rate = att_dropout_rate
 
     def _load_model_from_config(self, model_config: Dict[str, Any]) -> torch.nn.Module:
+        """Loads a model from a configuration dictionary.
+
+        Args:
+            model_config: Configuration dictionary.
+
+        Returns:
+            A `torch.nn.Module` object.
+
+        """
+
         param_map = self._DEFAULT_MODELS[self.arch_type]
         mapped_config = {param_map.get(p_name, p_name): p_value for p_name, p_value in model_config.items()}
 
@@ -123,6 +162,16 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         return AutoModelForCausalLM.from_config(config)
 
     def get_archid(self, config: Dict[str, Any]) -> str:
+        """Returns a unique identifier for a given configuration.
+
+        Args:
+            config: Configuration dictionary.
+
+        Returns:
+            A unique identifier for the configuration.
+
+        """
+
         pruned_config = deepcopy(config)
         n_layer = config["n_layer"]
 

@@ -9,10 +9,10 @@ from torch.utils.data import DataLoader
 
 from overrides import EnforceOverrides
 
-from .metrics import Metrics
-from .config import Config
-from . import utils, ml_utils
-from .common import logger
+from archai.common.metrics import Metrics
+from archai.common.config import Config
+from archai.common import utils, ml_utils
+from archai.common.common import logger
 from archai.common.apex_utils import ApexUtils
 
 class Tester(EnforceOverrides):
