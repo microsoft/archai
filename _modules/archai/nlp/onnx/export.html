@@ -786,6 +786,7 @@ title="Open an issue"
 <span class="kn">import</span> <span class="nn">torch</span>
 
 <span class="kn">from</span> <span class="nn">archai.nlp</span> <span class="kn">import</span> <span class="n">logging_utils</span>
+<span class="kn">from</span> <span class="nn">archai.nlp.onnx.config_utils.codegen_onnx_config</span> <span class="kn">import</span> <span class="n">CodeGenOnnxConfig</span>
 <span class="kn">from</span> <span class="nn">archai.nlp.onnx.config_utils.gpt2_onnx_config</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">GPT2FlexOnnxConfig</span><span class="p">,</span>
     <span class="n">GPT2OnnxConfig</span><span class="p">,</span>
@@ -796,7 +797,7 @@ title="Open an issue"
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging_utils</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">AVAILABLE_ONNX_CONFIGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gpt2&quot;</span><span class="p">:</span> <span class="n">GPT2OnnxConfig</span><span class="p">,</span> <span class="s2">&quot;gpt2-flex&quot;</span><span class="p">:</span> <span class="n">GPT2FlexOnnxConfig</span><span class="p">}</span>
+<span class="n">AVAILABLE_ONNX_CONFIGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;codegen&quot;</span><span class="p">:</span> <span class="n">CodeGenOnnxConfig</span><span class="p">,</span> <span class="s2">&quot;gpt2&quot;</span><span class="p">:</span> <span class="n">GPT2OnnxConfig</span><span class="p">,</span> <span class="s2">&quot;gpt2-flex&quot;</span><span class="p">:</span> <span class="n">GPT2FlexOnnxConfig</span><span class="p">}</span>
 
 
 <div class="viewcode-block" id="validate_onnx_outputs"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.onnx.html#archai.nlp.onnx.export.validate_onnx_outputs">[docs]</a><span class="k">def</span> <span class="nf">validate_onnx_outputs</span><span class="p">(</span>
@@ -967,7 +968,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 06, 2023.<br/>
+    Last updated on Jan 13, 2023.<br/>
 </p>
         </footer>
     </div>

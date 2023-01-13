@@ -803,16 +803,30 @@ title="Open an issue"
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">search_space</span><span class="p">:</span> <span class="n">TransformerFlexSearchSpace</span><span class="p">,</span>
+        <span class="n">use_past</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">share_weights</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">opset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span>
+        <span class="n">only_ort</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the `TransformerFlexOnnxMemory` instance.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            search_space: The search space to use for loading the model.</span>
+<span class="sd">            use_past: Whether to include past key/values in the model.</span>
+<span class="sd">            share_weights: Whether to share the embedding and softmax weights.</span>
+<span class="sd">            opset: Set of operations to use with ONNX.</span>
+<span class="sd">            only_ort: Whether to only apply ORT optimization.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">assert</span> <span class="n">search_space</span><span class="o">.</span><span class="n">arch_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gpt2&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt2-flex&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">search_space</span><span class="o">.</span><span class="n">arch_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;codegen&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt2&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt2-flex&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span> <span class="o">=</span> <span class="n">search_space</span>
+
+        <span class="c1"># Benchmark settings</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_past</span> <span class="o">=</span> <span class="n">use_past</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">share_weights</span> <span class="o">=</span> <span class="n">share_weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opset</span> <span class="o">=</span> <span class="n">opset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">only_ort</span> <span class="o">=</span> <span class="n">only_ort</span>
 
     <span class="k">def</span> <span class="nf">_load_and_prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load and prepare a model for ONNX conversion.</span>
@@ -826,7 +840,8 @@ title="Open an issue"
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_cache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_past</span><span class="p">:</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;use_cache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">_load_model_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
@@ -840,13 +855,23 @@ title="Open an issue"
         <span class="c1"># thus, we opted to manually save and remove the temporary file</span>
         <span class="n">tmp_path</span> <span class="o">=</span> <span class="s2">&quot;tmp.onnx&quot;</span>
 
-        <span class="n">onnx_config</span> <span class="o">=</span> <span class="n">export_to_onnx</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">&quot;causal-lm&quot;</span><span class="p">,</span> <span class="n">use_past</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">share_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">opset</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
-        <span class="n">opt_tmp_path</span> <span class="o">=</span> <span class="n">optimize_onnx</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">onnx_config</span><span class="p">,</span> <span class="n">opt_level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">onnx_config</span> <span class="o">=</span> <span class="n">export_to_onnx</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="n">task</span><span class="o">=</span><span class="s2">&quot;causal-lm&quot;</span><span class="p">,</span>
+            <span class="n">use_past</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_past</span><span class="p">,</span>
+            <span class="n">share_weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">share_weights</span><span class="p">,</span>
+            <span class="n">opset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">opset</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">opt_tmp_path</span> <span class="o">=</span> <span class="n">optimize_onnx</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">onnx_config</span><span class="p">,</span> <span class="n">opt_level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">only_ort</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">only_ort</span><span class="p">)</span>
 
         <span class="n">memory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">opt_tmp_path</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
-        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">opt_tmp_path</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">opt_tmp_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">pass</span>
 
         <span class="k">return</span> <span class="n">memory</span></div></div>
 </pre></div>
@@ -868,7 +893,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 06, 2023.<br/>
+    Last updated on Jan 13, 2023.<br/>
 </p>
         </footer>
     </div>
