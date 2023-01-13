@@ -34,7 +34,7 @@ class DummySearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         
         @overrides
         def load_arch(self, path: str) -> ArchaiModel:
-            return ArchaiModel(None, json.load(path)['archid'])
+            return ArchaiModel(None, json.load(open(path))['archid'])
         
         @overrides
         def load_model_weights(self, model: ArchaiModel, path: str) -> None:
