@@ -149,11 +149,6 @@
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../basic_guide/notebooks/discrete_search/objectives.html">
-       Objectives
-      </a>
-     </li>
-     <li class="toctree-l3">
       <a class="reference internal" href="../../basic_guide/notebooks/discrete_search/search_algos.html">
        Search Algorithms
       </a>
@@ -797,7 +792,7 @@ title="Edit this page"
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.objective">
+  <a class="reference internal nav-link" href="#objectives">
    Objectives
   </a>
  </li>
@@ -841,7 +836,7 @@ title="Edit this page"
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.objective">
+  <a class="reference internal nav-link" href="#objectives">
    Objectives
   </a>
  </li>
@@ -892,158 +887,8 @@ identify neural network architectures and not model weight information.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-archai.discrete_search.api.objective">
-<span id="objectives"></span><h2>Objectives<a class="headerlink" href="#module-archai.discrete_search.api.objective" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.api.objective.Objective">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.objective.</span></span><span class="sig-name descname"><span class="pre">Objective</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/objective.html#Objective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.objective.Objective" title="Permalink to this definition">#</a></dt>
-<dd><p>Abstract base class for synchronous objective functions. Objectives are general-use classes used
-to evaluate architectures in given criteria (task performance, speed, size, etc.).
-Objectives are optimized by search algorithms.</p>
-<p>Subclasses of <cite>Objective</cite> are expected to implement <cite>Objective.evaluate</cite>, that evaluates the objective,
-and override the <cite>higher_is_better</cite> property, that specifices the optimization direction used
-by search algorithms.</p>
-<p>Synchronous objectives are computed by search algorithms sequentially. For parallel / async. execution,
-please refer to <cite>archai.discrete_search.AsyncObjective</cite>.</p>
-<p><strong>Examples</strong></p>
-<div class="literal-block-wrapper docutils container" id="id1">
-<div class="code-block-caption"><span class="caption-text">Task Accuracy</span><a class="headerlink" href="#id1" title="Permalink to this code">#</a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="k">class</span> <span class="nc">MyValTaskAccuracy</span><span class="p">(</span><span class="n">Objective</span><span class="p">):</span>
-     <span class="n">higher_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-
-     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">):</span>
-         <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
-
-     <span class="nd">@overrides</span>
-     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span>
-                  <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-         <span class="n">_</span><span class="p">,</span> <span class="n">val_data</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_train_val_datasets</span><span class="p">()</span>
-         <span class="n">val_dl</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">val_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
-
-         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
-             <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">val_dl</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-             <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span>
-                 <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">val_dl</span>
-             <span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="n">preds</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">Number of modules</span><a class="headerlink" href="#id2" title="Permalink to this code">#</a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="k">class</span> <span class="nc">NumberOfModules</span><span class="p">(</span><span class="n">Objective</span><span class="p">):</span>
-<span class="w">     </span><span class="sd">&#39;&#39;&#39; Class that measures the size of a model by</span>
-<span class="sd">     the number of torch modules &#39;&#39;&#39;</span>
-
-     <span class="n">higher_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-
-     <span class="nd">@overrides</span>
-     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span>
-                  <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">modules</span><span class="p">()))</span>
-</pre></div>
-</div>
-</div>
-<p>For a list of bultin metrics, please check <cite>archai.discrete_search.objectives</cite>.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.discrete_search.api.objective.Objective.higher_is_better">
-<span class="sig-name descname"><span class="pre">higher_is_better</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#archai.discrete_search.api.objective.Objective.higher_is_better" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.objective.Objective.evaluate">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.discrete_search.api.dataset.DatasetProvider</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/objective.html#Objective.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.objective.Objective.evaluate" title="Permalink to this definition">#</a></dt>
-<dd><p>Evaluates a given ArchaiModel, optionally using a DatasetProvider and budget value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arch</strong> (<a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Model to be evaluated</p></li>
-<li><p><strong>dataset</strong> (<a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.dataset_provider.DatasetProvider" title="archai.cv.datasets.dataset_provider.DatasetProvider"><em>DatasetProvider</em></a>) – A dataset provider object</p></li>
-<li><p><strong>budget</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – A budget multiplier value, used by search algorithms like
-<cite>SucessiveHalving</cite> to specify how much compute should be spent in this evaluation.
-In order to use this type of search algorithm, the implementation of <cite>eval</cite> must
-use the passed <cite>budget</cite> value accordingly.
-Defaults to None.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluation result</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.api.objective.AsyncObjective">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.objective.</span></span><span class="sig-name descname"><span class="pre">AsyncObjective</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/objective.html#AsyncObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.objective.AsyncObjective" title="Permalink to this definition">#</a></dt>
-<dd><p>Abstract base class for asynchronous objective functions. Objectives are general-use classes used
-to evaluate architectures in given criteria (task performance, speed, size, etc.).
-Objectives are optimized by search algorithms.</p>
-<p>Unlike <cite>archai.discrete_search.Objective</cite>, <cite>AsyncObjective</cite> defines an objective function
-with async. / parallel execution.</p>
-<p>Subclasses of <cite>AsyncObjective</cite> are expected to implement
-<cite>AsyncObjective.send(arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float])</cite>
-and <cite>AsyncObjective.fetch_all()</cite>, and override the <cite>higher_is_better</cite> class attribute, that specifices
-the optimization direction used by search algorithms.</p>
-<p><cite>AsyncObjective.send</cite> is a non-blocking call that schedules an evaluation job for a given (model, dataset, budget)
-triplet. <cite>AsyncObjective.fetch_all</cite> is a blocking call that waits and gathers the results from previously
-sent evaluation jobs and cleans the job queue.</p>
-<div class="literal-block-wrapper docutils container" id="id3">
-<div class="code-block-caption"><span class="caption-text">Task Accuracy</span><a class="headerlink" href="#id3" title="Permalink to this code">#</a></div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_obj</span> <span class="o">=</span> <span class="n">MyAsyncObj</span><span class="p">()</span>  <span class="c1"># My AsyncObjective subclass</span>
-
-<span class="c1"># Non blocking calls</span>
-<span class="n">my_obj</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">model_1</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="n">my_obj</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">model_2</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="n">my_obj</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">model_3</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-
-<span class="c1"># Blocking call</span>
-<span class="n">eval_results</span> <span class="o">=</span> <span class="n">my_obj</span><span class="o">.</span><span class="n">fetch_all</span><span class="p">()</span>
-<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">eval_resuls</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
-
-<span class="c1"># Job queue is reset after `fetch_call` method</span>
-<span class="n">my_obj</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">model_4</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">my_obj</span><span class="o">.</span><span class="n">fetch_all</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span>
-</pre></div>
-</div>
-</div>
-<p>For a list of bultin objectives, please check <cite>archai.discrete_search.objectives</cite>.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="archai.discrete_search.api.objective.AsyncObjective.higher_is_better">
-<span class="sig-name descname"><span class="pre">higher_is_better</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#archai.discrete_search.api.objective.AsyncObjective.higher_is_better" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.objective.AsyncObjective.send">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.discrete_search.api.dataset.DatasetProvider</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/objective.html#AsyncObjective.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.objective.AsyncObjective.send" title="Permalink to this definition">#</a></dt>
-<dd><p>Sends an evaluation job to be computed asynchronously.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arch</strong> (<a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Evaluated model</p></li>
-<li><p><strong>dataset</strong> (<a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.dataset_provider.DatasetProvider" title="archai.cv.datasets.dataset_provider.DatasetProvider"><em>DatasetProvider</em></a>) – Dataset</p></li>
-<li><p><strong>budget</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – A budget multiplier value, used by search algorithms like
-<cite>SucessiveHalving</cite> to specify how much compute should be spent in this evaluation.
-Defaults to None.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.objective.AsyncObjective.fetch_all">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/objective.html#AsyncObjective.fetch_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.objective.AsyncObjective.fetch_all" title="Permalink to this definition">#</a></dt>
-<dd><p>Fetch all the results from active jobs sent using the <cite>.send</cite> method and resets job queue. The
-results are expected to respect the original scheduling order.</p>
-</dd></dl>
-
-</dd></dl>
-
+<section id="objectives">
+<h2>Objectives<a class="headerlink" href="#objectives" title="Permalink to this headline">#</a></h2>
 </section>
 <section id="module-archai.discrete_search.api.search_space">
 <span id="search-spaces"></span><h2>Search Spaces<a class="headerlink" href="#module-archai.discrete_search.api.search_space" title="Permalink to this headline">#</a></h2>
@@ -1196,28 +1041,6 @@ Subclasses are expected to implement <cite>encode</cite>.</p>
 </dd>
 </dl>
 </dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.RLSearchSpace">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.search_space.</span></span><span class="sig-name descname"><span class="pre">RLSearchSpace</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#RLSearchSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.RLSearchSpace" title="Permalink to this definition">#</a></dt>
-<dd><p>Base class for Discrete Search Spaces compatible with Reinforcement Learning search algorithms.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.RLSearchSpace.get">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx_vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#RLSearchSpace.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.RLSearchSpace.get" title="Permalink to this definition">#</a></dt>
-<dd><p>Gets a ArchaiModel from the search space using <cite>idx_vector</cite>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.RLSearchSpace.step">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#RLSearchSpace.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.RLSearchSpace.step" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.RLSearchSpace.reset">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#RLSearchSpace.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.RLSearchSpace.reset" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 

@@ -146,11 +146,6 @@
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../../../../basic_guide/notebooks/discrete_search/objectives.html">
-       Objectives
-      </a>
-     </li>
-     <li class="toctree-l3">
       <a class="reference internal" href="../../../../../basic_guide/notebooks/discrete_search/search_algos.html">
        Search Algorithms
       </a>
@@ -873,7 +868,7 @@ title="Open an issue"
             <span class="n">model_stats</span> <span class="o">=</span> <span class="n">tw</span><span class="o">.</span><span class="n">ModelStats</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">input_tensor_shape</span><span class="p">,</span> <span class="n">clone_model</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">is_valid</span> <span class="o">=</span> <span class="p">(</span><span class="n">model_stats</span><span class="o">.</span><span class="n">MAdd</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_mac</span> <span class="ow">and</span> <span class="n">model_stats</span><span class="o">.</span><span class="n">MAdd</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_mac</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="n">model_stats</span><span class="o">.</span><span class="n">MAdd</span></div>
+        <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="kc">None</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span> <span class="k">else</span> <span class="n">model_stats</span><span class="o">.</span><span class="n">MAdd</span></div>
 
 <div class="viewcode-block" id="SegmentationDagSearchSpace.load_from_graph"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.html#archai.discrete_search.search_spaces.segmentation_dag.search_space.SegmentationDagSearchSpace.load_from_graph">[docs]</a>    <span class="k">def</span> <span class="nf">load_from_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">channels_per_scale</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
                         <span class="n">post_upsample_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArchaiModel</span><span class="p">:</span>

@@ -146,11 +146,6 @@
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../../../basic_guide/notebooks/discrete_search/objectives.html">
-       Objectives
-      </a>
-     </li>
-     <li class="toctree-l3">
       <a class="reference internal" href="../../../../basic_guide/notebooks/discrete_search/search_algos.html">
        Search Algorithms
       </a>
@@ -784,26 +779,17 @@ title="Open an issue"
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
 
-<span class="kn">from</span> <span class="nn">archai.discrete_search</span> <span class="kn">import</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">Objective</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search</span> <span class="kn">import</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">ModelEvaluator</span>
 
 
-<div class="viewcode-block" id="TotalParamsProxy"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.objectives.html#archai.nlp.objectives.parameters.TotalParamsProxy">[docs]</a><span class="k">class</span> <span class="nc">TotalParamsProxy</span><span class="p">(</span><span class="n">Objective</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implement an objective that calculates the number of total parameters</span>
-<span class="sd">    of a PyTorch model.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">higher_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-
+<div class="viewcode-block" id="TotalParamsProxy"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.objectives.html#archai.nlp.objectives.parameters.TotalParamsProxy">[docs]</a><span class="k">class</span> <span class="nc">TotalParamsProxy</span><span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trainable_only</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the `TotalParamsProxy` instance.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Counts the total number of trainable parameters</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            trainable_only: A flag indicating whether only trainable parameters</span>
-<span class="sd">                should be counted.</span>
-
+<span class="sd">                should be counted. Defaults to True.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">trainable_only</span> <span class="o">=</span> <span class="n">trainable_only</span>
 
 <div class="viewcode-block" id="TotalParamsProxy.evaluate"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.objectives.html#archai.nlp.objectives.parameters.TotalParamsProxy.evaluate">[docs]</a>    <span class="nd">@overrides</span>
@@ -815,24 +801,21 @@ title="Open an issue"
         <span class="k">return</span> <span class="n">total_params</span></div></div>
 
 
-<div class="viewcode-block" id="NonEmbeddingParamsProxy"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.objectives.html#archai.nlp.objectives.parameters.NonEmbeddingParamsProxy">[docs]</a><span class="k">class</span> <span class="nc">NonEmbeddingParamsProxy</span><span class="p">(</span><span class="n">Objective</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implement an objective that calculates the number of non-embedding parameters</span>
-<span class="sd">    of a PyTorch model.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">higher_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-
+<div class="viewcode-block" id="NonEmbeddingParamsProxy"><a class="viewcode-back" href="../../../../reference/api/archai.nlp.objectives.html#archai.nlp.objectives.parameters.NonEmbeddingParamsProxy">[docs]</a><span class="k">class</span> <span class="nc">NonEmbeddingParamsProxy</span><span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclude_cls</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">trainable_only</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the `NonEmbeddingParamsProxy` instance.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total number of non-embedding parameters.</span>
+<span class="sd">            Used as a proxy for the perplexity of decoder-only transformer LMs.</span>
+
+<span class="sd">            From: &quot;LiteTransformerSearch: Training-free Neural Architecture Search for</span>
+<span class="sd">                Efficient Language Models&quot;, Javaheripi et. al, 2022</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            exclude_cls: A list of `nn.Module` classes to be ignored</span>
-<span class="sd">                during parameter counting.</span>
-<span class="sd">            trainable_only: A flag indicating whether only trainable parameters</span>
-<span class="sd">                should be counted.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            exclude_cls (Optional[List[nn.Module]], optional): List of PyTorch module classes</span>
+<span class="sd">                to exclude from parameter counting. If `None`, defaults to `[torch.nn.Embedding]`.</span>
+<span class="sd">                Defaults to None.</span>
+<span class="sd">            trainable_only (Optional[bool], optional): A flag indicating whether only trainable parameters</span>
+<span class="sd">                should be counted. Defaults to True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
 
         <span class="bp">self</span><span class="o">.</span><span class="n">exclude_cls</span> <span class="o">=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Embedding</span><span class="p">]</span> <span class="ow">or</span> <span class="n">exclude_cls</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">trainable_only</span> <span class="o">=</span> <span class="n">trainable_only</span>

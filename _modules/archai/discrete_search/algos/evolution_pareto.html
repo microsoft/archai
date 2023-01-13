@@ -146,11 +146,6 @@
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../../../basic_guide/notebooks/discrete_search/objectives.html">
-       Objectives
-      </a>
-     </li>
-     <li class="toctree-l3">
       <a class="reference internal" href="../../../../basic_guide/notebooks/discrete_search/search_algos.html">
        Search Algorithms
       </a>
@@ -780,36 +775,62 @@ title="Open an issue"
 <span class="kn">from</span> <span class="nn">overrides.overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 <span class="kn">from</span> <span class="nn">archai.common.utils</span> <span class="kn">import</span> <span class="n">create_logger</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">Objective</span><span class="p">,</span> <span class="n">AsyncObjective</span><span class="p">,</span> <span class="n">Searcher</span><span class="p">,</span> 
-    <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">SearchResults</span>
+    <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">Searcher</span><span class="p">,</span> <span class="n">SearchObjectives</span><span class="p">,</span> <span class="n">SearchResults</span>
 <span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.search_space</span> <span class="kn">import</span> <span class="n">EvolutionarySearchSpace</span>
-<span class="kn">from</span> <span class="nn">archai.discrete_search.utils.evaluation</span> <span class="kn">import</span> <span class="n">evaluate_models</span>
 
 
 <div class="viewcode-block" id="EvolutionParetoSearch"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch">[docs]</a><span class="k">class</span> <span class="nc">EvolutionParetoSearch</span><span class="p">(</span><span class="n">Searcher</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_space</span><span class="p">:</span> <span class="n">EvolutionarySearchSpace</span><span class="p">,</span> 
-                 <span class="n">objectives</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">Objective</span><span class="p">,</span> <span class="n">AsyncObjective</span><span class="p">]],</span> 
+                 <span class="n">search_objectives</span><span class="p">:</span> <span class="n">SearchObjectives</span><span class="p">,</span> 
                  <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span>
                  <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_iters</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
                  <span class="n">init_num_models</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">initial_population_paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
                  <span class="n">num_random_mix</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">max_unseen_population</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
                  <span class="n">mutations_per_parent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_crossovers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> 
-                 <span class="n">obj_valid_ranges</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">crowd_sorting</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
-        
+                 <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evolutionary multi-objective search algorithm that greedily evolves Pareto frontier models</span>
+<span class="sd">        from a population using mutations and crossovers. </span>
+<span class="sd">        </span>
+<span class="sd">        Starting from an evaluated random subset of models, in each iteration the algorithm evaluates new subset of</span>
+<span class="sd">        models generated from mutations (`mutation_per_parent`) and crossovers (`num_crossovers`) of the current pareto frontier</span>
+<span class="sd">        and a new random subset of models (`num_random_mix`). The process is repeated until `num_iters` is reached.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            search_space (EvolutionarySearchSpace): Discrete search space compatible with evolutionary algorithms</span>
+<span class="sd">            search_objectives (SearchObjectives): Search objectives</span>
+<span class="sd">            dataset_provider (DatasetProvider): Dataset provider</span>
+<span class="sd">            output_dir (str): Output directory</span>
+<span class="sd">            num_iters (int, optional): Number of iterations. Defaults to 10.</span>
+<span class="sd">            init_num_models (int, optional): Number of initial models to evaluate. Defaults to 10.</span>
+<span class="sd">            </span>
+<span class="sd">            initial_population_paths (Optional[List[str]], optional): List of paths to the initial population of </span>
+<span class="sd">                models. If None, `init_num_models` random models are used. Defaults to None.</span>
+<span class="sd">            </span>
+<span class="sd">            num_random_mix (int, optional): Number of random models to mix with the population </span>
+<span class="sd">                in each iteration. Defaults to 5.</span>
+<span class="sd">            </span>
+<span class="sd">            max_unseen_population (int, optional): Maximum number of unseen models to evaluate </span>
+<span class="sd">                in each iteration. Defaults to 100.</span>
+<span class="sd">            </span>
+<span class="sd">            mutations_per_parent (int, optional): Number of distincrt mutations generated for each Pareto</span>
+<span class="sd">                frontier member. Defaults to 1.</span>
+
+<span class="sd">            num_crossovers (int, optional): Total number of crossovers generated per iteration. Defaults to 5.</span>
+<span class="sd">            seed (int, optional): Random seed. Defaults to 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">search_space</span><span class="p">,</span> <span class="n">EvolutionarySearchSpace</span><span class="p">),</span> \
             <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">search_space</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="si">}</span><span class="s1"> is not compatible with </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span> <span class="o">=</span> <span class="n">search_space</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span> <span class="o">=</span> <span class="n">objectives</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">so</span> <span class="o">=</span> <span class="n">search_objectives</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">dataset_provider</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -822,14 +843,12 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">max_unseen_population</span> <span class="o">=</span> <span class="n">max_unseen_population</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mutations_per_parent</span> <span class="o">=</span> <span class="n">mutations_per_parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_crossovers</span> <span class="o">=</span> <span class="n">num_crossovers</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">obj_valid_ranges</span> <span class="o">=</span> <span class="n">obj_valid_ranges</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">crowd_sorting</span> <span class="o">=</span> <span class="n">crowd_sorting</span>
 
         <span class="c1"># Utils</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span> <span class="o">=</span> <span class="n">SearchResults</span><span class="p">(</span><span class="n">search_space</span><span class="p">,</span> <span class="n">objectives</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span> <span class="o">=</span> <span class="n">SearchResults</span><span class="p">(</span><span class="n">search_space</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">evaluated_architectures</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seen_archs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_sampled_archs</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">create_logger</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;log.log&#39;</span><span class="p">),</span> <span class="n">enable_stdout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -838,93 +857,64 @@ title="Open an issue"
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_random_mix</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_unseen_population</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="EvolutionParetoSearch.filter_population"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.filter_population">[docs]</a>    <span class="k">def</span> <span class="nf">filter_population</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Filter the population based on the objectives constraints &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj_valid_ranges</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">population</span>
-
-        <span class="k">return</span> <span class="p">[</span>
-            <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">population</span> 
-            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">obj_valid_ranges</span><span class="p">[</span><span class="n">obj_idx</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">score</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj_valid_ranges</span><span class="p">[</span><span class="n">obj_idx</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">obj_idx</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;objective&#39;</span><span class="p">])</span>
-            <span class="p">)</span>
-        <span class="p">]</span></div>
-
 <div class="viewcode-block" id="EvolutionParetoSearch.mutate_parents"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.mutate_parents">[docs]</a>    <span class="k">def</span> <span class="nf">mutate_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parents</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">],</span>
                        <span class="n">mutations_per_parent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
                        <span class="n">patience</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">]:</span>
         <span class="n">mutations</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">oversample_factor</span> <span class="o">=</span> <span class="mi">1</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crowd_sorting</span><span class="p">:</span>
-            <span class="n">oversample_factor</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">crowd_sorting</span><span class="p">[</span><span class="s1">&#39;oversampling_factor&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crowd_sorting</span><span class="p">[</span><span class="s1">&#39;mutation&#39;</span><span class="p">]</span>
-                <span class="k">else</span> <span class="mi">1</span>
-            <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">parents</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Mutating parents&#39;</span><span class="p">):</span>
             <span class="n">candidates</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">nb_tries</span> <span class="o">=</span> <span class="mi">0</span>
 
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_population</span><span class="p">([</span><span class="n">p</span><span class="p">]))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Model </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">archid</span><span class="si">}</span><span class="s1"> has latency </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;latency&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39; or memory </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> that is too high. Skipping mutation.&#39;</span>
-                <span class="p">)</span>
-
-                <span class="k">continue</span>
-
-            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">mutations_per_parent</span> <span class="o">*</span> <span class="n">oversample_factor</span><span class="p">)</span> <span class="ow">and</span> <span class="n">nb_tries</span> <span class="o">&lt;</span> <span class="n">patience</span><span class="p">:</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">mutations_per_parent</span> <span class="ow">and</span> <span class="n">nb_tries</span> <span class="o">&lt;</span> <span class="n">patience</span><span class="p">:</span>
                 <span class="n">mutated_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
                 <span class="n">mutated_model</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;parent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">archid</span>
 
-                <span class="n">mutated_models</span> <span class="o">=</span> <span class="p">[</span><span class="n">mutated_model</span><span class="p">]</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mutated_model</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">mutated_model</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">is_model_valid</span><span class="p">(</span><span class="n">mutated_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">):</span>
+                    <span class="k">continue</span>
 
-                <span class="k">for</span> <span class="n">nbr</span> <span class="ow">in</span> <span class="n">mutated_models</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">nbr</span><span class="o">.</span><span class="n">archid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluated_architectures</span><span class="p">:</span>
-                        <span class="n">nbr</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;generation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span>
-                        <span class="n">candidates</span><span class="p">[</span><span class="n">nbr</span><span class="o">.</span><span class="n">archid</span><span class="p">]</span> <span class="o">=</span> <span class="n">nbr</span>
+                <span class="k">if</span> <span class="n">mutated_model</span><span class="o">.</span><span class="n">archid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">seen_archs</span><span class="p">:</span>
+                    <span class="n">mutated_model</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;generation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span>
+                    <span class="n">candidates</span><span class="p">[</span><span class="n">mutated_model</span><span class="o">.</span><span class="n">archid</span><span class="p">]</span> <span class="o">=</span> <span class="n">mutated_model</span>
                 <span class="n">nb_tries</span> <span class="o">+=</span> <span class="mi">1</span>
-            
-            <span class="c1"># TODO: Figure out a way to use crowd sorting here</span>
-            <span class="c1"># if candidates and self.crowd_sorting and self.crowd_sorting[&#39;mutation&#39;]:</span>
-            <span class="c1">#     candidates_list = list(candidates.items())</span>
-
-            <span class="c1">#     secondary_objs_proxy = np.array([</span>
-            <span class="c1">#         list(self._get_secondary_objectives_proxy(p).values()) for _, p in candidates_list</span>
-            <span class="c1">#     ])</span>
-
-            <span class="c1">#     crowd_dist = compute_crowding_distance(secondary_objs_proxy)</span>
-                
-            <span class="c1">#     # Deletes mutations that are not on the top k</span>
-            <span class="c1">#     for idx in np.argsort(-crowd_dist, axis=None)[mutations_per_parent:]:</span>
-            <span class="c1">#         del candidates[candidates_list[idx][0]]</span>
-
             <span class="n">mutations</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">mutations</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="EvolutionParetoSearch.crossover_parents"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.crossover_parents">[docs]</a>    <span class="k">def</span> <span class="nf">crossover_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">],</span> <span class="n">num_crossovers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">]:</span>
+<div class="viewcode-block" id="EvolutionParetoSearch.crossover_parents"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.crossover_parents">[docs]</a>    <span class="k">def</span> <span class="nf">crossover_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">],</span> <span class="n">num_crossovers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                          <span class="n">patience</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">]:</span>
         <span class="c1"># Randomly samples k distinct pairs from `parents`</span>
-        <span class="n">children</span><span class="p">,</span> <span class="n">children_hashes</span> <span class="o">=</span> <span class="p">[],</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">children</span><span class="p">,</span> <span class="n">children_ids</span> <span class="o">=</span> <span class="p">[],</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
             <span class="n">pairs</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">parents</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_crossovers</span><span class="p">)]</span>
             <span class="k">for</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
                 <span class="n">child</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">crossover</span><span class="p">([</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">])</span>
+                <span class="n">nb_tries</span> <span class="o">=</span> <span class="mi">0</span>
 
-                <span class="k">if</span> <span class="n">child</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">archid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">children_hashes</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">archid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluated_architectures</span><span class="p">:</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">is_model_valid</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">)</span> <span class="ow">and</span> <span class="n">nb_tries</span> <span class="o">&lt;</span> <span class="n">patience</span><span class="p">:</span>
+                    <span class="n">child</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">crossover</span><span class="p">([</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">])</span>
+                    <span class="n">nb_tries</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="k">if</span> <span class="n">child</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">is_model_valid</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">child</span><span class="o">.</span><span class="n">archid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">children_ids</span> <span class="ow">and</span> <span class="n">child</span><span class="o">.</span><span class="n">archid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">seen_archs</span><span class="p">:</span>
                         <span class="n">child</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;generation&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span>
                         <span class="n">child</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;parents&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">p1</span><span class="o">.</span><span class="n">archid</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">p2</span><span class="o">.</span><span class="n">archid</span><span class="si">}</span><span class="s1">&#39;</span>
                         <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
-                        <span class="n">children_hashes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">archid</span><span class="p">)</span>
+                        <span class="n">children_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">archid</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">children</span></div>
 
-<div class="viewcode-block" id="EvolutionParetoSearch.sample_random_models"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.sample_random_models">[docs]</a>    <span class="k">def</span> <span class="nf">sample_random_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_models</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_models</span><span class="p">)]</span></div>
+<div class="viewcode-block" id="EvolutionParetoSearch.sample_models"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.sample_models">[docs]</a>    <span class="k">def</span> <span class="nf">sample_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_models</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">patience</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">]:</span>
+        <span class="n">nb_tries</span><span class="p">,</span> <span class="n">valid_sample</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[]</span>
+
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_sample</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_models</span> <span class="ow">and</span> <span class="n">nb_tries</span> <span class="o">&lt;</span> <span class="n">patience</span><span class="p">:</span>
+            <span class="n">sample</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_models</span><span class="p">)]</span>
+
+            <span class="n">_</span><span class="p">,</span> <span class="n">valid_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">validate_constraints</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">)</span>
+            <span class="n">valid_sample</span> <span class="o">+=</span> <span class="p">[</span><span class="n">sample</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">valid_indices</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">valid_sample</span><span class="p">[:</span><span class="n">num_models</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="EvolutionParetoSearch.on_calc_task_accuracy_end"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.on_calc_task_accuracy_end">[docs]</a>    <span class="k">def</span> <span class="nf">on_calc_task_accuracy_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_pop</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Callback function called right after calc_task_accuracy()&#39;&#39;&#39;</span></div>
@@ -952,23 +942,23 @@ title="Open an issue"
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;Using </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">init_num_models</span><span class="si">}</span><span class="s1"> random architectures as the initial population&#39;</span>
             <span class="p">)</span>
-            <span class="n">unseen_pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_random_models</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_num_models</span><span class="p">)</span>
+            <span class="n">unseen_pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_models</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_num_models</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">all_pop</span> <span class="o">=</span> <span class="n">unseen_pop</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_iters</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;starting evolution pareto iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;starting iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_search_iteration_start</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span>
 
             <span class="c1"># Calculates objectives</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: calculating search objectives </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="p">)</span><span class="si">}</span><span class="s1"> for&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: calculating search objectives </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">objs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s1"> for&#39;</span>
                 <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span><span class="si">}</span><span class="s1"> models&#39;</span>
             <span class="p">)</span>
 
-            <span class="n">results</span> <span class="o">=</span> <span class="n">evaluate_models</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">eval_all_objs</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">add_iteration_results</span><span class="p">(</span>
                 <span class="n">unseen_pop</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span>
 
@@ -980,10 +970,10 @@ title="Open an issue"
             <span class="p">)</span>
 
             <span class="c1"># Records evaluated archs to avoid computing the same architecture twice</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">evaluated_architectures</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">archid</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">unseen_pop</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seen_archs</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">archid</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">unseen_pop</span><span class="p">])</span>
 
             <span class="c1"># update the pareto frontier</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: updating the pareto&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: updating Pareto Frontier&#39;</span><span class="p">)</span>
             <span class="n">pareto</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">get_pareto_frontier</span><span class="p">()[</span><span class="s1">&#39;models&#39;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pareto</span><span class="p">)</span><span class="si">}</span><span class="s1"> members&#39;</span><span class="p">)</span>
 
@@ -998,16 +988,8 @@ title="Open an issue"
 
             <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">save_all_2d_pareto_evolution_plots</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
 
-            <span class="c1"># select parents for the next iteration from </span>
-            <span class="c1"># the current estimate of the frontier while</span>
-            <span class="c1"># giving more weight to newer parents</span>
-            <span class="c1"># TODO</span>
-            <span class="n">parents</span> <span class="o">=</span> <span class="n">pareto</span> <span class="c1"># for now</span>
+            <span class="n">parents</span> <span class="o">=</span> <span class="n">pareto</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: chose </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span><span class="si">}</span><span class="s1"> parents&#39;</span><span class="p">)</span>
-
-            <span class="c1"># Filters parents</span>
-            <span class="n">parents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_population</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: number of parents after objective fn. filter = </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
             <span class="c1"># mutate random &#39;k&#39; subsets of the parents</span>
             <span class="c1"># while ensuring the mutations fall within </span>
@@ -1023,13 +1005,16 @@ title="Open an issue"
 
             <span class="c1"># sample some random samples to add to the parent mix </span>
             <span class="c1"># to mitigage local minima</span>
-            <span class="n">rand_mix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_random_models</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_random_mix</span><span class="p">)</span>
+            <span class="n">rand_mix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_models</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_random_mix</span><span class="p">)</span>
             <span class="n">unseen_pop</span> <span class="o">=</span> <span class="n">crossovered</span> <span class="o">+</span> <span class="n">mutated</span> <span class="o">+</span> <span class="n">rand_mix</span>
 
             <span class="c1"># shuffle before we pick a smaller population for the next stage</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: total unseen population before restriction </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: total unseen population </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">unseen_pop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_next_population</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: total unseen population after restriction </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;iter </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">: total unseen population after `max_unseen_population`&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39; restriction </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
 
             <span class="c1"># update the set of architectures ever visited</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">all_pop</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span>

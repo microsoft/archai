@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Config Search Spaces" href="config_search.html" />
-    <link rel="prev" title="Objective functions" href="objectives.html" />
+    <link rel="prev" title="Discrete Search Spaces" href="search_space.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -148,11 +148,6 @@
      <li class="toctree-l3">
       <a class="reference internal" href="search_space.html">
        Search Spaces
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="objectives.html">
-       Objectives
       </a>
      </li>
      <li class="toctree-l3 current active">
@@ -799,13 +794,40 @@ title="Edit this page"
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Search-objectives">
-   Search objectives
+  <a class="reference internal nav-link" href="#Wrapping-custom-evaluation-code">
+   Wrapping custom evaluation code
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Defining-Search-Objectives">
+   Defining Search Objectives
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Choosing-a-search-algorithm">
-     Choosing a search algorithm
+    <a class="reference internal nav-link" href="#Adding-objectives">
+     Adding objectives
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Adding-extra-constraints">
+     Adding extra constraints
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Using-a-search-algorithm">
+   Using a search algorithm
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Example:-EvolutionParetoSearch">
+     Example:
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       EvolutionParetoSearch
+      </span>
+     </code>
     </a>
    </li>
   </ul>
@@ -835,13 +857,40 @@ title="Edit this page"
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Search-objectives">
-   Search objectives
+  <a class="reference internal nav-link" href="#Wrapping-custom-evaluation-code">
+   Wrapping custom evaluation code
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Defining-Search-Objectives">
+   Defining Search Objectives
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Choosing-a-search-algorithm">
-     Choosing a search algorithm
+    <a class="reference internal nav-link" href="#Adding-objectives">
+     Adding objectives
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Adding-extra-constraints">
+     Adding extra constraints
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Using-a-search-algorithm">
+   Using a search algorithm
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Example:-EvolutionParetoSearch">
+     Example:
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       EvolutionParetoSearch
+      </span>
+     </code>
     </a>
    </li>
   </ul>
@@ -1116,7 +1165,7 @@ div.rendered_html tbody tr:hover {
 <section id="Search-Algorithms">
 <h1>Search Algorithms<a class="headerlink" href="#Search-Algorithms" title="Permalink to this headline">#</a></h1>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
@@ -1134,7 +1183,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>We will re-use the CNN search space created in the <a class="reference internal" href="search_space.html"><span class="doc">search space example</span></a>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span> <span class="o">=</span> <span class="n">CNNSearchSpace</span><span class="p">(</span><span class="n">max_layers</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">kernel_list</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="n">hidden_list</span><span class="o">=</span><span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">])</span>
@@ -1142,7 +1191,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
@@ -1151,7 +1200,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1181,7 +1230,7 @@ ArchaiModel(
 <h2>Dataset Provider<a class="headerlink" href="#Dataset-Provider" title="Permalink to this headline">#</a></h2>
 <p>Datasets are represented in Archai throught the <code class="docutils literal notranslate"><span class="pre">`DatasetProvider</span></code> &lt;../../reference/api/archai.discrete_search.api.rst&gt;`__ class. For this example, we will use the built-in dataset provider of the MNIST dataset.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
@@ -1190,7 +1239,7 @@ ArchaiModel(
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">MnistProvider</span><span class="p">({</span><span class="s1">&#39;dataroot&#39;</span><span class="p">:</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s1">&#39;dataroot&#39;</span><span class="p">})</span>
@@ -1198,8 +1247,8 @@ ArchaiModel(
 </div>
 </div>
 <p>We can get train/test PyTorch datasets from a DatasetProvider by calling <code class="docutils literal notranslate"><span class="pre">dataset_provider.get_datasets(load_train,</span> <span class="pre">load_test,</span> <span class="pre">transforms_train,</span> <span class="pre">transforms_test)</span></code></p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Loads only the training set</span>
@@ -1207,40 +1256,23 @@ ArchaiModel(
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-(Dataset MNIST
-     Number of datapoints: 60000
-     Root location: /home/pkauffmann/dataroot
-     Split: Train,
- None)
-</pre></div></div>
-</div>
 </section>
-<section id="Search-objectives">
-<h2>Search objectives<a class="headerlink" href="#Search-objectives" title="Permalink to this headline">#</a></h2>
-<p>We will use partial trainig validation accuracy as a proxy for task performance</p>
+<section id="Wrapping-custom-evaluation-code">
+<h2>Wrapping custom evaluation code<a class="headerlink" href="#Wrapping-custom-evaluation-code" title="Permalink to this headline">#</a></h2>
+<p>We will evaluate our models using partial trainig validation accuracy as a proxy for final task performance.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search</span> <span class="kn">import</span> <span class="n">Objective</span>
-<span class="kn">from</span> <span class="nn">archai.discrete_search.objectives.onnx_model</span> <span class="kn">import</span> <span class="n">AvgOnnxLatency</span>
-<span class="kn">from</span> <span class="nn">archai.discrete_search.objectives.torch_model</span> <span class="kn">import</span> <span class="n">TorchFlops</span><span class="p">,</span> <span class="n">TorchNumParameters</span>
-<span class="kn">from</span> <span class="nn">archai.discrete_search.objectives.ray</span> <span class="kn">import</span> <span class="n">RayParallelObjective</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search</span> <span class="kn">import</span> <span class="n">ModelEvaluator</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.evaluators.ray</span> <span class="kn">import</span> <span class="n">RayParallelEvaluator</span>
 
 <span class="kn">from</span> <span class="nn">torchvision.transforms</span> <span class="kn">import</span> <span class="n">Compose</span><span class="p">,</span> <span class="n">ToTensor</span><span class="p">,</span> <span class="n">Normalize</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 <span class="kn">import</span> <span class="nn">math</span>
 
 
-<span class="k">class</span> <span class="nc">PartialTrainingValAccuracy</span><span class="p">(</span><span class="n">Objective</span><span class="p">):</span>
-    <span class="n">higher_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-
+<span class="k">class</span> <span class="nc">PartialTrainingValAccuracy</span><span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training_epochs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">lr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;cpu&#39;</span><span class="p">,</span>
                  <span class="n">progress_bar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">training_epochs</span> <span class="o">=</span> <span class="n">training_epochs</span>
@@ -1313,9 +1345,9 @@ ArchaiModel(
 </pre></div>
 </div>
 </div>
-<p>Let’s test our objective:</p>
+<p>Let’s test our evaluator:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_tr</span> <span class="o">=</span> <span class="n">PartialTrainingValAccuracy</span><span class="p">(</span><span class="n">training_epochs</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1323,11 +1355,10 @@ ArchaiModel(
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_IGNORE_OUTPUT</span>
-<span class="n">partial_tr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(),</span> <span class="n">dataset_provider</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_tr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(),</span> <span class="n">dataset_provider</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1336,30 +1367,30 @@ ArchaiModel(
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Training model (5, 3, 64): 100%|███████████████████████████████████████████████████████████████████████████| 1/1 [00:00&lt;00:00,  2.66it/s]
+Training model (5, 3, 64): 100%|██████████| 1/1 [00:00&lt;00:00,  2.49it/s]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.12
+0.088
 </pre></div></div>
 </div>
-<p>We can make this objective more efficient evaluating multiple architectures in parallel. To do that, we can use the <code class="docutils literal notranslate"><span class="pre">RayParallelObjective</span></code> wrapper mentioned in the <a class="reference internal" href="objectives.html"><span class="doc">previous example</span></a>:</p>
+<p>We can make this objective more efficient evaluating multiple architectures in parallel. To do that, we can use the <code class="docutils literal notranslate"><span class="pre">RayParallelObjective</span></code> wrapper mentioned in the <a class="reference external" href="./objectives.ipynb">previous example</a>:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_partial_tr</span> <span class="o">=</span> <span class="n">RayParallelObjective</span><span class="p">(</span><span class="n">partial_tr</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parallel_partial_tr</span> <span class="o">=</span> <span class="n">RayParallelEvaluator</span><span class="p">(</span><span class="n">partial_tr</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>Let’s test our partial training objective sending two random architectures</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
@@ -1373,11 +1404,11 @@ Training model (5, 3, 64): 100%|████████████████
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-2022-12-12 13:22:45,865 INFO worker.py:1518 -- Started a local Ray instance.
+2023-01-10 16:51:28,677 INFO worker.py:1518 -- Started a local Ray instance.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
@@ -1390,19 +1421,19 @@ Training model (5, 3, 64): 100%|████████████████
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Training model (8, 5, 128):   0%|          | 0/1 [00:00&lt;?, ?it/s]
 Training model (7, 3, 32):   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Training model (7, 3, 32): 100%|██████████| 1/1 [00:00&lt;00:00,  2.87it/s]
-Training model (8, 5, 128): 100%|██████████| 1/1 [00:07&lt;00:00,  7.12s/it]
+Training model (8, 5, 128):   0%|          | 0/1 [00:00&lt;?, ?it/s]
+Training model (7, 3, 32): 100%|██████████| 1/1 [00:00&lt;00:00,  2.64it/s]
+Training model (8, 5, 128): 100%|██████████| 1/1 [00:07&lt;00:00,  7.10s/it]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[0.12, 0.1]
+[0.088, 0.088]
 </pre></div></div>
 </div>
 <p>To run the same objective distributing jobs across multiple GPUs, just set the <code class="docutils literal notranslate"><span class="pre">num_gpus</span></code> parameter from <a class="reference external" href="https://docs.ray.io/en/latest/ray-core/package-ref.html#ray-init">ray.init</a>:</p>
@@ -1413,55 +1444,70 @@ Training model (8, 5, 128): 100%|██████████| 1/1 [00:07&lt;0
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Now let’s wrap up and choose the objective functions we want to optimize</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Search objectives are defined as a dictionary of Objectives</span>
-<span class="n">objectives</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;Onnx Latency (ms)&#39;</span><span class="p">:</span> <span class="n">AvgOnnxLatency</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="n">num_trials</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
-    <span class="s1">&#39;FLops&#39;</span><span class="p">:</span> <span class="n">TorchFlops</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">)),</span>
-
-    <span class="c1"># To speed evaluation, we&#39;ll train multiple models in parallel</span>
-    <span class="s1">&#39;Partial training Validation Accuracy&#39;</span><span class="p">:</span> <span class="n">RayParallelObjective</span><span class="p">(</span>
-        <span class="n">PartialTrainingValAccuracy</span><span class="p">(</span><span class="n">training_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">),</span>
-        <span class="n">num_gpus</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="c1"># 2 jobs per gpu available</span>
-        <span class="n">max_calls</span><span class="o">=</span><span class="mi">1</span>
-    <span class="p">)</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-</div>
-<section id="Choosing-a-search-algorithm">
-<h3>Choosing a search algorithm<a class="headerlink" href="#Choosing-a-search-algorithm" title="Permalink to this headline">#</a></h3>
-<p>Let’s try <code class="docutils literal notranslate"><span class="pre">EvolutionParetoSearch</span></code> first</p>
+</section>
+<section id="Defining-Search-Objectives">
+<h2>Defining Search Objectives<a class="headerlink" href="#Defining-Search-Objectives" title="Permalink to this headline">#</a></h2>
+<p>Search optimization objectives are specified using the <code class="docutils literal notranslate"><span class="pre">archai.discrete_search.SearchObjectives</span></code> class</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.algos.evolution_pareto</span> <span class="kn">import</span> <span class="n">EvolutionParetoSearch</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search</span> <span class="kn">import</span> <span class="n">SearchObjectives</span>
+
+<span class="n">objectives</span> <span class="o">=</span> <span class="n">SearchObjectives</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
+<section id="Adding-objectives">
+<h3>Adding objectives<a class="headerlink" href="#Adding-objectives" title="Permalink to this headline">#</a></h3>
+<p>To add search objectives, we can use the <code class="docutils literal notranslate"><span class="pre">SearchObjectives.add_objective</span></code> method</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algo</span> <span class="o">=</span> <span class="n">EvolutionParetoSearch</span><span class="p">(</span>
-    <span class="n">search_space</span><span class="o">=</span><span class="n">ss</span><span class="p">,</span> <span class="n">objectives</span><span class="o">=</span><span class="n">objectives</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="o">=</span><span class="n">dataset_provider</span><span class="p">,</span>
-    <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;./out_evo2&#39;</span><span class="p">,</span> <span class="n">num_iters</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">num_crossovers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mutations_per_parent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="n">max_unseen_population</span><span class="o">=</span><span class="mi">15</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.evaluators.onnx_model</span> <span class="kn">import</span> <span class="n">AvgOnnxLatency</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.evaluators.torch_profiler</span> <span class="kn">import</span> <span class="n">TorchFlops</span><span class="p">,</span> <span class="n">TorchNumParameters</span>
+
+<span class="n">objectives</span><span class="o">.</span><span class="n">add_objective</span><span class="p">(</span>
+    <span class="c1"># This name will be used in plots and reports</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;ONNX Latency (ms)&#39;</span><span class="p">,</span>
+
+    <span class="c1"># This is the evaluator we want to use</span>
+    <span class="n">model_evaluator</span><span class="o">=</span><span class="n">AvgOnnxLatency</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span> <span class="n">num_trials</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+
+    <span class="c1"># Optimization direction. `True` for maximization or `False` for minimization</span>
+    <span class="n">higher_is_better</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+    <span class="c1"># Used to sinalized if this evaluator is compute intensive.</span>
+    <span class="n">compute_intensive</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">compute_intensive</span></code> flag is used in some search algorithms to help increase search efficiency. For instance, search algorithms that use surrogate models may try to estimate the value of expensive objective functions of unseen architectures in certain situations, while cheap objectives (<code class="docutils literal notranslate"><span class="pre">compute_intensive=False</span></code>) will just be computed directly.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objectives</span><span class="o">.</span><span class="n">add_objective</span><span class="p">(</span>
+    <span class="s1">&#39;FLOPs&#39;</span><span class="p">,</span> <span class="n">TorchFlops</span><span class="p">(</span><span class="n">sample_args</span><span class="o">=</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">28</span><span class="p">),)),</span>
+    <span class="n">higher_is_better</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">compute_intensive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="c1"># We may optionally add a constraint.</span>
+    <span class="c1"># Architectures outside this range will be ignored by the search algorithm</span>
+    <span class="n">constraint</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1e9</span><span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<p>Additionally, objectives that are cheap to evaluate (<code class="docutils literal notranslate"><span class="pre">compute_intensive=False</span></code>) may receive an optional <code class="docutils literal notranslate"><span class="pre">constraint</span></code> argument. Model candidates outside this range will be ignored by the search algorithm.</p>
+<p>We can evaluate cheap objectives calling <code class="docutils literal notranslate"><span class="pre">SearchObjectives.eval_cheap_objs(model_list,</span> <span class="pre">dataset_providers)</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
-<span class="n">search_results</span> <span class="o">=</span> <span class="n">algo</span><span class="o">.</span><span class="n">search</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objectives</span><span class="o">.</span><span class="n">eval_cheap_objs</span><span class="p">([</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)],</span> <span class="n">dataset_providers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1470,196 +1516,260 @@ Training model (8, 5, 128): 100%|██████████| 1/1 [00:07&lt;0
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-13:23 Using 10 random architectures as the initial population
-13:23 starting evolution pareto iter 0
-13:23 iter 0: calculating search objectives {&#39;Onnx Latency (ms)&#39;: &lt;archai.discrete_search.objectives.onnx_model.AvgOnnxLatency object at 0x7f7204a6f2e0&gt;, &#39;FLops&#39;: &lt;archai.discrete_search.objectives.torch_model.TensorwatchStat object at 0x7f70b3b7d160&gt;, &#39;Partial training Validation Accuracy&#39;: &lt;archai.discrete_search.objectives.ray.RayParallelObjective object at 0x7f7204a6f5b0&gt;} for 10 models
-Dispatching jobs for &#34;Partial training Validation Accuracy&#34;...: 100%|███████████████████████████████████| 10/10 [00:00&lt;00:00, 125.44it/s]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|████████████████████████████████████████████████████████████████| 10/10 [00:01&lt;00:00,  6.11it/s]
-Calculating &#34;FLops&#34;...: 100%|███████████████████████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 127.40it/s]
-Gathering results from async objectives...: 100%|██████████████████████████████████████████████████████████| 1/1 [01:13&lt;00:00, 73.56s/it]
-13:24 iter 0: updating the pareto
-13:24 iter 0: found 8 members
-13:24 iter 0: chose 8 parents
-13:24 iter 0: number of parents after objective fn. filter = 8
-Mutating parents: 100%|████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:00&lt;00:00, 52.45it/s]
-13:24 iter 0: mutation yielded 15 new models
-13:24 iter 0: crossover yielded 3 new models
-13:24 iter 0: total unseen population before restriction 23
-13:24 iter 0: total unseen population after restriction 15
-13:24 starting evolution pareto iter 1
-13:24 iter 1: calculating search objectives {&#39;Onnx Latency (ms)&#39;: &lt;archai.discrete_search.objectives.onnx_model.AvgOnnxLatency object at 0x7f7204a6f2e0&gt;, &#39;FLops&#39;: &lt;archai.discrete_search.objectives.torch_model.TensorwatchStat object at 0x7f70b3b7d160&gt;, &#39;Partial training Validation Accuracy&#39;: &lt;archai.discrete_search.objectives.ray.RayParallelObjective object at 0x7f7204a6f5b0&gt;} for 15 models
-Dispatching jobs for &#34;Partial training Validation Accuracy&#34;...: 100%|███████████████████████████████████| 15/15 [00:00&lt;00:00, 204.20it/s]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|████████████████████████████████████████████████████████████████| 15/15 [00:02&lt;00:00,  6.58it/s]
-Calculating &#34;FLops&#34;...: 100%|███████████████████████████████████████████████████████████████████████████| 15/15 [00:00&lt;00:00, 164.41it/s]
-Gathering results from async objectives...: 100%|██████████████████████████████████████████████████████████| 1/1 [01:35&lt;00:00, 95.11s/it]
-13:26 iter 1: updating the pareto
-13:26 iter 1: found 13 members
-13:26 iter 1: chose 13 parents
-13:26 iter 1: number of parents after objective fn. filter = 13
-Mutating parents: 100%|██████████████████████████████████████████████████████████████████████████████████| 13/13 [00:00&lt;00:00, 42.21it/s]
-13:26 iter 1: mutation yielded 21 new models
-13:26 iter 1: crossover yielded 2 new models
-13:26 iter 1: total unseen population before restriction 28
-13:26 iter 1: total unseen population after restriction 15
-13:26 starting evolution pareto iter 2
-13:26 iter 2: calculating search objectives {&#39;Onnx Latency (ms)&#39;: &lt;archai.discrete_search.objectives.onnx_model.AvgOnnxLatency object at 0x7f7204a6f2e0&gt;, &#39;FLops&#39;: &lt;archai.discrete_search.objectives.torch_model.TensorwatchStat object at 0x7f70b3b7d160&gt;, &#39;Partial training Validation Accuracy&#39;: &lt;archai.discrete_search.objectives.ray.RayParallelObjective object at 0x7f7204a6f5b0&gt;} for 15 models
-Dispatching jobs for &#34;Partial training Validation Accuracy&#34;...: 100%|███████████████████████████████████| 15/15 [00:00&lt;00:00, 169.87it/s]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|████████████████████████████████████████████████████████████████| 15/15 [00:02&lt;00:00,  6.71it/s]
-Calculating &#34;FLops&#34;...: 100%|███████████████████████████████████████████████████████████████████████████| 15/15 [00:00&lt;00:00, 150.51it/s]
-Gathering results from async objectives...: 100%|██████████████████████████████████████████████████████████| 1/1 [01:25&lt;00:00, 85.54s/it]
-13:28 iter 2: updating the pareto
-13:28 iter 2: found 20 members
-13:28 iter 2: chose 20 parents
-13:28 iter 2: number of parents after objective fn. filter = 20
-Mutating parents: 100%|██████████████████████████████████████████████████████████████████████████████████| 20/20 [00:00&lt;00:00, 35.35it/s]
-13:28 iter 2: mutation yielded 26 new models
-13:28 iter 2: crossover yielded 3 new models
-13:28 iter 2: total unseen population before restriction 34
-13:28 iter 2: total unseen population after restriction 15
-13:28 starting evolution pareto iter 3
-13:28 iter 3: calculating search objectives {&#39;Onnx Latency (ms)&#39;: &lt;archai.discrete_search.objectives.onnx_model.AvgOnnxLatency object at 0x7f7204a6f2e0&gt;, &#39;FLops&#39;: &lt;archai.discrete_search.objectives.torch_model.TensorwatchStat object at 0x7f70b3b7d160&gt;, &#39;Partial training Validation Accuracy&#39;: &lt;archai.discrete_search.objectives.ray.RayParallelObjective object at 0x7f7204a6f5b0&gt;} for 15 models
-Dispatching jobs for &#34;Partial training Validation Accuracy&#34;...: 100%|███████████████████████████████████| 15/15 [00:00&lt;00:00, 103.01it/s]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|████████████████████████████████████████████████████████████████| 15/15 [00:03&lt;00:00,  4.86it/s]
-Calculating &#34;FLops&#34;...: 100%|███████████████████████████████████████████████████████████████████████████| 15/15 [00:00&lt;00:00, 113.84it/s]
-Gathering results from async objectives...: 100%|█████████████████████████████████████████████████████████| 1/1 [02:07&lt;00:00, 127.19s/it]
-13:30 iter 3: updating the pareto
-13:30 iter 3: found 22 members
-13:30 iter 3: chose 22 parents
-13:30 iter 3: number of parents after objective fn. filter = 22
-Mutating parents: 100%|██████████████████████████████████████████████████████████████████████████████████| 22/22 [00:00&lt;00:00, 31.26it/s]
-13:30 iter 3: mutation yielded 23 new models
-13:30 iter 3: crossover yielded 0 new models
-13:30 iter 3: total unseen population before restriction 28
-13:30 iter 3: total unseen population after restriction 15
-13:30 starting evolution pareto iter 4
-13:30 iter 4: calculating search objectives {&#39;Onnx Latency (ms)&#39;: &lt;archai.discrete_search.objectives.onnx_model.AvgOnnxLatency object at 0x7f7204a6f2e0&gt;, &#39;FLops&#39;: &lt;archai.discrete_search.objectives.torch_model.TensorwatchStat object at 0x7f70b3b7d160&gt;, &#39;Partial training Validation Accuracy&#39;: &lt;archai.discrete_search.objectives.ray.RayParallelObjective object at 0x7f7204a6f5b0&gt;} for 15 models
-Dispatching jobs for &#34;Partial training Validation Accuracy&#34;...: 100%|███████████████████████████████████| 15/15 [00:00&lt;00:00, 107.96it/s]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|████████████████████████████████████████████████████████████████| 15/15 [00:02&lt;00:00,  5.13it/s]
-Calculating &#34;FLops&#34;...: 100%|███████████████████████████████████████████████████████████████████████████| 15/15 [00:00&lt;00:00, 110.59it/s]
-Gathering results from async objectives...: 100%|█████████████████████████████████████████████████████████| 1/1 [02:14&lt;00:00, 134.48s/it]
-13:32 iter 4: updating the pareto
-13:32 iter 4: found 25 members
-13:32 iter 4: chose 25 parents
-13:32 iter 4: number of parents after objective fn. filter = 25
-Mutating parents: 100%|██████████████████████████████████████████████████████████████████████████████████| 25/25 [00:00&lt;00:00, 25.92it/s]
-13:32 iter 4: mutation yielded 21 new models
-13:32 iter 4: crossover yielded 0 new models
-13:32 iter 4: total unseen population before restriction 26
-13:32 iter 4: total unseen population after restriction 15
+Calculating &#34;ONNX Latency (ms)&#34;...: 100%|██████████| 2/2 [00:00&lt;00:00,  4.44it/s]
+Calculating &#34;FLOPs&#34;...: 100%|██████████| 2/2 [00:00&lt;00:00, 20.09it/s]
+Gathering results from async objectives...: 0it [00:00, ?it/s]
 </pre></div></div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_1.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_1.png" />
+<div class="highlight"><pre>
+{&#39;ONNX Latency (ms)&#39;: array([0.00098251, 0.00145262]),
+ &#39;FLOPs&#39;: array([4.07179530e+08, 4.75242634e+08])}
+</pre></div></div>
+</div>
+<p>We can check if a model satisfies the constraints we added for the FLOPs objective by calling <code class="docutils literal notranslate"><span class="pre">SearchObjectives.validate_constraints(model_list,</span> <span class="pre">dataset_providers)</span></code> or <code class="docutils literal notranslate"><span class="pre">SearchObjectives.is_model_valid(ss.random_sample(),</span> <span class="pre">dataset_provider)</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
+
+<span class="n">objectives</span><span class="o">.</span><span class="n">validate_constraints</span><span class="p">([</span><span class="n">m</span><span class="p">],</span> <span class="n">dataset_providers</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_2.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_2.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_3.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_3.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_4.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_4.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_5.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_5.png" />
+<div class="highlight"><pre>
+({&#39;FLOPs&#39;: array([4.50410139e+09])}, array([], dtype=int64))
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objectives</span><span class="o">.</span><span class="n">is_model_valid</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_6.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_6.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_7.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_7.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_8.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_8.png" />
+<div class="highlight"><pre>
+False
+</pre></div></div>
+</div>
+<p>By default, all objective and constraints evaluations are cached to prevent spending resources in the same architecture twice.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The evaluation cached is built</span>
+<span class="c1"># using the tuple (obj_name, archid, dataset provider name, budget)</span>
+<span class="n">objectives</span><span class="o">.</span><span class="n">cache</span>
+</pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_9.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_9.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_10.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_10.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_11.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_11.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_12.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_12.png" />
+<div class="highlight"><pre>
+{(&#39;ONNX Latency (ms)&#39;, &#39;(8, 3, 64)&#39;, &#39;NoneType&#39;, None): 0.0009825120214372873,
+ (&#39;ONNX Latency (ms)&#39;, &#39;(7, 7, 32)&#39;, &#39;NoneType&#39;, None): 0.001452620994920532,
+ (&#39;FLOPs&#39;, &#39;(8, 3, 64)&#39;, &#39;NoneType&#39;, None): 407179530,
+ (&#39;FLOPs&#39;, &#39;(7, 7, 32)&#39;, &#39;NoneType&#39;, None): 475242634,
+ (&#39;FLOPs&#39;, &#39;(8, 5, 128)&#39;, &#39;NoneType&#39;, None): 4504101386}
+</pre></div></div>
+</div>
+<p>Caching can be disabled setting <code class="docutils literal notranslate"><span class="pre">SearchObjectives(cache_objective_evaluation=False)</span></code>.</p>
+<p>Now, let’s add the partial training objective we created before</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objectives</span><span class="o">.</span><span class="n">add_objective</span><span class="p">(</span>
+    <span class="s1">&#39;Partial training Validation Accuracy (1 epoch)&#39;</span><span class="p">,</span>
+    <span class="n">RayParallelEvaluator</span><span class="p">(</span>
+        <span class="n">PartialTrainingValAccuracy</span><span class="p">(</span><span class="n">training_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">),</span>
+        <span class="n">num_gpus</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="c1"># 2 jobs per gpu available</span>
+        <span class="n">max_calls</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">),</span>
+    <span class="n">higher_is_better</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">compute_intensive</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># This is a compute intensive evaluator</span>
+<span class="p">)</span>
+</pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
+<p>Expensive objectives can be evaluated using <code class="docutils literal notranslate"><span class="pre">SearchObjectives.eval_expensive_objs(model_list,</span> <span class="pre">dataset_providers)</span></code></p>
+<p>Alternatively, all objectives (expensive and cheap) can also be evaluated using <code class="docutils literal notranslate"><span class="pre">SearchObjectives.eval_all_objs</span></code>.</p>
+</section>
+<section id="Adding-extra-constraints">
+<h3>Adding extra constraints<a class="headerlink" href="#Adding-extra-constraints" title="Permalink to this headline">#</a></h3>
+<p>Besides the constraint parameter from cheap objectives, it is also possible to add extra constraints that are not search objectives (and thus should not be optimized by NAS algorithms).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.evaluators.torch_profiler</span> <span class="kn">import</span> <span class="n">TorchNumParameters</span>
+
+<span class="n">objectives</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
+    <span class="s1">&#39;Number of parameters&#39;</span><span class="p">,</span>
+    <span class="n">TorchNumParameters</span><span class="p">(),</span>
+    <span class="n">constraint</span><span class="o">=</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1e6</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objectives</span><span class="o">.</span><span class="n">validate_constraints</span><span class="p">([</span><span class="n">m</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_13.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_13.png" />
+<div class="highlight"><pre>
+({&#39;Number of parameters&#39;: array([2874762.]), &#39;FLOPs&#39;: array([4.50410139e+09])},
+ array([], dtype=int64))
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objectives</span><span class="o">.</span><span class="n">is_model_valid</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_14.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_14.png" />
+<div class="highlight"><pre>
+False
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Using-a-search-algorithm">
+<h2>Using a search algorithm<a class="headerlink" href="#Using-a-search-algorithm" title="Permalink to this headline">#</a></h2>
+<p>Now that we know how to create and use search objectives, we can finally use a search algorithm do to Neural Architecture Search!</p>
+<section id="Example:-EvolutionParetoSearch">
+<h3>Example: <code class="docutils literal notranslate"><span class="pre">EvolutionParetoSearch</span></code><a class="headerlink" href="#Example:-EvolutionParetoSearch" title="Permalink to this headline">#</a></h3>
+<p>Let’s start with an evolutionary-based search algorithm</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.algos.evolution_pareto</span> <span class="kn">import</span> <span class="n">EvolutionParetoSearch</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algo</span> <span class="o">=</span> <span class="n">EvolutionParetoSearch</span><span class="p">(</span>
+    <span class="n">ss</span><span class="p">,</span> <span class="n">objectives</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;./out_evo&#39;</span><span class="p">,</span>
+    <span class="n">num_iters</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">num_crossovers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">mutations_per_parent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">max_unseen_population</span><span class="o">=</span><span class="mi">10</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
+<span class="n">search_results</span> <span class="o">=</span> <span class="n">algo</span><span class="o">.</span><span class="n">search</span><span class="p">()</span>
+</pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_15.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_31_15.png" />
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+13:56 Using 10 random architectures as the initial population
+13:56 starting evolution pareto iter 0
+13:56 iter 0: calculating search objectives [&#39;ONNX Latency (ms)&#39;, &#39;FLOPs&#39;, &#39;Partial training Validation Accuracy (1 epoch)&#39;] for 10 models
+13:57 iter 0: updating the pareto
+13:57 iter 0: found 7 members
+13:57 iter 0: chose 7 parents
+Mutating parents: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 7/7 [00:00&lt;00:00, 25.16it/s]
+13:57 iter 0: mutation yielded 12 new models
+13:57 iter 0: crossover yielded 1 new models
+13:57 iter 0: total unseen population 18
+13:57 iter 0: total unseen population after `max_unseen_population` restriction 10
+13:57 starting evolution pareto iter 1
+13:57 iter 1: calculating search objectives [&#39;ONNX Latency (ms)&#39;, &#39;FLOPs&#39;, &#39;Partial training Validation Accuracy (1 epoch)&#39;] for 10 models
+13:58 iter 1: updating the pareto
+13:58 iter 1: found 12 members
+13:58 iter 1: chose 12 parents
+Mutating parents: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 12/12 [00:00&lt;00:00, 12.74it/s]
+13:58 iter 1: mutation yielded 15 new models
+13:58 iter 1: crossover yielded 0 new models
+13:58 iter 1: total unseen population 20
+13:58 iter 1: total unseen population after `max_unseen_population` restriction 10
+13:58 starting evolution pareto iter 2
+13:58 iter 2: calculating search objectives [&#39;ONNX Latency (ms)&#39;, &#39;FLOPs&#39;, &#39;Partial training Validation Accuracy (1 epoch)&#39;] for 10 models
+13:59 iter 2: updating the pareto
+13:59 iter 2: found 18 members
+13:59 iter 2: chose 18 parents
+Mutating parents: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 18/18 [00:01&lt;00:00, 15.72it/s]
+13:59 iter 2: mutation yielded 18 new models
+13:59 iter 2: crossover yielded 1 new models
+13:59 iter 2: total unseen population 24
+13:59 iter 2: total unseen population after `max_unseen_population` restriction 10
+13:59 starting evolution pareto iter 3
+13:59 iter 3: calculating search objectives [&#39;ONNX Latency (ms)&#39;, &#39;FLOPs&#39;, &#39;Partial training Validation Accuracy (1 epoch)&#39;] for 10 models
+14:00 iter 3: updating the pareto
+14:00 iter 3: found 20 members
+14:00 iter 3: chose 20 parents
+Mutating parents: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 20/20 [00:00&lt;00:00, 29.05it/s]
+14:00 iter 3: mutation yielded 21 new models
+14:00 iter 3: crossover yielded 2 new models
+14:00 iter 3: total unseen population 28
+14:00 iter 3: total unseen population after `max_unseen_population` restriction 10
+14:00 starting evolution pareto iter 4
+14:00 iter 4: calculating search objectives [&#39;ONNX Latency (ms)&#39;, &#39;FLOPs&#39;, &#39;Partial training Validation Accuracy (1 epoch)&#39;] for 10 models
+14:01 iter 4: updating the pareto
+14:01 iter 4: found 24 members
+14:01 iter 4: chose 24 parents
+Mutating parents: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 24/24 [00:00&lt;00:00, 24.93it/s]
+14:01 iter 4: mutation yielded 17 new models
+14:01 iter 4: crossover yielded 1 new models
+14:01 iter 4: total unseen population 23
+14:01 iter 4: total unseen population after `max_unseen_population` restriction 10
+</pre></div></div>
 </div>
-</div>
-<p>By default all algorithms will save the final pareto architectures <code class="docutils literal notranslate"><span class="pre">pareto_models_iter_*/</span></code>, pareto evolution plots <code class="docutils literal notranslate"><span class="pre">pareto_*.png</span></code> and search state tables with all the results <code class="docutils literal notranslate"><span class="pre">search_state_*.csv</span></code></p>
+<p>By default all algorithms will save the final pareto architectures <code class="docutils literal notranslate"><span class="pre">{output_dir}/pareto_models_iter_*/</span></code>, pareto evolution plots <code class="docutils literal notranslate"><span class="pre">pareto_*.png</span></code> and search state tables with all the results <code class="docutils literal notranslate"><span class="pre">{output_dir}/search_state_*.csv</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
-<span class="o">!</span>ls<span class="w"> </span>/tmp/out_evo2
+<span class="o">!</span>ls<span class="w"> </span>./out_evo
 </pre></div>
 </div>
 </div>
@@ -1669,14 +1779,14 @@ Mutating parents: 100%|███████████████████
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 log.log
-pareto_FLops_vs_Partial_training_Validation_Accuracy.png
+pareto_FLOPs_vs_Partial_training_Validation_Accuracy_1_epoch.png
 pareto_models_iter_1
 pareto_models_iter_2
 pareto_models_iter_3
 pareto_models_iter_4
 pareto_models_iter_5
-pareto_Onnx_Latency_ms_vs_FLops.png
-pareto_Onnx_Latency_ms_vs_Partial_training_Validation_Accuracy.png
+pareto_ONNX_Latency_ms_vs_FLOPs.png
+pareto_ONNX_Latency_ms_vs_Partial_training_Validation_Accuracy_1_epoch.png
 search_state_1.csv
 search_state_2.csv
 search_state_3.csv
@@ -1684,18 +1794,35 @@ search_state_4.csv
 search_state_5.csv
 </pre></div></div>
 </div>
-<p>You can also get information from the <code class="docutils literal notranslate"><span class="pre">search_results</span></code> object</p>
+<p>It is also possible to get information from the <code class="docutils literal notranslate"><span class="pre">search_results</span></code> object directly:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
-<span class="n">search_results</span><span class="o">.</span><span class="n">get_search_state_df</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;is_pareto&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;Partial training Validation Accuracy&#39;</span><span class="p">)</span>
+<span class="n">search_results</span><span class="o">.</span><span class="n">plot_2d_pareto_evolution</span><span class="p">((</span><span class="s1">&#39;ONNX Latency (ms)&#39;</span><span class="p">,</span> <span class="s1">&#39;Partial training Validation Accuracy (1 epoch)&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_61_0.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_61_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
+<span class="n">search_results</span><span class="o">.</span><span class="n">get_search_state_df</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;is_pareto&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;Partial training Validation Accuracy (1 epoch)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1718,9 +1845,9 @@ search_state_5.csv
     <tr style="text-align: right;">
       <th></th>
       <th>archid</th>
-      <th>Onnx Latency (ms)</th>
-      <th>FLops</th>
-      <th>Partial training Validation Accuracy</th>
+      <th>Partial training Validation Accuracy (1 epoch)</th>
+      <th>ONNX Latency (ms)</th>
+      <th>FLOPs</th>
       <th>parent</th>
       <th>parents</th>
       <th>iteration_num</th>
@@ -1730,312 +1857,301 @@ search_state_5.csv
   </thead>
   <tbody>
     <tr>
-      <th>25</th>
-      <td>(1, 3, 32)</td>
-      <td>0.000228</td>
-      <td>353386.0</td>
-      <td>0.256</td>
-      <td>(1, 3, 128)</td>
-      <td>None</td>
-      <td>2</td>
-      <td>0.072800</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>59</th>
-      <td>(1, 5, 32)</td>
-      <td>0.000288</td>
-      <td>754794.0</td>
+      <th>46</th>
+      <td>(1, 3, 64)</td>
       <td>0.264</td>
-      <td>(1, 3, 128)</td>
+      <td>0.000239</td>
+      <td>706762.0</td>
+      <td>(1, 7, 128)</td>
       <td>None</td>
       <td>4</td>
-      <td>0.147950</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>23</th>
-      <td>(1, 5, 64)</td>
-      <td>0.000216</td>
-      <td>1509578.0</td>
-      <td>0.267</td>
-      <td>(1, 5, 128)</td>
-      <td>None</td>
-      <td>1</td>
-      <td>0.048188</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>(1, 3, 128)</td>
-      <td>0.000253</td>
-      <td>1413514.0</td>
-      <td>0.287</td>
-      <td>None</td>
-      <td>(8, 3, 64),(1, 7, 128)</td>
-      <td>1</td>
-      <td>0.048188</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>(1, 7, 32)</td>
-      <td>0.000261</td>
-      <td>1356906.0</td>
-      <td>0.300</td>
-      <td>None</td>
-      <td>None</td>
-      <td>0</td>
-      <td>0.020952</td>
+      <td>0.086072</td>
       <td>True</td>
     </tr>
     <tr>
       <th>10</th>
-      <td>(1, 3, 128)</td>
-      <td>0.000262</td>
-      <td>1413514.0</td>
-      <td>0.304</td>
-      <td>(1, 7, 128)</td>
-      <td>None</td>
-      <td>1</td>
-      <td>0.048188</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>6</th>
+      <td>(1, 5, 32)</td>
+      <td>0.274</td>
+      <td>0.000251</td>
+      <td>754794.0</td>
       <td>(1, 5, 128)</td>
-      <td>0.000234</td>
-      <td>3019146.0</td>
-      <td>0.337</td>
-      <td>None</td>
-      <td>None</td>
-      <td>0</td>
-      <td>0.020952</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>31</th>
-      <td>(1, 7, 64)</td>
-      <td>0.000242</td>
-      <td>2713802.0</td>
-      <td>0.348</td>
-      <td>(1, 7, 128)</td>
-      <td>None</td>
-      <td>2</td>
-      <td>0.072800</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>(1, 7, 128)</td>
-      <td>0.000274</td>
-      <td>5427594.0</td>
-      <td>0.428</td>
-      <td>None</td>
-      <td>None</td>
-      <td>0</td>
-      <td>0.020952</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>32</th>
-      <td>(3, 3, 32)</td>
-      <td>0.000305</td>
-      <td>15004778.0</td>
-      <td>0.708</td>
-      <td>(4, 3, 32)</td>
-      <td>None</td>
-      <td>2</td>
-      <td>0.072800</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>(4, 3, 32)</td>
-      <td>0.000542</td>
-      <td>22330474.0</td>
-      <td>0.838</td>
-      <td>(4, 7, 32)</td>
       <td>None</td>
       <td>1</td>
-      <td>0.048188</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>(5, 3, 32)</td>
-      <td>0.000646</td>
-      <td>29656170.0</td>
-      <td>0.924</td>
-      <td>(4, 7, 32)</td>
-      <td>None</td>
-      <td>1</td>
-      <td>0.048188</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>30</th>
-      <td>(5, 3, 32)</td>
-      <td>0.000910</td>
-      <td>29656170.0</td>
-      <td>0.926</td>
-      <td>None</td>
-      <td>None</td>
-      <td>2</td>
-      <td>0.072800</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>41</th>
-      <td>(3, 5, 32)</td>
-      <td>0.000502</td>
-      <td>41096298.0</td>
-      <td>0.944</td>
-      <td>(6, 5, 32)</td>
-      <td>None</td>
-      <td>3</td>
-      <td>0.109376</td>
+      <td>0.032674</td>
       <td>True</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>(6, 3, 32)</td>
-      <td>0.000642</td>
-      <td>36981866.0</td>
-      <td>0.950</td>
+      <td>(1, 7, 32)</td>
+      <td>0.310</td>
+      <td>0.000208</td>
+      <td>1356906.0</td>
       <td>None</td>
       <td>None</td>
       <td>0</td>
-      <td>0.020952</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>67</th>
-      <td>(7, 3, 32)</td>
-      <td>0.000660</td>
-      <td>44307562.0</td>
-      <td>0.954</td>
-      <td>(4, 5, 32)</td>
-      <td>None</td>
-      <td>4</td>
-      <td>0.147950</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>36</th>
-      <td>(4, 5, 32)</td>
-      <td>0.000524</td>
-      <td>61267050.0</td>
-      <td>0.967</td>
-      <td>None</td>
-      <td>(4, 3, 32),(6, 5, 32)</td>
-      <td>2</td>
-      <td>0.072800</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>64</th>
-      <td>(3, 7, 32)</td>
-      <td>0.000726</td>
-      <td>80233578.0</td>
-      <td>0.972</td>
-      <td>(5, 3, 32)</td>
-      <td>None</td>
-      <td>4</td>
-      <td>0.147950</td>
+      <td>0.016957</td>
       <td>True</td>
     </tr>
     <tr>
       <th>35</th>
-      <td>(9, 3, 32)</td>
-      <td>0.000757</td>
-      <td>58958954.0</td>
-      <td>0.976</td>
-      <td>(8, 3, 128)</td>
-      <td>None</td>
-      <td>2</td>
-      <td>0.072800</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>40</th>
-      <td>(5, 5, 32)</td>
-      <td>0.000650</td>
-      <td>81437802.0</td>
-      <td>0.977</td>
-      <td>(6, 5, 32)</td>
+      <td>(1, 7, 64)</td>
+      <td>0.326</td>
+      <td>0.000236</td>
+      <td>2713802.0</td>
+      <td>(9, 3, 64)</td>
       <td>None</td>
       <td>3</td>
-      <td>0.109376</td>
+      <td>0.070278</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>33</th>
-      <td>(6, 5, 32)</td>
-      <td>0.000701</td>
-      <td>101608554.0</td>
-      <td>0.981</td>
+      <th>7</th>
+      <td>(1, 5, 128)</td>
+      <td>0.335</td>
+      <td>0.000296</td>
+      <td>3019146.0</td>
       <td>None</td>
+      <td>None</td>
+      <td>0</td>
+      <td>0.016957</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>(1, 7, 128)</td>
+      <td>0.385</td>
+      <td>0.000249</td>
+      <td>5427594.0</td>
+      <td>None</td>
+      <td>None</td>
+      <td>0</td>
+      <td>0.016957</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>(2, 3, 32)</td>
+      <td>0.456</td>
+      <td>0.000285</td>
+      <td>7679082.0</td>
+      <td>(9, 3, 32)</td>
+      <td>None</td>
+      <td>3</td>
+      <td>0.070278</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>(2, 3, 64)</td>
+      <td>0.569</td>
+      <td>0.000370</td>
+      <td>29808842.0</td>
+      <td>(2, 3, 32)</td>
+      <td>None</td>
+      <td>4</td>
+      <td>0.086072</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>(3, 3, 32)</td>
+      <td>0.710</td>
+      <td>0.000445</td>
+      <td>15004778.0</td>
+      <td>(6, 3, 32)</td>
+      <td>None</td>
+      <td>1</td>
+      <td>0.032674</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>(4, 3, 32)</td>
+      <td>0.829</td>
+      <td>0.000490</td>
+      <td>22330474.0</td>
+      <td>(6, 3, 32)</td>
       <td>None</td>
       <td>2</td>
-      <td>0.072800</td>
+      <td>0.052575</td>
       <td>True</td>
     </tr>
     <tr>
       <th>21</th>
-      <td>(6, 5, 32)</td>
-      <td>0.000753</td>
-      <td>101608554.0</td>
-      <td>0.986</td>
-      <td>(6, 3, 32)</td>
+      <td>(2, 7, 32)</td>
+      <td>0.886</td>
+      <td>0.000458</td>
+      <td>40795242.0</td>
+      <td>(9, 7, 32)</td>
       <td>None</td>
-      <td>1</td>
-      <td>0.048188</td>
+      <td>2</td>
+      <td>0.052575</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>(5, 3, 32)</td>
+      <td>0.922</td>
+      <td>0.000627</td>
+      <td>29656170.0</td>
+      <td>(4, 3, 32)</td>
+      <td>None</td>
+      <td>3</td>
+      <td>0.070278</td>
       <td>True</td>
     </tr>
     <tr>
       <th>26</th>
-      <td>(6, 5, 64)</td>
-      <td>0.001397</td>
-      <td>403921098.0</td>
-      <td>0.989</td>
-      <td>(2, 5, 64)</td>
+      <td>(3, 5, 32)</td>
+      <td>0.946</td>
+      <td>0.000479</td>
+      <td>41096298.0</td>
+      <td>(3, 3, 32)</td>
       <td>None</td>
       <td>2</td>
-      <td>0.072800</td>
+      <td>0.052575</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>66</th>
-      <td>(6, 7, 32)</td>
-      <td>0.001524</td>
-      <td>198548586.0</td>
-      <td>0.989</td>
-      <td>(9, 7, 32)</td>
+      <th>1</th>
+      <td>(6, 3, 32)</td>
+      <td>0.949</td>
+      <td>0.000722</td>
+      <td>36981866.0</td>
+      <td>None</td>
+      <td>None</td>
+      <td>0</td>
+      <td>0.016957</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>(7, 3, 32)</td>
+      <td>0.956</td>
+      <td>0.000851</td>
+      <td>44307562.0</td>
+      <td>(9, 3, 32)</td>
+      <td>None</td>
+      <td>2</td>
+      <td>0.052575</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>(4, 5, 32)</td>
+      <td>0.974</td>
+      <td>0.000551</td>
+      <td>61267050.0</td>
+      <td>None</td>
+      <td>None</td>
+      <td>0</td>
+      <td>0.016957</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>49</th>
+      <td>(8, 3, 32)</td>
+      <td>0.975</td>
+      <td>0.000872</td>
+      <td>51633258.0</td>
+      <td>(9, 3, 32)</td>
       <td>None</td>
       <td>4</td>
-      <td>0.147950</td>
+      <td>0.086072</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>(6, 5, 32)</td>
+      <td>0.975</td>
+      <td>0.000726</td>
+      <td>101608554.0</td>
+      <td>None</td>
+      <td>None</td>
+      <td>2</td>
+      <td>0.052575</td>
       <td>True</td>
     </tr>
     <tr>
       <th>44</th>
-      <td>(9, 5, 64)</td>
-      <td>0.001756</td>
-      <td>645368010.0</td>
-      <td>0.992</td>
-      <td>(6, 5, 64)</td>
+      <td>(7, 5, 32)</td>
+      <td>0.980</td>
+      <td>0.000860</td>
+      <td>121779306.0</td>
+      <td>(6, 5, 32)</td>
+      <td>None</td>
+      <td>4</td>
+      <td>0.086072</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>(10, 3, 32)</td>
+      <td>0.983</td>
+      <td>0.001035</td>
+      <td>66284650.0</td>
+      <td>(10, 5, 32)</td>
       <td>None</td>
       <td>3</td>
-      <td>0.109376</td>
+      <td>0.070278</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>(4, 5, 64)</td>
+      <td>0.986</td>
+      <td>0.000885</td>
+      <td>242956490.0</td>
+      <td>None</td>
+      <td>None</td>
+      <td>0</td>
+      <td>0.016957</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>(8, 5, 32)</td>
+      <td>0.987</td>
+      <td>0.000919</td>
+      <td>141950058.0</td>
+      <td>(6, 5, 32)</td>
+      <td>None</td>
+      <td>4</td>
+      <td>0.086072</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>(10, 5, 32)</td>
+      <td>0.988</td>
+      <td>0.001160</td>
+      <td>182291562.0</td>
+      <td>None</td>
+      <td>None</td>
+      <td>2</td>
+      <td>0.052575</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>(9, 3, 64)</td>
+      <td>0.991</td>
+      <td>0.001337</td>
+      <td>233523402.0</td>
+      <td>(9, 3, 32)</td>
+      <td>None</td>
+      <td>2</td>
+      <td>0.052575</td>
       <td>True</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
-<p>Since our search space is also compatible with Bayesian Optimization algorithms, let’s try more sophisticated algorithm like MO-BANANAS</p>
+<p>Since our search space is also compatible with Bayesian Optimization algorithms, let’s try more sophisticated algorithm like MO-BANANAS.</p>
+<p>MO-BANANAS will progressively train a surrogate model based on the data gathered during search. This surrogate model will be used to predict the result of expensive objective function evaluations and will try to determine what are the best possible architectures according to the surrogate model.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.algos.bananas</span> <span class="kn">import</span> <span class="n">MoBananasSearch</span>
@@ -2043,20 +2159,20 @@ search_state_5.csv
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">algo2</span> <span class="o">=</span> <span class="n">MoBananasSearch</span><span class="p">(</span>
-    <span class="n">search_space</span><span class="o">=</span><span class="n">ss</span><span class="p">,</span> <span class="n">objectives</span><span class="o">=</span><span class="n">objectives</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="o">=</span><span class="n">dataset_provider</span><span class="p">,</span>
-    <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;/tmp/out_bananas&#39;</span><span class="p">,</span>
-    <span class="n">cheap_objectives</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Onnx Latency (ms)&#39;</span><span class="p">,</span> <span class="s1">&#39;FLops&#39;</span><span class="p">],</span> <span class="c1"># Cheap objectives won&#39;t be predicted by the surrogate model</span>
-    <span class="n">num_iters</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mutations_per_parent</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">num_mutations</span><span class="o">=</span><span class="mi">20</span>
+    <span class="n">ss</span><span class="p">,</span> <span class="n">objectives</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;./out_bananas&#39;</span><span class="p">,</span>
+    <span class="n">num_iters</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">mutations_per_parent</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">num_candidates</span><span class="o">=</span><span class="mi">20</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
@@ -2064,209 +2180,74 @@ search_state_5.csv
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-13:32 Starting iteration 0
-13:32 Evaluating objectives for 10 architectures
-Dispatching jobs for &#34;Partial training Validation Accuracy&#34;...: 100%|███████████████████████████████████| 10/10 [00:00&lt;00:00, 143.76it/s]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|████████████████████████████████████████████████████████████████| 10/10 [00:01&lt;00:00,  6.28it/s]
-Calculating &#34;FLops&#34;...: 100%|███████████████████████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 149.74it/s]
-Gathering results from async objectives...: 100%|██████████████████████████████████████████████████████████| 1/1 [01:13&lt;00:00, 73.43s/it]
-13:33 Updating surrogate model...
-Training DNN Ensemble...: 100%|████████████████████████████████████████████████████████████████████████████| 5/5 [00:25&lt;00:00,  5.17s/it]
+14:01 Starting iteration 0
+14:01 Evaluating objectives for 10 architectures
+14:02 Updating surrogate model...
+Training DNN Ensemble...: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [00:26&lt;00:00,  5.39s/it]
 /home/pkauffmann/archai/archai/discrete_search/utils/multi_objective.py:53: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify &#39;dtype=object&#39; when creating the ndarray.
   frontiers = np.array(
-13:34 Generating mutations for 10 parent architectures...
-13:34 Predicting objectives [&#39;Partial training Validation Accuracy&#39;] using surrogate model
-13:34 Calculating cheap objectives [&#39;Onnx Latency (ms)&#39;, &#39;FLops&#39;]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|████████████████████████████████████████████████████████████████| 18/18 [00:03&lt;00:00,  5.67it/s]
-Calculating &#34;FLops&#34;...: 100%|███████████████████████████████████████████████████████████████████████████| 18/18 [00:00&lt;00:00, 132.93it/s]
-Gathering results from async objectives...: 0it [00:00, ?it/s]
-13:34 20 candidate architectures were selected for the next iteration
-13:34 Starting iteration 1
-13:34 Evaluating objectives for 18 architectures
-Dispatching jobs for &#34;Partial training Validation Accuracy&#34;...: 100%|███████████████████████████████████| 18/18 [00:00&lt;00:00, 132.09it/s]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|████████████████████████████████████████████████████████████████| 18/18 [00:03&lt;00:00,  5.36it/s]
-Calculating &#34;FLops&#34;...: 100%|███████████████████████████████████████████████████████████████████████████| 18/18 [00:00&lt;00:00, 116.20it/s]
-Gathering results from async objectives...: 100%|█████████████████████████████████████████████████████████| 1/1 [02:23&lt;00:00, 143.61s/it]
-13:36 Updating surrogate model...
-Training DNN Ensemble...: 100%|███████████████████████████████████████████████████████████████████████████████| 5/5 [00:25&lt;00:00,  5.02s/it]
+14:02 Generating mutations for 10 parent architectures...
+14:02 Found 36 new architectures satisfying constraints.
+14:02 Predicting [&#39;Partial training Validation Accuracy (1 epoch)&#39;] for new architectures using surrogate model
+14:02 Calculating cheap objectives {&#39;ONNX Latency (ms)&#39;: {&#39;objective&#39;: &lt;archai.discrete_search.evaluators.onnx_model.AvgOnnxLatency object at 0x7fd1fc88c760&gt;, &#39;higher_is_better&#39;: False, &#39;constraint&#39;: None}, &#39;FLOPs&#39;: {&#39;objective&#39;: &lt;archai.discrete_search.evaluators.torch_model.TensorwatchStat object at 0x7fd1fc88c700&gt;, &#39;higher_is_better&#39;: False, &#39;constraint&#39;: (0.0, 1000000000.0)}} for new architectures
+14:02 Best 20 candidate architectures were selected for the next iteration
+14:02 Starting iteration 1
+14:02 Evaluating objectives for 20 architectures
+14:03 Updating surrogate model...
+Training DNN Ensemble...: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [00:27&lt;00:00,  5.42s/it]
 /home/pkauffmann/archai/archai/discrete_search/utils/multi_objective.py:53: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify &#39;dtype=object&#39; when creating the ndarray.
   frontiers = np.array(
-13:37 Generating mutations for 10 parent architectures...
-13:37 Predicting objectives [&#39;Partial training Validation Accuracy&#39;] using surrogate model
-13:37 Calculating cheap objectives [&#39;Onnx Latency (ms)&#39;, &#39;FLops&#39;]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|██████████████████████████████████████████████████████████████████████| 15/15 [00:02&lt;00:00,  5.32it/s]
-Calculating &#34;FLops&#34;...: 100%|█████████████████████████████████████████████████████████████████████████████████| 15/15 [00:00&lt;00:00, 139.75it/s]
-Gathering results from async objectives...: 0it [00:00, ?it/s]
-13:37 20 candidate architectures were selected for the next iteration
-13:37 Starting iteration 2
-13:37 Evaluating objectives for 15 architectures
-Dispatching jobs for &#34;Partial training Validation Accuracy&#34;...: 100%|█████████████████████████████████████████| 15/15 [00:00&lt;00:00, 141.85it/s]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|██████████████████████████████████████████████████████████████████████| 15/15 [00:02&lt;00:00,  5.04it/s]
-Calculating &#34;FLops&#34;...: 100%|█████████████████████████████████████████████████████████████████████████████████| 15/15 [00:00&lt;00:00, 120.91it/s]
-Gathering results from async objectives...: 100%|████████████████████████████████████████████████████████████████| 1/1 [01:36&lt;00:00, 96.17s/it]
-13:38 Updating surrogate model...
-Training DNN Ensemble...: 100%|███████████████████████████████████████████████████████████████| 5/5 [00:25&lt;00:00,  5.01s/it]
+14:04 Generating mutations for 10 parent architectures...
+14:04 Found 26 new architectures satisfying constraints.
+14:04 Predicting [&#39;Partial training Validation Accuracy (1 epoch)&#39;] for new architectures using surrogate model
+14:04 Calculating cheap objectives {&#39;ONNX Latency (ms)&#39;: {&#39;objective&#39;: &lt;archai.discrete_search.evaluators.onnx_model.AvgOnnxLatency object at 0x7fd1fc88c760&gt;, &#39;higher_is_better&#39;: False, &#39;constraint&#39;: None}, &#39;FLOPs&#39;: {&#39;objective&#39;: &lt;archai.discrete_search.evaluators.torch_model.TensorwatchStat object at 0x7fd1fc88c700&gt;, &#39;higher_is_better&#39;: False, &#39;constraint&#39;: (0.0, 1000000000.0)}} for new architectures
+14:04 Best 20 candidate architectures were selected for the next iteration
+14:04 Starting iteration 2
+14:04 Evaluating objectives for 20 architectures
+14:05 Updating surrogate model...
+Training DNN Ensemble...: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [00:26&lt;00:00,  5.40s/it]
 /home/pkauffmann/archai/archai/discrete_search/utils/multi_objective.py:53: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify &#39;dtype=object&#39; when creating the ndarray.
   frontiers = np.array(
-13:39 Generating mutations for 10 parent architectures...
-13:39 Predicting objectives [&#39;Partial training Validation Accuracy&#39;] using surrogate model
-13:39 Calculating cheap objectives [&#39;Onnx Latency (ms)&#39;, &#39;FLops&#39;]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|███████████████████████████████████████████████████| 10/10 [00:01&lt;00:00,  8.96it/s]
-Calculating &#34;FLops&#34;...: 100%|██████████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 234.71it/s]
-Gathering results from async objectives...: 0it [00:00, ?it/s]
-13:39 20 candidate architectures were selected for the next iteration
-13:39 Starting iteration 3
-13:39 Evaluating objectives for 10 architectures
-Dispatching jobs for &#34;Partial training Validation Accuracy&#34;...: 100%|██████████████████████| 10/10 [00:00&lt;00:00, 204.74it/s]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|███████████████████████████████████████████████████| 10/10 [00:01&lt;00:00,  8.09it/s]
-Calculating &#34;FLops&#34;...: 100%|██████████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 230.63it/s]
-Gathering results from async objectives...: 100%|█████████████████████████████████████████████| 1/1 [01:01&lt;00:00, 61.81s/it]
-13:40 Updating surrogate model...
-Training DNN Ensemble...: 100%|███████████████████████████████████████████████████████████████████████████████| 5/5 [00:25&lt;00:00,  5.08s/it]
+14:05 Generating mutations for 10 parent architectures...
+14:05 Found 6 new architectures satisfying constraints.
+14:05 Predicting [&#39;Partial training Validation Accuracy (1 epoch)&#39;] for new architectures using surrogate model
+14:05 Calculating cheap objectives {&#39;ONNX Latency (ms)&#39;: {&#39;objective&#39;: &lt;archai.discrete_search.evaluators.onnx_model.AvgOnnxLatency object at 0x7fd1fc88c760&gt;, &#39;higher_is_better&#39;: False, &#39;constraint&#39;: None}, &#39;FLOPs&#39;: {&#39;objective&#39;: &lt;archai.discrete_search.evaluators.torch_model.TensorwatchStat object at 0x7fd1fc88c700&gt;, &#39;higher_is_better&#39;: False, &#39;constraint&#39;: (0.0, 1000000000.0)}} for new architectures
+14:05 Best 20 candidate architectures were selected for the next iteration
+14:05 Starting iteration 3
+14:05 Evaluating objectives for 6 architectures
+14:06 Updating surrogate model...
+Training DNN Ensemble...: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [00:26&lt;00:00,  5.31s/it]
 /home/pkauffmann/archai/archai/discrete_search/utils/multi_objective.py:53: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify &#39;dtype=object&#39; when creating the ndarray.
   frontiers = np.array(
-13:40 Generating mutations for 10 parent architectures...
-13:40 Predicting objectives [&#39;Partial training Validation Accuracy&#39;] using surrogate model
-13:40 Calculating cheap objectives [&#39;Onnx Latency (ms)&#39;, &#39;FLops&#39;]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|█████████████████████████████████████████████████████████████████████| 7/7 [00:01&lt;00:00,  6.87it/s]
-Calculating &#34;FLops&#34;...: 100%|████████████████████████████████████████████████████████████████████████████████| 7/7 [00:00&lt;00:00, 157.47it/s]
-Gathering results from async objectives...: 0it [00:00, ?it/s]
-13:40 20 candidate architectures were selected for the next iteration
-13:40 Starting iteration 4
-13:40 Evaluating objectives for 7 architectures
-Dispatching jobs for &#34;Partial training Validation Accuracy&#34;...: 100%|████████████████████████████████████████| 7/7 [00:00&lt;00:00, 169.26it/s]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|█████████████████████████████████████████████████████████████████████| 7/7 [00:01&lt;00:00,  6.29it/s]
-Calculating &#34;FLops&#34;...: 100%|████████████████████████████████████████████████████████████████████████████████| 7/7 [00:00&lt;00:00, 134.19it/s]
-Gathering results from async objectives...: 100%|█████████████████████████████████████████████████████████████| 1/1 [00:54&lt;00:00, 54.53s/it]
-13:41 Updating surrogate model...
-Training DNN Ensemble...: 100%|███████████████████████████████████████████████████████████████████████████████| 5/5 [00:25&lt;00:00,  5.01s/it]
+14:06 Generating mutations for 10 parent architectures...
+14:06 Found 1 new architectures satisfying constraints.
+14:06 Predicting [&#39;Partial training Validation Accuracy (1 epoch)&#39;] for new architectures using surrogate model
+14:06 Calculating cheap objectives {&#39;ONNX Latency (ms)&#39;: {&#39;objective&#39;: &lt;archai.discrete_search.evaluators.onnx_model.AvgOnnxLatency object at 0x7fd1fc88c760&gt;, &#39;higher_is_better&#39;: False, &#39;constraint&#39;: None}, &#39;FLOPs&#39;: {&#39;objective&#39;: &lt;archai.discrete_search.evaluators.torch_model.TensorwatchStat object at 0x7fd1fc88c700&gt;, &#39;higher_is_better&#39;: False, &#39;constraint&#39;: (0.0, 1000000000.0)}} for new architectures
+14:06 Best 20 candidate architectures were selected for the next iteration
+14:06 Starting iteration 4
+14:06 Evaluating objectives for 1 architectures
+14:06 Updating surrogate model...
+Training DNN Ensemble...: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [00:26&lt;00:00,  5.26s/it]
 /home/pkauffmann/archai/archai/discrete_search/utils/multi_objective.py:53: VisibleDeprecationWarning: Creating an ndarray from ragged nested sequences (which is a list-or-tuple of lists-or-tuples-or ndarrays with different lengths or shapes) is deprecated. If you meant to do this, you must specify &#39;dtype=object&#39; when creating the ndarray.
   frontiers = np.array(
-13:42 Generating mutations for 10 parent architectures...
-13:42 Predicting objectives [&#39;Partial training Validation Accuracy&#39;] using surrogate model
-13:42 Calculating cheap objectives [&#39;Onnx Latency (ms)&#39;, &#39;FLops&#39;]
-Calculating &#34;Onnx Latency (ms)&#34;...: 100%|███████████████████████████████████████████████████████████████████| 10/10 [00:01&lt;00:00,  5.66it/s]
-Calculating &#34;FLops&#34;...: 100%|██████████████████████████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 142.04it/s]
-Gathering results from async objectives...: 0it [00:00, ?it/s]
-13:42 20 candidate architectures were selected for the next iteration
+14:07 Generating mutations for 10 parent architectures...
+14:07 Found 3 new architectures satisfying constraints.
+14:07 Predicting [&#39;Partial training Validation Accuracy (1 epoch)&#39;] for new architectures using surrogate model
+14:07 Calculating cheap objectives {&#39;ONNX Latency (ms)&#39;: {&#39;objective&#39;: &lt;archai.discrete_search.evaluators.onnx_model.AvgOnnxLatency object at 0x7fd1fc88c760&gt;, &#39;higher_is_better&#39;: False, &#39;constraint&#39;: None}, &#39;FLOPs&#39;: {&#39;objective&#39;: &lt;archai.discrete_search.evaluators.torch_model.TensorwatchStat object at 0x7fd1fc88c700&gt;, &#39;higher_is_better&#39;: False, &#39;constraint&#39;: (0.0, 1000000000.0)}} for new architectures
+14:07 Best 20 candidate architectures were selected for the next iteration
 </pre></div></div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_1.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_1.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_2.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_2.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_3.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_3.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_4.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_4.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_5.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_5.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_6.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_6.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_7.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_7.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_8.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_8.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_9.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_9.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_10.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_10.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_11.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_11.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_12.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_12.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_13.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_13.png" />
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_14.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_14.png" />
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_15.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_39_15.png" />
-</div>
-</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
-<span class="o">!</span>ls<span class="w"> </span>/tmp/out_bananas
+<span class="o">!</span>ls<span class="w"> </span>./out_bananas
 </pre></div>
 </div>
 </div>
@@ -2276,9 +2257,9 @@ Gathering results from async objectives...: 0it [00:00, ?it/s]
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 log.log
-pareto_FLops_vs_Partial_training_Validation_Accuracy.png
-pareto_Onnx_Latency_ms_vs_FLops.png
-pareto_Onnx_Latency_ms_vs_Partial_training_Validation_Accuracy.png
+pareto_FLOPs_vs_Partial_training_Validation_Accuracy_1_epoch.png
+pareto_ONNX_Latency_ms_vs_FLOPs.png
+pareto_ONNX_Latency_ms_vs_Partial_training_Validation_Accuracy_1_epoch.png
 search_state_0.csv
 search_state_1.csv
 search_state_2.csv
@@ -2286,18 +2267,35 @@ search_state_3.csv
 search_state_4.csv
 </pre></div></div>
 </div>
-<p>MO-BANANAS will also save the predictive mean and variance of the expensive objectives (in this case <code class="docutils literal notranslate"><span class="pre">Predicted</span> <span class="pre">Partial</span> <span class="pre">training</span> <span class="pre">Validation</span> <span class="pre">Accuracy</span></code>).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
-<span class="n">search_results2</span><span class="o">.</span><span class="n">get_search_state_df</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;is_pareto&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;Partial training Validation Accuracy&#39;</span><span class="p">)</span>
+<span class="n">search_results2</span><span class="o">.</span><span class="n">plot_2d_pareto_evolution</span><span class="p">((</span><span class="s1">&#39;ONNX Latency (ms)&#39;</span><span class="p">,</span> <span class="s1">&#39;Partial training Validation Accuracy (1 epoch)&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/basic_guide_notebooks_discrete_search_search_algos_68_0.png" src="../../../_images/basic_guide_notebooks_discrete_search_search_algos_68_0.png" />
+</div>
+</div>
+<p>MO-BANANAS will also save the predictive mean and variance of the expensive objectives during that iteration .</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
+<span class="n">search_results2</span><span class="o">.</span><span class="n">get_search_state_df</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;is_pareto&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;Partial training Validation Accuracy (1 epoch)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2320,303 +2318,351 @@ search_state_4.csv
     <tr style="text-align: right;">
       <th></th>
       <th>archid</th>
-      <th>Onnx Latency (ms)</th>
-      <th>FLops</th>
-      <th>Partial training Validation Accuracy</th>
+      <th>Partial training Validation Accuracy (1 epoch)</th>
+      <th>ONNX Latency (ms)</th>
+      <th>FLOPs</th>
       <th>iteration_num</th>
-      <th>Predicted Partial training Validation Accuracy mean</th>
-      <th>Predicted Partial training Validation Accuracy var</th>
+      <th>Predicted Partial training Validation Accuracy (1 epoch) mean</th>
+      <th>Predicted Partial training Validation Accuracy (1 epoch) var</th>
       <th>Search walltime (hours)</th>
       <th>is_pareto</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>28</th>
-      <td>(1, 3, 64)</td>
-      <td>0.000239</td>
-      <td>706762.0</td>
-      <td>0.251</td>
-      <td>2</td>
-      <td>0.313004</td>
-      <td>0.000360</td>
-      <td>0.105893</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>10</th>
+      <th>37</th>
       <td>(1, 3, 32)</td>
-      <td>0.000252</td>
+      <td>0.248</td>
+      <td>0.000254</td>
       <td>353386.0</td>
-      <td>0.255</td>
-      <td>1</td>
-      <td>0.602352</td>
-      <td>0.005347</td>
-      <td>0.070371</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>29</th>
-      <td>(1, 5, 32)</td>
-      <td>0.000245</td>
-      <td>754794.0</td>
-      <td>0.289</td>
       <td>2</td>
-      <td>0.457042</td>
-      <td>0.001704</td>
-      <td>0.105893</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>54</th>
-      <td>(1, 5, 64)</td>
-      <td>0.000246</td>
-      <td>1509578.0</td>
-      <td>0.296</td>
-      <td>4</td>
-      <td>0.397546</td>
-      <td>0.002552</td>
-      <td>0.153856</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>44</th>
-      <td>(1, 7, 32)</td>
-      <td>0.000262</td>
-      <td>1356906.0</td>
-      <td>0.303</td>
-      <td>3</td>
-      <td>0.698000</td>
-      <td>0.011878</td>
-      <td>0.130883</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>43</th>
-      <td>(1, 5, 128)</td>
-      <td>0.000262</td>
-      <td>3019146.0</td>
-      <td>0.307</td>
-      <td>3</td>
-      <td>0.617455</td>
-      <td>0.002025</td>
-      <td>0.130883</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>53</th>
-      <td>(1, 7, 128)</td>
-      <td>0.000278</td>
-      <td>5427594.0</td>
-      <td>0.377</td>
-      <td>4</td>
-      <td>0.536954</td>
-      <td>0.001538</td>
-      <td>0.153856</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>49</th>
-      <td>(2, 3, 32)</td>
-      <td>0.000349</td>
-      <td>7679082.0</td>
-      <td>0.461</td>
-      <td>3</td>
-      <td>0.448850</td>
-      <td>0.000029</td>
-      <td>0.130883</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>(3, 3, 32)</td>
-      <td>0.000466</td>
-      <td>15004778.0</td>
-      <td>0.640</td>
-      <td>1</td>
-      <td>0.773703</td>
-      <td>0.000529</td>
-      <td>0.070371</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>(2, 5, 32)</td>
-      <td>0.000419</td>
-      <td>20925546.0</td>
-      <td>0.651</td>
-      <td>1</td>
-      <td>0.873010</td>
-      <td>0.001508</td>
-      <td>0.070371</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>50</th>
-      <td>(2, 5, 64)</td>
-      <td>0.000438</td>
-      <td>81991882.0</td>
-      <td>0.833</td>
-      <td>3</td>
-      <td>0.576228</td>
-      <td>0.001088</td>
-      <td>0.130883</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>(4, 3, 32)</td>
-      <td>0.000473</td>
-      <td>22330474.0</td>
-      <td>0.868</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>0.020898</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>34</th>
-      <td>(3, 5, 32)</td>
-      <td>0.000536</td>
-      <td>41096298.0</td>
-      <td>0.946</td>
-      <td>2</td>
-      <td>0.835108</td>
-      <td>0.001988</td>
-      <td>0.105893</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>47</th>
-      <td>(6, 3, 32)</td>
-      <td>0.000689</td>
-      <td>36981866.0</td>
-      <td>0.961</td>
-      <td>3</td>
-      <td>0.959455</td>
-      <td>0.000036</td>
-      <td>0.130883</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>31</th>
-      <td>(4, 5, 32)</td>
-      <td>0.000550</td>
-      <td>61267050.0</td>
-      <td>0.963</td>
-      <td>2</td>
-      <td>0.942770</td>
-      <td>0.001834</td>
-      <td>0.105893</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>(7, 3, 32)</td>
-      <td>0.000740</td>
-      <td>44307562.0</td>
-      <td>0.967</td>
-      <td>0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>0.020898</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>(8, 3, 32)</td>
-      <td>0.000789</td>
-      <td>51633258.0</td>
-      <td>0.970</td>
-      <td>1</td>
-      <td>0.983521</td>
-      <td>0.000020</td>
-      <td>0.070371</td>
+      <td>0.248418</td>
+      <td>2.047968e-03</td>
+      <td>0.059447</td>
       <td>True</td>
     </tr>
     <tr>
       <th>16</th>
-      <td>(10, 3, 32)</td>
-      <td>0.001126</td>
-      <td>66284650.0</td>
-      <td>0.973</td>
+      <td>(1, 3, 64)</td>
+      <td>0.264</td>
+      <td>0.000239</td>
+      <td>706762.0</td>
       <td>1</td>
-      <td>1.017302</td>
-      <td>0.000132</td>
-      <td>0.070371</td>
+      <td>0.520867</td>
+      <td>2.725258e-04</td>
+      <td>0.035050</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>13</th>
-      <td>(6, 5, 32)</td>
-      <td>0.000773</td>
-      <td>101608554.0</td>
-      <td>0.979</td>
+      <th>10</th>
+      <td>(1, 5, 32)</td>
+      <td>0.274</td>
+      <td>0.000251</td>
+      <td>754794.0</td>
       <td>1</td>
-      <td>0.970922</td>
-      <td>0.000009</td>
-      <td>0.070371</td>
+      <td>0.524827</td>
+      <td>2.408193e-03</td>
+      <td>0.035050</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>14</th>
-      <td>(7, 5, 32)</td>
-      <td>0.001074</td>
-      <td>121779306.0</td>
-      <td>0.980</td>
+      <th>19</th>
+      <td>(1, 7, 32)</td>
+      <td>0.310</td>
+      <td>0.000208</td>
+      <td>1356906.0</td>
       <td>1</td>
-      <td>0.987013</td>
-      <td>0.000029</td>
-      <td>0.070371</td>
+      <td>0.750090</td>
+      <td>2.623198e-04</td>
+      <td>0.035050</td>
       <td>True</td>
     </tr>
     <tr>
-      <th>35</th>
-      <td>(8, 5, 32)</td>
-      <td>0.001031</td>
-      <td>141950058.0</td>
-      <td>0.986</td>
+      <th>26</th>
+      <td>(1, 7, 64)</td>
+      <td>0.326</td>
+      <td>0.000236</td>
+      <td>2713802.0</td>
+      <td>1</td>
+      <td>0.558949</td>
+      <td>1.281874e-03</td>
+      <td>0.035050</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>(1, 5, 128)</td>
+      <td>0.335</td>
+      <td>0.000296</td>
+      <td>3019146.0</td>
       <td>2</td>
-      <td>0.982395</td>
-      <td>0.000008</td>
-      <td>0.105893</td>
-      <td>True</td>
-    </tr>
-    <tr>
-      <th>38</th>
-      <td>(10, 5, 32)</td>
-      <td>0.001177</td>
-      <td>182291562.0</td>
-      <td>0.989</td>
-      <td>2</td>
-      <td>0.985368</td>
-      <td>0.000053</td>
-      <td>0.105893</td>
+      <td>0.305024</td>
+      <td>7.075308e-04</td>
+      <td>0.059447</td>
       <td>True</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>(6, 7, 32)</td>
-      <td>0.001724</td>
-      <td>198548586.0</td>
-      <td>0.990</td>
+      <td>(1, 7, 128)</td>
+      <td>0.385</td>
+      <td>0.000249</td>
+      <td>5427594.0</td>
       <td>0</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>0.020898</td>
+      <td>0.009741</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>(2, 3, 32)</td>
+      <td>0.456</td>
+      <td>0.000285</td>
+      <td>7679082.0</td>
+      <td>2</td>
+      <td>0.459846</td>
+      <td>1.940939e-03</td>
+      <td>0.059447</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>(2, 3, 64)</td>
+      <td>0.569</td>
+      <td>0.000370</td>
+      <td>29808842.0</td>
+      <td>1</td>
+      <td>0.693631</td>
+      <td>3.133334e-05</td>
+      <td>0.035050</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>(2, 5, 32)</td>
+      <td>0.666</td>
+      <td>0.000389</td>
+      <td>20925546.0</td>
+      <td>2</td>
+      <td>0.607475</td>
+      <td>8.238424e-04</td>
+      <td>0.059447</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>(3, 3, 32)</td>
+      <td>0.710</td>
+      <td>0.000445</td>
+      <td>15004778.0</td>
+      <td>2</td>
+      <td>0.679987</td>
+      <td>1.583403e-03</td>
+      <td>0.059447</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>(4, 3, 32)</td>
+      <td>0.829</td>
+      <td>0.000490</td>
+      <td>22330474.0</td>
+      <td>1</td>
+      <td>0.939183</td>
+      <td>1.354675e-04</td>
+      <td>0.035050</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>(2, 7, 32)</td>
+      <td>0.886</td>
+      <td>0.000458</td>
+      <td>40795242.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.009741</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>(5, 3, 32)</td>
+      <td>0.922</td>
+      <td>0.000627</td>
+      <td>29656170.0</td>
+      <td>1</td>
+      <td>0.945611</td>
+      <td>8.060229e-06</td>
+      <td>0.035050</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>(3, 5, 32)</td>
+      <td>0.946</td>
+      <td>0.000479</td>
+      <td>41096298.0</td>
+      <td>1</td>
+      <td>0.842660</td>
+      <td>5.665877e-04</td>
+      <td>0.035050</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>(6, 3, 32)</td>
+      <td>0.949</td>
+      <td>0.000722</td>
+      <td>36981866.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.009741</td>
       <td>True</td>
     </tr>
     <tr>
       <th>39</th>
-      <td>(10, 3, 64)</td>
-      <td>0.001204</td>
-      <td>262625482.0</td>
-      <td>0.993</td>
+      <td>(7, 3, 32)</td>
+      <td>0.956</td>
+      <td>0.000851</td>
+      <td>44307562.0</td>
       <td>2</td>
-      <td>0.988335</td>
-      <td>0.000012</td>
-      <td>0.105893</td>
+      <td>0.963334</td>
+      <td>4.732862e-07</td>
+      <td>0.059447</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>(4, 5, 32)</td>
+      <td>0.974</td>
+      <td>0.000551</td>
+      <td>61267050.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.009741</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>(8, 3, 32)</td>
+      <td>0.975</td>
+      <td>0.000872</td>
+      <td>51633258.0</td>
+      <td>1</td>
+      <td>0.969070</td>
+      <td>5.998997e-05</td>
+      <td>0.035050</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>(6, 5, 32)</td>
+      <td>0.975</td>
+      <td>0.000726</td>
+      <td>101608554.0</td>
+      <td>1</td>
+      <td>0.974126</td>
+      <td>5.820624e-05</td>
+      <td>0.035050</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>(7, 5, 32)</td>
+      <td>0.980</td>
+      <td>0.000860</td>
+      <td>121779306.0</td>
+      <td>2</td>
+      <td>0.980158</td>
+      <td>6.198977e-07</td>
+      <td>0.059447</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>(10, 3, 32)</td>
+      <td>0.983</td>
+      <td>0.001035</td>
+      <td>66284650.0</td>
+      <td>2</td>
+      <td>0.994888</td>
+      <td>3.606799e-06</td>
+      <td>0.059447</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>(6, 3, 64)</td>
+      <td>0.983</td>
+      <td>0.000895</td>
+      <td>146217162.0</td>
+      <td>3</td>
+      <td>0.976682</td>
+      <td>7.886449e-07</td>
+      <td>0.079053</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>(4, 5, 64)</td>
+      <td>0.986</td>
+      <td>0.000885</td>
+      <td>242956490.0</td>
+      <td>2</td>
+      <td>0.961790</td>
+      <td>4.393400e-05</td>
+      <td>0.059447</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>(8, 5, 32)</td>
+      <td>0.987</td>
+      <td>0.000919</td>
+      <td>141950058.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.009741</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>(10, 5, 32)</td>
+      <td>0.988</td>
+      <td>0.001160</td>
+      <td>182291562.0</td>
+      <td>2</td>
+      <td>0.996126</td>
+      <td>6.905550e-06</td>
+      <td>0.059447</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>(9, 3, 64)</td>
+      <td>0.991</td>
+      <td>0.001337</td>
+      <td>233523402.0</td>
+      <td>2</td>
+      <td>1.008927</td>
+      <td>1.038860e-04</td>
+      <td>0.059447</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>(10, 3, 64)</td>
+      <td>0.991</td>
+      <td>0.001333</td>
+      <td>262625482.0</td>
+      <td>2</td>
+      <td>1.019735</td>
+      <td>1.448977e-04</td>
+      <td>0.059447</td>
       <td>True</td>
     </tr>
   </tbody>
@@ -2635,11 +2681,11 @@ search_state_4.csv
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="objectives.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="search_space.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Objective functions</p>
+            <p class="prev-next-title">Discrete Search Spaces</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="config_search.html" title="next page">

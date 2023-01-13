@@ -146,11 +146,6 @@
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../../../basic_guide/notebooks/discrete_search/objectives.html">
-       Objectives
-      </a>
-     </li>
-     <li class="toctree-l3">
       <a class="reference internal" href="../../../../basic_guide/notebooks/discrete_search/search_algos.html">
        Search Algorithms
       </a>
@@ -784,18 +779,17 @@ title="Open an issue"
 
 <span class="kn">from</span> <span class="nn">archai.common.utils</span> <span class="kn">import</span> <span class="n">create_logger</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">Objective</span><span class="p">,</span> <span class="n">AsyncObjective</span><span class="p">,</span>
-    <span class="n">DiscreteSearchSpace</span><span class="p">,</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">Searcher</span><span class="p">,</span>
-    <span class="n">SearchResults</span>
+    <span class="n">SearchObjectives</span><span class="p">,</span>
+    <span class="n">DiscreteSearchSpace</span><span class="p">,</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">Searcher</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">archai.discrete_search.utils</span> <span class="kn">import</span> <span class="n">get_non_dominated_sorting</span>
-<span class="kn">from</span> <span class="nn">archai.discrete_search.utils.evaluation</span> <span class="kn">import</span> <span class="n">evaluate_models</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.algos.utils</span> <span class="kn">import</span> <span class="n">get_non_dominated_sorting</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.algos.utils</span> <span class="kn">import</span> <span class="n">SearchResults</span>
 
 
 <div class="viewcode-block" id="SucessiveHalvingSearch"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.sucessive_halving.SucessiveHalvingSearch">[docs]</a><span class="k">class</span> <span class="nc">SucessiveHalvingSearch</span><span class="p">(</span><span class="n">Searcher</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_space</span><span class="p">:</span> <span class="n">DiscreteSearchSpace</span><span class="p">,</span> 
-                 <span class="n">objectives</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">Objective</span><span class="p">,</span> <span class="n">AsyncObjective</span><span class="p">]],</span> 
+                 <span class="n">objectives</span><span class="p">:</span> <span class="n">SearchObjectives</span><span class="p">,</span> 
                  <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span>
                  <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">num_iters</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
                  <span class="n">init_num_models</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -846,10 +840,12 @@ title="Open an issue"
             <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Evaluating </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">selected_models</span><span class="p">)</span><span class="si">}</span><span class="s1"> models with budget </span><span class="si">{</span><span class="n">current_budget</span><span class="si">}</span><span class="s1">..&#39;</span><span class="p">)</span>
-            <span class="n">results</span> <span class="o">=</span> <span class="n">evaluate_models</span><span class="p">(</span><span class="n">selected_models</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budgets</span><span class="o">=</span><span class="p">{</span>
-                <span class="n">obj_name</span><span class="p">:</span> <span class="n">current_budget</span>
-                <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span>
-            <span class="p">})</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">eval_all_objs</span><span class="p">(</span>
+                <span class="n">selected_models</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budgets</span><span class="o">=</span><span class="p">{</span>
+                    <span class="n">obj_name</span><span class="p">:</span> <span class="n">current_budget</span>
+                    <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objs</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
 
             <span class="c1"># Logs results and saves iteration models</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">add_iteration_results</span><span class="p">(</span>

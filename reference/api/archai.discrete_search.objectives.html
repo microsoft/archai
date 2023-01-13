@@ -149,11 +149,6 @@
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../basic_guide/notebooks/discrete_search/objectives.html">
-       Objectives
-      </a>
-     </li>
-     <li class="toctree-l3">
       <a class="reference internal" href="../../basic_guide/notebooks/discrete_search/search_algos.html">
        Search Algorithms
       </a>
@@ -792,22 +787,22 @@ title="Edit this page"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.objectives.torch_model">
+  <a class="reference internal nav-link" href="#torch-metrics">
    Torch Metrics
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.objectives.onnx_model">
+  <a class="reference internal nav-link" href="#onnx-metrics">
    ONNX Metrics
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.objectives.functional">
+  <a class="reference internal nav-link" href="#custom-function-objective">
    Custom Function Objective
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.objectives.ray">
+  <a class="reference internal nav-link" href="#ray-wrapper">
    Ray Wrapper
   </a>
  </li>
@@ -836,22 +831,22 @@ title="Edit this page"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.objectives.torch_model">
+  <a class="reference internal nav-link" href="#torch-metrics">
    Torch Metrics
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.objectives.onnx_model">
+  <a class="reference internal nav-link" href="#onnx-metrics">
    ONNX Metrics
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.objectives.functional">
+  <a class="reference internal nav-link" href="#custom-function-objective">
    Custom Function Objective
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.objectives.ray">
+  <a class="reference internal nav-link" href="#ray-wrapper">
    Ray Wrapper
   </a>
  </li>
@@ -872,141 +867,17 @@ title="Edit this page"
                 
   <section id="bultin-search-objectives">
 <h1>Bultin search objectives<a class="headerlink" href="#bultin-search-objectives" title="Permalink to this headline">#</a></h1>
-<section id="module-archai.discrete_search.objectives.torch_model">
-<span id="torch-metrics"></span><h2>Torch Metrics<a class="headerlink" href="#module-archai.discrete_search.objectives.torch_model" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.objectives.torch_model.TensorwatchStat">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.objectives.torch_model.</span></span><span class="sig-name descname"><span class="pre">TensorwatchStat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stat_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/objectives/torch_model.html#TensorwatchStat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.objectives.torch_model.TensorwatchStat" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.objectives.torch_model.TensorwatchStat.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.dataset_provider.DatasetProvider" title="archai.cv.datasets.dataset_provider.DatasetProvider"><span class="pre">archai.cv.datasets.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/objectives/torch_model.html#TensorwatchStat.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.objectives.torch_model.TensorwatchStat.evaluate" title="Permalink to this definition">#</a></dt>
-<dd><p>Evaluates a given ArchaiModel, optionally using a DatasetProvider and budget value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arch</strong> (<a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Model to be evaluated</p></li>
-<li><p><strong>dataset</strong> (<a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.dataset_provider.DatasetProvider" title="archai.cv.datasets.dataset_provider.DatasetProvider"><em>DatasetProvider</em></a>) – A dataset provider object</p></li>
-<li><p><strong>budget</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – A budget multiplier value, used by search algorithms like
-<cite>SucessiveHalving</cite> to specify how much compute should be spent in this evaluation.
-In order to use this type of search algorithm, the implementation of <cite>eval</cite> must
-use the passed <cite>budget</cite> value accordingly.
-Defaults to None.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluation result</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="torch-metrics">
+<h2>Torch Metrics<a class="headerlink" href="#torch-metrics" title="Permalink to this headline">#</a></h2>
 </section>
-<section id="module-archai.discrete_search.objectives.onnx_model">
-<span id="onnx-metrics"></span><h2>ONNX Metrics<a class="headerlink" href="#module-archai.discrete_search.objectives.onnx_model" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.objectives.onnx_model.AvgOnnxLatency">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.objectives.onnx_model.</span></span><span class="sig-name descname"><span class="pre">AvgOnnxLatency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'torch.FloatTensor'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">1.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inf_session_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/objectives/onnx_model.html#AvgOnnxLatency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.objectives.onnx_model.AvgOnnxLatency" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py attribute">
-<dt class="sig sig-object py" id="archai.discrete_search.objectives.onnx_model.AvgOnnxLatency.higher_is_better">
-<span class="sig-name descname"><span class="pre">higher_is_better</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#archai.discrete_search.objectives.onnx_model.AvgOnnxLatency.higher_is_better" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.objectives.onnx_model.AvgOnnxLatency.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.dataset_provider.DatasetProvider" title="archai.cv.datasets.dataset_provider.DatasetProvider"><span class="pre">archai.cv.datasets.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/objectives/onnx_model.html#AvgOnnxLatency.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.objectives.onnx_model.AvgOnnxLatency.evaluate" title="Permalink to this definition">#</a></dt>
-<dd><p>Evaluates a given ArchaiModel, optionally using a DatasetProvider and budget value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arch</strong> (<a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Model to be evaluated</p></li>
-<li><p><strong>dataset</strong> (<a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.dataset_provider.DatasetProvider" title="archai.cv.datasets.dataset_provider.DatasetProvider"><em>DatasetProvider</em></a>) – A dataset provider object</p></li>
-<li><p><strong>budget</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – A budget multiplier value, used by search algorithms like
-<cite>SucessiveHalving</cite> to specify how much compute should be spent in this evaluation.
-In order to use this type of search algorithm, the implementation of <cite>eval</cite> must
-use the passed <cite>budget</cite> value accordingly.
-Defaults to None.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluation result</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="onnx-metrics">
+<h2>ONNX Metrics<a class="headerlink" href="#onnx-metrics" title="Permalink to this headline">#</a></h2>
 </section>
-<section id="module-archai.discrete_search.objectives.functional">
-<span id="custom-function-objective"></span><h2>Custom Function Objective<a class="headerlink" href="#module-archai.discrete_search.objectives.functional" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.objectives.functional.EvaluationFunction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.objectives.functional.</span></span><span class="sig-name descname"><span class="pre">EvaluationFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluation_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">higher_is_better</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/objectives/functional.html#EvaluationFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.objectives.functional.EvaluationFunction" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.objectives.functional.EvaluationFunction.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.discrete_search.api.dataset.DatasetProvider</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/objectives/functional.html#EvaluationFunction.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.objectives.functional.EvaluationFunction.evaluate" title="Permalink to this definition">#</a></dt>
-<dd><p>Evaluates a given ArchaiModel, optionally using a DatasetProvider and budget value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arch</strong> (<a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Model to be evaluated</p></li>
-<li><p><strong>dataset</strong> (<a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.dataset_provider.DatasetProvider" title="archai.cv.datasets.dataset_provider.DatasetProvider"><em>DatasetProvider</em></a>) – A dataset provider object</p></li>
-<li><p><strong>budget</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – A budget multiplier value, used by search algorithms like
-<cite>SucessiveHalving</cite> to specify how much compute should be spent in this evaluation.
-In order to use this type of search algorithm, the implementation of <cite>eval</cite> must
-use the passed <cite>budget</cite> value accordingly.
-Defaults to None.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluation result</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="custom-function-objective">
+<h2>Custom Function Objective<a class="headerlink" href="#custom-function-objective" title="Permalink to this headline">#</a></h2>
 </section>
-<section id="module-archai.discrete_search.objectives.ray">
-<span id="ray-wrapper"></span><h2>Ray Wrapper<a class="headerlink" href="#module-archai.discrete_search.objectives.ray" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.objectives.ray.RayParallelObjective">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.objectives.ray.</span></span><span class="sig-name descname"><span class="pre">RayParallelObjective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.objective.Objective" title="archai.discrete_search.api.objective.Objective"><span class="pre">archai.discrete_search.api.objective.Objective</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_stop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">ray_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/objectives/ray.html#RayParallelObjective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.objectives.ray.RayParallelObjective" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.objectives.ray.RayParallelObjective.send">
-<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nas_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.discrete_search.api.dataset.DatasetProvider</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/objectives/ray.html#RayParallelObjective.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.objectives.ray.RayParallelObjective.send" title="Permalink to this definition">#</a></dt>
-<dd><p>Sends an evaluation job to be computed asynchronously.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arch</strong> (<a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Evaluated model</p></li>
-<li><p><strong>dataset</strong> (<a class="reference internal" href="archai.cv.datasets.html#archai.cv.datasets.dataset_provider.DatasetProvider" title="archai.cv.datasets.dataset_provider.DatasetProvider"><em>DatasetProvider</em></a>) – Dataset</p></li>
-<li><p><strong>budget</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em><em>, </em><em>optional</em>) – A budget multiplier value, used by search algorithms like
-<cite>SucessiveHalving</cite> to specify how much compute should be spent in this evaluation.
-Defaults to None.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.objectives.ray.RayParallelObjective.fetch_all">
-<span class="sig-name descname"><span class="pre">fetch_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/objectives/ray.html#RayParallelObjective.fetch_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.objectives.ray.RayParallelObjective.fetch_all" title="Permalink to this definition">#</a></dt>
-<dd><p>Fetch all the results from active jobs sent using the <cite>.send</cite> method and resets job queue. The
-results are expected to respect the original scheduling order.</p>
-</dd></dl>
-
-</dd></dl>
-
+<section id="ray-wrapper">
+<h2>Ray Wrapper<a class="headerlink" href="#ray-wrapper" title="Permalink to this headline">#</a></h2>
 </section>
 <section id="remote-azure-benchmark">
 <h2>Remote Azure Benchmark<a class="headerlink" href="#remote-azure-benchmark" title="Permalink to this headline">#</a></h2>

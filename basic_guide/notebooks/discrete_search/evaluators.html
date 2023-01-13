@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Objective functions &#8212; Archai</title>
+    <title>Evaluators &#8212; Archai</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -41,8 +41,6 @@
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Search Algorithms" href="search_algos.html" />
-    <link rel="prev" title="Discrete Search Spaces" href="search_space.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -119,40 +117,35 @@
   Basic Guide
  </span>
 </p>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
  <li class="toctree-l1">
   <a class="reference internal" href="../../tutorial.html">
    30-Minute Tutorial
   </a>
  </li>
- <li class="toctree-l1 current active has-children">
+ <li class="toctree-l1 has-children">
   <a class="reference internal" href="../../notebooks.html">
    Notebooks
   </a>
-  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
   <label for="toctree-checkbox-1">
    <i class="fas fa-chevron-down">
    </i>
   </label>
-  <ul class="current">
-   <li class="toctree-l2 current active has-children">
+  <ul>
+   <li class="toctree-l2 has-children">
     <a class="reference internal" href="../discrete_search.html">
      Discrete Search
     </a>
-    <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
     <label for="toctree-checkbox-2">
      <i class="fas fa-chevron-down">
      </i>
     </label>
-    <ul class="current">
+    <ul>
      <li class="toctree-l3">
       <a class="reference internal" href="search_space.html">
        Search Spaces
-      </a>
-     </li>
-     <li class="toctree-l3 current active">
-      <a class="current reference internal" href="#">
-       Objectives
       </a>
      </li>
      <li class="toctree-l3">
@@ -735,7 +728,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Fbasic_guide/notebooks/discrete_search/objectives.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Fbasic_guide/notebooks/discrete_search/evaluators.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -752,7 +745,7 @@ title="Open an issue"
       </li>
       
       <li>
-        <a href="https://github.com/microsoft/archai/edit/master/basic_guide/notebooks/discrete_search/objectives.ipynb"
+        <a href="https://github.com/microsoft/archai/edit/master/basic_guide/notebooks/discrete_search/evaluators.ipynb"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -799,28 +792,34 @@ title="Edit this page"
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Built-in-objective-example-(AvgOnnxLatency)">
-     Built-in objective example (AvgOnnxLatency)
+    <a class="reference internal nav-link" href="#Example:-Using-a-built-in-evaluator-(AvgOnnxLatency)">
+     Example: Using a built-in evaluator (
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AvgOnnxLatency
+      </span>
+     </code>
+     )
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Custom-objective-example">
-     Custom objective example
+    <a class="reference internal nav-link" href="#Custom-Evaluator-Example">
+     Custom Evaluator Example
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Some-useful-objective-functions">
-     Some useful objective functions
+    <a class="reference internal nav-link" href="#Useful-Evaluators">
+     Useful Evaluators
     </a>
     <ul class="nav section-nav flex-column">
      <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#Parallelizing-NumberOfModules">
-       Parallelizing NumberOfModules
+      <a class="reference internal nav-link" href="#Example:-Parallelizing-NumberOfModules">
+       Example: Parallelizing NumberOfModules
       </a>
      </li>
      <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#Example:-Wrapping-custom-training-code-in-an-objective">
-       Example: Wrapping custom training code in an objective
+      <a class="reference internal nav-link" href="#Example:-Wrapping-custom-training-code-into-an-Evaluator">
+       Example: Wrapping custom training code into an Evaluator
       </a>
      </li>
     </ul>
@@ -836,7 +835,7 @@ title="Edit this page"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Objective functions</h1>
+                <h1>Evaluators</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -852,28 +851,34 @@ title="Edit this page"
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Built-in-objective-example-(AvgOnnxLatency)">
-     Built-in objective example (AvgOnnxLatency)
+    <a class="reference internal nav-link" href="#Example:-Using-a-built-in-evaluator-(AvgOnnxLatency)">
+     Example: Using a built-in evaluator (
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       AvgOnnxLatency
+      </span>
+     </code>
+     )
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Custom-objective-example">
-     Custom objective example
+    <a class="reference internal nav-link" href="#Custom-Evaluator-Example">
+     Custom Evaluator Example
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Some-useful-objective-functions">
-     Some useful objective functions
+    <a class="reference internal nav-link" href="#Useful-Evaluators">
+     Useful Evaluators
     </a>
     <ul class="nav section-nav flex-column">
      <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#Parallelizing-NumberOfModules">
-       Parallelizing NumberOfModules
+      <a class="reference internal nav-link" href="#Example:-Parallelizing-NumberOfModules">
+       Example: Parallelizing NumberOfModules
       </a>
      </li>
      <li class="toc-h4 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#Example:-Wrapping-custom-training-code-in-an-objective">
-       Example: Wrapping custom training code in an objective
+      <a class="reference internal nav-link" href="#Example:-Wrapping-custom-training-code-into-an-Evaluator">
+       Example: Wrapping custom training code into an Evaluator
       </a>
      </li>
     </ul>
@@ -1147,8 +1152,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="Objective-functions">
-<h1>Objective functions<a class="headerlink" href="#Objective-functions" title="Permalink to this headline">#</a></h1>
+<section id="Evaluators">
+<h1>Evaluators<a class="headerlink" href="#Evaluators" title="Permalink to this headline">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -1165,7 +1170,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.segmentation_dag.search_space</span> <span class="kn">import</span> <span class="n">SegmentationDagSearchSpace</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.segmentation_dag</span> <span class="kn">import</span> <span class="n">SegmentationDagSearchSpace</span>
 </pre></div>
 </div>
 </div>
@@ -1191,7 +1196,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_objectives_5_0.svg" src="../../../_images/basic_guide_notebooks_discrete_search_objectives_5_0.svg" /></div>
+<img alt="../../../_images/basic_guide_notebooks_discrete_search_evaluators_5_0.svg" src="../../../_images/basic_guide_notebooks_discrete_search_evaluators_5_0.svg" /></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">SegmentationDagSearchSpace</span></code> is a subclass of <code class="docutils literal notranslate"><span class="pre">EvolutionarySearchSpace</span></code>, so <code class="docutils literal notranslate"><span class="pre">mutate</span></code> and <code class="docutils literal notranslate"><span class="pre">crossover</span></code> methods are already implemented</p>
 <div class="nbinput docutils container">
@@ -1207,35 +1212,36 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../../../_images/basic_guide_notebooks_discrete_search_objectives_7_0.svg" src="../../../_images/basic_guide_notebooks_discrete_search_objectives_7_0.svg" /></div>
+<img alt="../../../_images/basic_guide_notebooks_discrete_search_evaluators_7_0.svg" src="../../../_images/basic_guide_notebooks_discrete_search_evaluators_7_0.svg" /></div>
 </div>
 <section id="Evaluating-models">
 <h2>Evaluating models<a class="headerlink" href="#Evaluating-models" title="Permalink to this headline">#</a></h2>
-<p>Objective functions are the main tool used to evaluate architectures in given criteria (task performance, speed, size, etc.). Objectives are optimized by search algorithms.</p>
-<p>There are two types of objective function abstractions:</p>
+<p><code class="docutils literal notranslate"><span class="pre">Evaluators</span></code> are the main tool used to evaluate architectures in given criteria (task performance, speed, size, etc.). Archai supports two types of <code class="docutils literal notranslate"><span class="pre">Evaluators</span></code>:</p>
 <ul class="simple">
-<li><p>Objectives <a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#module-archai.discrete_search.api.objective">archai.discrete_search.Objective</a></p>
+<li><p>ModelEvaluator (<a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#module-archai.discrete_search.api.evaluator.ModelEvaluator">archai.discrete_search.api.evaluator.ModelEvaluator</a>)</p>
 <ul>
-<li><p>Must override <code class="docutils literal notranslate"><span class="pre">Objective.higher_is_better</span></code> (optimization direction)</p></li>
-<li><p>Must implement <code class="docutils literal notranslate"><span class="pre">Objective.evaluate(model,</span> <span class="pre">dataset,</span> <span class="pre">budget)</span></code></p></li>
+<li><p>Evaluates a model: <code class="docutils literal notranslate"><span class="pre">ModelEvaluator.evaluate(model,</span> <span class="pre">dataset,</span> <span class="pre">budget)</span></code></p></li>
 </ul>
 </li>
-<li><p>Asynchronous Objectives <a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#archai.discrete_search.api.objective.AsyncObjective">archai.discrete_search.AsyncObjective</a>:</p>
+<li><p>AsyncModelEvaluator (<a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#module-archai.discrete_search.api.evaluator.AsyncModelEvaluator">archai.discrete_search.api.evaluator.AsyncModelEvaluator</a>):</p>
 <ul>
-<li><p>Must override <code class="docutils literal notranslate"><span class="pre">AsyncObjective.higher_is_better</span></code> (optimization direction)</p></li>
-<li><p>Must implement <code class="docutils literal notranslate"><span class="pre">AsyncObjective.send(model,</span> <span class="pre">dataset,</span> <span class="pre">budget)</span></code> and <code class="docutils literal notranslate"><span class="pre">AsyncObjective.fetch_all()</span></code></p></li>
+<li><p>Sends an evaluation job: <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator.send(model,</span> <span class="pre">dataset,</span> <span class="pre">budget)</span></code></p></li>
+<li><p>Fetches all evaluation jobs from the queue: <code class="docutils literal notranslate"><span class="pre">AsyncObjective.fetch_all()</span></code></p></li>
 </ul>
 </li>
 </ul>
-<p>Objective functions may optionally use a dataset (e.g task accuracy) or not (e.g architecture latency). Objective functions may also receive a <code class="docutils literal notranslate"><span class="pre">budget</span></code> value from some search algorithms. This <code class="docutils literal notranslate"><span class="pre">budget</span></code> value is used by some algorithms to sinalize how much budget the model evaluation should spend.</p>
-<p>Read more about them <a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#module-archai.discrete_search.api.objective">here</a></p>
-<section id="Built-in-objective-example-(AvgOnnxLatency)">
-<h3>Built-in objective example (AvgOnnxLatency)<a class="headerlink" href="#Built-in-objective-example-(AvgOnnxLatency)" title="Permalink to this headline">#</a></h3>
+<p>A synchronous evaluator (<code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code>) is computed by the search algorithm in a sequential fashion, while an asynchronous evaluator (<code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator</span></code>) sends evaluation jobs to a queue and fetches the results later, and thus can be used to evaluate models remotely or in a distributed fashion.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> and a <code class="docutils literal notranslate"><span class="pre">DatasetProvider</span></code> objects passed to the evaluator objects can be used to access the architecture and data needed to perform the evaluation, if necessary. Some objectives will actively use the passed dataset (e.g task accuracy), while others (e.g FLOPs, latency, memory) may not.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">budget</span></code> argument, if provided, is a multiplier value used by search algorithms like <code class="docutils literal notranslate"><span class="pre">SucessiveHalving</span></code> to specify how much compute should be spent on the evaluation.</p>
+<p>Read more about Evaluators <a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#module-archai.discrete_search.api.evaluator">here</a>. You can find a list of built-in evaluators in <code class="docutils literal notranslate"><span class="pre">archai.discrete_search.evaluators</span></code>.</p>
+<section id="Example:-Using-a-built-in-evaluator-(AvgOnnxLatency)">
+<h3>Example: Using a built-in evaluator (<code class="docutils literal notranslate"><span class="pre">AvgOnnxLatency</span></code>)<a class="headerlink" href="#Example:-Using-a-built-in-evaluator-(AvgOnnxLatency)" title="Permalink to this headline">#</a></h3>
+<p>Let’s use a built-in evaluator to measure ONNX latency of PyTorch models</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.objectives.onnx_model</span> <span class="kn">import</span> <span class="n">AvgOnnxLatency</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.evaluators.onnx_model</span> <span class="kn">import</span> <span class="n">AvgOnnxLatency</span>
 </pre></div>
 </div>
 </div>
@@ -1267,46 +1273,27 @@ WARNING: The shape inference of prim::Constant type is missing, so it may result
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.0004309522919356823
-</pre></div></div>
-</div>
-<p>By default <code class="docutils literal notranslate"><span class="pre">AvgOnnxLatency</span></code> will be minimized</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">onnx_latency_obj</span><span class="o">.</span><span class="n">higher_is_better</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-False
+0.0006057829887140542
 </pre></div></div>
 </div>
 </section>
-<section id="Custom-objective-example">
-<h3>Custom objective example<a class="headerlink" href="#Custom-objective-example" title="Permalink to this headline">#</a></h3>
+<section id="Custom-Evaluator-Example">
+<h3>Custom Evaluator Example<a class="headerlink" href="#Custom-Evaluator-Example" title="Permalink to this headline">#</a></h3>
+<p>Let’s create a simple custom <code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code> that counts the number of modules in a model</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search</span> <span class="kn">import</span> <span class="n">ModelEvaluator</span><span class="p">,</span> <span class="n">DatasetProvider</span>
+</pre></div>
+</div>
+</div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search</span> <span class="kn">import</span> <span class="n">Objective</span><span class="p">,</span> <span class="n">DatasetProvider</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">NumberOfModules</span><span class="p">(</span><span class="n">Objective</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">NumberOfModules</span><span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Class that measures the size of a model by the number of torch modules &#39;&#39;&#39;</span>
-
-    <span class="n">higher_is_better</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Smaller models are better</span>
 
     <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span>
@@ -1316,7 +1303,7 @@ False
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
@@ -1324,7 +1311,7 @@ False
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_objective</span> <span class="o">=</span> <span class="n">NumberOfModules</span><span class="p">()</span>
@@ -1333,7 +1320,7 @@ False
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1342,35 +1329,38 @@ False
 </pre></div></div>
 </div>
 </section>
-<section id="Some-useful-objective-functions">
-<h3>Some useful objective functions<a class="headerlink" href="#Some-useful-objective-functions" title="Permalink to this headline">#</a></h3>
+<section id="Useful-Evaluators">
+<h3>Useful Evaluators<a class="headerlink" href="#Useful-Evaluators" title="Permalink to this headline">#</a></h3>
 <ul class="simple">
-<li><p><a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.objectives.html#module-archai.discrete_search.objectives.ray">RayParallelObjective</a> - Wraps an existing objective and runs it using multiple Ray workers</p></li>
-<li><p><a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.objectives.html#module-archai.discrete_search.objectives.functional">EvaluationFunction</a> - Wraps a function that takes a (model, dataset_provider, budget) triplet and creates an objective</p></li>
+<li><p><a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.objectives.html#module-archai.discrete_search.evaluators.ray">RayParallelEvaluator</a> - Wraps an existing <code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code> into a new <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator</span></code> that runs evaluation jobs using multiple Ray workers.</p></li>
+<li><p><a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.objectives.html#module-archai.discrete_search.evaluators.functional">EvaluationFunction</a> - Wraps a function that takes a (model, dataset_provider, budget) triplet and creates a <code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code></p></li>
 </ul>
-<section id="Parallelizing-NumberOfModules">
-<h4>Parallelizing NumberOfModules<a class="headerlink" href="#Parallelizing-NumberOfModules" title="Permalink to this headline">#</a></h4>
+<section id="Example:-Parallelizing-NumberOfModules">
+<h4>Example: Parallelizing NumberOfModules<a class="headerlink" href="#Example:-Parallelizing-NumberOfModules" title="Permalink to this headline">#</a></h4>
+<p>Let’s use <code class="docutils literal notranslate"><span class="pre">RayParallelEvaluator</span></code> to make our custom evaluator <code class="docutils literal notranslate"><span class="pre">NumberOfModules</span></code> run more efficiently.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.evaluators.ray</span> <span class="kn">import</span> <span class="n">RayParallelEvaluator</span>
+</pre></div>
+</div>
+</div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.objectives.ray</span> <span class="kn">import</span> <span class="n">RayParallelObjective</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_objective_parallel</span> <span class="o">=</span> <span class="n">RayParallelObjective</span><span class="p">(</span>
-    <span class="n">NumberOfModules</span><span class="p">(),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">num_cpus</span><span class="o">=</span><span class="mf">1.0</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_objective_parallel</span> <span class="o">=</span> <span class="n">RayParallelEvaluator</span><span class="p">(</span>
+    <span class="n">NumberOfModules</span><span class="p">(),</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="c1"># Timeout in seconds</span>
+    <span class="n">num_cpus</span><span class="o">=</span><span class="mf">1.0</span> <span class="c1"># Each evaluation job will use a CPU core</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">my_objective_parallel</span></code> is now an <code class="docutils literal notranslate"><span class="pre">AsyncObjective</span></code> object</p>
+<p><code class="docutils literal notranslate"><span class="pre">my_objective_parallel</span></code> is now an <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator</span></code> object. We can send evaluation jobs calling <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator.send(model,</span> <span class="pre">dataset,</span> <span class="pre">budget)</span></code>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
@@ -1394,7 +1384,7 @@ Dispatching job for 4aba6fbdb292e44d634daefa425ab1406684daed_64_64
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-2022-10-28 07:39:27,701 INFO worker.py:1518 -- Started a local Ray instance.
+2022-12-22 11:38:29,405 INFO worker.py:1518 -- Started a local Ray instance.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1413,8 +1403,9 @@ Dispatching job for bdf6f69e2a8e08473e9e799ec2d7e627dd915d43_64_64
 Dispatching job for 9b0f792a6e6c37c4e40abde72b4fbd2cdca9ebae_64_64
 </pre></div></div>
 </div>
+<p>We can fetch and clear all jobs from the job queue by calling <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator.fetch_all()</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_objective_parallel</span><span class="o">.</span><span class="n">fetch_all</span><span class="p">()</span>
@@ -1422,7 +1413,7 @@ Dispatching job for 9b0f792a6e6c37c4e40abde72b4fbd2cdca9ebae_64_64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1430,18 +1421,29 @@ Dispatching job for 9b0f792a6e6c37c4e40abde72b4fbd2cdca9ebae_64_64
 [53, 29, 60, 31, 87, 49, 30, 83, 33, 61]
 </pre></div></div>
 </div>
+<p>After that, job queue should be empty</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">my_objective_parallel</span><span class="o">.</span><span class="n">fetch_all</span><span class="p">()</span> <span class="o">==</span> <span class="p">[]</span>
+</pre></div>
+</div>
+</div>
 </section>
-<section id="Example:-Wrapping-custom-training-code-in-an-objective">
-<h4>Example: Wrapping custom training code in an objective<a class="headerlink" href="#Example:-Wrapping-custom-training-code-in-an-objective" title="Permalink to this headline">#</a></h4>
+<section id="Example:-Wrapping-custom-training-code-into-an-Evaluator">
+<h4>Example: Wrapping custom training code into an Evaluator<a class="headerlink" href="#Example:-Wrapping-custom-training-code-into-an-Evaluator" title="Permalink to this headline">#</a></h4>
+<p>Let’s consider the problem of measuring the task performance on a specific dataset with custom training code.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.cv.datasets.providers.mnist_provider</span> <span class="kn">import</span> <span class="n">MnistProvider</span>
-<span class="kn">from</span> <span class="nn">archai.discrete_search.objectives.functional</span> <span class="kn">import</span> <span class="n">EvaluationFunction</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.evaluators.functional</span> <span class="kn">import</span> <span class="n">EvaluationFunction</span>
 </pre></div>
 </div>
 </div>
+<p>Datasets in Archai are defined using dataset providers. We will use the built-in <code class="docutils literal notranslate"><span class="pre">MnistProvider</span></code> dataset provider for the MNIST dataset.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
@@ -1450,6 +1452,7 @@ Dispatching job for 9b0f792a6e6c37c4e40abde72b4fbd2cdca9ebae_64_64
 </pre></div>
 </div>
 </div>
+<p>We can now wrap custom training code easily using the <code class="docutils literal notranslate"><span class="pre">EvaluationFunction</span></code> wrapper:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_training_val_performance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">tr_data</span><span class="p">,</span> <span class="n">val_data</span> <span class="o">=</span> <span class="n">dataset_provider</span><span class="o">.</span><span class="n">get_datasets</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
@@ -1468,12 +1471,14 @@ Dispatching job for 9b0f792a6e6c37c4e40abde72b4fbd2cdca9ebae_64_64
     <span class="k">return</span> <span class="n">validation_metric</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">training_objective</span> <span class="o">=</span> <span class="n">EvaluationFunction</span><span class="p">(</span><span class="n">custom_traininb_val_performance</span><span class="p">,</span> <span class="n">higher_is_better</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Wraps custom training function into a ModelEvaluator</span>
+<span class="n">custom_evaluator</span> <span class="o">=</span> <span class="n">EvaluationFunction</span><span class="p">(</span><span class="n">custom_traininb_val_performance</span><span class="p">)</span>
 
-<span class="n">training_objective</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(),</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="c1"># Evaluates an architecture from the search space</span>
+<span class="n">custom_evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(),</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>See the next notebook for a full example using a custom training objective</p>
+<p>See the next notebook for a complete example using a custom training objectives</p>
 </section>
 </section>
 </section>
@@ -1487,20 +1492,6 @@ Dispatching job for 9b0f792a6e6c37c4e40abde72b4fbd2cdca9ebae_64_64
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="search_space.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Discrete Search Spaces</p>
-        </div>
-    </a>
-    <a class='right-next' id="next-link" href="search_algos.html" title="next page">
-    <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Search Algorithms</p>
-    </div>
-    <i class="fas fa-angle-right"></i>
-    </a>
 </div>
             </footer>
         </div>
