@@ -381,6 +381,19 @@
                      "-o", "~/logdir"]
         },
         {
+            "name": "Train Codegen",
+            "type": "python",
+            "request": "launch",
+            "module": "torch.distributed.run",
+            "justMyCode": true,
+            "console": "integratedTerminal",
+            "args": ["--nproc_per_node",
+                     "4",
+                     "${cwd}/research/sgconv/scripts/main.py",
+                     "${cwd}/research/sgconv/confs/clm-codegen-template.yaml",                     
+                     "-o", "~/logdir"]
+        },
+        {
             "name": "Generate Text from Model",
             "type": "python",
             "request": "launch",

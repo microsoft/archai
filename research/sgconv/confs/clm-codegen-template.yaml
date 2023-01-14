@@ -6,20 +6,21 @@ collator:
   mlm: False
 data:
   dataset:
-    - dataset_name: "wikitext"
-      dataset_config_name: "wikitext-103-raw-v1"
-      dataset_split: null
+    - dataset_disk: "/data/dataroot/dummy"
+  num_proc: 128
+  mapping_column_name: "code"
+  encoded_dataset_path: "/data/dataroot/the_pile_30B_encoded_8192"
 tokenizer:
   tokenizer_file: "Salesforce/codegen-350M-mono"
   pad_token: "<|endoftext|>"
-  model_max_length: 2048
+  model_max_length: 8192
 model:
   model_type: "codegen"
   vocab_size: 50295
-  n_positions: 2048
-  n_embd: 768
-  n_layer: 12
-  n_head: 12
+  n_positions: 8192
+  n_embd: 512
+  n_layer: 5
+  n_head: 8
   n_inner: null
   rotary_dim: 32
   activation_function: "gelu_new"
@@ -49,7 +50,7 @@ trainer:
   adam_beta2: 0.95
   weight_decay: 0.1
   max_grad_norm: 1.0
-  max_steps: 10
+  max_steps: 100
   lr_scheduler_type: "cosine"
   warmup_steps: 300
   logging_steps: 10
@@ -57,5 +58,5 @@ trainer:
   save_total_limit: 1
   eval_steps: 6000
   seed: 1234
-  fp16: false
+  fp16: true
   tf32: false
