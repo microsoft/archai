@@ -1,6 +1,7 @@
-from typing import Dict, Union, Any, Optional
+from typing import Dict, Union, Any
 from collections import OrderedDict
 from copy import deepcopy
+from pathlib import Path
 import json
 import yaml
 
@@ -114,7 +115,14 @@ class ArchConfig():
 
     @classmethod
     def from_file(cls, path: str) -> 'ArchConfig':
-        d = yaml.load(open(path, 'r', encoding='utf-8'), Loader=yaml.Loader)
+        path = Path(path)
+
+        if path.suffix == '.json':
+            # For compatibility with older versions
+            d = json.load(open(path, 'r', encoding='utf-8'))
+        elif path.suffix == '.yaml':
+            d = yaml.load(open(path, 'r', encoding='utf-8'), Loader=yaml.Loader)
+        
         return build_arch_config(d)
 
 
