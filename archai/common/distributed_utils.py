@@ -2,8 +2,6 @@
 # Licensed under the Apache License, Version 2.0.
 # https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/LanguageModeling/Transformer-XL/pytorch/utils/distributed.py
 
-"""Utilities for initializing distributed training."""
-
 import os
 from contextlib import contextmanager
 from typing import Generator, Optional, Union

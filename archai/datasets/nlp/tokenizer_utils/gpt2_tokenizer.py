@@ -1,15 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""GPT2-based tokenizer."""
-
 from typing import Optional
 
-from archai.nlp.datasets.nvidia.tokenizer_utils.bbpe_vocab import BbpeVocab
+from archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer import BbpeTokenizer
 
 
-class Gpt2Vocab(BbpeVocab):
-    """GPT-2 based vocabulary/tokenizer."""
+class Gpt2Vocab(BbpeTokenizer):
+    """GPT-2 based tokenizer."""
 
     def __init__(
         self,
@@ -29,7 +27,7 @@ class Gpt2Vocab(BbpeVocab):
         """Define the tokenization pipeline.
 
         Args:
-            save_path: Path to save the vocabulary.
+            save_path: Path to save the tokenizer.
             vocab_size: Maximum size of vocabulary.
             pad_vocab_size: Whether vocabulary size should be padded to a multiple of 8.
             bos_token: Begin-of-sentence token.

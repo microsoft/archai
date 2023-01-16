@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Byte-BPE-based tokenizer."""
-
 import json
 import os
 from collections import OrderedDict
@@ -12,20 +10,20 @@ from overrides import overrides
 from tokenizers import ByteLevelBPETokenizer
 from transformers import PreTrainedTokenizerFast
 
-from archai.common import utils
-from archai.nlp import logging_utils
-from archai.nlp.datasets.nvidia import distributed_utils
-from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import (
+from archai.common.distributed_utils import sync_workers
+from archai.common.logging_utils import get_logger
+from archai.common.utils import copy_file, full_path
+from archai.datasets.nlp.tokenizer_utils.token_config import (
     SpecialTokenEnum,
     TokenConfig,
 )
-from archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base import VocabBase
+from archai.datasets.nlp.tokenizer_utils.tokenizer_base import TokenizerBase
 
-logger = logging_utils.get_logger(__name__)
+logger = get_logger(__name__)
 
 
-class BbpeVocab(VocabBase):
-    """Byte-BPE-based vocabulary/tokenizer."""
+class BbpeTokenizer(TokenizerBase):
+    """Byte-BPE-based tokenizer."""
 
     def __init__(
         self,
@@ -47,7 +45,7 @@ class BbpeVocab(VocabBase):
         """Define the tokenization pipeline.
 
         Args:
-            save_path: Path to save the vocabulary.
+            save_path: Path to save the tokenizer.
             vocab_size: Maximum size of vocabulary.
             pad_vocab_size: Whether vocabulary size should be padded to a multiple of 8.
             bos_token: Begin-of-sentence token.
@@ -74,7 +72,7 @@ class BbpeVocab(VocabBase):
         )
 
         self._tokenizer = None
-        self._tokenizer_filepath = os.path.join(utils.full_path(save_path, create=True), "bbpe_tokenizer.json")
+        self._tokenizer_filepath = os.path.join(full_path(save_path, create=True), "bbpe_tokenizer.json")
 
         self.vocab_size = vocab_size
         self.sorted_vocab = sorted_vocab
@@ -98,9 +96,9 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def train(self, filepaths: List[str]) -> None:
-        with distributed_utils.sync_workers() as rank:
+        with sync_workers() as rank:
             if rank == 0:
-                logger.info(f"Training vocabulary with size = {self.vocab_size} at {self._tokenizer_filepath} ...")
+                logger.info(f"Training tokenizer with size = {self.vocab_size} at {self._tokenizer_filepath} ...")
                 self._train_tokenizer(filepaths)
 
                 if self.sorted_vocab:
@@ -192,7 +190,7 @@ class BbpeVocab(VocabBase):
         assert len(vocab_orig) == len(orig2sorted_ids)
         v_map = OrderedDict([(vocab, orig2sorted_ids[idx]) for vocab, idx in vocab_orig.items()])
 
-        utils.copy_file(self._tokenizer_filepath, self._tokenizer_filepath + ".unsorted.json")
+        copy_file(self._tokenizer_filepath, self._tokenizer_filepath + ".unsorted.json")
         tok_json["model"]["vocab"] = v_map
         with open(self._tokenizer_filepath, "w", encoding="utf-8") as f:
             f.write(json.dumps(tok_json, ensure_ascii=False, indent=2))

@@ -1,12 +1,23 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Utilities for defining tokens' configuration."""
-
+from collections import OrderedDict
 from enum import Enum
 from typing import List, Optional
 
-from archai.common import utils
+
+def dedup_list(input_list: List[str]) -> List[str]:
+    """Remove duplicate elements from a list while preserving order.
+
+    Args:
+        input_list: List of elements.
+
+    Returns:
+        List of elements with duplicates removed.
+
+    """
+
+    return list(OrderedDict.fromkeys(input_list))
 
 
 class SpecialTokenEnum(Enum):
@@ -64,9 +75,7 @@ class TokenConfig:
 
         """
 
-        return utils.dedup_list(
-            [stok for stok in (self.unk_token, self.bos_token, self.eos_token, self.pad_token) if stok]
-        )
+        return dedup_list([stok for stok in (self.unk_token, self.bos_token, self.eos_token, self.pad_token) if stok])
 
     def special_token_name(self, sp: SpecialTokenEnum) -> str:
         """Return the name of a special token.

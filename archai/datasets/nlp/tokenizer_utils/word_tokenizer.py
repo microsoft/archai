@@ -1,28 +1,26 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Word-based tokenizer."""
-
 import os
 from collections import Counter, OrderedDict
 from typing import List, Optional
 
 from overrides import overrides
 
-from archai.common import utils
-from archai.nlp import logging_utils
-from archai.nlp.datasets.nvidia import distributed_utils
-from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import (
+from archai.common.distributed_utils import sync_workers
+from archai.common.logging_utils import get_logger
+from archai.common.utils import full_path
+from archai.datasets.nlp.tokenizer_utils.token_config import (
     SpecialTokenEnum,
     TokenConfig,
 )
-from archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base import VocabBase
+from archai.datasets.nlp.tokenizer_utils.tokenizer_base import TokenizerBase
 
-logger = logging_utils.get_logger(__name__)
+logger = get_logger(__name__)
 
 
-class WordVocab(VocabBase):
-    """Word-based vocabulary/tokenizer."""
+class WordTokenizer(TokenizerBase):
+    """Word-based tokenizer."""
 
     def __init__(
         self,
@@ -40,7 +38,7 @@ class WordVocab(VocabBase):
         """Define the tokenization pipeline.
 
         Args:
-            save_path: Path to save the vocabulary.
+            save_path: Path to save the tokenizer.
             vocab_size: Maximum size of vocabulary.
             bos_token: Begin-of-sentence token.
             eos_token: End-of-sentence token.
@@ -67,7 +65,7 @@ class WordVocab(VocabBase):
             lower_case=lower_case,
         )
 
-        assert self._config.unk_token, "`unk_token` must be supplied for WordVocab."
+        assert self._config.unk_token, "`unk_token` must be supplied."
         self._bos = [self._config.bos_token] if self._config.bos_token else []
         self._eos = [self._config.eos_token] if self._config.eos_token else []
 
@@ -92,7 +90,7 @@ class WordVocab(VocabBase):
     @overrides
     def train(self, filepaths: List[str]) -> None:
         logger.info(
-            f"Training vocabulary with min_frequency = {self.min_frequency} and vocab_size = {self.vocab_size}, using {len(filepaths)} training file(s) at {self.save_path} ..."
+            f"Training tokenizer with min_frequency = {self.min_frequency} and vocab_size = {self.vocab_size}, using {len(filepaths)} training file(s) at {self.save_path} ..."
         )
 
         assert len(filepaths)
@@ -112,11 +110,11 @@ class WordVocab(VocabBase):
                 break
             self._add_symbol(sym)
 
-        with distributed_utils.sync_workers() as rank:
+        with sync_workers() as rank:
             if rank == 0:
                 self._save()
 
-        logger.info(f"Final vocabulary size = {len(self)} | Unique tokens = {len(self.counter)}")
+        logger.info(f"Vocabulary size = {len(self)} | Unique tokens = {len(self.counter)}")
 
     @overrides
     def is_trained(self) -> bool:
@@ -126,7 +124,7 @@ class WordVocab(VocabBase):
 
     @overrides
     def load(self) -> None:
-        """Load a previously cached vocabulary file."""
+        """Load a cached tokenizer file."""
 
         vocab_filepath = self._vocab_filepath()
         self._clear()
@@ -252,12 +250,12 @@ class WordVocab(VocabBase):
 
         """
 
-        vocab_dir = utils.full_path(os.path.join(self.save_path), create=True)
+        vocab_dir = full_path(os.path.join(self.save_path), create=True)
 
         return os.path.join(vocab_dir, "vocab.txt")
 
     def _save(self) -> None:
-        """Save the vocabulary."""
+        """Save the tokenizer."""
 
         vocab_filepath = self._vocab_filepath()
         with open(vocab_filepath, "w", encoding="utf-8") as f:

@@ -1,22 +1,19 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Utilities for tokenization pipelines with huggingface/tokenizers."""
-
 from abc import abstractmethod
-from collections import abc
 from typing import List, Optional
 
 import torch
 from overrides import EnforceOverrides
 
-from archai.nlp import logging_utils
-from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import SpecialTokenEnum
+from archai.common.logging_utils import get_logger
+from archai.datasets.nlp.tokenizer_utils.token_config import SpecialTokenEnum
 
-logger = logging_utils.get_logger(__name__)
+logger = get_logger(__name__)
 
 
-class VocabBase(EnforceOverrides, abc.Sized):
+class TokenizerBase(EnforceOverrides):
     """A customizable tokenization pipeline for encoding and decoding text.
 
     This is an abstract base class that defines the interface for implementing a
