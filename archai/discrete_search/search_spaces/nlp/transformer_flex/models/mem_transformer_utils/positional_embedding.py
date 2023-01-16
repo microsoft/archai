@@ -4,8 +4,6 @@
 # Copyright (c) 2018, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0.
 
-"""Positional Embedding layer."""
-
 from typing import Optional
 
 import torch

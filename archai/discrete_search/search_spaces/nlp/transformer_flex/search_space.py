@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Transformer-Flex Search Space."""
-
 import json
 from copy import deepcopy
 from hashlib import sha1
@@ -14,21 +12,21 @@ from overrides import overrides
 from transformers.models.auto.configuration_auto import AutoConfig
 from transformers.models.auto.modeling_auto import AutoModelForCausalLM
 
-from archai.discrete_search import (
-    ArchaiModel,
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_space import (
     BayesOptSearchSpace,
     EvolutionarySearchSpace,
 )
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.configuration_gpt2_flex import (
     GPT2FlexConfig,
 )
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.modeling_gpt2_flex import (
-    GPT2FlexLMHeadModel,
-)
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.configuration_mem_transformer import (
     MemTransformerConfig,
 )
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.modeling_gpt2_flex import (
+    GPT2FlexLMHeadModel,
+)
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.modeling_mem_transformer import (
     MemTransformerLMHeadModel,
 )
 

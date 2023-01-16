@@ -1,13 +1,34 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""GPT-2 Flexible Transformer configuration."""
-
-from typing import Optional
+from typing import Any, List, Optional
 
 from transformers.models.gpt2.configuration_gpt2 import GPT2Config
 
-from archai.common.utils import map_to_list
+
+def map_to_list(variable: Any, size: int) -> List[Any]:
+    """Map variable to list of size.
+
+    Args:
+        variable: Variable to map to list.
+        size: Size of list.
+
+    Returns:
+        List of `size` with variable mapped to it.
+
+    """
+
+    if isinstance(variable, list):
+        size_diff = size - len(variable)
+
+        if size_diff < 0:
+            return variable[:size]
+        elif size_diff == 0:
+            return variable
+        elif size_diff > 0:
+            return variable + [variable[0]] * size_diff
+
+    return [variable] * size
 
 
 class GPT2FlexConfig(GPT2Config):

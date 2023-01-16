@@ -4,18 +4,16 @@
 # Copyright (c) 2018, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0.
 
-"""Relational Partial-Learnable Decoder."""
-
 from typing import Optional
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.depth_wise_convolution import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.mem_transformer_utils.depth_wise_convolution import (
     DepthWiseConvolution,
 )
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.position_wise_ff import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.mem_transformer_utils.position_wise_ff import (
     PositionWiseFF,
     PositionWiseFFPrimerEZ,
 )

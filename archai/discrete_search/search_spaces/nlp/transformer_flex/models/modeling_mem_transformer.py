@@ -4,8 +4,6 @@
 # Copyright (c) 2018, NVIDIA CORPORATION.
 # Licensed under the Apache License, Version 2.0.
 
-"""NVIDIA Memory Transformer."""
-
 from typing import List, Optional, Tuple
 
 import torch
@@ -16,19 +14,19 @@ from transformers.models.transfo_xl.modeling_transfo_xl import (
     TransfoXLPreTrainedModel,
 )
 
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.configuration_mem_transformer import (
     MemTransformerConfig,
 )
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.adaptive_embedding import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.mem_transformer_utils.adaptive_embedding import (
     AdaptiveEmbedding,
 )
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.positional_embedding import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.mem_transformer_utils.positional_embedding import (
     PositionalEmbedding,
 )
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.projected_adaptive_log_softmax import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.mem_transformer_utils.projected_adaptive_log_softmax import (
     ProjectedAdaptiveLogSoftmax,
 )
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.rel_partial_learnable_decoder import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.mem_transformer_utils.rel_partial_learnable_decoder import (
     RelPartialLearnableDecoderLayer,
 )
 
