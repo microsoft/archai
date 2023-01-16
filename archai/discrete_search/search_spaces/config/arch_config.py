@@ -109,9 +109,17 @@ class ArchConfig():
             if not remove_metadata_info or not k.startswith('_')
         )
 
-    def to_file(self, path: str) -> None:        
+    def to_file(self, path: str) -> None:
+        path = Path(path)
+
         d = self.to_dict()
-        yaml.dump(d, open(path, 'w', encoding='utf-8'), default_flow_style=False, sort_keys=False)
+
+        if path.suffix == '.json':
+            json.dump(d, open(path, 'w', encoding='utf-8'), indent=4)
+        elif path.suffix == '.yaml':
+            yaml.dump(d, open(path, 'w', encoding='utf-8'), default_flow_style=False, sort_keys=False)
+        else:
+            raise ValueError(f'Unsupported file extension {path.suffix}')
 
     @classmethod
     def from_file(cls, path: str) -> 'ArchConfig':
