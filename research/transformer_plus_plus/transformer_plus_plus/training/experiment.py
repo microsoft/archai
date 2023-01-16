@@ -89,7 +89,7 @@ class Experiment:
 
 
         hf_config = GPT2Config(**self.model_config)
-        arch_config = ArchConfig.from_json(str(self.arch_config))
+        arch_config = ArchConfig.from_file(str(self.arch_config))
         model = GPT2LMHeadModel(arch_config, hf_config)
 
         trainer = HfTrainer(
