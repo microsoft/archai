@@ -15,6 +15,10 @@ from archai.nlp.models.modeling_codegen_hard_coded import (
 from archai.nlp.models.modeling_codegen_sgconv import (
     CodeGenSGConvConfig, CodeGenSGConvForCausalLM
 )
+from archai.nlp.models.modeling_codegen_local import (
+    CodeGenLocalConfig, CodeGenForCausalLMLocal
+)
+
 from archai.nlp.models.utils import load_collator, load_config
 from transformers import (
     AutoConfig,
@@ -35,10 +39,12 @@ logger = logging_utils.get_logger(__name__)
 AutoConfig.register("codegen_conv_att", CodeGenConvAttConfig)
 AutoConfig.register("codegen_hard_coded", CodeGenHardCodedConfig)
 AutoConfig.register("codegen_sgconv", CodeGenSGConvConfig)
+AutoConfig.register("codegen_local", CodeGenLocalConfig)
 
 AutoModelForCausalLM.register(CodeGenConvAttConfig, CodeGenConvAttForCausalLM)
 AutoModelForCausalLM.register(CodeGenHardCodedConfig, CodeGenHardCodedForCausalLM)
 AutoModelForCausalLM.register(CodeGenSGConvConfig, CodeGenSGConvForCausalLM)
+AutoModelForCausalLM.register(CodeGenLocalConfig, CodeGenForCausalLMLocal)
 
 
 class ExperimentRunner:
