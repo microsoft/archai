@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Transformer-Flex latency-related objectives."""
-
 import copy
 import os
 import timeit
@@ -13,15 +11,17 @@ import torch
 from onnxruntime import InferenceSession
 from overrides import overrides
 
-from archai.discrete_search import ArchaiModel, DatasetProvider, ModelEvaluator
+from archai.api.dataset_provider import DatasetProvider
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.model_evaluator import ModelEvaluator
+from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import (
+    TransformerFlexSearchSpace,
+)
 from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
 from archai.nlp.onnx.export import export_to_onnx
 from archai.nlp.onnx.export_utils import prepare_model_for_onnx
 from archai.nlp.onnx.onnx_loader import load_from_onnx
 from archai.nlp.onnx.optimization import optimize_onnx
-from archai.nlp.search_spaces.transformer_flex.search_space import (
-    TransformerFlexSearchSpace,
-)
 
 
 class TransformerFlexOnnxLatency(ModelEvaluator):

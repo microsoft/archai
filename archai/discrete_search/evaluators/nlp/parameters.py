@@ -1,14 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Parameters-related objectives."""
-
 from typing import List, Optional
 
 from overrides import overrides
 from torch import nn
 
-from archai.discrete_search import ArchaiModel, DatasetProvider, ModelEvaluator
+from archai.api.dataset_provider import DatasetProvider
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.model_evaluator import ModelEvaluator
 
 
 class TotalParamsProxy(ModelEvaluator):
@@ -44,7 +44,7 @@ class NonEmbeddingParamsProxy(ModelEvaluator):
                 Defaults to None.
             trainable_only (Optional[bool], optional): A flag indicating whether only trainable parameters
                 should be counted. Defaults to True.
-        """        
+        """
 
         self.exclude_cls = [nn.Embedding] or exclude_cls
         self.trainable_only = trainable_only
