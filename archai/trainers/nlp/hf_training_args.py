@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Customizable training arguments with huggingface/transformers."""
-
 from dataclasses import dataclass, field
 
 from transformers.training_args import TrainingArguments

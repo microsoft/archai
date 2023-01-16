@@ -2,8 +2,6 @@
 # Licensed under the MIT license.
 # https://github.com/abhuse/cyclic-cosine-decay/blob/master/scheduler.py
 
-"""Cyclic-cosine learning rate scheduler."""
-
 from collections.abc import Iterable
 from math import cos, floor, log, pi
 from typing import List, Optional, Union

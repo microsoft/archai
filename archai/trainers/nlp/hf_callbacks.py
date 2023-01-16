@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Customizable callbacks with huggingface/transformers."""
-
 import math
 from typing import Dict, Optional
 

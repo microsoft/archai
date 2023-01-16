@@ -5,9 +5,6 @@
 # Copyright (c) 2019 cybertronai.
 # Licensed under the MIT license.
 
-
-"""Custom optimizers that are used for training models."""
-
 from typing import Iterable, Optional, Tuple
 
 import torch

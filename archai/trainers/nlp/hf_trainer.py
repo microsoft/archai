@@ -1,22 +1,23 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Customizable trainers with huggingface/transformers."""
-
 import shutil
 from typing import Dict, Optional, Tuple
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from overrides import overrides
 from transformers.trainer import Trainer
 
-from archai.nlp.trainers.hf.training_args import DistillerTrainingArguments
+from archai.api.trainer_base import TrainerBase
+from archai.trainers.nlp.hf_training_args import DistillerTrainingArguments
 
 
-class HfTrainer(Trainer):
-    """A `Trainer` that supports customizations for running on AzureML."""
+class HfTrainer(Trainer, TrainerBase):
+    """Hugging Face trainer."""
 
+    @overrides
     def _rotate_checkpoints(self, use_mtime: Optional[bool] = False, output_dir: Optional[str] = None) -> None:
         """Rotate checkpoints and cache them to Azure Storage.
 
@@ -64,10 +65,10 @@ class HfTrainer(Trainer):
 
 
 class HfDistillerTrainer(HfTrainer):
-    """Inherit from `HfTrainer` for a distillation-based training."""
+    """Hugging Face distillation-based trainer."""
 
     def __init__(self, teacher_model: torch.nn.Module, **kwargs) -> None:
-        """Override with custom keyword arguments.
+        """Initializes Hugging Face distillation-based trainer.
 
         Args:
             teacher_model: Pre-trained teacher model.
@@ -85,6 +86,7 @@ class HfDistillerTrainer(HfTrainer):
 
         super().__init__(**kwargs)
 
+    @overrides
     def compute_loss(
         self,
         model: torch.nn.Module,
