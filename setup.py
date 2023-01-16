@@ -108,7 +108,7 @@ with open("README.md", "r", encoding="utf_8") as f:
 
 setup(
     name="archai",
-    version="0.7.0",
+    version="1.0.0",
     description="Platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
