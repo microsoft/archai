@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""PyTorch mappings between float-based and quantization-ready modules."""
-
 from __future__ import annotations
 
 from typing import Any, Dict, Optional
@@ -11,7 +9,7 @@ import torch
 import transformers
 from torch.nn import functional as F
 
-from archai.nlp.quantization.quantizers import FakeDynamicQuant
+from archai.quantization.quantizers import FakeDynamicQuant
 
 
 class FakeQuantEmbedding(torch.nn.Embedding):

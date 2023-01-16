@@ -1,14 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Mixed Quantization-Aware Training model."""
-
 import copy
 from typing import Optional, Tuple
 
 import torch
 
-from archai.nlp.quantization.qat import prepare_with_qat
+from archai.quantization.qat import prepare_with_qat
 
 
 class MixedQAT(torch.nn.Module):

@@ -1,15 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Quantization-ready quantizers."""
-
 from typing import Optional
 
 import torch
 from torch._C import dtype
 from torch.quantization import MinMaxObserver
 
-from archai.nlp.quantization.observers import OnnxDynamicObserver
+from archai.quantization.observers import OnnxDynamicObserver
 
 
 class FakeDynamicQuant(torch.nn.Module):

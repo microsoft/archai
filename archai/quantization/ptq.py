@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Pipeline for performing Post-Training Quantization (PTQ)."""
-
 from typing import List, Optional
 
 import onnx
@@ -15,11 +13,11 @@ from onnxruntime.quantization.quant_utils import attribute_to_kwarg, ms_domain
 from onnxruntime.quantization.quantize import quantize_dynamic
 from onnxruntime.quantization.registry import IntegerOpsRegistry
 
-from archai.nlp import logging_utils
-from archai.nlp.file_utils import create_file_name_identifier
-from archai.nlp.quantization.quantization_utils import rgetattr, rsetattr
+from archai.common.file_utils import create_file_name_identifier
+from archai.common.logging_utils import get_logger
+from archai.quantization.quantization_utils import rgetattr, rsetattr
 
-logger = logging_utils.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 class GemmQuant(QuantOperatorBase):

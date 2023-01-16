@@ -1,15 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Pipeline for performing PyTorch-based Quantization-Aware Training (QAT)."""
-
 import copy
 from typing import Any, Dict, Optional
 
 import torch
 import transformers
 
-from archai.nlp.quantization.modules import (
+from archai.quantization.modules import (
     FakeDynamicQuantConv1d,
     FakeDynamicQuantConv1dForOnnx,
     FakeDynamicQuantHFConv1D,
@@ -32,9 +30,9 @@ ONNX_DYNAMIC_QAT_MODULE_MAP = {
     torch.nn.Conv1d: FakeDynamicQuantConv1dForOnnx,
     transformers.modeling_utils.Conv1D: FakeDynamicQuantHFConv1DForOnnx,
 }
-from archai.nlp import logging_utils
+from archai.common.logging_utils import get_logger
 
-logger = logging_utils.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 def qat_to_float_modules(model: torch.nn.Module) -> None:
