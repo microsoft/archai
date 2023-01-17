@@ -7,15 +7,13 @@ sys.path.append(str(self_dir.parent))
 import argparse
 import os
 
-from archai.nlp.file_utils import check_available_checkpoint
-
 from transformer_plus_plus.training.experiment import Experiment
+
+from archai.common.file_utils import check_available_checkpoint
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Runs Transformer++ experiment."
-    )
+    parser = argparse.ArgumentParser(description="Runs Transformer++ experiment.")
 
     parser.add_argument(
         "arch_config_file",
@@ -45,11 +43,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    experiment = Experiment(
-        args.arch_config_file,
-        args.experiment_config_file,
-        output_dir=args.output_dir
-    )
+    experiment = Experiment(args.arch_config_file, args.experiment_config_file, output_dir=args.output_dir)
 
     # Asserts that resume_from_checkpoint will be a valid boolean
     # when pre-trained checkpoints exists

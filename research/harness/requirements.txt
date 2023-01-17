@@ -1,0 +1,2 @@
+lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness.git
+transformers
