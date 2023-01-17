@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Transformer-XL ONNX optimization model."""
-
 from typing import List, Optional, Tuple
 
 from onnx import GraphProto, ModelProto, NodeProto, TensorProto, ValueInfoProto, helper
@@ -17,7 +15,7 @@ from onnxruntime.transformers.fusion_skiplayernorm import (
 from onnxruntime.transformers.fusion_utils import FusionUtils
 from onnxruntime.transformers.onnx_model import OnnxModel
 
-from archai.nlp.onnx.optimization_utils.fusion_options import FusionOptions
+from archai.onnx.optimization_utils.fusion_options import FusionOptions
 
 
 class TransfoXLOnnxModel(OnnxModel):

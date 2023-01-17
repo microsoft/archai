@@ -1,13 +1,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""CodeGen ONNX configuration."""
-
 from typing import Any, Optional, Tuple
 
 from transformers.configuration_utils import PretrainedConfig
 
-from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfigWithPast
+from archai.onnx.config_utils.onnx_config_base import OnnxConfigWithPast
 
 
 class CodeGenOnnxConfig(OnnxConfigWithPast):

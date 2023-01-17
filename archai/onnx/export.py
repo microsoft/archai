@@ -1,23 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX-related export and validation."""
-
 from itertools import chain
 from typing import Optional
 
 import numpy as np
 import torch
 
-from archai.nlp import logging_utils
-from archai.nlp.onnx.config_utils.codegen_onnx_config import CodeGenOnnxConfig
-from archai.nlp.onnx.config_utils.gpt2_onnx_config import (
-    GPT2FlexOnnxConfig,
-    GPT2OnnxConfig,
-)
-from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
-from archai.nlp.onnx.export_utils import prepare_model_for_onnx, weight_sharing
-from archai.nlp.onnx.onnx_loader import load_from_onnx
+from archai.common import logging_utils
+from archai.onnx.config_utils.codegen_onnx_config import CodeGenOnnxConfig
+from archai.onnx.config_utils.gpt2_onnx_config import GPT2FlexOnnxConfig, GPT2OnnxConfig
+from archai.onnx.config_utils.onnx_config_base import OnnxConfig
+from archai.onnx.export_utils import prepare_model_for_onnx, weight_sharing
+from archai.onnx.onnx_loader import load_from_onnx
 
 logger = logging_utils.get_logger(__name__)
 

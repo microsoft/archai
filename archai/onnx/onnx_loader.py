@@ -1,15 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX-loading utilities."""
-
 from os import environ
 
 from onnxruntime import GraphOptimizationLevel, InferenceSession, SessionOptions
 
-from archai.nlp import logging_utils
+from archai.common.logging_utils import get_logger
 
-logger = logging_utils.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 def load_from_onnx(onnx_model_path: str) -> InferenceSession:

@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Options that enables nodes' fusion."""
-
 from typing import Optional
 
 

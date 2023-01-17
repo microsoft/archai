@@ -1,20 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX optimization-related tools."""
-
 from typing import Optional
 
 from onnx import load_model
 from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel
 from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
 
-from archai.nlp import logging_utils
-from archai.nlp.file_utils import create_file_name_identifier
-from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
-from archai.nlp.onnx.optimization_utils.fusion_options import FusionOptions
+from archai.common.file_utils import create_file_name_identifier
+from archai.common.logging_utils import get_logger
+from archai.onnx.config_utils.onnx_config_base import OnnxConfig
+from archai.onnx.optimization_utils.fusion_options import FusionOptions
 
-logger = logging_utils.get_logger(__name__)
+logger = get_logger(__name__)
 
 AVAILABLE_ONNX_MODELS = {"gpt2": Gpt2OnnxModel, "gpt2-flex": Gpt2OnnxModel}
 

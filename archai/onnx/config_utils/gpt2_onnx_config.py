@@ -1,15 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""GPT-2 ONNX configuration."""
-
 from typing import Any, Mapping, Optional, Tuple
 
 import torch
 from overrides import overrides
 from transformers.configuration_utils import PretrainedConfig
 
-from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig, OnnxConfigWithPast
+from archai.onnx.config_utils.onnx_config_base import OnnxConfig, OnnxConfigWithPast
 
 
 class GPT2OnnxConfig(OnnxConfigWithPast):

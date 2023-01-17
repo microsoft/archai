@@ -1,15 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX export-related utilities, such as model preparation and weight sharing."""
-
 import types
 
 import torch
 from onnx import helper, load_model, numpy_helper, save
 from onnxruntime.transformers import quantize_helper
 
-from archai.nlp.onnx.onnx_forward import gpt2_onnx_forward
+from archai.onnx.onnx_forward import gpt2_onnx_forward
 
 
 def prepare_model_for_onnx(model: torch.nn.Module, model_type: str) -> torch.nn.Module:

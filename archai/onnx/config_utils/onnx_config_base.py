@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""ONNX-based configuration."""
-
 import copy
 from collections import OrderedDict
 from typing import Any, Mapping, Optional, Tuple
