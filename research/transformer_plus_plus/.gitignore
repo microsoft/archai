@@ -5,6 +5,8 @@ __pycache__/
 .vscode/settings.json
 amlt/
 
+.vscode
+
 !*.json
 
 # C extensions
