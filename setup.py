@@ -20,6 +20,7 @@ dependencies = [
     "nbval",
     "onnx>=1.10.2",
     "onnxruntime>=1.10.0",
+    "opencv-python",
     "overrides==3.1.0",
     "plotly",
     "psutil",
@@ -59,6 +60,7 @@ def filter_dependencies(*pkgs):
 extras_require = {}
 extras_require["cv"] = filter_dependencies(
     "gorilla",
+    "opencv-python",
     "scikit-learn",
     "torchvision",
 )
