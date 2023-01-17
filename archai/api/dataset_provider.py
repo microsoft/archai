@@ -8,10 +8,40 @@ from overrides import EnforceOverrides
 
 
 class DatasetProvider(EnforceOverrides):
-    """Abstract class for dataset provider."""
+    """Abstract class for dataset providers.
+
+    This class serves as a base for implementing dataset providers that can return
+    training, validation and testing datasets. The class enforces implementation
+    of three methods: `get_train_dataset`, `get_val_dataset` and `get_test_dataset`.
+    These methods should return an instance of the  respective dataset, regardless of
+    its structure.
+
+    Note:
+        This class is inherited from `EnforceOverrides` and any overridden methods in the
+        subclass should be decorated with `@overrides` to ensure they are properly overridden.
+
+    Examples:
+        >>> class MyDatasetProvider(DatasetProvider):
+        >>>     def __init__(self) -> None:
+        >>>         super().__init__()
+        >>>
+        >>>     @overrides
+        >>>     def get_train_dataset(self) -> Any:
+        >>>         return torchvision.datasets.MNIST(train=True)
+        >>>
+        >>>     @overrides
+        >>>     def get_val_dataset(self) -> Any:
+        >>>         return torchvision.datasets.MNIST(train=False)
+        >>>
+        >>>     @overrides
+        >>>     def get_test_dataset(self) -> Any:
+        >>>         return torchvision.datasets.MNIST(train=False)
+
+
+    """
 
     def __init__(self) -> None:
-        """Initializes dataset provider."""
+        """Initialize the dataset provider."""
 
         pass
 
@@ -19,14 +49,8 @@ class DatasetProvider(EnforceOverrides):
     def get_train_dataset(self) -> Any:
         """Get a training dataset.
 
-        This function needs to be overriden as any logic can be applied to
-        get the dataset.
-
         Returns:
-            An instance of a training dataset, regardless of its structure.
-
-        Examples:
-            >>> return torchvision.datasets.MNIST(train=True)
+            An instance of a training dataset.
 
         """
 
@@ -36,15 +60,9 @@ class DatasetProvider(EnforceOverrides):
     def get_val_dataset(self) -> Any:
         """Get a validation dataset.
 
-        This function needs to be overriden as any logic can be applied to
-        get the dataset. If a validation dataset is not available, users
-        can override and return the training dataset.
-
         Returns:
-            An instance of a validation dataset, regardless of its structure.
-
-        Examples:
-            >>> return torchvision.datasets.MNIST(train=False)
+            An instance of a validation dataset, or the training dataset if
+            validation dataset is not available.
 
         """
 
@@ -54,15 +72,9 @@ class DatasetProvider(EnforceOverrides):
     def get_test_dataset(self) -> Any:
         """Get a testing dataset.
 
-        This function needs to be overriden as any logic can be applied to
-        get the dataset. If a testing dataset is not available, users
-        can override and return the training/validation dataset.
-
         Returns:
-            An instance of a testing dataset, regardless of its structure.
-
-        Examples:
-            >>> return torchvision.datasets.MNIST(train=False)
+            An instance of a testing dataset, or the training/validation
+            dataset if testing dataset is not available.
 
         """
 

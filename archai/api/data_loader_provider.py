@@ -8,10 +8,29 @@ from overrides import EnforceOverrides
 
 
 class DataLoaderProvider(EnforceOverrides):
-    """Abstract class for data loader provider."""
+    """Abstract class for data loader providers.
+
+    The `DataLoaderProvider` class provides an abstract interface for creating data loaders
+    for a given dataset. The user is required to implement the `get_data_loader` method.
+    This method should take in a dataset and return a data loader suitable for that dataset.
+
+    Note:
+        This class is inherited from `EnforceOverrides` and any overridden methods in the
+        subclass should be decorated with `@overrides` to ensure they are properly overridden.
+
+    Examples:
+        >>> class MyDataLoaderProvider(DataLoaderProvider):
+        >>>     def __init__(self) -> None:
+        >>>         super().__init__()
+        >>>
+        >>>     @overrides
+        >>>     def get_data_loader(self, dataset: Any) -> Any:
+        >>>         return torch.utils.data.DataLoader(dataset, batch_size=32, shuffle=True)
+
+    """
 
     def __init__(self) -> None:
-        """Initializes data loader provider."""
+        """Initialize the data loader provider."""
 
         pass
 
@@ -19,17 +38,14 @@ class DataLoaderProvider(EnforceOverrides):
     def get_data_loader(self, dataset: Any) -> Any:
         """Get a data loader based on the input dataset.
 
-        This function needs to be overriden as any logic can be applied to
-        get the data loader.
+        This method should take in a dataset and return a data loader suitable for that dataset.
 
         Args:
-            dataset: Input dataset.
+            dataset: Input dataset (type of dataset should be specified by the user
+                in the implementation of this method).
 
         Returns:
             Data loader based on the input dataset.
-
-        Examples:
-            >>> return torch.utils.data.DataLoader(dataset)
 
         """
 

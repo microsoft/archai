@@ -7,22 +7,47 @@ from overrides import EnforceOverrides
 
 
 class TrainerBase(EnforceOverrides):
-    """Abstract class for trainer."""
+    """Abstract class for trainers.
+
+    The `TrainerBase` class provides an abstract interface for training a model. The user
+    is required to implement the `train`, `evaluate`, and `predict` methods. The `train` method
+    should contain the logic for training the model, the `evaluate` method should contain
+    the logic for evaluating the model, and the `predict` method should contain the logic
+    for making predictions with the model.
+
+    Note:
+        This class is inherited from `EnforceOverrides` and any overridden methods in the
+        subclass should be decorated with `@overrides` to ensure they are properly overridden.
+
+    Examples:
+        >>> class MyTrainer(TrainerBase):
+        >>>     def __init__(self) -> None:
+        >>>         super().__init__()
+        >>>
+        >>>     @overrides
+        >>>     def train(self) -> None:
+        >>>         return pytorch_lightining.trainer.Trainer().fit(model, train_dataloaders=train_dataloader)
+        >>>
+        >>>     @overrides
+        >>>     def evaluate(self) -> None:
+        >>>         return pytorch_lightining.trainer.Trainer().test(model, dataloaders=val_dataloader)
+        >>>
+        >>>     @overrides
+        >>>     def predict(self) -> None:
+        >>>         return pytorch_lightining.trainer.Trainer().predict(model, dataloaders=predict_dataloader)
+
+    """
 
     def __init__(self) -> None:
-        """Initializes trainer."""
+        """Initialize the trainer."""
 
         pass
 
     @abstractmethod
     def train(self) -> None:
-        """Trains a model.
+        """Train a model.
 
-        This function needs to be overriden as any logic can be applied to
-        train a model.
-
-        Examples:
-            >>> return pytorch_lightining.trainer.Trainer().fit(model, train_dataloaders=train_dataloader)
+        This method should contain the logic for training the model.
 
         """
 
@@ -30,13 +55,9 @@ class TrainerBase(EnforceOverrides):
 
     @abstractmethod
     def evaluate(self) -> None:
-        """Evaluates a model.
+        """Evaluate a model.
 
-        This function needs to be overriden as any logic can be applied to
-        evaluate a model.
-
-        Examples:
-            >>> return pytorch_lightining.trainer.Trainer().test(model, dataloaders=val_dataloader)
+        This method should contain the logic for evaluating the model.
 
         """
 
@@ -44,13 +65,9 @@ class TrainerBase(EnforceOverrides):
 
     @abstractmethod
     def predict(self) -> None:
-        """Predicts with a model.
+        """Predict with a model.
 
-        This function needs to be overriden as any logic can be applied to
-        predict with a model.
-
-        Examples:
-            >>> return pytorch_lightining.trainer.Trainer().predict(model, dataloaders=predict_dataloader)
+        This method should contain the logic for making predictions with the model.
 
         """
 
