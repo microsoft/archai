@@ -3,6 +3,7 @@
 
 import os
 from typing import Optional, Union
+import argparse
 
 from archai.nlp.models.modeling_codegen_conv_att import (
     CodeGenConvAttConfig,
@@ -35,6 +36,8 @@ from archai.nlp.trainers.hf.trainer import HfTrainer
 
 logger = logging_utils.get_logger(__name__)
 
+from archai.common.common import create_conf
+
 # Register internal models to be compatible with auto classes
 AutoConfig.register("codegen_conv_att", CodeGenConvAttConfig)
 AutoConfig.register("codegen_hard_coded", CodeGenHardCodedConfig)
@@ -51,11 +54,14 @@ class ExperimentRunner:
     def __init__(
         self,
         experiment_config: Union[str, os.PathLike],
+        cmdline_args: argparse.Namespace,
         output_dir: Optional[str] = "",
     ) -> None:
         logger.info(f"Creating experiment: {experiment_config}")
 
-        config = load_config(experiment_config)
+        # config is first loaded, then matching entries
+        # from command line are overridden
+        config = load_config(experiment_config, cmdline_args)
 
         collator_config = config.get("collator", {}) or {}
         data_config = config.get("data", {}) or {}

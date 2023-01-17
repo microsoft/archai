@@ -40,6 +40,10 @@ def load_config(*configs) -> Dict[str, Any]:
         # If the config is a dictionary, we use OmegaConf.create()
         if isinstance(cfg, dict):
             loaded_configs.append(OmegaConf.create(cfg))
+        
+        # If the config is a list, we assume it is a dotlist
+        if isinstance(cfg, list):
+            loaded_configs.append(OmegaConf.from_dotlist(cfg))
 
         # If the config is a string, we parse it to find its extension
         if isinstance(cfg, str):

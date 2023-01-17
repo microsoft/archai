@@ -401,10 +401,12 @@
             "justMyCode": true,
             "console": "integratedTerminal",
             "args": ["--nproc_per_node",
-                     "4",
+                     "1",
                      "${cwd}/research/sgconv/scripts/main.py",
                      "${cwd}/research/sgconv/confs/clm-codegen-local-template.yaml",
-                     "-o", "~/logdir"]
+                     "-o", "~/logdir",
+                     "trainer.learning_rate=1.0",
+                     "trainer.logging_steps=10"]
         },
         {
             "name": "Generate Text from Model",

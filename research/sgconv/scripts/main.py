@@ -26,15 +26,17 @@ def parse_args() -> argparse.Namespace:
         help="Defines an output folder for the saved outputs.",
     )
 
-    args = parser.parse_args()
+    args, extra_args = parser.parse_known_args()
 
-    return args
+    return args, extra_args
 
 
 if __name__ == "__main__":
-    args = parse_args()
+    args, extra_args = parse_args()
 
-    experiment = ExperimentRunner(args.experiment_config_file, output_dir=args.output_dir)
+    experiment = ExperimentRunner(args.experiment_config_file, 
+                                output_dir=args.output_dir,
+                                cmdline_args=extra_args)
 
     # Asserts that resume_from_checkpoint will be a valid boolean
     # when pre-trained checkpoints exists
