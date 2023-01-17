@@ -501,7 +501,7 @@ class SGConv(nn.Module):
         
         # Architecture params
         self.kernel_size = arch_config.pick('kernel_size')
-        self.channels = arch_config.pick('channels')
+        self.channels = 1
         
         self.op_size = op_heads * (hidden_size // total_heads)
         self.in_proj = nn.Sequential(
