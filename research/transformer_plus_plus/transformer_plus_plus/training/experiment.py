@@ -71,22 +71,8 @@ class Experiment:
         with training_args.main_process_first(desc="loading and preparing dataset"):
             dataset = load_dataset(**self.dataset_config, random_seed=self.random_seed)
             
-            if not self.grouped:
+            if 'dataset_disk' not in self.dataset_config:
                 dataset = encode_dataset(dataset, tokenizer, **self.data_config)
-            else:
-                def tokenize_function(examples):
-                    return tokenizer(examples['text'])
-
-                dataset = dataset.map(
-                    tokenize_function, batched=True, num_proc=4,
-                    remove_columns=['text'], desc='Tokenizing...'
-                )
-
-                dataset = dataset.map(
-                    group_texts, batched=True, fn_kwargs={'tokenizer': tokenizer},
-                    num_proc=4, desc='Grouping...'
-                )
-
 
         hf_config = GPT2Config(**self.model_config)
         arch_config = ArchConfig.from_file(str(self.arch_config))
