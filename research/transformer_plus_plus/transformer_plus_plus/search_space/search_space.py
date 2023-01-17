@@ -5,9 +5,9 @@ from archai.discrete_search.search_spaces.config import (
     DiscreteChoice
 )
 
-from .modeling_gpt2 import GPT2LMHeadModel, GPT2Config
-from .ops import OPS
-from .utils import get_attn_head_simplex
+from transformer_plus_plus.search_space.modeling_gpt2 import GPT2LMHeadModel, GPT2Config
+from transformer_plus_plus.search_space.ops import OPS
+from transformer_plus_plus.search_space.utils import get_attn_head_simplex
 
 
 def build_single_op_ss(embed_dims: Tuple[int, ...] = (768,),

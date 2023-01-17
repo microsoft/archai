@@ -10,7 +10,7 @@ from archai.nlp.trainers.hf.callbacks import PerplexityTrainerCallback
 from archai.nlp.trainers.hf.trainer import HfTrainer
 from archai.nlp.datasets.hf.loaders import load_dataset, encode_dataset
 
-from search_space.modeling_gpt2 import GPT2Config, GPT2LMHeadModel
+from transformer_plus_plus.search_space.modeling_gpt2 import GPT2Config, GPT2LMHeadModel
 from training.utils import from_yaml_file, from_json_file, group_texts
 
 

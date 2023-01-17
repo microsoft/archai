@@ -25,8 +25,8 @@ from transformers.utils.model_parallel_utils import assert_device_map, get_devic
 from transformers.models.gpt2.modeling_gpt2 import GPT2PreTrainedModel
 from transformers.models.gpt2.configuration_gpt2 import GPT2Config
 
-from .mixed_attention import MixedAttentionBlock
-from .utils import make_broadcast_map, make_asso_map
+from transformer_plus_plus.search_space.mixed_attention import MixedAttentionBlock
+from transformer_plus_plus.search_space.utils import make_broadcast_map, make_asso_map
 
 from archai.discrete_search.search_spaces.config import ArchConfig
 

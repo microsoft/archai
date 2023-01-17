@@ -5,7 +5,7 @@ from transformers.pytorch_utils import Conv1D
 from transformers.models.gpt2.configuration_gpt2 import GPT2Config
 from archai.discrete_search.search_spaces.config import ArchConfig
 
-from .ops import OPS
+from transformer_plus_plus.search_space.ops import OPS
 
 
 class MixedAttentionBlock(nn.Module):
@@ -36,12 +36,12 @@ class MixedAttentionBlock(nn.Module):
         }
         
         self.ops = nn.ModuleList([
-            op.cls(
-                arch_config=arch_config.pick(op_name) if op.requires_extra_config else None,
+            OPS[op_name].cls(
+                arch_config=arch_config.pick(op_name) if OPS[op_name].requires_extra_config else None,
                 op_heads=self.op_allocation[op_name],
                 **op_kwargs
-            ) for op_name, op in OPS.items()
-            if self.op_allocation[op_name] > 0
+            ) for op_name, op_heads in self.op_allocation.items()
+            if op_heads > 0
         ])
 
         self.resid_dropout = nn.Dropout(self.hf_config.resid_pdrop)
