@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT licen
 
-"""Customizable training arguments using NVIDIA-based pipeline."""
-
 import os
 from dataclasses import dataclass, field
 from typing import Any, Dict
@@ -10,7 +8,12 @@ from typing import Any, Dict
 import numpy as np
 import torch
 
-from archai.nlp.datasets.nvidia import corpus_utils, distributed_utils
+from archai.common.distributed_utils import (
+    get_world_size,
+    init_distributed,
+    sync_workers,
+)
+from archai.nlp.datasets.nvidia import corpus_utils
 
 
 @dataclass
@@ -168,7 +171,7 @@ class NvidiaTrainingArguments:
         self.local_rank = int(self.local_rank)
         if not self.no_cuda:
             torch.cuda.set_device(self.local_rank)
-            distributed_utils.init_distributed(True)
+            init_distributed(True)
 
         (
             self.dataset_dir,
@@ -184,12 +187,12 @@ class NvidiaTrainingArguments:
             self.dataset_cache_dir,
         )
 
-        with distributed_utils.sync_workers() as rank:
+        with sync_workers() as rank:
             if rank == 0:
                 os.makedirs(self.output_dir, exist_ok=True)
 
         if self.per_device_global_batch_size is not None:
-            world_size = distributed_utils.get_world_size()
+            world_size = get_world_size()
             self.global_batch_size = world_size * self.per_device_global_batch_size
 
     def to_dict(self) -> Dict[str, Any]:

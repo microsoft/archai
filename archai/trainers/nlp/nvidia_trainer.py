@@ -18,14 +18,13 @@ import torch.optim as optim
 from packaging import version
 from torch.nn.parallel import DistributedDataParallel
 
-from archai.nlp import logging_utils
-from archai.nlp.datasets.nvidia import distributed_utils
+from archai.common import distributed_utils, logging_utils
 from archai.nlp.datasets.nvidia.corpus import load_corpus
 from archai.nlp.quantization.mixed_qat import MixedQAT
 from archai.nlp.quantization.qat import prepare_with_qat, qat_to_float_modules
 from archai.nlp.trainers.nvidia.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from archai.nlp.trainers.nvidia.optimizers import JITLamb, Lamb
-from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
+from archai.trainers.nlp.nvidia_training_args import NvidiaTrainingArguments
 
 logger = logging_utils.get_logger(__name__)
 
