@@ -25,12 +25,12 @@ class CausalSelfAttention(nn.Module):
         self.op_heads = op_heads
         self.op_size = (self.hidden_size // total_heads) * op_heads
         self.max_positions = max_positions
-        self.attn_window_len = int(arch_config.pick('attn_window_prop') * hf_config.n_positions)
+        # self.attn_window_len = int(arch_config.pick('attn_window_prop') * hf_config.n_positions)
 
-        if self.attn_window_len < self.max_positions:
-            print('Using causal attention window of length', self.attn_window_len)
-        else:
-            print('Using full attention window')
+        # if self.attn_window_len < self.max_positions:
+        #     print('Using causal attention window of length', self.attn_window_len)
+        # else:
+        #     print('Using full attention window')
         
         self.scale_attn_weights = hf_config.scale_attn_weights
 
@@ -113,12 +113,12 @@ class CausalSelfAttention(nn.Module):
         **kwargs
     ) -> Tuple[Union[torch.Tensor, Tuple[torch.Tensor]], ...]:
         # Splits input according to attention window length
-        if self.attn_window_len < self.max_positions:
-            outside_states = self.embed2v(hidden_states[:, : -self.attn_window_len, :])
-            hidden_states = hidden_states[:, -self.attn_window_len :, :]
+        # if self.attn_window_len < self.max_positions:
+        #     outside_states = self.embed2v(hidden_states[:, : -self.attn_window_len, :])
+        #     hidden_states = hidden_states[:, -self.attn_window_len :, :]
             
-            if attention_mask is not None:
-                attention_mask = attention_mask[..., -self.attn_window_len :]
+        #     if attention_mask is not None:
+        #         attention_mask = attention_mask[..., -self.attn_window_len :]
 
         query, key = self.embed2qk(hidden_states).split(self.op_size, dim=-1)
         value = self.embed2v(hidden_states)
@@ -137,7 +137,7 @@ class CausalSelfAttention(nn.Module):
             present = None
 
         # Re-concatenates truncated input to attention window
-        if self.attn_window_len < self.max_positions:
-            attn_output = torch.cat([outside_states, attn_output], dim=1)
+        # if self.attn_window_len < self.max_positions:
+        #     attn_output = torch.cat([outside_states, attn_output], dim=1)
 
         return attn_output, present
