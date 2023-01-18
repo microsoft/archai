@@ -261,14 +261,12 @@ class BbpeTokenizer(TokenizerBase):
         return tokens_counter
 
     def _train_tokenizer(
-        self, filepaths: List[str], dropout: Optional[float] = None, added_tokens: Optional[List[str]] = None
+        self, filepaths: List[str]
     ) -> None:
         """Inner loop of tokenizer's training.
 
         Args:
             filepaths: A list of paths to input files.
-            dropout: Dropout ratio.
-            added_tokens: Additional tokens.
 
         """
 
@@ -287,15 +285,12 @@ class BbpeTokenizer(TokenizerBase):
         iter_files = iter([read_line_iter(self._preprocess_text, file) for file in open_files])
 
         # Spaces are added by ourselves
-        tokenizer = ByteLevelBPETokenizer(dropout=dropout, add_prefix_space=False)
+        tokenizer = ByteLevelBPETokenizer(add_prefix_space=False)
         tokenizer.train_from_iterator(
             iter_files, vocab_size=self.vocab_size, min_frequency=min_frequency, special_tokens=special_tokens
         )
 
         for file in open_files:
             file.close()
-
-        if len(added_tokens):
-            tokenizer.add_tokens(added_tokens)
 
         tokenizer.save(self._tokenizer_filepath, pretty=True)

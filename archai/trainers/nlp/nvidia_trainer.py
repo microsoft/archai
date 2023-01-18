@@ -198,7 +198,7 @@ class NvidiaTrainer:
         else:
             raise RuntimeError(f"Split: {split} is not supported yet.")
 
-        return self.data_loader_provider.get_dataloader(
+        return self.data_loader_provider.get_data_loader(
             input_ids,
             self.args.global_batch_size,
             self.args.seq_len,
