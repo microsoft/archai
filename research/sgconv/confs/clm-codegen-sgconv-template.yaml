@@ -18,8 +18,8 @@ model:
   model_type: "codegen_sgconv"
   vocab_size: 50295
   n_positions: 8192
-  n_embd: 512
-  n_layer: 6
+  n_embd: 2048
+  n_layer: 24
   n_head: 12
   n_inner: null
   rotary_dim: 32
@@ -41,7 +41,7 @@ model:
   use_cache: false
   sgconv_d_state: 128
   sgconv_channels: 1
-  sgconv_kernel_dim: 128
+  sgconv_kernel_dim: 256
   sgconv_decay_min: 2
   sgconv_decay_max: 2
 trainer:
