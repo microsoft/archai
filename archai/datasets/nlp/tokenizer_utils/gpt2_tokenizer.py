@@ -6,7 +6,7 @@ from typing import Optional
 from archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer import BbpeTokenizer
 
 
-class Gpt2Vocab(BbpeTokenizer):
+class Gpt2Tokenizer(BbpeTokenizer):
     """GPT-2 based tokenizer."""
 
     def __init__(
