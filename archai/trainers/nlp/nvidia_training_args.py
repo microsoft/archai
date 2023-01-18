@@ -34,7 +34,7 @@ class NvidiaTrainingArguments:
         dataset_dir: Dataset folder.
         dataset_cache_dir: Dataset cache folder.
         dataset_refresh_cache: Whether cache should be refreshed.
-        vocab: Name of the vocabulary/tokenizer.
+        vocab_type: Name of the vocabulary/tokenizer.
         vocab_size: Size of the vocabulary.
         iterator_roll: Whether iterator should be rolled.
         global_batch_size: Global batch size.
@@ -91,7 +91,7 @@ class NvidiaTrainingArguments:
 
     dataset_refresh_cache: bool = field(default=False, metadata={"help": "Whether cache should be refreshed."})
 
-    vocab: str = field(default="gpt2", metadata={"help": "Name of the tokenizer."})
+    vocab_type: str = field(default="gpt2", metadata={"help": "Type of the tokenizer."})
 
     vocab_size: int = field(default=10000, metadata={"help": "Size of the vocabulary"})
 

@@ -128,8 +128,8 @@ class NvidiaTrainer:
         self.dataset_provider = NvidiaDatasetProvider(
             dataset_name=self.args.dataset_name,
             dataset_dir=self.args.dataset_dir,
-            dataset_cache_dir=self.args.dataset_cache_dir,
-            vocab=self.args.vocab,
+            cache_dir=self.args.dataset_cache_dir,
+            vocab_type=self.args.vocab_type,
             vocab_size=self.args.vocab_size,
             refresh_cache=self.args.dataset_refresh_cache,
         )
