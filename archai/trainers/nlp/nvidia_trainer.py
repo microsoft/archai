@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Customizable trainer using NVIDIA-based pipeline."""
-
 import copy
 import itertools
 import math
@@ -19,12 +17,13 @@ from packaging import version
 from torch.nn.parallel import DistributedDataParallel
 
 from archai.common import distributed_utils, logging_utils
-from archai.nlp.datasets.nvidia.corpus import load_corpus
-from archai.nlp.quantization.mixed_qat import MixedQAT
-from archai.nlp.quantization.qat import prepare_with_qat, qat_to_float_modules
-from archai.nlp.trainers.nvidia.cyclic_cosine_scheduler import CyclicCosineDecayLR
-from archai.nlp.trainers.nvidia.optimizers import JITLamb, Lamb
+from archai.datasets.nlp.nvidia_data_loader_provider import NvidiaDataLoaderProvider
+from archai.datasets.nlp.nvidia_dataset_provider import NvidiaDatasetProvider
+from archai.quantization.mixed_qat import MixedQAT
+from archai.quantization.qat import prepare_with_qat, qat_to_float_modules
+from archai.trainers.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from archai.trainers.nlp.nvidia_training_args import NvidiaTrainingArguments
+from archai.trainers.optimizers import JITLamb, Lamb
 
 logger = logging_utils.get_logger(__name__)
 
@@ -125,14 +124,15 @@ class NvidiaTrainer:
         assert isinstance(args, NvidiaTrainingArguments), "`args` should be an instance of `NvidiaTrainingArguments`."
         self.args = args
 
-        self.dataset = load_corpus(
-            self.args.dataset,
-            self.args.dataset_dir,
-            self.args.dataset_cache_dir,
-            self.args.vocab,
+        self.dataset_provider = NvidiaDatasetProvider(
+            dataset=self.args.dataset,
+            dataset_dir=self.args.dataset_dir,
+            dataset_cache_dir=self.args.dataset_cache_dir,
+            vocab=self.args.vocab,
             vocab_size=self.args.vocab_size,
             refresh_cache=self.args.dataset_refresh_cache,
         )
+        self.data_loader_provider = NvidiaDataLoaderProvider(dataset_name=self.args.dataset)
 
         self.model.to(self.args.device)
 
@@ -188,11 +188,20 @@ class NvidiaTrainer:
 
         """
 
-        return self.dataset.get_iterator(
-            split,
+        if split == "train":
+            input_ids = self.dataset_provider.get_train_dataset()
+        elif split == "valid":
+            input_ids = self.dataset_provider.get_val_dataset()
+        elif split == "test":
+            input_ids = self.dataset_provider.get_test_dataset()
+        else:
+            raise RuntimeError(f"Split: {split} is not supported yet.")
+
+        return self.data_loader_provider.get_dataloader(
+            input_ids,
             self.args.global_batch_size,
             self.args.seq_len,
-            self.args.device,
+            device=self.args.device,
         )
 
     def create_optimizer(self) -> None:

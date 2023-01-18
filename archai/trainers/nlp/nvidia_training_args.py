@@ -13,7 +13,7 @@ from archai.common.distributed_utils import (
     init_distributed,
     sync_workers,
 )
-from archai.nlp.datasets.nvidia import corpus_utils
+from archai.datasets.nlp.nvidia_dataset_provider_utils import create_dirs
 
 
 @dataclass
@@ -173,12 +173,7 @@ class NvidiaTrainingArguments:
             torch.cuda.set_device(self.local_rank)
             init_distributed(True)
 
-        (
-            self.dataset_dir,
-            self.output_dir,
-            self.checkpoint_file_path,
-            self.dataset_cache_dir,
-        ) = corpus_utils.create_dirs(
+        (self.dataset_dir, self.output_dir, self.checkpoint_file_path, self.dataset_cache_dir,) = create_dirs(
             self.dataset_dir,
             self.dataset,
             self.experiment_name,
