@@ -4,19 +4,25 @@
 import math
 from typing import List, Optional, Tuple
 
+import numpy as np
 import torch
-from torch.utils.data import Sampler
 import torch.distributed as dist
+from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
+from torch.utils.data import Sampler
 from torch.utils.data.dataset import Dataset
 
-import numpy as np
-from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
 
 class DistributedStratifiedSampler(Sampler):
-    def __init__(self, dataset:Dataset, world_size:Optional[int]=None,
-                 rank:Optional[int]=None, shuffle=True,
-                 val_ratio:Optional[float]=0.0, is_val=False,
-                 max_items:Optional[int]=None):
+    def __init__(
+        self,
+        dataset: Dataset,
+        world_size: Optional[int] = None,
+        rank: Optional[int] = None,
+        shuffle=True,
+        val_ratio: Optional[float] = 0.0,
+        is_val=False,
+        max_items: Optional[int] = None,
+    ):
         """Performs stratified sampling of dataset for each replica in the distributed as well as non-distributed setting. If validation split is needed then yet another stratified sampling within replica's split is performed to further obtain the train/validation splits.
 
         This sampler works in distributed as well as non-distributed setting with no panelty in either mode and is replacement for built-in torch.util.data.DistributedSampler. In distributed setting, many instances of the same code runs as process known as replicas. Each replica has sequential number assigned by the launcher, starting from 0 to uniquely identify it. This is known as global rank or simply rank. The number of replicas is known as the world size. For non-distributed setting, world_size=1 and rank=0.
@@ -37,9 +43,10 @@ class DistributedStratifiedSampler(Sampler):
             max_items -- if >= 0 then dataset will be trimmed to these many items for each replica (useful to test on smaller dataset)
         """
 
-
         # cifar10 amd DatasetFolder has this attribute, for others it may be easy to add from outside
-        assert hasattr(dataset, 'targets') and dataset.targets is not None, 'dataset needs to have targets attribute to work with this sampler'
+        assert (
+            hasattr(dataset, "targets") and dataset.targets is not None
+        ), "dataset needs to have targets attribute to work with this sampler"
 
         if world_size is None:
             if dist.is_available() and dist.is_initialized():
@@ -61,7 +68,7 @@ class DistributedStratifiedSampler(Sampler):
         self.dataset = dataset
         self.world_size = world_size
         self.rank = rank
-        self.epoch = 0 # this will be used as seed so cannot be < 0
+        self.epoch = 0  # this will be used as seed so cannot be < 0
 
         self.shuffle = shuffle
         self.data_len = len(self.dataset)
@@ -71,17 +78,16 @@ class DistributedStratifiedSampler(Sampler):
         self.is_val = is_val
 
         # computing duplications we needs
-        self.replica_len = self.replica_len_full =  int(math.ceil(float(self.data_len)/self.world_size))
+        self.replica_len = self.replica_len_full = int(math.ceil(float(self.data_len) / self.world_size))
         self.total_size = self.replica_len_full * self.world_size
         assert self.total_size >= self.data_len
 
         if self.max_items is not None:
             self.replica_len = min(self.replica_len_full, self.max_items)
 
-        self.main_split_len = int(math.floor(self.replica_len*(1-val_ratio)))
+        self.main_split_len = int(math.floor(self.replica_len * (1 - val_ratio)))
         self.val_split_len = self.replica_len - self.main_split_len
         self._len = self.val_split_len if self.is_val else self.main_split_len
-
 
     def __iter__(self):
         # get shuffled indices, dataset is extended if needed to divide equally
@@ -106,8 +112,7 @@ class DistributedStratifiedSampler(Sampler):
 
         return iter(indices)
 
-    def _replica_fold(self, indices:np.ndarray, targets:np.ndarray)\
-            ->Tuple[np.ndarray, np.ndarray]:
+    def _replica_fold(self, indices: np.ndarray, targets: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
 
         if self.world_size > 1:
             replica_fold_idxs = None
@@ -118,16 +123,14 @@ class DistributedStratifiedSampler(Sampler):
             for _ in range(self.rank + 1):
                 other_fold_idxs, replica_fold_idxs = next(folds)
 
-            assert replica_fold_idxs is not None and \
-                    len(replica_fold_idxs)==self.replica_len_full
+            assert replica_fold_idxs is not None and len(replica_fold_idxs) == self.replica_len_full
 
             return indices[replica_fold_idxs], targets[replica_fold_idxs]
         else:
             assert self.world_size == 1
             return indices, targets
 
-
-    def _indices(self)->Tuple[np.ndarray, np.ndarray]:
+    def _indices(self) -> Tuple[np.ndarray, np.ndarray]:
         if self.shuffle:
             g = torch.Generator()
             g.manual_seed(self._get_seed())
@@ -139,34 +142,34 @@ class DistributedStratifiedSampler(Sampler):
         # this is neccesory because we have __len__ which must return same
         # number consistently
         if self.total_size > self.data_len:
-            indices = np.append(indices, indices[:(self.total_size - self.data_len)])
+            indices = np.append(indices, indices[: (self.total_size - self.data_len)])
         else:
-            assert self.total_size == self.data_len, 'total_size cannot be less than dataset size!'
+            assert self.total_size == self.data_len, "total_size cannot be less than dataset size!"
 
         targets = np.array(list(self.dataset.targets[i] for i in indices))
         assert len(indices) == self.total_size
 
         return indices, targets
 
-    def _limit(self, indices:np.ndarray, targets:np.ndarray, max_items:Optional[int])\
-            ->Tuple[np.ndarray, np.ndarray]:
+    def _limit(
+        self, indices: np.ndarray, targets: np.ndarray, max_items: Optional[int]
+    ) -> Tuple[np.ndarray, np.ndarray]:
         # this will limit the items to specified max value
         if max_items is not None:
-            return self._split(indices, targets, len(indices)-max_items, False)
+            return self._split(indices, targets, len(indices) - max_items, False)
         return indices, targets
 
-    def _get_seed(self)->int:
+    def _get_seed(self) -> int:
         # if val fold is needed then only do the first shuffle
         # otherwise deterministically shuffle on every epoch
-        return self.epoch if self.val_ratio==0.0 else 0
+        return self.epoch if self.val_ratio == 0.0 else 0
 
-    def _split(self, indices:np.ndarray, targets:np.ndarray, test_size:int,
-               return_test_split:bool)->Tuple[np.ndarray, np.ndarray]:
+    def _split(
+        self, indices: np.ndarray, targets: np.ndarray, test_size: int, return_test_split: bool
+    ) -> Tuple[np.ndarray, np.ndarray]:
         if test_size:
-            assert isinstance(test_size, int) # othewise next call assumes ratio instead of count
-            vfolder = StratifiedShuffleSplit(n_splits=1,
-                                             test_size=test_size,
-                                             random_state=self._get_seed())
+            assert isinstance(test_size, int)  # othewise next call assumes ratio instead of count
+            vfolder = StratifiedShuffleSplit(n_splits=1, test_size=test_size, random_state=self._get_seed())
             vfolder = vfolder.split(indices, targets)
             train_idx, valid_idx = next(vfolder)
 
