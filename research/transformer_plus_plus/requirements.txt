@@ -1,4 +1,0 @@
-archai[nlp] @ git+https://github.com/microsoft/archai.git
-zstandard
-einops
-opt_einsum
