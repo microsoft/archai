@@ -6,9 +6,14 @@ import json
 
 from harness.lm_eval_evaluator import evaluate_wrapper
 from harness.lm_eval_hf_model import HFEvalModel
-from harness.lm_eval_utils import MultiChoice, pattern_match
+from harness.tasks.human_eval import HumanEval
+from harness.utils.regex import MultiChoice, pattern_match
 from lm_eval.evaluator import make_table
-from lm_eval.tasks import ALL_TASKS
+from lm_eval.tasks import ALL_TASKS, TASK_REGISTRY
+
+# Ensures additional tasks are loaded and registered
+ALL_TASKS.append("human_eval")
+TASK_REGISTRY.update({"human_eval": HumanEval})
 
 
 def parse_args():

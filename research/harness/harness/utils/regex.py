@@ -1,4 +1,6 @@
-# Copyright: https://github.com/EleutherAI/lm-evaluation-harness/blob/master/main.py
+# Copyright (c) EleutherAI.
+# Licensed under the MIT license.
+# https://github.com/EleutherAI/lm-evaluation-harness/blob/master/main.py
 
 import fnmatch
 from typing import List
