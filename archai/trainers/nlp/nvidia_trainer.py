@@ -16,7 +16,8 @@ import torch.optim as optim
 from packaging import version
 from torch.nn.parallel import DistributedDataParallel
 
-from archai.common import distributed_utils, logging_utils
+from archai.common.distributed_utils import all_reduce, sync_workers
+from archai.common.logging_utils import get_logger
 from archai.datasets.nlp.nvidia_data_loader_provider import NvidiaDataLoaderProvider
 from archai.datasets.nlp.nvidia_dataset_provider import NvidiaDatasetProvider
 from archai.quantization.mixed_qat import MixedQAT
@@ -25,7 +26,7 @@ from archai.trainers.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from archai.trainers.nlp.nvidia_training_args import NvidiaTrainingArguments
 from archai.trainers.optimizers import JITLamb, Lamb
 
-logger = logging_utils.get_logger(__name__)
+logger = get_logger(__name__)
 
 
 def save_checkpoint(
@@ -77,7 +78,7 @@ def save_checkpoint(
 
     checkpoint_name = prefix + "checkpoint-last.pt"
 
-    with distributed_utils.sync_workers() as rank:
+    with sync_workers() as rank:
         checkpoint_path = os.path.join(output_dir, checkpoint_name)
 
         if rank == 0:
@@ -125,14 +126,14 @@ class NvidiaTrainer:
         self.args = args
 
         self.dataset_provider = NvidiaDatasetProvider(
-            dataset=self.args.dataset,
+            dataset_name=self.args.dataset_name,
             dataset_dir=self.args.dataset_dir,
             dataset_cache_dir=self.args.dataset_cache_dir,
             vocab=self.args.vocab,
             vocab_size=self.args.vocab_size,
             refresh_cache=self.args.dataset_refresh_cache,
         )
-        self.data_loader_provider = NvidiaDataLoaderProvider(dataset_name=self.args.dataset)
+        self.data_loader_provider = NvidiaDataLoaderProvider(dataset_name=self.args.dataset_name)
 
         self.model.to(self.args.device)
 
@@ -360,7 +361,7 @@ class NvidiaTrainer:
         start_time = time.time()
 
         # `lm1b` uses a different style of data loader
-        if self.args.dataset != "lm1b":
+        if self.args.dataset_name != "lm1b":
             train_iterator = train_dataloader.get_fixlen_iter(start=iterator)
         else:
             train_iterator = train_dataloader
@@ -425,13 +426,13 @@ class NvidiaTrainer:
                 lr = self.optimizer.param_groups[0]["lr"]
 
                 loss = train_loss / log_step
-                loss = distributed_utils.all_reduce(loss, op="mean")
+                loss = all_reduce(loss, op="mean")
 
                 batch_time = elapsed_time / log_step
-                batch_time = distributed_utils.all_reduce(batch_time, op="max")
+                batch_time = all_reduce(batch_time, op="max")
 
                 throughput = n_labels_tokens / elapsed_time
-                throughput = distributed_utils.all_reduce(throughput, op="sum")
+                throughput = all_reduce(throughput, op="sum")
 
                 train_loss, log_step, n_labels_tokens = 0.0, 0, 0
 
@@ -460,7 +461,7 @@ class NvidiaTrainer:
             # Evaluation and checkpoint
             if (do_periodic_eval or is_final_step) and self.args.do_eval:
                 eval_loss, eval_time = self.evaluation_step(eval_dataloader)
-                eval_loss = distributed_utils.all_reduce(eval_loss, op="mean")
+                eval_loss = all_reduce(eval_loss, op="mean")
 
                 self.trainer_state["log_history"].append(
                     {

@@ -15,7 +15,7 @@ class NvidiaDatasetProvider(DatasetProvider):
 
     def __init__(
         self,
-        dataset: Optional[str] = "wt103",
+        dataset_name: Optional[str] = "wt103",
         dataset_dir: Optional[str] = "",
         cache_dir: Optional[str] = "cache",
         vocab_type: Optional[str] = "gpt2",
@@ -25,7 +25,7 @@ class NvidiaDatasetProvider(DatasetProvider):
         """Initializes NVIDIA dataset provider.
 
         Args:
-            dataset: Name of the dataset.
+            dataset_name: Name of the dataset.
             dataset_dir: Dataset folder.
             cache_dir: Path to the cache folder.
             vocab_type: Type of vocabulary/tokenizer.
@@ -37,14 +37,14 @@ class NvidiaDatasetProvider(DatasetProvider):
         super().__init__()
 
         self.corpus = Corpus(
-            dataset, dataset_dir, cache_dir, vocab_type, vocab_size=vocab_size, refresh_cache=refresh_cache
+            dataset_name, dataset_dir, cache_dir, vocab_type, vocab_size=vocab_size, refresh_cache=refresh_cache
         )
 
         if not self.corpus.load():
             self.corpus.train_and_encode()
 
             with sync_workers() as rank:
-                if rank == 0 and dataset != "lm1b":
+                if rank == 0 and dataset_name != "lm1b":
                     self.corpus.save_cache()
 
     @overrides

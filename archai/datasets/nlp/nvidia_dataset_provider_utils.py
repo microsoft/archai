@@ -8,8 +8,9 @@ from typing import Optional, Tuple
 import numpy as np
 import torch
 
-from archai.common import common, utils
+from archai.common.common import default_dataroot, pt_dirs
 from archai.common.logging_utils import get_logger
+from archai.common.utils import delete_file, full_path
 from archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer import BbpeTokenizer
 from archai.datasets.nlp.tokenizer_utils.gpt2_tokenizer import Gpt2Tokenizer
 from archai.datasets.nlp.tokenizer_utils.tokenizer_base import TokenizerBase
@@ -18,7 +19,7 @@ from archai.datasets.nlp.tokenizer_utils.word_tokenizer import WordTokenizer
 logger = get_logger(__name__)
 
 
-def get_dataset_dir_name(dataset: str) -> str:
+def get_dataset_dir_name(dataset_name: str) -> str:
     """Get the name of the datasets' directory.
 
     Args:
@@ -32,16 +33,16 @@ def get_dataset_dir_name(dataset: str) -> str:
 
     """
 
-    if dataset == "wt2":
+    if dataset_name == "wt2":
         return "wikitext-2"
-    if dataset == "wt103":
+    if dataset_name == "wt103":
         return "wikitext-103"
-    if dataset == "lm1b":
+    if dataset_name == "lm1b":
         return "one-billion-words"
-    if dataset.startswith("olx_"):
-        return dataset
+    if dataset_name.startswith("olx_"):
+        return dataset_name
 
-    raise RuntimeError(f"Dataset: {dataset} is not supported yet.")
+    raise RuntimeError(f"Dataset: {dataset_name} is not supported yet.")
 
 
 def create_dirs(
@@ -67,19 +68,19 @@ def create_dirs(
 
     """
 
-    pt_data_dir, pt_output_dir = common.pt_dirs()
+    pt_data_dir, pt_output_dir = pt_dirs()
     if pt_output_dir:
         pt_output_dir = os.path.join(pt_output_dir, experiment_name)
 
-    dataroot = dataroot or pt_data_dir or common.default_dataroot()
-    dataroot = utils.full_path(dataroot)
+    dataroot = dataroot or pt_data_dir or default_dataroot()
+    dataroot = full_path(dataroot)
 
-    dataset_dir = utils.full_path(os.path.join(dataroot, "textpred", get_dataset_dir_name(dataset_name)))
-    output_dir = utils.full_path(pt_output_dir or os.path.join(output_dir, experiment_name), create=True)
+    dataset_dir = full_path(os.path.join(dataroot, "textpred", get_dataset_dir_name(dataset_name)))
+    output_dir = full_path(pt_output_dir or os.path.join(output_dir, experiment_name), create=True)
 
     if not os.path.isabs(cache_dir):
         cache_dir = os.path.join(dataset_dir, cache_dir)
-    cache_dir = utils.full_path(cache_dir, create=True)
+    cache_dir = full_path(cache_dir, create=True)
 
     if not os.path.isabs(pretrained_path) and pretrained_path:
         pretrained_path = os.path.join(os.path.dirname(output_dir), pretrained_path)
@@ -92,7 +93,7 @@ class Corpus:
 
     def __init__(
         self,
-        dataset: str,
+        dataset_name: str,
         dataset_dir: str,
         cache_dir: str,
         vocab_type: str,
@@ -103,7 +104,7 @@ class Corpus:
         cache-related paths.
 
         Args:
-            dataset: Name of the dataset.
+            dataset_name: Name of the dataset.
             dataset_dir: Path to the dataset folder.
             cache_dir: Path to the cache folder.
             vocab_type: Type of vocabulary/tokenizer.
@@ -113,14 +114,14 @@ class Corpus:
 
         """
 
+        self.dataset_name = dataset_name
         self.dataset_dir = dataset_dir
-        self.dataset = dataset
         self.vocab_type = vocab_type
         self.vocab_size = vocab_size
 
         # Corpus cache is created using dataset/vocab_type/vocab_size path
-        self.corpus_cache_dir = utils.full_path(
-            os.path.join(cache_dir, str(dataset), str(vocab_type), str(vocab_size)), create=True
+        self.corpus_cache_dir = full_path(
+            os.path.join(cache_dir, str(dataset_name), str(vocab_type), str(vocab_size)), create=True
         )
 
         # Encoded dataset (.npy files) cache paths
@@ -139,12 +140,12 @@ class Corpus:
 
     @staticmethod
     def _create_vocab(
-        dataset: str, vocab_type: str, vocab_cache_dir: str, vocab_size: Optional[int] = None
+        dataset_name: str, vocab_type: str, vocab_cache_dir: str, vocab_size: Optional[int] = None
     ) -> TokenizerBase:
         """Create the vocabulary.
 
         Args:
-            dataset: Name of the dataset.
+            dataset_name: Name of the dataset.
             vocab_type: Type of vocabulary.
             vocab_cache_dir: Path to the vocabulary cache folder.
             vocab_size: Vocabulary size.
@@ -157,16 +158,16 @@ class Corpus:
         if vocab_type == "word":
             bos_token, eos_token, lower_case = None, "<eos>", False
 
-            if dataset in ["wt103", "wt2"] or dataset.startswith("olx_"):
+            if dataset_name in ["wt103", "wt2"] or dataset_name.startswith("olx_"):
                 pass
-            elif dataset == "ptb":
+            elif dataset_name == "ptb":
                 lower_case = True
-            elif dataset == "lm1b":
+            elif dataset_name == "lm1b":
                 bos_token, eos_token = "<S>", "<S>"  # `<S>` is added for double EOS
-            elif dataset in ["enwik8", "text8"]:
+            elif dataset_name in ["enwik8", "text8"]:
                 eos_token, lower_case = None, True
             else:
-                raise RuntimeError(f"Dataset: {dataset} is not supported yet.")
+                raise RuntimeError(f"Dataset: {dataset_name} is not supported yet.")
 
             vocab = WordTokenizer(
                 save_path=vocab_cache_dir,
@@ -202,14 +203,14 @@ class Corpus:
         """
 
         train_file_name, valid_file_name, test_file_name = "train.txt", "valid.txt", "test.txt"
-        if self.dataset in ["wt2", "wt103"]:
+        if self.dataset_name in ["wt2", "wt103"]:
             train_file_name, valid_file_name, test_file_name = (
                 "wiki.train.tokens",
                 "wiki.valid.tokens",
                 "wiki.test.tokens",
             )
 
-        if self.dataset == "lm1b":
+        if self.dataset_name == "lm1b":
             train_path_pattern = os.path.join(
                 self.dataset_dir,
                 "1-billion-word-language-modeling-benchmark-r13output",
@@ -255,7 +256,7 @@ class Corpus:
         """
 
         self.vocab = Corpus._create_vocab(
-            self.dataset, self.vocab_type, self.vocab_cache_dir, vocab_size=self.vocab_size
+            self.dataset_name, self.vocab_type, self.vocab_cache_dir, vocab_size=self.vocab_size
         )
         self._train_vocab()
 
@@ -266,7 +267,7 @@ class Corpus:
 
         train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
 
-        if self.dataset == "lm1b":
+        if self.dataset_name == "lm1b":
             self.train = train_filepath
         else:
             self.train = self.vocab.encode_file(train_filepath)
@@ -278,7 +279,7 @@ class Corpus:
         """Train the vocabulary/tokenizer and encodes the corpus."""
 
         logger.info(
-            f"Training corpus: dataset = {self.dataset} | vocab_type = {self.vocab_type} | vocab_size = {self.vocab_size}"
+            f"Training corpus: dataset = {self.dataset_name} | vocab_type = {self.vocab_type} | vocab_size = {self.vocab_size}"
         )
 
         self._create_train_vocab()
@@ -297,7 +298,7 @@ class Corpus:
 
         # Ensures tokenizer cache is loaded as well
         self.vocab = Corpus._create_vocab(
-            self.dataset, self.vocab_type, self.vocab_cache_dir, vocab_size=self.vocab_size
+            self.dataset_name, self.vocab_type, self.vocab_cache_dir, vocab_size=self.vocab_size
         )
 
         cache_exists = (
@@ -325,9 +326,9 @@ class Corpus:
         logger.info("Clearing and rebuilding cache ...")
         self._clear_cache()
 
-        utils.delete_file(self.train_cache_filepath)
-        utils.delete_file(self.valid_cache_filepath)
-        utils.delete_file(self.test_cache_filepath)
+        delete_file(self.train_cache_filepath)
+        delete_file(self.valid_cache_filepath)
+        delete_file(self.test_cache_filepath)
 
         return False
 

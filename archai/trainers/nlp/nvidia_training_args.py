@@ -30,7 +30,7 @@ class NvidiaTrainingArguments:
         do_eval: Whether to enable evaluation.
         eval_steps: Number of steps between evaluations.
         save_all_checkpoints: Whether to save all checkpoints from `eval_steps` steps.
-        dataset: Name of the dataset.
+        dataset_name: Name of the dataset.
         dataset_dir: Dataset folder.
         dataset_cache_dir: Dataset cache folder.
         dataset_refresh_cache: Whether cache should be refreshed.
@@ -83,7 +83,7 @@ class NvidiaTrainingArguments:
         default=False, metadata={"help": "Whether to save all checkpoints from `eval_steps` steps."}
     )
 
-    dataset: str = field(default="wt103", metadata={"help": "Name of the dataset."})
+    dataset_name: str = field(default="wt103", metadata={"help": "Name of the dataset."})
 
     dataset_dir: str = field(default="", metadata={"help": "Dataset folder."})
 
@@ -175,7 +175,7 @@ class NvidiaTrainingArguments:
 
         (self.dataset_dir, self.output_dir, self.checkpoint_file_path, self.dataset_cache_dir,) = create_dirs(
             self.dataset_dir,
-            self.dataset,
+            self.dataset_name,
             self.experiment_name,
             self.output_dir,
             self.checkpoint_file_path,
