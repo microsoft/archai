@@ -5,20 +5,20 @@ from typing import Callable, Optional
 
 from overrides import overrides
 from torch.utils.data import Dataset
-from torchvision.datasets import ImageFolder
+from torchvision.datasets import Flowers102
 from torchvision.transforms import ToTensor
 
 from archai.api.dataset_provider import DatasetProvider
 
 
-class ImageFolderDatasetProvider(DatasetProvider):
-    """Image Folder dataset provider."""
+class Flowers102DatasetProvider(DatasetProvider):
+    """Oxford 102 Flower dataset provider."""
 
     def __init__(
         self,
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes Image Folder dataset provider.
+        """Initializes Oxford 102 Flower dataset provider.
 
         Args:
             root: Root directory of dataset where is saved.
@@ -34,15 +34,13 @@ class ImageFolderDatasetProvider(DatasetProvider):
         self,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
-        loader: Optional[Callable] = None,
-        is_valid_file: Optional[Callable] = None,
     ) -> Dataset:
-        return ImageFolder(
+        return Flowers102(
             self.root,
+            split="train",
             transform=transform or ToTensor(),
             target_transform=target_transform,
-            loader=loader,
-            is_valid_file=is_valid_file,
+            download=True,
         )
 
     @overrides
@@ -50,12 +48,13 @@ class ImageFolderDatasetProvider(DatasetProvider):
         self,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
-        loader: Optional[Callable] = None,
-        is_valid_file: Optional[Callable] = None,
     ) -> Dataset:
-        print("Warning: validation set not available. Returning training set ...")
-        return self.get_train_dataset(
-            transform=transform, target_transform=target_transform, loader=loader, is_valid_file=is_valid_file
+        return Flowers102(
+            self.root,
+            split="val",
+            transform=transform or ToTensor(),
+            target_transform=target_transform,
+            download=True,
         )
 
     @overrides
@@ -63,10 +62,11 @@ class ImageFolderDatasetProvider(DatasetProvider):
         self,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
-        loader: Optional[Callable] = None,
-        is_valid_file: Optional[Callable] = None,
     ) -> Dataset:
-        print("Warning: testing set not available. Returning validation set ...")
-        return self.get_test_dataset(
-            transform=transform, target_transform=target_transform, loader=loader, is_valid_file=is_valid_file
+        return Flowers102(
+            self.root,
+            split="test",
+            transform=transform or ToTensor(),
+            target_transform=target_transform,
+            download=True,
         )
