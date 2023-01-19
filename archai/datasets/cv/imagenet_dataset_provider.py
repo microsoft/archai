@@ -9,6 +9,9 @@ from torchvision.datasets import ImageNet
 from torchvision.transforms import ToTensor
 
 from archai.api.dataset_provider import DatasetProvider
+from archai.common.logger import Logger
+
+logger = Logger(source=__name__)
 
 
 class ImageNetDatasetProvider(DatasetProvider):
@@ -66,5 +69,5 @@ class ImageNetDatasetProvider(DatasetProvider):
         target_transform: Optional[Callable] = None,
         loader: Optional[Callable] = None,
     ) -> Dataset:
-        print("Warning: tetsing set not available. Returning validation set ...")
+        logger.warn("Testing set not available. Returning validation set ...")
         return self.get_val_dataset(transform=transform, target_transform=target_transform, loader=loader)

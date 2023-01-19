@@ -11,7 +11,7 @@ from tokenizers import ByteLevelBPETokenizer
 from transformers import PreTrainedTokenizerFast
 
 from archai.common.distributed_utils import sync_workers
-from archai.common.logging_utils import get_logger
+from archai.common.logger import Logger
 from archai.common.utils import copy_file, full_path
 from archai.datasets.nlp.tokenizer_utils.token_config import (
     SpecialTokenEnum,
@@ -19,7 +19,7 @@ from archai.datasets.nlp.tokenizer_utils.token_config import (
 )
 from archai.datasets.nlp.tokenizer_utils.tokenizer_base import TokenizerBase
 
-logger = get_logger(__name__)
+logger = Logger(source=__name__)
 
 
 class BbpeTokenizer(TokenizerBase):
@@ -260,9 +260,7 @@ class BbpeTokenizer(TokenizerBase):
 
         return tokens_counter
 
-    def _train_tokenizer(
-        self, filepaths: List[str]
-    ) -> None:
+    def _train_tokenizer(self, filepaths: List[str]) -> None:
         """Inner loop of tokenizer's training.
 
         Args:

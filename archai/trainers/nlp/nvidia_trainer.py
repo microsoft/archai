@@ -17,7 +17,7 @@ from packaging import version
 from torch.nn.parallel import DistributedDataParallel
 
 from archai.common.distributed_utils import all_reduce, sync_workers
-from archai.common.logging_utils import get_logger
+from archai.common.logger import Logger
 from archai.datasets.nlp.nvidia_data_loader_provider import NvidiaDataLoaderProvider
 from archai.datasets.nlp.nvidia_dataset_provider import NvidiaDatasetProvider
 from archai.quantization.mixed_qat import MixedQAT
@@ -26,7 +26,7 @@ from archai.trainers.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from archai.trainers.nlp.nvidia_training_args import NvidiaTrainingArguments
 from archai.trainers.optimizers import JITLamb, Lamb
 
-logger = get_logger(__name__)
+logger = Logger(source=__name__)
 
 
 def save_checkpoint(

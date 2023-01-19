@@ -8,9 +8,12 @@ from overrides import overrides
 from torch.utils.data import ConcatDataset
 
 from archai.api.dataset_provider import DatasetProvider
+from archai.common.logger import Logger
 from archai.datasets.cv.tensorpack_lmdb_dataset_provider_utils import (
     TensorpackLmdbDataset,
 )
+
+logger = Logger(source=__name__)
 
 
 class TensorpackLmdbDatasetProvider(DatasetProvider):
@@ -109,7 +112,7 @@ class TensorpackLmdbDatasetProvider(DatasetProvider):
                 mask_interpolation_method=mask_interpolation_method,
             )
         except:
-            print("Warning: validation set not available. Returning training set ...")
+            logger.warn("Validation set not available. Returning training set ...")
             return self.get_train_dataset(
                 mask_key=mask_key,
                 serializer=serializer,
@@ -156,7 +159,7 @@ class TensorpackLmdbDatasetProvider(DatasetProvider):
                 mask_interpolation_method=mask_interpolation_method,
             )
         except:
-            print("Warning: testing set not available. Returning validation set ...")
+            logger.warn("Testing set not available. Returning validation set ...")
             return self.get_val_dataset(
                 mask_key=mask_key,
                 serializer=serializer,
@@ -290,7 +293,7 @@ class MultiFileTensorpackLmdbDatasetProvider(DatasetProvider):
                 ]
             )
         except:
-            print("Warning: validation set not available. Returning training set ...")
+            logger.warn("Validation set not available. Returning training set ...")
             return self.get_train_dataset(
                 mask_key=mask_key,
                 serializer=serializer,
@@ -342,7 +345,7 @@ class MultiFileTensorpackLmdbDatasetProvider(DatasetProvider):
                 ]
             )
         except:
-            print("Warning: testing set not available. Returning validation set ...")
+            logger.warn("Testing set not available. Returning validation set ...")
             return self.get_val_dataset(
                 mask_key=mask_key,
                 serializer=serializer,

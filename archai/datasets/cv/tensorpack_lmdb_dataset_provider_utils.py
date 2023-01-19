@@ -10,6 +10,10 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
+from archai.common.logger import Logger
+
+logger = Logger(source=__name__)
+
 
 class TensorpackLmdbDataset(Dataset):
     """Tensorpack LMDB dataset."""
@@ -151,4 +155,4 @@ class TensorpackLmdbDataset(Dataset):
             if self.raise_errors:
                 raise e
             else:
-                print(f"Error while loading sample {idx} from dataset {self.lmdb_file_path}: {e}.")
+                logger.error(f"Sample {idx} from dataset {self.lmdb_file_path} could not be loaded.")

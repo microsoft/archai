@@ -13,7 +13,10 @@ from datasets.utils.version import Version
 from overrides import overrides
 
 from archai.api.dataset_provider import DatasetProvider
+from archai.common.logger import Logger
 from archai.datasets.nlp.hf_dataset_provider_utils import should_refresh_cache
+
+logger = Logger(source=__name__)
 
 
 class HfHubDatasetProvider(DatasetProvider):
@@ -92,7 +95,7 @@ class HfHubDatasetProvider(DatasetProvider):
                 split="validation", refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
             )
         except ValueError:
-            print(f"Warning: validation set not available for `{self.dataset}`. Returning training set ...")
+            logger.warn(f"Validation set not available for `{self.dataset}`. Returning training set ...")
             return self.get_dataset(
                 split="train", refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
             )
@@ -109,7 +112,7 @@ class HfHubDatasetProvider(DatasetProvider):
                 split="test", refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
             )
         except ValueError:
-            print(f"Warning: testing set not available for `{self.dataset}`. Returning validation set ...")
+            logger.warn(f"Testing set not available for `{self.dataset}`. Returning validation set ...")
             return self.get_dataset(
                 split="validation", refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
             )
@@ -151,7 +154,7 @@ class HfDiskDatasetProvider(DatasetProvider):
             if isinstance(self.dataset, DatasetDict):
                 return self.dataset["validation"]
         except:
-            print("Warning: validation set not available. Returning training set ...")
+            logger.warn("Validation set not available. Returning training set ...")
             return self.get_train_dataset()
 
     @overrides
@@ -160,5 +163,5 @@ class HfDiskDatasetProvider(DatasetProvider):
             if isinstance(self.dataset, DatasetDict):
                 return self.dataset["test"]
         except:
-            print("Warning: testing set not available. Returning validation set ...")
+            logger.warn("Testing set not available. Returning validation set ...")
             return self.get_val_dataset()

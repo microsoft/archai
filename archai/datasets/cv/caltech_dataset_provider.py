@@ -9,6 +9,9 @@ from torchvision.datasets import Caltech101, Caltech256
 from torchvision.transforms import ToTensor
 
 from archai.api.dataset_provider import DatasetProvider
+from archai.common.logger import Logger
+
+logger = Logger(source=__name__)
 
 
 class CaltechDatasetProvider(DatasetProvider):
@@ -57,7 +60,7 @@ class CaltechDatasetProvider(DatasetProvider):
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
     ) -> Dataset:
-        print(f"Warning: validation set not available for `{self.dataset}`. Returning training set ...")
+        logger.warn(f"Validation set not available for `{self.dataset}`. Returning training set ...")
         return self.get_train_dataset(target_type=target_type, transform=transform, target_transform=target_transform)
 
     @overrides
@@ -67,5 +70,5 @@ class CaltechDatasetProvider(DatasetProvider):
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
     ) -> Dataset:
-        print(f"Warning: testing set not available for `{self.dataset}`. Returning training set ...")
+        logger.warn(f"Testing set not available for `{self.dataset}`. Returning training set ...")
         return self.get_train_dataset(target_type=target_type, transform=transform, target_transform=target_transform)

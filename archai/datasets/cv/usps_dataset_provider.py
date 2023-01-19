@@ -9,6 +9,9 @@ from torchvision.datasets import USPS
 from torchvision.transforms import ToTensor
 
 from archai.api.dataset_provider import DatasetProvider
+from archai.common.logger import Logger
+
+logger = Logger(source=__name__)
 
 
 class USPSDatasetProvider(DatasetProvider):
@@ -49,7 +52,7 @@ class USPSDatasetProvider(DatasetProvider):
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
     ) -> Dataset:
-        print("Warning: validation set not available. Returning training set ...")
+        logger.warn("Validation set not available. Returning training set ...")
         return self.get_train_dataset(transform=transform, target_transform=target_transform)
 
     @overrides

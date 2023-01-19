@@ -9,14 +9,14 @@ import numpy as np
 import torch
 
 from archai.common.common import default_dataroot, pt_dirs
-from archai.common.logging_utils import get_logger
+from archai.common.logger import Logger
 from archai.common.utils import delete_file, full_path
 from archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer import BbpeTokenizer
 from archai.datasets.nlp.tokenizer_utils.gpt2_tokenizer import Gpt2Tokenizer
 from archai.datasets.nlp.tokenizer_utils.tokenizer_base import TokenizerBase
 from archai.datasets.nlp.tokenizer_utils.word_tokenizer import WordTokenizer
 
-logger = get_logger(__name__)
+logger = Logger(source=__name__)
 
 
 def get_dataset_dir_name(dataset_name: str) -> str:

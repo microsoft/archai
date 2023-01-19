@@ -8,7 +8,7 @@ from typing import List, Optional
 from overrides import overrides
 
 from archai.common.distributed_utils import sync_workers
-from archai.common.logging_utils import get_logger
+from archai.common.logger import Logger
 from archai.common.utils import full_path
 from archai.datasets.nlp.tokenizer_utils.token_config import (
     SpecialTokenEnum,
@@ -16,7 +16,7 @@ from archai.datasets.nlp.tokenizer_utils.token_config import (
 )
 from archai.datasets.nlp.tokenizer_utils.tokenizer_base import TokenizerBase
 
-logger = get_logger(__name__)
+logger = Logger(source=__name__)
 
 
 class WordTokenizer(TokenizerBase):

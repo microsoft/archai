@@ -39,9 +39,9 @@ try:
 except ModuleNotFoundError:
     print("`archai.quantization.nlp` is not available. If needed, install with: pip install archai[nlp].")
 
-from archai.common.logging_utils import get_logger
+from archai.common.logger import Logger
 
-logger = get_logger(__name__)
+logger = Logger(source=__name__)
 
 
 def qat_to_float_modules(model: torch.nn.Module) -> None:

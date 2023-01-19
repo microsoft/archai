@@ -9,6 +9,9 @@ from torchvision.datasets import KMNIST, MNIST, QMNIST, FashionMNIST
 from torchvision.transforms import ToTensor
 
 from archai.api.dataset_provider import DatasetProvider
+from archai.common.logger import Logger
+
+logger = Logger(source=__name__)
 
 
 class MnistDatasetProvider(DatasetProvider):
@@ -74,5 +77,5 @@ class MnistDatasetProvider(DatasetProvider):
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
     ) -> Dataset:
-        print(f"Warning: testing set not available for `{self.dataset}`. Returning validation set ...")
+        logger.warn(f"Testing set not available for `{self.dataset}`. Returning validation set ...")
         return self.get_val_dataset(transform=transform, target_transform=target_transform)

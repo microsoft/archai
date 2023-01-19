@@ -9,6 +9,9 @@ from torchvision.datasets import SVHN
 from torchvision.transforms import ToTensor
 
 from archai.api.dataset_provider import DatasetProvider
+from archai.common.logger import Logger
+
+logger = Logger(source=__name__)
 
 
 class SVHNDatasetProvider(DatasetProvider):
@@ -49,7 +52,7 @@ class SVHNDatasetProvider(DatasetProvider):
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
     ) -> Dataset:
-        print("Warning: validation set not available. Returning `extra` set ...")
+        logger.warn("Validation set not available. Returning `extra` set ...")
         return SVHN(
             self.root,
             split="extra",

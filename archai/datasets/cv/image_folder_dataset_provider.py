@@ -9,6 +9,9 @@ from torchvision.datasets import ImageFolder
 from torchvision.transforms import ToTensor
 
 from archai.api.dataset_provider import DatasetProvider
+from archai.common.logger import Logger
+
+logger = Logger(source=__name__)
 
 
 class ImageFolderDatasetProvider(DatasetProvider):
@@ -53,7 +56,7 @@ class ImageFolderDatasetProvider(DatasetProvider):
         loader: Optional[Callable] = None,
         is_valid_file: Optional[Callable] = None,
     ) -> Dataset:
-        print("Warning: validation set not available. Returning training set ...")
+        logger.warn("Validation set not available. Returning training set ...")
         return self.get_train_dataset(
             transform=transform, target_transform=target_transform, loader=loader, is_valid_file=is_valid_file
         )
@@ -66,7 +69,7 @@ class ImageFolderDatasetProvider(DatasetProvider):
         loader: Optional[Callable] = None,
         is_valid_file: Optional[Callable] = None,
     ) -> Dataset:
-        print("Warning: testing set not available. Returning validation set ...")
+        logger.warn("Testing set not available. Returning validation set ...")
         return self.get_test_dataset(
             transform=transform, target_transform=target_transform, loader=loader, is_valid_file=is_valid_file
         )

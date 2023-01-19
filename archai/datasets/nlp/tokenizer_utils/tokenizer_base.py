@@ -7,10 +7,10 @@ from typing import List, Optional
 import torch
 from overrides import EnforceOverrides
 
-from archai.common.logging_utils import get_logger
+from archai.common.logger import Logger
 from archai.datasets.nlp.tokenizer_utils.token_config import SpecialTokenEnum
 
-logger = get_logger(__name__)
+logger = Logger(source=__name__)
 
 
 class TokenizerBase(EnforceOverrides):
