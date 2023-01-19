@@ -13,9 +13,11 @@ from typing import Any, Dict, Iterator, Optional, Tuple
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from overrides import overrides
 from packaging import version
 from torch.nn.parallel import DistributedDataParallel
 
+from archai.api.trainer_base import TrainerBase
 from archai.common.distributed_utils import all_reduce, sync_workers
 from archai.common.logger import Logger
 from archai.datasets.nlp.nvidia_data_loader_provider import NvidiaDataLoaderProvider
@@ -23,8 +25,8 @@ from archai.datasets.nlp.nvidia_dataset_provider import NvidiaDatasetProvider
 from archai.quantization.mixed_qat import MixedQAT
 from archai.quantization.qat import prepare_with_qat, qat_to_float_modules
 from archai.trainers.cyclic_cosine_scheduler import CyclicCosineDecayLR
+from archai.trainers.lamb_optimizer import JITLamb, Lamb
 from archai.trainers.nlp.nvidia_training_args import NvidiaTrainingArguments
-from archai.trainers.optimizers import JITLamb, Lamb
 
 logger = Logger(source=__name__)
 
@@ -100,7 +102,7 @@ def save_checkpoint(
                 shutil.copy(checkpoint_path, checkpoint_step_path)
 
 
-class NvidiaTrainer:
+class NvidiaTrainer(TrainerBase):
     """NVIDIA-based trainer."""
 
     def __init__(
@@ -523,6 +525,7 @@ class NvidiaTrainer:
 
         return step
 
+    @overrides
     def train(self, checkpoint_file_path: Optional[str] = "") -> Dict[str, Any]:
         """Train a model.
 
@@ -606,6 +609,7 @@ class NvidiaTrainer:
 
         return eval_loss, end_time - start_time
 
+    @overrides
     def evaluate(self, eval_dataloader: Optional[Iterator] = None) -> Dict[str, Any]:
         """Evaluate a model.
 
@@ -631,6 +635,12 @@ class NvidiaTrainer:
         }
 
         return eval_metrics
+
+    @overrides
+    def predict(self) -> None:
+        """Predict with a model."""
+
+        pass
 
     def fine_tune_qat(self, model: Optional[torch.nn.Module] = None, checkpoint_file_path: Optional[str] = "") -> None:
         """Fine-tune a model with QAT.
