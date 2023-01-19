@@ -51,18 +51,14 @@ class Logger:
         """Context manager entry method.
 
         Returns:
-            Instance of Logger.
+            Instance of logger.
 
         """
 
         return self
 
     def __exit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
-        """Context manager exit method.
-
-        It pops the current node from the stack.
-
-        """
+        """Context manager exit method that pops the current node from the stack."""
 
         self.popd()
 
@@ -83,7 +79,7 @@ class Logger:
         """Calculate the number of items in the current node.
 
         Returns:
-            The number of items in the current node.
+            Number of items in the current node.
 
         """
 
@@ -106,6 +102,10 @@ class Logger:
 
         Returns:
             Current node of the current stack.
+
+        Raises:
+            RuntimeError: If a `key` stores a scalar value and is trying to store
+                new information.
 
         """
 
