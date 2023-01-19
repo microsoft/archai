@@ -1,4 +1,7 @@
-from overrides.overrides import overrides
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+from overrides import overrides
 from tqdm import tqdm
 import torch
 import torch.nn as nn

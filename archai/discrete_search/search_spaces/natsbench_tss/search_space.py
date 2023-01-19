@@ -10,9 +10,8 @@ import numpy as np
 import torch
 import nats_bench
 
-from archai.discrete_search import (
-    ArchaiModel, EvolutionarySearchSpace, BayesOptSearchSpace
-)
+from archai.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_space import BayesOptSearchSpace, EvolutionarySearchSpace
 
 try:
     from xautodl.models import get_cell_based_tiny_net

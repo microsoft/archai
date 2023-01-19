@@ -5,9 +5,9 @@ from typing import List, Type
 import numpy as np
 import torch
 
-from archai.discrete_search import (
-    ArchaiModel, EvolutionarySearchSpace, BayesOptSearchSpace
-)
+from archai.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_space import BayesOptSearchSpace, EvolutionarySearchSpace
+
 from archai.discrete_search.search_spaces.config.arch_config import ArchConfig, build_arch_config
 from archai.discrete_search.search_spaces.config.arch_param_tree import ArchParamTree
 from archai.discrete_search.search_spaces.config import utils

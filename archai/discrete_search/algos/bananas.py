@@ -2,21 +2,26 @@
 # Licensed under the MIT license.
 
 from overrides import overrides
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Optional
 from pathlib import Path
 
 import numpy as np
 
-from archai.common.utils import create_logger
-from archai.discrete_search import (
-    ArchaiModel,  SearchObjectives,
-    SearchResults, get_non_dominated_sorting
-)
-from archai.discrete_search import BayesOptSearchSpace, EvolutionarySearchSpace
+from archai.common.logger import Logger
+   
+from archai.api.archai_model import ArchaiModel
+from archai.api.dataset_provider import DatasetProvider
+from archai.api.search_objectives import SearchObjectives
+
 from archai.discrete_search.api.predictor import Predictor, MeanVar
-from archai.discrete_search.predictors import PredictiveDNNEnsemble
-from archai.discrete_search.api.dataset_provider import DatasetProvider
+from archai.discrete_search.api.search_space import BayesOptSearchSpace, EvolutionarySearchSpace
+from archai.discrete_search.api.search_results import SearchResults
 from archai.discrete_search.api.searcher import Searcher
+
+from archai.discrete_search.predictors.dnn_ensemble import PredictiveDNNEnsemble
+from archai.discrete_search.utils.multi_objective import get_non_dominated_sorting
+
+logger = Logger(source=__name__)
 
 
 class MoBananasSearch(Searcher):
@@ -92,7 +97,6 @@ class MoBananasSearch(Searcher):
         self.num_candidates = num_candidates
 
         # Utils
-        self.logger = create_logger(str(self.output_dir / 'log.log'), enable_stdout=True) 
         self.seen_archs = set()
         self.seed = seed
         self.rng = np.random.RandomState(self.seed)
@@ -144,7 +148,7 @@ class MoBananasSearch(Searcher):
             mutations.update(candidates)
         
         if len(mutations) == 0:
-            self.logger.warning(
+            logger.warning(
                 f'No mutations found after {patience} tries for each one of the {len(parents)} parents.'
             )
 
@@ -191,10 +195,10 @@ class MoBananasSearch(Searcher):
         unseen_pop = self.sample_models(self.init_num_models)
 
         for i in range(self.num_iters):
-            self.logger.info(f'Starting iteration {i}')
+            logger.info(f'Starting iteration {i}')
             all_pop.extend(unseen_pop)
 
-            self.logger.info(f'Evaluating objectives for {len(unseen_pop)} architectures')
+            logger.info(f'Evaluating objectives for {len(unseen_pop)} architectures')
             iter_results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
 
             self.seen_archs.update([m.archid for m in unseen_pop])
@@ -208,7 +212,7 @@ class MoBananasSearch(Searcher):
             self.search_state.add_iteration_results(unseen_pop, iter_results, extra_model_data)
 
             # Updates surrogate
-            self.logger.info('Updating surrogate model...')
+            logger.info('Updating surrogate model...')
             X, y = self.get_surrogate_iter_dataset(all_pop)
             self.surrogate_model.fit(X, y)
 
@@ -220,20 +224,20 @@ class MoBananasSearch(Searcher):
             parents = parents[:self.num_parents]
 
             # Mutates top models
-            self.logger.info(f'Generating mutations for {len(parents)} parent architectures...')
+            logger.info(f'Generating mutations for {len(parents)} parent architectures...')
             mutated = self.mutate_parents(parents, self.mutations_per_parent)
-            self.logger.info(f'Found {len(mutated)} new architectures satisfying constraints.')
+            logger.info(f'Found {len(mutated)} new architectures satisfying constraints.')
 
             if not mutated:
-                self.logger.info('No new architectures found. Stopping search.')
+                logger.info('No new architectures found. Stopping search.')
                 break
 
             # Predicts expensive objectives using surrogate model 
             # and calculates cheap objectives for mutated architectures
-            self.logger.info(f'Predicting {list(self.so.exp_objs.keys())} for new architectures using surrogate model')
+            logger.info(f'Predicting {list(self.so.exp_objs.keys())} for new architectures using surrogate model')
             pred_expensive_objs = self.predict_expensive_objectives(mutated)
 
-            self.logger.info(f'Calculating cheap objectives {list(self.so.cheap_objs.keys())} for new architectures')
+            logger.info(f'Calculating cheap objectives {list(self.so.cheap_objs.keys())} for new architectures')
             cheap_objs = self.so.eval_cheap_objs(mutated, self.dataset_provider)
 
             # Selects `num_candidates`-archtiectures for next iteration using Thompson Sampling
@@ -243,7 +247,7 @@ class MoBananasSearch(Searcher):
             )
             unseen_pop = [mutated[i] for i in selected_indices]
             
-            self.logger.info(f'Best {self.num_candidates} candidate architectures were selected for the next iteration')
+            logger.info(f'Best {self.num_candidates} candidate architectures were selected for the next iteration')
 
             # Save plots and reports
             self.search_state.save_all_2d_pareto_evolution_plots(self.output_dir)

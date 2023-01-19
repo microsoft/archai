@@ -9,9 +9,13 @@ import numpy as np
 
 import tensorwatch as tw
 
-from archai.common.common import logger
-from archai.discrete_search import ArchaiModel, EvolutionarySearchSpace
+from archai.common.logger import Logger
+
+from archai.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_space import EvolutionarySearchSpace
 from archai.discrete_search.search_spaces.segmentation_dag.model import SegmentationDagModel, OPS
+
+logger = Logger(source=__name__)
 
 
 class SegmentationDagSearchSpace(EvolutionarySearchSpace):

@@ -3,10 +3,10 @@
 
 from abc import abstractmethod
 from typing import List
-from overrides.enforce import EnforceOverrides
+from overrides import EnforceOverrides
 
 import numpy as np
-from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.api.archai_model import ArchaiModel
 
 
 class DiscreteSearchSpace(EnforceOverrides):

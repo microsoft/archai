@@ -1,9 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-"""Profiler-based evaluation.
-"""
-
 from typing import Any, Dict, List, Optional, Tuple, Union
 import statistics
 

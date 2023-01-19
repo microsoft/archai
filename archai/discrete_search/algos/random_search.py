@@ -1,18 +1,22 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from overrides.overrides import overrides
+from overrides import overrides
 from pathlib import Path
 import random
-from typing import List, Optional
-from tqdm import tqdm
+from typing import List
 
-from archai.common.utils import create_logger
-from archai.discrete_search import (
-    ArchaiModel, DatasetProvider, Searcher, SearchObjectives, SearchResults
-)
+from archai.common.logger import Logger
+   
+from archai.api.archai_model import ArchaiModel
+from archai.api.dataset_provider import DatasetProvider
+from archai.api.search_objectives import SearchObjectives
 
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
+from archai.discrete_search.api.search_results import SearchResults
+from archai.discrete_search.api.searcher import Searcher
+
+logger = Logger(source=__name__)
 
 
 class RandomSearch(Searcher):
@@ -53,7 +57,6 @@ class RandomSearch(Searcher):
         self.rng = random.Random(seed)
         self.seen_archs = set()
         self.num_sampled_archs = 0
-        self.logger = create_logger(str(self.output_dir / 'log.log'), enable_stdout=True)
 
         assert self.samples_per_iter > 0 
         assert self.num_iters > 0
@@ -74,13 +77,13 @@ class RandomSearch(Searcher):
     def search(self) -> SearchResults:
         for i in range(self.num_iters):
             self.iter_num = i + 1
-            self.logger.info(f'starting iter {i}')
+            logger.info(f'starting iter {i}')
             
-            self.logger.info(f'Sampling {self.samples_per_iter} random models')
+            logger.info(f'Sampling {self.samples_per_iter} random models')
             unseen_pop = self.sample_models(self.samples_per_iter)
 
             # Calculates objectives
-            self.logger.info(
+            logger.info(
                 f'iter {i}: calculating search objectives {list(self.so.objs.keys())} for'
                 f' {len(unseen_pop)} models'
             )
@@ -92,9 +95,9 @@ class RandomSearch(Searcher):
             self.seen_archs.update([m.archid for m in unseen_pop])
 
             # update the pareto frontier
-            self.logger.info(f'iter {i}: updating Pareto Frontier')
+            logger.info(f'iter {i}: updating Pareto Frontier')
             pareto = self.search_state.get_pareto_frontier()['models']
-            self.logger.info(f'iter {i}: found {len(pareto)} members')
+            logger.info(f'iter {i}: found {len(pareto)} members')
 
             # Saves search iteration results
             self.search_state.save_search_state(

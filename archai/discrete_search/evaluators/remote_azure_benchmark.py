@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import logging
 import platform
 import time
@@ -12,7 +15,9 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob import BlobServiceClient
 from azure.data.tables import TableServiceClient, UpdateMode
 
-from archai.discrete_search import AsyncModelEvaluator, DatasetProvider, ArchaiModel
+from archai.api.archai_model import ArchaiModel
+from archai.api.dataset_provider import DatasetProvider
+from archai.api.model_evaluator import AsyncModelEvaluator
 
 
 def get_utc_date():

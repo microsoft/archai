@@ -10,9 +10,10 @@ import tensorwatch as tw
 
 from archai.common.common import logger
 from archai.nas.arch_meta import ArchWithMetaData
-from archai.nas.discrete_search_space import DiscreteSearchSpace
+from archai.discrete_search.api.search_space import DiscreteSearchSpace
 
-from archai.algos.evolution_pareto_image_seg.model import OPS, SegmentationArchaiModel
+from archai.discrete_search.search_spaces.segmentation_dag.ops import OPS
+from archai.discrete_search.search_spaces.segmentation_dag.model import SegmentationDagModel
 
 
 def random_neighbor(param_values: List[int], current_value: int):

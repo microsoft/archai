@@ -1,12 +1,17 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Optional, Dict, Any
 from overrides import overrides
 import re
 
 import nats_bench
 
-from archai.discrete_search import ModelEvaluator, ArchaiModel
+from archai.api.archai_model import ArchaiModel
+from archai.api.dataset_provider import DatasetProvider
+from archai.api.model_evaluator import ModelEvaluator
+
 from archai.discrete_search.search_spaces.natsbench_tss.search_space import NatsbenchTssSearchSpace
-from archai.cv.datasets.dataset_provider import DatasetProvider
 
 
 class NatsbenchMetric(ModelEvaluator):

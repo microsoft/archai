@@ -11,13 +11,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from archai.discrete_search.api.search_objectives import SearchObjectives
-from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.api.search_objectives import SearchObjectives
+from archai.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
 from archai.discrete_search.utils.multi_objective import _find_pareto_frontier_points, get_pareto_frontier
 
 
-class SearchResults():
+class SearchResults:
     def __init__(self, search_space: DiscreteSearchSpace, objectives: SearchObjectives):
         self.search_space = search_space
         self.objectives = objectives

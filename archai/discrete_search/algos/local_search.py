@@ -1,18 +1,23 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from overrides.overrides import overrides
+from overrides import overrides
 from pathlib import Path
 import random
 from typing import List, Optional
 from tqdm import tqdm
 
-from archai.common.utils import create_logger
-from archai.discrete_search import (
-    ArchaiModel, DatasetProvider, Searcher, SearchObjectives, SearchResults
-)
+from archai.common.logger import Logger
+   
+from archai.api.archai_model import ArchaiModel
+from archai.api.dataset_provider import DatasetProvider
+from archai.api.search_objectives import SearchObjectives
 
 from archai.discrete_search.api.search_space import EvolutionarySearchSpace
+from archai.discrete_search.api.search_results import SearchResults
+from archai.discrete_search.api.searcher import Searcher
+
+logger = Logger(source=__name__)
 
 
 class LocalSearch(Searcher):
@@ -59,7 +64,6 @@ class LocalSearch(Searcher):
         self.rng = random.Random(seed)
         self.seen_archs = set()
         self.num_sampled_archs = 0
-        self.logger = create_logger(str(self.output_dir / 'log.log'), enable_stdout=True)
 
         assert self.init_num_models > 0 
         assert self.num_iters > 0
@@ -105,14 +109,14 @@ class LocalSearch(Searcher):
         self.iter_num = 0
         
         if self.initial_population_paths:
-            self.logger.info(
+            logger.info(
                 f'Loading initial population from {len(self.initial_population_paths)} architectures'
             )
             unseen_pop = [
                 self.search_space.load_arch(path) for path in self.initial_population_paths
             ]
         else:
-            self.logger.info(
+            logger.info(
                 f'Using {self.init_num_models} random architectures as the initial population'
             )
             unseen_pop = self.sample_models(self.init_num_models)
@@ -121,14 +125,14 @@ class LocalSearch(Searcher):
 
         for i in range(self.num_iters):
             self.iter_num = i + 1
-            self.logger.info(f'starting iter {i}')
+            logger.info(f'starting iter {i}')
 
             if len(unseen_pop) == 0:
-                self.logger.info(f'iter {i}: no models to evaluate, stopping search.')
+                logger.info(f'iter {i}: no models to evaluate, stopping search.')
                 break
 
             # Calculates objectives
-            self.logger.info(
+            logger.info(
                 f'iter {i}: calculating search objectives {list(self.so.objs.keys())} for'
                 f' {len(unseen_pop)} models'
             )
@@ -147,9 +151,9 @@ class LocalSearch(Searcher):
             self.seen_archs.update([m.archid for m in unseen_pop])
 
             # update the pareto frontier
-            self.logger.info(f'iter {i}: updating Pareto Frontier')
+            logger.info(f'iter {i}: updating Pareto Frontier')
             pareto = self.search_state.get_pareto_frontier()['models']
-            self.logger.info(f'iter {i}: found {len(pareto)} members')
+            logger.info(f'iter {i}: found {len(pareto)} members')
 
             # Saves search iteration results
             self.search_state.save_search_state(
@@ -166,7 +170,7 @@ class LocalSearch(Searcher):
             # while ensuring the mutations fall within 
             # desired constraint limits
             unseen_pop = self.mutate_parents(pareto, self.mutations_per_parent)
-            self.logger.info(f'iter {i}: mutation yielded {len(unseen_pop)} new models')
+            logger.info(f'iter {i}: mutation yielded {len(unseen_pop)} new models')
 
             # update the set of architectures ever visited
             self.all_pop.extend(unseen_pop)

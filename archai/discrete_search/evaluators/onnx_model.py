@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Tuple, Union, List, Dict, Optional
 import io
 
@@ -5,9 +8,9 @@ import torch
 from overrides import overrides
 import onnxruntime as rt
 
-from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.discrete_search.api.dataset_provider import DatasetProvider
-from archai.discrete_search.api.model_evaluator import ModelEvaluator
+from archai.api.archai_model import ArchaiModel
+from archai.api.dataset_provider import DatasetProvider
+from archai.api.model_evaluator import ModelEvaluator
 from archai.common.timing import MeasureBlockTime
 
 

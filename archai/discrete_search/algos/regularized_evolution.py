@@ -1,19 +1,25 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from overrides.overrides import overrides
+from overrides import overrides
 from pathlib import Path
 import random
 from typing import List, Optional
 from tqdm import tqdm
 
-from archai.common.utils import create_logger
-from archai.discrete_search.utils.multi_objective import get_pareto_frontier
-from archai.discrete_search import (
-    ArchaiModel, DatasetProvider, Searcher, SearchObjectives, SearchResults
-)
+from archai.common.logger import Logger
+   
+from archai.api.archai_model import ArchaiModel
+from archai.api.dataset_provider import DatasetProvider
+from archai.api.search_objectives import SearchObjectives
 
 from archai.discrete_search.api.search_space import EvolutionarySearchSpace
+from archai.discrete_search.api.search_results import SearchResults
+from archai.discrete_search.api.searcher import Searcher
+
+from archai.discrete_search.utils.multi_objective import get_pareto_frontier
+
+logger = Logger(source=__name__)
 
 
 class RegularizedEvolutionSearch(Searcher):
@@ -66,7 +72,6 @@ class RegularizedEvolutionSearch(Searcher):
         self.rng = random.Random(seed)
         self.seen_archs = set()
         self.num_sampled_archs = 0
-        self.logger = create_logger(str(self.output_dir / 'log.log'), enable_stdout=True)
 
         assert self.init_num_models > 0 
         assert self.num_iters > 0
@@ -112,14 +117,14 @@ class RegularizedEvolutionSearch(Searcher):
         self.iter_num = 0
         
         if self.initial_population_paths:
-            self.logger.info(
+            logger.info(
                 f'Loading initial population from {len(self.initial_population_paths)} architectures'
             )
             iter_members = [
                 self.search_space.load_arch(path) for path in self.initial_population_paths
             ]
         else:
-            self.logger.info(
+            logger.info(
                 f'Using {self.init_num_models} random architectures as the initial population'
             )
             iter_members = self.sample_models(self.init_num_models)
@@ -128,14 +133,14 @@ class RegularizedEvolutionSearch(Searcher):
 
         for i in range(self.num_iters):
             self.iter_num = i + 1
-            self.logger.info(f'starting iter {i}')
+            logger.info(f'starting iter {i}')
 
             if len(iter_members) == 0:
-                self.logger.info(f'iter {i}: no models to evaluate, stopping search.')
+                logger.info(f'iter {i}: no models to evaluate, stopping search.')
                 break
 
             # Calculates objectives
-            self.logger.info(
+            logger.info(
                 f'iter {i}: calculating search objectives {list(self.so.objs.keys())} for'
                 f' {len(iter_members)} models'
             )
@@ -175,13 +180,13 @@ class RegularizedEvolutionSearch(Searcher):
                 history_indices, min(self.pareto_sample_size, self.history_size)
             )
 
-            self.logger.info(
+            logger.info(
                 f'iter {i}: sampled {len(sample_indices)} models from the'
                 f' history ({len(history_indices)} models)'
             )
 
             # Gets the pareto frontier of the history sample
-            self.logger.info(f'iter {i}: calculating pareto frontier of the sample')
+            logger.info(f'iter {i}: calculating pareto frontier of the sample')
             
             pareto_sample = get_pareto_frontier(
                 [self.all_pop[sample_idx] for sample_idx in sample_indices], 
@@ -191,13 +196,13 @@ class RegularizedEvolutionSearch(Searcher):
                 },
                 self.so
             )
-            self.logger.info(f'iter {i}: found {len(pareto_sample)} pareto members from the sample')
+            logger.info(f'iter {i}: found {len(pareto_sample)} pareto members from the sample')
             
             # mutate random 'k' subsets of the parents
             # while ensuring the mutations fall within 
             # desired constraint limits
             iter_members = self.mutate_parents(pareto_sample['models'], 1)
-            self.logger.info(f'iter {i}: mutation yielded {len(iter_members)} new models for the next iteration')
+            logger.info(f'iter {i}: mutation yielded {len(iter_members)} new models for the next iteration')
 
             # update the set of architectures ever visited
             self.all_pop.extend(iter_members)

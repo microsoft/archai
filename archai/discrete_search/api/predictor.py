@@ -3,7 +3,7 @@
 
 from abc import abstractmethod
 from typing import NamedTuple
-from overrides.enforce import EnforceOverrides
+from overrides import EnforceOverrides
 
 import numpy as np
 
