@@ -19,7 +19,7 @@ from archai.nas.arch_trainer import ArchTrainer
 from archai.common import utils, ml_utils
 from archai.nas.model import Model
 from archai.nas.model_desc import CellType
-from archai.common.checkpoint import CheckPoint
+from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.common.common import logger
 from archai.cv.datasets import data
 from archai.common.common import get_conf

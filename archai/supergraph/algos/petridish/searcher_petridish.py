@@ -26,16 +26,16 @@ import yaml
 
 from archai.common import common
 from archai.common.common import logger, CommonState
-from archai.common.checkpoint import CheckPoint
+from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.common.config import Config
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas import nas_utils
 from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
-from archai.common.trainer import Trainer
+from archai.supergraph.utils.trainer import Trainer
 from archai.cv.datasets import data
 from archai.nas.model import Model
-from archai.common.metrics import Metrics
+from archai.supergraph.utils.metrics import Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 from archai.algos.petridish.petridish_utils import _convex_hull_from_points

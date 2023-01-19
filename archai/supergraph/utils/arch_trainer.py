@@ -12,10 +12,10 @@ from overrides import overrides, EnforceOverrides
 from archai.common.config import Config
 from archai.common import utils
 from archai.nas.model import Model
-from archai.common.trainer import Trainer
+from archai.supergraph.utils.trainer import Trainer
 from archai.cv.datasets import data
 from archai.nas.vis_model_desc import draw_model_desc
-from archai.common.checkpoint import CheckPoint
+from archai.supergraph.utils.checkpoint import CheckPoint
 
 TArchTrainer = Optional[Type['ArchTrainer']]
 

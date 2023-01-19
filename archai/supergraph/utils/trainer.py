@@ -11,13 +11,13 @@ from torch.utils.data import DataLoader
 
 from overrides import EnforceOverrides
 
-from archai.common.metrics import Metrics
-from archai.common.tester import Tester
+from archai.supergraph.utils.metrics import Metrics
+from archai.supergraph.utils.tester import Tester
 from archai.common.config import Config
 from archai.common import utils, ml_utils
 from archai.common.common import logger
 from archai.cv.datasets import data
-from archai.common.checkpoint import CheckPoint
+from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.common.apex_utils import ApexUtils
 from archai.common.multi_optim import MultiOptim, OptimSched
 

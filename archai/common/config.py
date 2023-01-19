@@ -14,7 +14,7 @@ from os import stat
 
 import yaml
 
-from archai.common import yaml_utils
+from archai.common import config_utils
 
 
 # global config instance
@@ -74,14 +74,14 @@ class Config(UserDict):
         # wouldn't have existed before resolution.
         resolved_conf = copy.deepcopy(self)
         if resolve_redirects:
-            yaml_utils.resolve_all(resolved_conf)
+            config_utils.resolve_all(resolved_conf)
 
         # Let's do final overrides from args
         self._update_from_args(param_args, resolved_conf)      # merge from params
         self._update_from_args(self.extra_args, resolved_conf) # merge from command line
 
         if resolve_redirects:
-            yaml_utils.resolve_all(self)
+            config_utils.resolve_all(self)
 
         self.config_filepath = config_filepath
 

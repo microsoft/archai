@@ -18,7 +18,7 @@ from archai.common.config import Config
 from archai.nas.arch_trainer import ArchTrainer
 from archai.common import utils, ml_utils
 from archai.nas.model import Model
-from archai.common.checkpoint import CheckPoint
+from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.common.common import logger, get_conf
 from archai.algos.gumbelsoftmax.gs_op import GsOp
 

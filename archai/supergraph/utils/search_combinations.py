@@ -14,7 +14,7 @@ from archai.common.config import Config
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.arch_trainer import TArchTrainer
 from archai.nas import nas_utils
-from archai.common.metrics import Metrics
+from archai.supergraph.utils.metrics import Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 from archai.nas.searcher import ModelMetrics, Searcher, SearchResult

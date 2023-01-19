@@ -16,11 +16,11 @@ from archai.common.common import logger
 from archai.common.config import Config
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas.arch_trainer import TArchTrainer
-from archai.common.trainer import Trainer
+from archai.supergraph.utils.trainer import Trainer
 from archai.nas.model_desc import CellType, ModelDesc
 from archai.cv.datasets import data
 from archai.nas.model import Model
-from archai.common.metrics import EpochMetrics, Metrics
+from archai.supergraph.utils.metrics import EpochMetrics, Metrics
 from archai.common import utils
 from archai.nas.finalizers import Finalizers
 from archai.nas.searcher import Searcher, SearchResult

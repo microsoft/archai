@@ -14,7 +14,7 @@ from torch import nn
 
 from overrides import overrides, EnforceOverrides
 
-from archai.common.trainer import Trainer
+from archai.supergraph.utils.trainer import Trainer
 from archai.common.config import Config
 from archai.common.common import logger
 from archai.cv.datasets import data
@@ -22,9 +22,9 @@ from archai.nas.model_desc import ModelDesc
 from archai.nas.model_desc_builder import ModelDescBuilder
 from archai.nas import nas_utils
 from archai.common import ml_utils, utils
-from archai.common.metrics import EpochMetrics, Metrics
+from archai.supergraph.utils.metrics import EpochMetrics, Metrics
 from archai.nas.model import Model
-from archai.common.checkpoint import CheckPoint
+from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.nas.evaluater import Evaluater
 
 

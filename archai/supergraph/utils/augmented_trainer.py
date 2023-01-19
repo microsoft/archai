@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from archai.common import ml_utils, utils
 from archai.common.common import get_tb_writer, logger
-from archai.common.metrics import Accumulator
+from archai.supergraph.utils.metrics import Accumulator
 from archai.cv.datasets.data import get_dataloaders
 from archai.cv.models import get_model, num_class
 

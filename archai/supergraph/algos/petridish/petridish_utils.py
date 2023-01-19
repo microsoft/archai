@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
-from archai.common.metrics import Metrics
+from archai.supergraph.utils.metrics import Metrics
 from archai.common.common import logger, utils
 
 class JobStage(Enum):

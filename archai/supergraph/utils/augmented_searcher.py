@@ -18,8 +18,8 @@ from tqdm import tqdm
 
 from archai.common.common import expdir_abspath, logger
 from archai.common.config import Config
-from archai.common.metrics import Accumulator
-from archai.common.stopwatch import StopWatch
+from archai.supergraph.utils.metrics import Accumulator
+from archai.supergraph.utils.stopwatch import StopWatch
 from archai.cv.augmented_train import train_and_eval
 from archai.cv.datasets.aug_policies import policy_decoder, remove_deplicates
 from archai.cv.datasets.augmentation import augment_list

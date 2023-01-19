@@ -8,7 +8,7 @@ import tensorwatch as tw
 from archai.common.config import Config
 from archai.nas.model import Model
 from archai.common.common import logger
-from archai.common.checkpoint import CheckPoint
+from archai.supergraph.utils.checkpoint import CheckPoint
 
 
 
