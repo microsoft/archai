@@ -5,13 +5,10 @@ import copy
 from typing import Any, Dict, Optional
 
 import torch
-import transformers
 
 from archai.quantization.modules import (
     FakeDynamicQuantConv1d,
     FakeDynamicQuantConv1dForOnnx,
-    FakeDynamicQuantHFConv1D,
-    FakeDynamicQuantHFConv1DForOnnx,
     FakeDynamicQuantLinear,
     FakeDynamicQuantLinearForOnnx,
     FakeQuantEmbedding,
@@ -19,17 +16,29 @@ from archai.quantization.modules import (
 )
 
 DYNAMIC_QAT_MODULE_MAP = {
-    torch.nn.Embedding: FakeQuantEmbedding,
-    torch.nn.Linear: FakeDynamicQuantLinear,
     torch.nn.Conv1d: FakeDynamicQuantConv1d,
-    transformers.modeling_utils.Conv1D: FakeDynamicQuantHFConv1D,
+    torch.nn.Linear: FakeDynamicQuantLinear,
+    torch.nn.Embedding: FakeQuantEmbedding,
 }
 ONNX_DYNAMIC_QAT_MODULE_MAP = {
-    torch.nn.Embedding: FakeQuantEmbeddingForOnnx,
-    torch.nn.Linear: FakeDynamicQuantLinearForOnnx,
     torch.nn.Conv1d: FakeDynamicQuantConv1dForOnnx,
-    transformers.modeling_utils.Conv1D: FakeDynamicQuantHFConv1DForOnnx,
+    torch.nn.Linear: FakeDynamicQuantLinearForOnnx,
+    torch.nn.Embedding: FakeQuantEmbeddingForOnnx,
 }
+
+try:
+    import transformers
+
+    from archai.quantization.nlp.modules import (
+        FakeDynamicQuantHFConv1D,
+        FakeDynamicQuantHFConv1DForOnnx,
+    )
+
+    DYNAMIC_QAT_MODULE_MAP[transformers.modeling_utils.Conv1D] = FakeDynamicQuantHFConv1D
+    ONNX_DYNAMIC_QAT_MODULE_MAP[transformers.modeling_utils.Conv1D] = FakeDynamicQuantHFConv1DForOnnx
+except ModuleNotFoundError:
+    print("`archai.quantization.nlp` is not available. If needed, install with: pip install archai[nlp].")
+
 from archai.common.logging_utils import get_logger
 
 logger = get_logger(__name__)
