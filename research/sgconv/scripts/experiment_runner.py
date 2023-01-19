@@ -79,7 +79,7 @@ class ExperimentRunner:
 
         self.collator_name = collator_config.pop("collator_name", "language-modelling")
         self.collator_config = collator_config
-        self.dataset_config = data_config.pop("dataset", []) or []
+        self.dataset_config = data_config.pop("dataset", None) or None
         self.data_config = data_config
         self.tokenizer_config = tokenizer_config
 
@@ -116,14 +116,11 @@ class ExperimentRunner:
         logger.info("Loaded config and model")
 
         with training_args.main_process_first(desc="loading and preparing dataset"):
-            datasets = [
-                load_dataset(
-                    **dataset_config,
-                    random_seed=self.random_seed,
+            dataset = load_dataset(
+                dataset_disk=self.dataset_config['dataset_disk'],
+                random_seed=self.random_seed
                 )
-                for dataset_config in self.dataset_config
-            ]
-            dataset = merge_datasets(datasets)
+
             pre_encoded_path = self.data_config.get("encoded_dataset_path", None)
             if not pre_encoded_path:
                 logger.info("Pre-encoded dataset not found. Encoding...")

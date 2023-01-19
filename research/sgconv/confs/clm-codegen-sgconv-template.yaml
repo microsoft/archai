@@ -6,7 +6,7 @@ collator:
   mlm: False
 data:
   dataset:
-    - dataset_disk: "/data/dataroot/dummy"
+    dataset_disk: "/mnt/archai_nlp/datasets/dummy"
   num_proc: 128
   mapping_column_name: "code"
   encoded_dataset_path: "/data/dataroot/the_pile_30B_encoded_8192"
@@ -18,8 +18,8 @@ model:
   model_type: "codegen_sgconv"
   vocab_size: 50295
   n_positions: 8192
-  n_embd: 2048
-  n_layer: 24
+  n_embd: 1024
+  n_layer: 32
   n_head: 12
   n_inner: null
   rotary_dim: 32
@@ -55,11 +55,11 @@ trainer:
   adam_beta2: 0.95
   weight_decay: 0.1
   max_grad_norm: 1.0
-  max_steps: 100000
+  max_steps: 20
   lr_scheduler_type: "cosine"
   warmup_steps: 300
   logging_steps: 10
-  save_steps: 100
+  save_steps: 10
   save_total_limit: 5
   eval_steps: 5
   seed: 1234

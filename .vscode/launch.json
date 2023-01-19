@@ -378,6 +378,7 @@
                      "1",
                      "${cwd}/research/sgconv/scripts/main.py",
                      "${cwd}/research/sgconv/confs/clm-codegen-sgconv-template.yaml",
+                     "data.dataset.dataset_disk=/data/dataroot/dummy",
                      "-o", "~/logdir"]
         },
         {
