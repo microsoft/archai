@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""File-related utilities."""
-
 import os
 import re
 from pathlib import Path

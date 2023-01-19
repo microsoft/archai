@@ -6,7 +6,7 @@ from archai.common.common import common_init
 from archai.nas.model import Model
 from archai.algos.petridish.petridish_model_desc_builder import PetridishModelBuilder
 
-from archai.common.model_summary import summary
+from scripts.performance.model_summary import summary
 
 conf = common_init(config_filepath='confs/petridish_cifar.yaml',
                     param_args=['--common.experiment_name', 'petridish_run2_seed42_eval'])

@@ -25,8 +25,9 @@ import torchvision.transforms as transforms
 
 import yaml
 
-from archai.common import utils, common, delimited_text
+from archai.common import utils, common
 from archai.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
+from scripts.nasbench101 import delimited_text
 
 
 def main():
