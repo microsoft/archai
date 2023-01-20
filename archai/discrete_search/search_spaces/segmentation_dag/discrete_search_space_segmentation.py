@@ -9,12 +9,13 @@ import torch
 import tensorwatch as tw
 
 from archai.common.logger import Logger
-logger = Logger(source=__name__)
-from archai.supergraph.utils.arch_meta import ArchWithMetaData
+from archai.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
 
 from archai.discrete_search.search_spaces.segmentation_dag.ops import OPS
 from archai.discrete_search.search_spaces.segmentation_dag.model import SegmentationDagModel
+
+logger = Logger(source=__name__)
 
 
 def random_neighbor(param_values: List[int], current_value: int):
@@ -140,7 +141,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         self.img_size = img_size
 
     @overrides
-    def random_sample(self)->ArchWithMetaData:
+    def random_sample(self)->ArchaiModel:
         ''' Uniform random sample an architecture within the limits of min and max MAC '''
 
         found_valid = False
@@ -149,7 +150,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             # randomly pick number of layers    
             num_layers = random.randint(self.min_layers, self.max_layers)
 
-            model = SegmentationArchaiModel.sample_model(
+            model = SegmentationDagModel.sample_model(
                 base_channels_list=self.base_channels_list,
                 delta_channels_list=self.delta_channels_list,
                 post_upsample_layer_list=self.post_upsample_layers_list,
@@ -176,12 +177,12 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 'parent': None,
                 'macs': model_stats.MAdd
             }
-            arch_meta = ArchWithMetaData(model, meta_data)
+            arch_meta = ArchaiModel(model, meta_data)
             
         return arch_meta     
 
     @overrides
-    def get_neighbors(self, base_model: ArchWithMetaData, patience: int = 5) -> List[ArchWithMetaData]:
+    def get_neighbors(self, base_model: ArchaiModel, patience: int = 5) -> List[ArchaiModel]:
         parent_id = base_model.metadata['archid']
         neighbors = []
         nb_tries = 0
@@ -239,7 +240,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
                 ]
 
             # compile the model
-            nbr_model = SegmentationArchaiModel(graph, channels_per_scale, post_upsample_layers)
+            nbr_model = SegmentationDagModel(graph, channels_per_scale, post_upsample_layers)
             
             try:
                 out_shape = nbr_model.validate_forward(
@@ -257,7 +258,7 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
             input_tensor_shape = (1, 3, *nbr_model.img_size[::-1])
             model_stats = tw.ModelStats(nbr_model, input_tensor_shape, clone_model=True)
             if model_stats.MAdd > self.min_mac and model_stats.MAdd < self.max_mac:
-                neighbors += [ArchWithMetaData(nbr_model, {
+                neighbors += [ArchaiModel(nbr_model, {
                     'datasetname': self.datasetname,
                     'archid': nbr_model.to_hash(),
                     'parent': parent_id,
@@ -270,31 +271,31 @@ class DiscreteSearchSpaceSegmentation(DiscreteSearchSpace):
         return neighbors
 
     def load_from_graph(self, graph: List[Dict], channels_per_scale: Dict,
-                        post_upsample_layers: int = 1) -> ArchWithMetaData:
-        model = SegmentationArchaiModel(
+                        post_upsample_layers: int = 1) -> ArchaiModel:
+        model = SegmentationDagModel(
             graph, channels_per_scale, post_upsample_layers,
             img_size=self.img_size, nb_classes=self.nb_classes
         )
         
-        return ArchWithMetaData(model, {
+        return ArchaiModel(model, {
             'datasetname': self.datasetname,
             'archid': model.to_hash(),
             'parent': None
         })
 
-    def load_from_file(self, config_file: str) -> ArchWithMetaData:
-        model = SegmentationArchaiModel.from_file(
+    def load_from_file(self, config_file: str) -> ArchaiModel:
+        model = SegmentationDagModel.from_file(
             config_file, img_size=self.img_size, nb_classes=self.nb_classes
         )
         
-        return ArchWithMetaData(model, {
+        return ArchaiModel(model, {
             'datasetname': self.datasetname,
             'archid': model.to_hash(),
             'parent': None
         })
    
-    def crossover(self, model_1: ArchWithMetaData, model_2: ArchWithMetaData, 
-                  patience: int = 30) -> Optional[ArchWithMetaData]:
+    def crossover(self, model_1: ArchaiModel, model_2: ArchaiModel, 
+                  patience: int = 30) -> Optional[ArchaiModel]:
         # Chooses randomly left and right models
         left_m, right_m = random.sample([model_1, model_2], 2)
         left_arch, right_arch = [list(m.arch.graph.values()) for m in [left_m, right_m]]
