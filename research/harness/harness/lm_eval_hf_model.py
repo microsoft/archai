@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List
+from typing import List, Optional
 
 import torch
 from harness.utils.multiple_token_stopping_criteria import MultipleTokenStoppingCriteria
@@ -13,7 +13,7 @@ from transformers.tokenization_utils import PreTrainedTokenizer
 
 
 class HFEvalModel(BaseLM):
-    def __init__(self, model: torch.nn.Module, tokenizer: PreTrainedTokenizer) -> None:
+    def __init__(self, model: torch.nn.Module, tokenizer: PreTrainedTokenizer, force_attention_mask: Optional[bool] = False) -> None:
         super().__init__()
 
         self._device = torch.device("cpu")
@@ -23,6 +23,8 @@ class HFEvalModel(BaseLM):
         self.model = model
         self.tokenizer = tokenizer
         self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
+
+        self.force_attention_mask = force_attention_mask
 
     @property
     def eot_token_id(self) -> int:
@@ -54,8 +56,12 @@ class HFEvalModel(BaseLM):
         return self.tokenizer.decode(tokens)
 
     def _model_call(self, inps: torch.Tensor) -> torch.Tensor:
+        kwargs = {}
+        if self.force_attention_mask:
+            kwargs["attention_mask"] = torch.zeros(inps.shape, dtype=torch.long, device=inps.device)
+
         with torch.no_grad():
-            return self.model(inps)[0]
+            return self.model(inps, **kwargs)[0]
 
     def _model_generate(self, context: str, max_length: int, eos_token_id: int) -> str:
         return self.model.generate(context, max_length=max_length, eos_token_id=eos_token_id, do_sample=False)
