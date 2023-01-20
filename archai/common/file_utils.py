@@ -2,8 +2,11 @@
 # Licensed under the MIT license.
 
 import os
+import pathlib
 import re
+import shutil
 from pathlib import Path
+from typing import Optional
 
 import torch
 
@@ -101,3 +104,88 @@ def create_file_name_identifier(file_name: str, identifier: str) -> str:
     file_name_identifier = file_name.parent.joinpath(file_name.stem + identifier).with_suffix(file_name.suffix)
 
     return file_name_identifier.as_posix()
+
+
+def create_empty_file(file_path: str) -> None:
+    """Creates an empty file at the given path.
+
+    Args:
+        file_path: The path to the file to be created.
+
+    """
+
+    open(file_path, "w").close()
+
+
+def create_file_with_string(file_path: str, content: str) -> None:
+    """Creates a file at the given path and writes the given string to it.
+
+    Args:
+        file_path: The path to the file to be created.
+        content: The string to be written to the file.
+
+    """
+
+    pathlib.Path(file_path).write_text(content)
+
+
+def copy_file(
+    src_file_path: str, dest_file_path: str, force_shutil: Optional[bool] = True, keep_metadata: Optional[bool] = False
+) -> str:
+    """Copy a file from one location to another.
+
+    Args:
+        src_file_path: The path to the source file.
+        dest_file_path: The path to the destination file.
+        force_shutil: Whether to use `shutil` to copy the file.
+        keep_metadata: Whether to keep source file metadata when copying.
+
+    Returns:
+        The path to the destination file.
+
+    """
+
+    def _copy_file_basic_mode(src_file_path: str, dest_file_path: str) -> str:
+        if os.path.isdir(dest_file_path):
+            dest_file_path = os.path.join(dest_file_path, pathlib.Path(src_file_path).name)
+
+        with open(src_file_path, "rb") as src, open(dest_file_path, "wb") as dest:
+            dest.write(src.read())
+
+        return dest_file_path
+
+    if not force_shutil:
+        return _copy_file_basic_mode(src_file_path, dest_file_path)
+
+    # Note shutil.copy2 might fail on Azure if file system does not support OS level copystats
+    # Use keep_metadata=True only if needed for maximum compatibility
+    try:
+        copy_fn = shutil.copy2 if keep_metadata else shutil.copy
+        return copy_fn(src_file_path, dest_file_path)
+    except OSError as e:
+        if keep_metadata or e.errno != 38:  # OSError 38: Function not implemented
+            raise
+
+        return _copy_file_basic_mode(src_file_path, dest_file_path)
+
+
+def get_full_path(path: str, create_folder: Optional[bool] = False) -> str:
+    """Get the full path to a file or folder.
+
+    Args:
+        path: The path to the file or folder.
+        create_folder: Whether to create the folder if it does not exist.
+
+    Returns:
+        The full path to the file or folder.
+
+    """
+
+    assert path
+
+    path = os.path.abspath(os.path.expanduser(os.path.expandvars(path)))
+
+    if create_folder:
+        os.makedirs(path, exist_ok=True)
+
+    return path
