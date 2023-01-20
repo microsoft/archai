@@ -4,6 +4,8 @@
 import argparse
 import json
 
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
 from harness.lm_eval_evaluator import evaluate_wrapper
 from harness.lm_eval_hf_model import HFEvalModel
 from harness.tasks.human_eval import HumanEval
@@ -107,10 +109,12 @@ if __name__ == "__main__":
         with open(args.description_dict_path, "r") as f:
             description_dict = json.load(f)
 
-    model = HFEvalModel(args.pre_trained_model_path, args.hub_tokenizer_path)
-
+    model = AutoModelForCausalLM.from_pretrained(args.pre_trained_model_path)
+    tokenizer = AutoTokenizer.from_pretrained(args.hub_tokenizer_path)
+    hf_model = HFEvalModel(model, tokenizer)
+    
     outputs = evaluate_wrapper(
-        model,
+        hf_model,
         task_names,
         num_fewshot=args.n_few_shot_samples,
         no_cache=args.no_cache,

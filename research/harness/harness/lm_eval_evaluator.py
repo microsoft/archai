@@ -3,6 +3,7 @@
 
 import random
 from typing import List, Optional
+from hashlib import sha1
 
 import numpy as np
 from harness.lm_eval_hf_model import HFEvalModel
@@ -13,7 +14,7 @@ from lm_eval.utils import run_task_tests
 
 
 def evaluate_wrapper(
-    model: HFEvalModel,
+    hf_model: HFEvalModel,
     tasks: List[str],
     num_fewshot: Optional[int] = 0,
     no_cache: Optional[bool] = False,
@@ -27,14 +28,15 @@ def evaluate_wrapper(
     np.random.seed(1234)
 
     if not no_cache:
-        model = CachingLM(model, "cache/hf-eval-model.db")
+        hf_model_id = sha1(repr(hf_model.model).encode("ascii")).hexdigest()
+        hf_model = CachingLM(hf_model, f"cache/{hf_model_id}.db")
 
     if check_integrity:
         run_task_tests(task_list=tasks)
 
     task_dict = get_task_dict(tasks)
     results = evaluate(
-        lm=model,
+        lm=hf_model,
         task_dict=task_dict,
         num_fewshot=num_fewshot,
         limit=limit,

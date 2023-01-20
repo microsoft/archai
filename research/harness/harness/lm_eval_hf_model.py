@@ -8,21 +8,20 @@ from harness.utils.multiple_token_stopping_criteria import MultipleTokenStopping
 from harness.utils.request_factory import Request
 from lm_eval.base import BaseLM
 from tqdm import tqdm
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.generation.stopping_criteria import StoppingCriteriaList
+from transformers.tokenization_utils import PreTrainedTokenizer
 
 
 class HFEvalModel(BaseLM):
-    def __init__(self, pre_trained_model_path: str, hub_tokenizer_path: str):
+    def __init__(self, model: torch.nn.Module, tokenizer: PreTrainedTokenizer) -> None:
         super().__init__()
 
         self._device = torch.device("cpu")
         if torch.cuda.is_available():
             self._device = torch.device("cuda")
 
-        self.model = AutoModelForCausalLM.from_pretrained(pre_trained_model_path)
-
-        self.tokenizer = AutoTokenizer.from_pretrained(hub_tokenizer_path)
+        self.model = model
+        self.tokenizer = tokenizer
         self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
 
     @property
