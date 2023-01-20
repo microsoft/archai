@@ -16,15 +16,14 @@ from ray.tune.trial import Trial
 from ray.tune.trial_runner import TrialRunner  # will be patched but not used
 from tqdm import tqdm
 
-from archai.common.common import expdir_abspath, logger
+from archai.supergraph.utils.common import expdir_abspath, logger
 from archai.common.config import Config
 from archai.supergraph.utils.metrics import Accumulator
 from archai.supergraph.utils.stopwatch import StopWatch
-from archai.cv.augmented_train import train_and_eval
-from archai.cv.datasets.aug_policies import policy_decoder, remove_deplicates
-from archai.cv.datasets.augmentation import augment_list
-from archai.cv.datasets.data import get_dataloaders
-from archai.cv.models import get_model, num_class
+from archai.supergraph.utils.augmented_trainer import train_and_eval
+from archai.datasets.cv.augmentation.augmentation_policy import policy_decoder, remove_deplicates, augment_list
+from archai.supergraph.utils.datasets.data import get_dataloaders
+from archai.supergraph.utils.nas.models import get_model, num_class
 
 
 # this method is overriden version of ray.tune.trial_runner.TrialRunner.step using monkey patching

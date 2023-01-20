@@ -6,13 +6,13 @@ import copy
 
 from overrides import overrides
 
-from archai.common.common import get_conf
-from archai.nas.model_desc_builder import ModelDescBuilder
-from archai.nas.operations import Op, MultiOp
-from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+from archai.supergraph.utils.common import get_conf
+from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.utils.nas.operations import Op, MultiOp
+from archai.supergraph.utils.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
 from archai.common.config import Config
-from archai.algos.gumbelsoftmax.gs_op import GsOp
+from archai.supergraph.algos.gumbelsoftmax.gs_op import GsOp
 
 class GsModelDescBuilder(ModelDescBuilder):
     @overrides

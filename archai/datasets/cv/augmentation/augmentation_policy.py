@@ -14,13 +14,14 @@ import PIL.ImageDraw
 import PIL.ImageEnhance
 import PIL.ImageOps
 
-from archai.common.common import logger
-from archai.cv.datasets.aug_policies import (
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
+from archai.datasets.cv.augmentation.augmentation_policy import (
     fa_reduced_cifar10,
     fa_reduced_svhn,
     fa_resnet50_rimagenet,
 )
-from archai.cv.datasets.transforms.cutout_custom import CutoutCustom
+from archai.datasets.cv.transforms.custom_cutout import CustomCutout
 
 _random_mirror = True
 

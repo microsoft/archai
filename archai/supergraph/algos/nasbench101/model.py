@@ -17,7 +17,7 @@ import numpy as np
 import math
 import logging
 
-from archai.algos.nasbench101.base_ops import *
+from archai.supergraph.algos.nasbench101.base_ops import *
 
 import torch
 import torch.nn as nn

@@ -8,8 +8,9 @@ import torch
 
 import tensorwatch as tw
 
-from archai.common.common import logger
-from archai.nas.arch_meta import ArchWithMetaData
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
+from archai.supergraph.utils.arch_meta import ArchWithMetaData
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
 
 from archai.discrete_search.search_spaces.segmentation_dag.ops import OPS

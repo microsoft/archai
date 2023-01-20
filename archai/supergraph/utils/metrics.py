@@ -13,9 +13,29 @@ from torch import Tensor
 
 import yaml
 
-from archai.common import utils, ml_utils
-from archai.common.common import logger, get_tb_writer
-from archai.common.apex_utils import ApexUtils
+from archai.supergraph.utils import utils
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
+from archai.supergraph.utils.common import get_tb_writer
+from archai.supergraph.utils.apex_utils import ApexUtils
+from archai.supergraph.utils import ml_utils
+
+class AverageMeter:
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.avg = 0.
+        self.sum = 0.
+        self.cnt = 0
+        self.last = 0.
+
+    def update(self, val, n=1):
+        self.last = val
+        self.sum += val * n
+        self.cnt += n
+        self.avg = self.sum / self.cnt
 
 
 class Metrics:

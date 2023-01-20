@@ -15,12 +15,15 @@ import torch.nn.functional as F
 from overrides import overrides
 
 from archai.common.config import Config
-from archai.nas.arch_trainer import ArchTrainer
-from archai.common import utils, ml_utils
-from archai.nas.model import Model
+from archai.supergraph.utils.nas.arch_trainer import ArchTrainer
+from archai.supergraph.utils import utils
+from archai.supergraph.utils.nas.model import Model
+from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.common.common import logger, get_conf
-from archai.algos.gumbelsoftmax.gs_op import GsOp
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
+from archai.supergraph.utils.common import get_conf
+from archai.supergraph.algos.gumbelsoftmax.gs_op import GsOp
 
 class GsArchTrainer(ArchTrainer):
     def __init__(self, conf_train: Config, model: nn.Module, checkpoint: Optional[CheckPoint]) -> None:

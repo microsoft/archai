@@ -23,13 +23,15 @@ from torch.utils.data import (
 from torch.utils.data.distributed import DistributedSampler
 from torchvision.transforms import transforms
 
-from archai.common import apex_utils, common, utils
-from archai.common.common import logger
+from archai.supergraph.utils import common, utils
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
 from archai.common.config import Config
-from archai.cv.datasets.augmentation import add_named_augs
-from archai.cv.datasets.dataset_provider import DatasetProvider, get_provider_type
-from archai.cv.datasets.limit_dataset import DatasetLike, LimitDataset
+from archai.datasets.cv.augmentation.augmentation_policy import add_named_augs
+from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, get_provider_type
+from archai.supergraph.utils.datasets.limit_dataset import DatasetLike, LimitDataset
 from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
+from archai.supergraph.utils import apex_utils
 
 
 class DataLoaders:

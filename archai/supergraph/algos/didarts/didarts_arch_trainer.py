@@ -14,12 +14,14 @@ from torch.optim.lr_scheduler import _LRScheduler
 from overrides import overrides
 
 from archai.common.config import Config
-from archai.nas.arch_trainer import ArchTrainer
-from archai.common import utils, ml_utils
-from archai.nas.model import Model
+from archai.supergraph.utils.nas.arch_trainer import ArchTrainer
+from archai.supergraph.utils import utils
+from archai.supergraph.utils.nas.model import Model
+from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.common.common import logger
-from archai.common.multi_optim import MultiOptim, OptimSched
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
+from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched
 
 class DidartsArchTrainer(ArchTrainer):
     """Train network using different optimizers for alphas and other parameters"""

@@ -24,25 +24,27 @@ import tensorwatch as tw
 from torch.utils.data.dataloader import DataLoader
 import yaml
 
-from archai.common import common
-from archai.common.common import logger, CommonState
+from archai.supergraph.utils import common
+from archai.common.logger import Logger
+logger = Logger(source=__name__),
+from archai.supergraph.utils.common import CommonState
 from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.common.config import Config
-from archai.nas.arch_trainer import TArchTrainer
-from archai.nas import nas_utils
-from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+from archai.supergraph.utils.nas.arch_trainer import TArchTrainer
+from archai.supergraph.utils.nas import nas_utils
+from archai.supergraph.utils.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
 from archai.supergraph.utils.trainer import Trainer
-from archai.cv.datasets import data
-from archai.nas.model import Model
+from archai.supergraph.utils.datasets import data
+from archai.supergraph.utils.nas.model import Model
 from archai.supergraph.utils.metrics import Metrics
-from archai.common import utils
-from archai.nas.finalizers import Finalizers
-from archai.algos.petridish.petridish_utils import _convex_hull_from_points
-from archai.nas.searcher import SearchResult
-from archai.nas.search_combinations import SearchCombinations
-from archai.nas.model_desc_builder import ModelDescBuilder
-from archai.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
+from archai.supergraph.utils import utils
+from archai.supergraph.utils.nas.finalizers import Finalizers
+from archai.supergraph.algos.petridish.petridish_utils import _convex_hull_from_points
+from archai.supergraph.utils.nas.searcher import SearchResult
+from archai.supergraph.utils.nas.search_combinations import SearchCombinations
+from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
     sample_from_hull, plot_frontier, save_hull_frontier, save_hull, plot_pool, plot_seed_model_stats
 
 

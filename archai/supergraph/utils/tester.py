@@ -9,11 +9,13 @@ from torch.utils.data import DataLoader
 
 from overrides import EnforceOverrides
 
-from archai.common.metrics import Metrics
+from archai.supergraph.utils.metrics import Metrics
 from archai.common.config import Config
-from archai.common import utils, ml_utils
-from archai.common.common import logger
-from archai.common.apex_utils import ApexUtils
+from archai.supergraph.utils import utils
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
+from archai.supergraph.utils.apex_utils import ApexUtils
+from archai.supergraph.utils import ml_utils
 
 class Tester(EnforceOverrides):
     def __init__(self, conf_val:Config, model:nn.Module, apex:ApexUtils)->None:

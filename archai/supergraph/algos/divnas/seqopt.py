@@ -4,7 +4,7 @@
 import numpy as np
 from typing import List, Optional, Set, Dict
 
-from archai.algos.divnas.wmr import Wmr
+from archai.supergraph.algos.divnas.wmr import Wmr
 
 
 class SeqOpt:

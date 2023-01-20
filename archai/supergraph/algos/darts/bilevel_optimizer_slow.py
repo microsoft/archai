@@ -10,10 +10,12 @@ from torch.nn.modules.loss import _Loss
 from torch.optim.optimizer import Optimizer
 
 from archai.common.config import Config
-from archai.common import utils, ml_utils
-from archai.nas.model import Model
-from archai.common.common import logger
-from archai.common.utils import zip_eq
+from archai.supergraph.utils import utils
+from archai.supergraph.utils.nas.model import Model
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
+from archai.supergraph.utils.utils import zip_eq
+from archai.supergraph.utils import ml_utils
 
 def _flatten_concate(xs):
     """

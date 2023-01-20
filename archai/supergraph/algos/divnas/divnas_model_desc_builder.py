@@ -6,12 +6,12 @@ import copy
 
 from overrides import overrides
 
-from archai.nas.model_desc_builder import ModelDescBuilder
-from archai.nas.operations import Op
-from archai.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.utils.nas.operations import Op
+from archai.supergraph.utils.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc
 from archai.common.config import Config
-from archai.algos.divnas.divop import DivOp
+from archai.supergraph.algos.divnas.divop import DivOp
 
 class DivnasModelDescBuilder(ModelDescBuilder):
     @overrides

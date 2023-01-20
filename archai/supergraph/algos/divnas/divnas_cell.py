@@ -13,11 +13,11 @@ import torch
 from torch import nn, tensor
 from overrides import overrides, EnforceOverrides
 
-import archai.algos.divnas.analyse_activations as aa
+import archai.supergraph.algos.divnas.analyse_activations as aa
 
-from archai.nas.cell import Cell
-from archai.nas.operations import Zero
-from archai.nas.operations import Op
+from archai.supergraph.utils.nas.cell import Cell
+from archai.supergraph.utils.nas.operations import Zero
+from archai.supergraph.utils.nas.operations import Op
 
 
 class Divnas_Cell():

@@ -11,10 +11,10 @@ from torch import Tensor, nn
 
 from overrides import overrides
 
-from archai.nas.model_desc import ConvMacroParams, OpDesc
-from archai.nas.operations import Identity, Op, FactorizedReduce
-from archai.common.utils import zip_eq
-from archai.nas.arch_params import ArchParams
+from archai.supergraph.utils.nas.model_desc import ConvMacroParams, OpDesc
+from archai.supergraph.utils.nas.operations import Identity, Op, FactorizedReduce
+from archai.supergraph.utils.utils import zip_eq
+from archai.supergraph.utils.nas.arch_params import ArchParams
 
 class StopForward(Op):
     def __init__(self):

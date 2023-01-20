@@ -29,11 +29,11 @@ from numpy.lib.function_base import average
 
 from torch import nn
 
-from archai.common import utils
-from archai.algos.nasbench101 import config
-from archai.algos.nasbench101 import model_metrics_pb2
-from archai.algos.nasbench101 import model_spec as _model_spec
-from archai.algos.nasbench101 import model_builder
+from archai.supergraph.utils import utils
+from archai.supergraph.algos.nasbench101 import config
+from archai.supergraph.algos.nasbench101 import model_metrics_pb2
+from archai.supergraph.algos.nasbench101 import model_spec as _model_spec
+from archai.supergraph.algos.nasbench101 import model_builder
 
 # Bring ModelSpec to top-level for convenience. See lib/model_spec.py.
 ModelSpec = _model_spec.ModelSpec

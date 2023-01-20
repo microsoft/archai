@@ -15,7 +15,7 @@ from typing import List, Set, Dict, Tuple, Any, Callable
 from tqdm import tqdm
 from itertools import permutations, combinations
 
-from archai.algos.divnas.seqopt import SeqOpt
+from archai.supergraph.algos.divnas.seqopt import SeqOpt
 
 
 def create_submod_f(covariance:np.array)->Callable:

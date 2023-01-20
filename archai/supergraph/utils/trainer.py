@@ -10,16 +10,18 @@ from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
 
 from overrides import EnforceOverrides
+from archai.supergraph.utils import ml_utils
 
 from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.utils.tester import Tester
 from archai.common.config import Config
-from archai.common import utils, ml_utils
-from archai.common.common import logger
-from archai.cv.datasets import data
+from archai.supergraph.utils import utils
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
+from archai.supergraph.utils.datasets import data
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.common.apex_utils import ApexUtils
-from archai.common.multi_optim import MultiOptim, OptimSched
+from archai.supergraph.utils.apex_utils import ApexUtils
+from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched
 
 
 class Trainer(EnforceOverrides):

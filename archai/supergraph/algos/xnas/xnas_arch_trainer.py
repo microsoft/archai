@@ -15,15 +15,17 @@ from torch.optim.lr_scheduler import _LRScheduler
 from overrides import overrides
 
 from archai.common.config import Config
-from archai.nas.arch_trainer import ArchTrainer
-from archai.common import utils, ml_utils
-from archai.nas.model import Model
-from archai.nas.model_desc import CellType
+from archai.supergraph.utils.nas.arch_trainer import ArchTrainer
+from archai.supergraph.utils import utils
+from archai.supergraph.utils.nas.model import Model
+from archai.supergraph.utils.nas.model_desc import CellType
+from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.common.common import logger
-from archai.cv.datasets import data
-from archai.common.common import get_conf
-from archai.algos.xnas.xnas_op import XnasOp
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
+from archai.supergraph.utils.datasets import data
+from archai.supergraph.utils.common import get_conf
+from archai.supergraph.algos.xnas.xnas_op import XnasOp
 
 
 class XnasArchTrainer(ArchTrainer):

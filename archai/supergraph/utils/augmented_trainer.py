@@ -8,11 +8,12 @@ from torch import nn
 from torch.nn.parallel.data_parallel import DataParallel
 from tqdm import tqdm
 
-from archai.common import ml_utils, utils
-from archai.common.common import get_tb_writer, logger
+from archai.supergraph.utils import utils
+from archai.supergraph.utils.common import get_tb_writer, logger
+from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.metrics import Accumulator
-from archai.cv.datasets.data import get_dataloaders
-from archai.cv.models import get_model, num_class
+from archai.supergraph.utils.datasets.data import get_dataloaders
+from archai.supergraph.utils.nas.models import get_model, num_class
 
 
 # TODO: remove scheduler parameter?

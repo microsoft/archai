@@ -3,6 +3,7 @@
 
 from typing import Optional, List, Tuple
 import importlib
+import pathlib
 import sys
 import string
 import os
@@ -22,21 +23,37 @@ import tensorwatch as tw
 import yaml
 import matplotlib.pyplot as plt
 import glob
+from archai.supergraph.utils import ml_utils
 
 from archai.supergraph.utils.trainer import Trainer
 from archai.common.config import Config
-from archai.common.common import get_expdir, logger
-from archai.cv.datasets import data
-from archai.nas.model_desc import CellType, ModelDesc
-from archai.nas.model import Model
-from archai.nas.model_desc_builder import ModelDescBuilder
-from archai.nas import nas_utils
-from archai.common import common
-from archai.common import ml_utils, utils
+from archai.supergraph.utils.common import get_expdir, logger
+from archai.supergraph.utils.datasets import data
+from archai.supergraph.utils.nas.model_desc import CellType, ModelDesc
+from archai.supergraph.utils.nas.model import Model
+from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.utils.nas import nas_utils
+from archai.supergraph.utils import common
+from archai.supergraph.utils import utils
 from archai.supergraph.utils.metrics import Metrics
-from archai.nas.evaluater import Evaluater, EvalResult
-from archai.algos.petridish.petridish_utils import ConvexHullPoint, ExperimentStage, JobStage, \
+from archai.supergraph.utils.nas.evaluater import Evaluater, EvalResult
+from archai.supergraph.algos.petridish.petridish_utils import ConvexHullPoint, ExperimentStage, JobStage, \
     save_hull, plot_pool
+    
+def filepath_ext(filepath:str)->str:
+    """Returns '.f' for '/a/b/c/d.e.f' """
+    return pathlib.Path(filepath).suffix
+
+def filepath_name_only(filepath:str)->str:
+    """Returns 'd.e' for '/a/b/c/d.e.f' """
+    return pathlib.Path(filepath).stem
+
+def append_to_filename(filepath:str, name_suffix:str, new_ext:Optional[str]=None)->str:
+    """Returns '/a/b/c/h.f' for filepath='/a/b/c/d.e.f', new_name='h' """
+    ext = new_ext or filepath_ext(filepath)
+    name = filepath_name_only(filepath)
+    return str(pathlib.Path(filepath).with_name(name+name_suffix).with_suffix(ext))
+
 
 class EvaluaterPetridish(Evaluater):
 

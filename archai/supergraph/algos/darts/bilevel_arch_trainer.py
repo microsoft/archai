@@ -14,13 +14,15 @@ from torch.optim.lr_scheduler import _LRScheduler
 from overrides import overrides
 
 from archai.common.config import Config
-from archai.nas.arch_trainer import ArchTrainer
-from archai.common import utils, ml_utils
-from archai.nas.model import Model
+from archai.supergraph.utils.nas.arch_trainer import ArchTrainer
+from archai.supergraph.utils import utils
+from archai.supergraph.utils.nas.model import Model
+from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.cv.datasets import data
-from archai.common.common import logger
-from archai.algos.darts.bilevel_optimizer import BilevelOptimizer
+from archai.supergraph.utils.datasets import data
+from archai.common.logger import Logger
+logger = Logger(source=__name__)
+from archai.supergraph.algos.darts.bilevel_optimizer import BilevelOptimizer
 
 class BilevelArchTrainer(ArchTrainer):
     def __init__(self, conf_train: Config, model: Model,
