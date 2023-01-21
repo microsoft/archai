@@ -20,11 +20,10 @@ from torch.utils.data.distributed import DistributedSampler
 
 from filelock import FileLock
 
-from archai.datasets.cv.augmentation.augmentation_policy import add_named_augs
-from archai.supergraph.utils import common
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
-from archai.supergraph.utils import utils, apex_utils
+from .augmentation import add_named_augs
+from archai.common import common
+from archai.common.common import logger
+from archai.common import utils, apex_utils
 from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, get_provider_type
 from archai.common.config import Config
 from archai.supergraph.utils.datasets.limit_dataset import LimitDataset, DatasetLike
@@ -69,7 +68,7 @@ def get_data(conf_loader:Config)->DataLoaders:
         load_train=load_train, train_batch_size=train_batch,
         load_test=load_test, test_batch_size=test_batch,
         aug=aug, cutout=cutout, val_ratio=val_ratio, val_fold=val_fold,
-        img_size=img_size, train_workers=train_workers, 
+        img_size=img_size, train_workers=train_workers,
         test_workers=test_workers, max_batches=max_batches, apex=apex)
 
     assert train_dl is not None
@@ -92,7 +91,7 @@ def get_dataloaders(ds_provider:DatasetProvider,
     load_train:bool, train_batch_size:int,
     load_test:bool, test_batch_size:int,
     aug, cutout:int, val_ratio:float, apex:apex_utils.ApexUtils,
-    val_fold=0, img_size:Optional[int]=None, train_workers:Optional[int]=None, 
+    val_fold=0, img_size:Optional[int]=None, train_workers:Optional[int]=None,
     test_workers:Optional[int]=None, target_lb=-1, max_batches:int=-1) \
         -> Tuple[Optional[DataLoader], Optional[DataLoader], Optional[DataLoader]]:
 
@@ -125,7 +124,7 @@ def get_dataloaders(ds_provider:DatasetProvider,
     trainloader, validloader, testloader, train_sampler = None, None, None, None
 
     if trainset:
-        max_train_fold = min(len(trainset), max_batches*train_batch_size) if max_batches else None
+        max_train_fold = min(len(trainset), max_batches*train_batch_size) if max_batches else None # pyright: ignore[reportGeneralTypeIssues]
         logger.info({'val_ratio': val_ratio, 'max_train_batches': max_batches,
                     'max_train_fold': max_train_fold})
 
@@ -157,7 +156,7 @@ def get_dataloaders(ds_provider:DatasetProvider,
                 sampler=valid_sampler, drop_last=False)
         # else validloader is left as None
     if testset:
-        max_test_fold = min(len(testset), max_batches*test_batch_size) if max_batches else None
+        max_test_fold = min(len(testset), max_batches*test_batch_size) if max_batches else None  # pyright: ignore[reportGeneralTypeIssues]
         logger.info({'max_test_batches': max_batches,
                     'max_test_fold': max_test_fold})
 
@@ -230,4 +229,5 @@ def _get_sampler(dataset:Dataset, val_ratio:Optional[float], shuffle:bool,
                     if val_ratio is not None else None
 
     return train_sampler, valid_sampler
+
 

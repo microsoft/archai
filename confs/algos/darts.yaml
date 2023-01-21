@@ -24,9 +24,6 @@ common:
     distributed_enabled: True # enable/disable distributed mode
     mixed_prec_enabled: True # switch to disable amp mixed precision
     gpus: '' # use GPU IDs specified here (comma separated), if '' then use all GPUs
-    opt_level: 'O2' # optimization level for mixed precision
-    bn_fp32: True # keep BN in fp32
-    loss_scale: "dynamic" # loss scaling mode for mixed prec, must be string reprenting floar ot "dynamic"
     sync_bn: False # should be replace BNs with sync BNs for distributed model
     scale_lr: True # enable/disable distributed mode
     min_world_size: 0 # allows to confirm we are indeed in distributed setting

@@ -10,19 +10,19 @@ from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
 
 from overrides import EnforceOverrides
-from archai.supergraph.utils import ml_utils
 
 from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.utils.tester import Tester
 from archai.common.config import Config
-from archai.supergraph.utils import utils
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+from archai.common import utils
+from archai.supergraph.utils import ml_utils
+from archai.common.common import logger
 from archai.supergraph.utils.datasets import data
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.supergraph.utils.apex_utils import ApexUtils
+from archai.common.apex_utils import ApexUtils
 from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched
 
+# pyright: reportOptionalMemberAccess=false, reportOptionalSubscript=false
 
 class Trainer(EnforceOverrides):
     def __init__(self, conf_train:Config, model:nn.Module,
@@ -77,7 +77,7 @@ class Trainer(EnforceOverrides):
         self._multi_optim = self.create_multi_optim(len(data_loaders.train_dl))
         # before checkpoint restore, convert to amp
         self.model = self._apex.to_amp(self.model, self._multi_optim,
-                                       batch_size=data_loaders.train_dl.batch_size)
+                                       batch_size=data_loaders.train_dl.batch_size) # pyright: ignore[reportGeneralTypeIssues]
 
         self._lossfn = self._lossfn.to(self.get_device())
 
@@ -88,7 +88,7 @@ class Trainer(EnforceOverrides):
         self._start_epoch = 0
         # do we have a checkpoint
         checkpoint_avail = self._checkpoint is not None
-        checkpoint_val = checkpoint_avail and 'trainer' in self._checkpoint
+        checkpoint_val = checkpoint_avail and 'trainer' in self._checkpoint     # pyright: ignore[reportGeneralTypeIssues]
         resumed = False
         if checkpoint_val:
             # restore checkpoint
@@ -160,16 +160,16 @@ class Trainer(EnforceOverrides):
         return self._multi_optim[index].sched
 
     def get_metrics(self)->Metrics:
-        return self._metrics
+        return self._metrics        # pyright: ignore[reportGeneralTypeIssues]
 
     def _set_epoch(self, epoch:int, data_loaders:data.DataLoaders)->None:
         # optimizers such as bi-level may use val set for its own use
         # which causes reshuffling due to automatic epoch counting
         # here we make sure that val_dl has same epoch as train_dl
         if hasattr(data_loaders.train_dl.sampler, 'set_epoch'):
-            data_loaders.train_dl.sampler.set_epoch(epoch)
+            data_loaders.train_dl.sampler.set_epoch(epoch)          # pyright: ignore[reportGeneralTypeIssues,reportOptionalMemberAccess]
         if data_loaders.val_dl is not None and hasattr(data_loaders.val_dl.sampler, 'set_epoch'):
-            data_loaders.val_dl.sampler.set_epoch(epoch)
+            data_loaders.val_dl.sampler.set_epoch(epoch)        # pyright: ignore[reportGeneralTypeIssues]
 
         # apply droppath
         self._set_drop_path(epoch, self._epochs)
@@ -281,25 +281,26 @@ class Trainer(EnforceOverrides):
             for xc, yc in zip(x_chunks, y_chunks):
                 xc, yc = xc.to(self.get_device(), non_blocking=True), yc.to(self.get_device(), non_blocking=True)
 
-                logits_c, aux_logits = self.model(xc), None
-                tupled_out = isinstance(logits_c, Tuple) and len(logits_c) >=2
-                # if self._aux_weight: # TODO: some other way to validate?
-                #     assert tupled_out, "aux_logits cannot be None unless aux tower is disabled"
-                if tupled_out: # then we are using model created by desc
-                    logits_c, aux_logits = logits_c[0], logits_c[1]
-                loss_c = self.compute_loss(self._lossfn, yc, logits_c,
-                                        self._aux_weight, aux_logits)
+                with self._apex.autocast():
+                    logits_c, aux_logits = self.model(xc), None
+                    tupled_out = isinstance(logits_c, Tuple) and len(logits_c) >=2
+                    # if self._aux_weight: # TODO: some other way to validate?
+                    #     assert tupled_out, "aux_logits cannot be None unless aux tower is disabled"
+                    if tupled_out: # then we are using model created by desc
+                        logits_c, aux_logits = logits_c[0], logits_c[1]
+                    loss_c = self.compute_loss(self._lossfn, yc, logits_c,      # pyright: ignore[reportGeneralTypeIssues]
+                                            self._aux_weight, aux_logits)
 
-                self._apex.backward(loss_c, self._multi_optim)
+                self._apex.backward(loss_c)
 
                 loss_sum += loss_c.item() * len(logits_c)
                 loss_count += len(logits_c)
-                logits_chunks.append(logits_c.detach().cpu())
+                logits_chunks.append(logits_c.detach().cpu())               # pyright: ignore[reportGeneralTypeIssues]
 
             # TODO: original darts clips alphas as well but pt.darts doesn't
             self._apex.clip_grad(self._grad_clip, self.model, self._multi_optim)
 
-            self._multi_optim.step()
+            self._apex.step(self._multi_optim)
 
             # TODO: we possibly need to sync so all replicas are upto date
             self._apex.sync_devices()
@@ -327,7 +328,7 @@ class Trainer(EnforceOverrides):
         if hasattr(self.model, 'module'): # for data parallel model
             m = self.model.module
         if hasattr(m, 'drop_path_prob'):
-            return m
+            return m        # pyright: ignore[reportGeneralTypeIssues]
         return None
 
     def _set_drop_path(self, epoch:int, epochs:int)->None:
@@ -340,7 +341,7 @@ class Trainer(EnforceOverrides):
             if hasattr(self.model, 'module'): # for data parallel model
                 m = self.model.module
             if hasattr(m, 'drop_path_prob'):
-                m.drop_path_prob(drop_prob)
+                m.drop_path_prob(drop_prob)     # pyright: ignore[reportGeneralTypeIssues]
             else:
                 raise RuntimeError('Drop path value {} was specified but model'
                                    ' does not have drop_path_prob() method'\

@@ -11,11 +11,12 @@ from overrides import EnforceOverrides
 
 from archai.supergraph.utils.metrics import Metrics
 from archai.common.config import Config
-from archai.supergraph.utils import utils
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
-from archai.supergraph.utils.apex_utils import ApexUtils
+from archai.common import utils
 from archai.supergraph.utils import ml_utils
+from archai.common.common import logger
+from archai.common.apex_utils import ApexUtils
+
+# pyright: reportOptionalMemberAccess=false
 
 class Tester(EnforceOverrides):
     def __init__(self, conf_val:Config, model:nn.Module, apex:ApexUtils)->None:
@@ -53,7 +54,7 @@ class Tester(EnforceOverrides):
                 assert not self.model.training
                 logger.pushd(step)
 
-                self._pre_step(x, y, self._metrics)
+                self._pre_step(x, y, self._metrics)     # pyright: ignore[reportGeneralTypeIssues]
 
                 # divide batch in to chunks if needed so it fits in GPU RAM
                 if self.batch_chunks > 1:
@@ -74,12 +75,12 @@ class Tester(EnforceOverrides):
 
                     loss_sum += loss_c.item() * len(logits_c)
                     loss_count += len(logits_c)
-                    logits_chunks.append(logits_c.detach().cpu())
+                    logits_chunks.append(logits_c.detach().cpu())     # pyright: ignore[reportGeneralTypeIssues]
 
                 self._post_step(x, y,
                                 ml_utils.join_chunks(logits_chunks),
                                 torch.tensor(loss_sum/loss_count),
-                                steps, self._metrics)
+                                steps, self._metrics)     # pyright: ignore[reportGeneralTypeIssues]
 
                 # TODO: we possibly need to sync so all replicas are upto date
                 self._apex.sync_devices()

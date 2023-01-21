@@ -18,7 +18,7 @@ import psutil
 
 from .config import Config
 from . import utils
-from .logger import Logger
+from .ordereddict_logger import OrderedDictLogger
 from .apex_utils import ApexUtils
 from send2trash import send2trash
 
@@ -33,7 +33,7 @@ class SummaryWriterDummy:
 
 SummaryWriterAny = Union[SummaryWriterDummy, SummaryWriter]
 
-logger = Logger()
+logger = OrderedDictLogger(None, None, yaml_log=False)
 _tb_writer: Optional[SummaryWriterAny] = None
 _atexit_reg = False # is hook for atexit registered?
 
@@ -58,7 +58,7 @@ def get_expdir(conf:Optional[Config]=None)->Optional[str]:
 def get_datadir(conf:Optional[Config]=None)->Optional[str]:
     return get_conf(conf)['dataset']['dataroot']
 
-def get_logger() -> Logger:
+def get_logger() -> OrderedDictLogger:
     global logger
     if logger is None:
         raise RuntimeError('get_logger call made before logger was setup!')
@@ -66,6 +66,7 @@ def get_logger() -> Logger:
 
 def get_tb_writer() -> SummaryWriterAny:
     global _tb_writer
+    assert _tb_writer
     return _tb_writer
 
 class CommonState:
@@ -79,7 +80,7 @@ def on_app_exit():
     print('Process exit:', os.getpid(), flush=True)
     writer = get_tb_writer()
     writer.flush()
-    if isinstance(logger, Logger):
+    if isinstance(logger, OrderedDictLogger):
         logger.close()
 
 def pt_dirs()->Tuple[str, str]:
@@ -277,6 +278,7 @@ def update_envvars(conf)->None:
 
 def clean_ensure_expdir(conf:Optional[Config], clean_dir:bool, ensure_dir:bool)->None:
     expdir = get_expdir(conf)
+    assert expdir
     if clean_dir and os.path.exists(expdir):
         send2trash(expdir)
     if ensure_dir:
