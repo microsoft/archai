@@ -12,14 +12,14 @@ import yaml
 import sys
 
 import torch
-from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard.writer import SummaryWriter
 import torch.backends.cudnn as cudnn
 import psutil
 
-from archai.common.config import Config
-from archai.supergraph.utils import utils
-from archai.common.logger import Logger
-from archai.supergraph.utils.apex_utils import ApexUtils
+from .config import Config
+from . import utils
+from .logger import Logger
+from .apex_utils import ApexUtils
 from send2trash import send2trash
 
 class SummaryWriterDummy:
@@ -33,8 +33,8 @@ class SummaryWriterDummy:
 
 SummaryWriterAny = Union[SummaryWriterDummy, SummaryWriter]
 
-logger = Logger(None, None, yaml_log=False)
-_tb_writer: SummaryWriterAny = None
+logger = Logger()
+_tb_writer: Optional[SummaryWriterAny] = None
 _atexit_reg = False # is hook for atexit registered?
 
 
@@ -344,15 +344,9 @@ def create_logger(conf:Config):
             'log_prefix not specified, logs will be stdout only')
 
     # reset to new file path
-    logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log,
-                 backup_existing_file=False)
+    #logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log, backup_existing_file=False)
     logger.info({'command_line': ' '.join(sys.argv) if utils.is_main_process() else f'Child process: {utils.process_name()}-{os.getpid()}'})
     logger.info({'process_name': utils.process_name(), 'is_main_process': utils.is_main_process(),
                  'main_process_pid':utils.main_process_pid(), 'pid':os.getpid(), 'ppid':os.getppid(), 'is_debugging': utils.is_debugging()})
     logger.info({'experiment_name': experiment_name, 'datetime:': datetime.datetime.now()})
     logger.info({'logs_yaml_filepath': logs_yaml_filepath, 'sys_log_filepath': sys_log_filepath})
-
-
-
-
-

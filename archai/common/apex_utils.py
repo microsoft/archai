@@ -17,7 +17,7 @@ import psutil
 
 from archai.common.config import Config
 from archai.common.logger import Logger
-from archai.supergraph.utils import utils
+from archai.common import utils
 from archai.supergraph.utils.multi_optim import MultiOptim
 from archai.supergraph.utils import ml_utils
 
