@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional, Tuple, List
+from typing import Collection, Optional, Tuple, List
 import copy
 
 from overrides import EnforceOverrides

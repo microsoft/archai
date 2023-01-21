@@ -4,7 +4,7 @@
 
 
 from enum import Enum
-from typing import Mapping, Optional, List, Union
+from typing import Mapping, Optional, List, Tuple, Union
 import pathlib
 import os
 import torch
@@ -13,8 +13,7 @@ import copy
 import yaml
 
 from archai.common import utils
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+from archai.common.common import logger
 from archai.common.config import Config
 
 """

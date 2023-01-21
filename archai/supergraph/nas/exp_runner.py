@@ -1,8 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional, Tuple
+from typing import Optional, Type, Tuple
 from abc import ABC, abstractmethod
+import shutil
 import os
 
 from overrides import EnforceOverrides

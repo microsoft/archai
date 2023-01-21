@@ -5,7 +5,10 @@ from typing import Optional, Callable, Type
 import os
 
 import torch
+from torch.utils.data import DataLoader
 from torch import Tensor
+from torch.optim.optimizer import Optimizer
+from torch.optim.lr_scheduler import _LRScheduler
 
 from overrides import overrides, EnforceOverrides
 

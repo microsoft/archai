@@ -1,14 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional
+from typing import Tuple, Optional
+
+from torch import nn
+from torch.utils.data.dataloader import DataLoader
 
 import tensorwatch as tw
 
 from archai.common.config import Config
 from archai.supergraph.nas.model import Model
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+from archai.common.common import logger
 from archai.supergraph.utils.checkpoint import CheckPoint
 
 

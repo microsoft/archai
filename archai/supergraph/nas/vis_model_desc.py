@@ -2,14 +2,13 @@
 # Licensed under the MIT license.
 
 """ Network architecture visualizer using graphviz """
-
+import sys
 from graphviz import Digraph
-from typing import Tuple, Optional
+from typing import Union, List, Tuple, Optional
 
-from archai.supergraph.nas.model_desc import CellDesc, CellType, ModelDesc
+from .model_desc import CellDesc, CellType, ModelDesc
 from archai.common.utils import first_or_default
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+from archai.common.common import logger
 
 def draw_model_desc(model_desc:ModelDesc, filepath:str=None, caption:str=None)\
         ->Tuple[Optional[Digraph],Optional[Digraph]]:

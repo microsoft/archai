@@ -1,16 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
+import importlib
+import sys
+import string
+import os
 
+import torch
 from torch import nn
+from torch.utils.data.dataloader import DataLoader
 
-from overrides import EnforceOverrides
+from overrides import overrides, EnforceOverrides
 
 from archai.supergraph.utils.trainer import Trainer
 from archai.common.config import Config
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+from archai.common.common import logger
 from archai.supergraph.datasets import data
 from archai.supergraph.nas.model_desc import ModelDesc
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
@@ -87,7 +92,7 @@ class Evaluater(EnforceOverrides):
     def _default_module_name(self, dataset_name:str, function_name:str)->str:
         """Select PyTorch pre-defined network to support manual mode"""
         module_name = ''
-        # TODO: below detection code is too weak, need to improve, possibly encode image size in yaml and use that instead
+        # TODO: below detection code is too week, need to improve, possibly encode image size in yaml and use that instead
         if dataset_name.startswith('cifar'):
             if function_name.startswith('res'): # support resnext as well
                 module_name = 'archai.cifar10_models.resnet'
