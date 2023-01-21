@@ -20,8 +20,8 @@ from archai.common import utils
 from archai.supergraph.nas.model import Model
 from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+
+from archai.common.common import logger
 from archai.common.common import get_conf
 from archai.supergraph.algos.gumbelsoftmax.gs_op import GsOp
 

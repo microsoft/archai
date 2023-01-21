@@ -4,19 +4,18 @@ from torch import nn
 from torch.nn import DataParallel
 # from torchvision import models
 
-from archai.supergraph.nas.models.resnet import ResNet
-from archai.supergraph.nas.models.pyramidnet import PyramidNet
-from archai.supergraph.nas.models.shakeshake.shake_resnet import ShakeResNet
-from archai.supergraph.nas.models.wideresnet import WideResNet
-from archai.supergraph.nas.models.shakeshake.shake_resnext import ShakeResNeXt
+from .pyramidnet import PyramidNet
+from .shakeshake.shake_resnet import ShakeResNet
+from .wideresnet import WideResNet
+from .shakeshake.shake_resnext import ShakeResNeXt
 
-from archai.supergraph.nas.models.mobilenetv2 import *
-from archai.supergraph.nas.models.resnet_cifar10 import *
-from archai.supergraph.nas.models.vgg import *
-from archai.supergraph.nas.models.densenet import *
-from archai.supergraph.nas.models.resnet_orig import *
-from archai.supergraph.nas.models.googlenet import *
-from archai.supergraph.nas.models.inception import *
+from .mobilenetv2 import *
+from .resnet import *
+from .vgg import *
+from .densenet import *
+from .resnet_orig import *
+from .googlenet import *
+from .inception import *
 
 
 def get_model(conf, num_class=10):

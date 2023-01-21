@@ -17,8 +17,8 @@ from archai.supergraph.utils import ml_utils
 
 from archai.supergraph.utils.trainer import Trainer
 from archai.common.config import Config
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+
+from archai.common.common import logger
 from archai.supergraph.datasets import data
 from archai.supergraph.nas.model_desc import ModelDesc
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder

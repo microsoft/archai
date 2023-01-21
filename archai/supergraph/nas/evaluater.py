@@ -95,9 +95,9 @@ class Evaluater(EnforceOverrides):
         # TODO: below detection code is too week, need to improve, possibly encode image size in yaml and use that instead
         if dataset_name.startswith('cifar'):
             if function_name.startswith('res'): # support resnext as well
-                module_name = 'archai.cifar10_models.resnet'
+                module_name = 'archai.supergraph.models.resnet'
             elif function_name.startswith('dense'):
-                module_name = 'archai.cifar10_models.densenet'
+                module_name = 'archai.supergraph.models.densenet'
         elif dataset_name.startswith('imagenet') or dataset_name.startswith('sport8'):
             module_name = 'torchvision.models'
         if not module_name:

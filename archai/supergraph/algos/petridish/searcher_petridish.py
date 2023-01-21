@@ -25,8 +25,8 @@ from torch.utils.data.dataloader import DataLoader
 import yaml
 
 from archai.common import common
-from archai.common.logger import Logger
-logger = Logger(source=__name__),
+
+from archai.common.common import logger
 from archai.common.common import CommonState
 from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.common.config import Config

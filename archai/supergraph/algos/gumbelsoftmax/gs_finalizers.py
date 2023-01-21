@@ -11,8 +11,8 @@ import os
 
 from archai.common.common import get_conf
 from archai.common.common import get_expdir
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+
+from archai.common.common import logger
 from archai.supergraph.datasets.data import get_data
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.cell import Cell

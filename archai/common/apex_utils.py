@@ -214,7 +214,7 @@ class ApexUtils:
         else:
             return val
 
-    def _get_optim(self, multi_optim:MultiOptim)->Optimizer:
+    def _get_one_optim(self, multi_optim:MultiOptim)->Optimizer:
         assert len(multi_optim)==1, \
             'Mixed precision is only supported for one optimizer'  \
             f' but {len(multi_optim)} optimizers were supplied'
@@ -234,7 +234,10 @@ class ApexUtils:
 
     def step(self, multi_optim:MultiOptim)->None:
         if self.is_mixed():
-            self._scaler.step(self._get_optim(multi_optim))         # pyright: ignore[reportOptionalMemberAccess]
+            #  self._scaler.unscale_ will be called automatically if it isn't called yet from grad clipping
+            # https://pytorch.org/docs/stable/amp.html#torch.cuda.amp.GradScaler.step
+            for optim_shed in multi_optim:
+                self._scaler.step(optim_shed.optim)                            # pyright: ignore[reportOptionalMemberAccess]
             self._scaler.update()                                   # pyright: ignore[reportOptionalMemberAccess]
         else:
             multi_optim.step()
@@ -249,12 +252,13 @@ class ApexUtils:
         model = model.to(self.device)
 
         # scale LR
-        optim = self._get_optim(multi_optim)
         if self.is_dist() and self._scale_lr:
-            lr = ml_utils.get_optim_lr(optim)
-            scaled_lr = lr * self.world_size / float(batch_size)
-            ml_utils.set_optim_lr(optim, scaled_lr)
-            self._log_info({'lr_scaled': True, 'old_lr': lr, 'new_lr': scaled_lr})
+            for optim_shed in multi_optim:
+                optim = optim_shed.optim
+                lr = ml_utils.get_optim_lr(optim)
+                scaled_lr = lr * self.world_size / float(batch_size)
+                ml_utils.set_optim_lr(optim, scaled_lr)
+                self._log_info({'lr_scaled': True, 'old_lr': lr, 'new_lr': scaled_lr})
 
         if self.is_dist():
             model = DistributedDataParallel(model, device_ids=[self._gpu], output_device=self._gpu)
@@ -264,8 +268,8 @@ class ApexUtils:
     def clip_grad(self, clip:float, model:nn.Module, multi_optim:MultiOptim)->None:
         if clip > 0.0:
             if self.is_mixed():
-                optim = self._get_optim(multi_optim)
-                self._scaler.unscale_(optim)            # pyright: ignore[reportOptionalMemberAccess]
+                # https://pytorch.org/docs/stable/notes/amp_examples.html#working-with-multiple-models-losses-and-optimizers
+                self._scaler.unscale_(multi_optim[0].optim)            # pyright: ignore[reportOptionalMemberAccess]
                 nn.utils.clip_grad_norm_(model.parameters(), clip)
             else:
                 nn.utils.clip_grad_norm_(model.parameters(), clip)

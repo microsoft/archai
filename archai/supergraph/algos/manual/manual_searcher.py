@@ -11,8 +11,8 @@ from overrides import overrides
 
 from torch.utils.data.dataloader import DataLoader
 
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+
+from archai.common.common import logger
 
 from archai.common.config import Config
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder

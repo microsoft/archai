@@ -19,8 +19,8 @@ from archai.common import utils
 from archai.supergraph.nas.model import Model
 from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+
+from archai.common.common import logger
 from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched
 
 class DidartsArchTrainer(ArchTrainer):
