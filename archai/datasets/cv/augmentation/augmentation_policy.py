@@ -72,7 +72,7 @@ def add_named_augs(transform_train, aug: Union[List, str], cutout: int):
     # TODO: use PyTorch built-in cutout
     logger.info({"cutout": cutout})
     if cutout > 0:
-        transform_train.transforms.append(CutoutCustom(cutout))
+        transform_train.transforms.append(CustomCutout(cutout))
 
     return total_aug, augs
 
