@@ -8,12 +8,14 @@ from torch.utils.data.dataset import Dataset
 
 import torchvision
 from torchvision.transforms import transforms
+from torch.utils.data import ConcatDataset
 
-from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
+from archai.supergraph.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 
-class Cifar10Provider(DatasetProvider):
+
+class SvhnProvider(DatasetProvider):
     def __init__(self, conf_dataset:Config):
         super().__init__(conf_dataset)
         self._dataroot = utils.full_path(conf_dataset['dataroot'])
@@ -24,18 +26,21 @@ class Cifar10Provider(DatasetProvider):
         trainset, testset = None, None
 
         if load_train:
-            trainset = torchvision.datasets.CIFAR10(root=self._dataroot,
-                train=True, download=True, transform=transform_train)
+            trainset = torchvision.datasets.SVHN(root=self._dataroot, split='train',
+                download=True, transform=transform_train)
+            extraset = torchvision.datasets.SVHN(root=self._dataroot, split='extra',
+                download=True, transform=transform_train)
+            trainset = ConcatDataset([trainset, extraset])
         if load_test:
-            testset = torchvision.datasets.CIFAR10(root=self._dataroot,
-                train=False, download=True, transform=transform_test)
+            testset = torchvision.datasets.SVHN(root=self._dataroot, split='test',
+                download=True, transform=transform_test)
 
         return trainset, testset
 
     @overrides
     def get_transforms(self, img_size:ImgSize)->tuple:
-        MEAN = [0.49139968, 0.48215827, 0.44653124]
-        STD = [0.24703233, 0.24348505, 0.26158768]
+        MEAN = [0.4914, 0.4822, 0.4465]
+        STD = [0.2023, 0.1994, 0.20100]
         transf = [
             transforms.RandomCrop(32, padding=4),
             transforms.RandomHorizontalFlip()
@@ -51,4 +56,4 @@ class Cifar10Provider(DatasetProvider):
 
         return train_transform, test_transform
 
-register_dataset_provider('cifar10', Cifar10Provider)
+register_dataset_provider('svhn', SvhnProvider)

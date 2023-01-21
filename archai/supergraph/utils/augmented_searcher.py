@@ -22,7 +22,7 @@ from archai.supergraph.utils.metrics import Accumulator
 from archai.common.stopwatch import StopWatch
 from archai.supergraph.utils.augmented_trainer import train_and_eval
 from archai.datasets.cv.augmentation.augmentation_policy import policy_decoder, remove_deplicates, augment_list
-from archai.supergraph.utils.datasets.data import get_dataloaders
+from archai.supergraph.datasets.data import get_dataloaders
 from archai.supergraph.models import get_model, num_class
 
 

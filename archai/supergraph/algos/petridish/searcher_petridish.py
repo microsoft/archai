@@ -35,7 +35,7 @@ from archai.supergraph.nas import nas_utils
 from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
 from archai.supergraph.utils.trainer import Trainer
-from archai.supergraph.utils.datasets import data
+from archai.supergraph.datasets import data
 from archai.supergraph.nas.model import Model
 from archai.supergraph.utils.metrics import Metrics
 from archai.common import utils

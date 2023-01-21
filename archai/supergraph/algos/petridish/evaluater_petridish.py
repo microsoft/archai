@@ -28,7 +28,7 @@ from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.trainer import Trainer
 from archai.common.config import Config
 from archai.common.common import get_expdir, logger
-from archai.supergraph.utils.datasets import data
+from archai.supergraph.datasets import data
 from archai.supergraph.nas.model_desc import CellType, ModelDesc
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder

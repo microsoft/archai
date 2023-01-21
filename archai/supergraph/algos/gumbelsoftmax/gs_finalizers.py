@@ -13,7 +13,7 @@ from archai.common.common import get_conf
 from archai.common.common import get_expdir
 from archai.common.logger import Logger
 logger = Logger(source=__name__)
-from archai.supergraph.utils.datasets.data import get_data
+from archai.supergraph.datasets.data import get_data
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.cell import Cell
 from archai.supergraph.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc

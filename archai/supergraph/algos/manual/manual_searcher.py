@@ -19,7 +19,7 @@ from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.supergraph.nas.arch_trainer import TArchTrainer
 from archai.supergraph.utils.trainer import Trainer
 from archai.supergraph.nas.model_desc import CellType, ModelDesc
-from archai.supergraph.utils.datasets import data
+from archai.supergraph.datasets import data
 from archai.supergraph.nas.model import Model
 from archai.supergraph.utils.metrics import EpochMetrics, Metrics
 from archai.common import utils

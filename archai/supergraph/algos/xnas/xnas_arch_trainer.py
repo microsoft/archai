@@ -23,7 +23,7 @@ from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.common.logger import Logger
 logger = Logger(source=__name__)
-from archai.supergraph.utils.datasets import data
+from archai.supergraph.datasets import data
 from archai.common.common import get_conf
 from archai.supergraph.algos.xnas.xnas_op import XnasOp
 

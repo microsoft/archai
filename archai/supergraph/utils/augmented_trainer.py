@@ -12,7 +12,7 @@ from archai.common import utils
 from archai.common.common import get_tb_writer, logger
 from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.metrics import Accumulator
-from archai.supergraph.utils.datasets.data import get_dataloaders
+from archai.supergraph.datasets.data import get_dataloaders
 from archai.supergraph.models import get_model, num_class
 
 

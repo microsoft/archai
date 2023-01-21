@@ -19,7 +19,7 @@ from archai.common import utils
 from archai.supergraph.nas.model import Model
 from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.supergraph.utils.datasets import data
+from archai.supergraph.datasets import data
 from archai.common.logger import Logger
 logger = Logger(source=__name__)
 from archai.supergraph.algos.darts.bilevel_optimizer import BilevelOptimizer

@@ -24,9 +24,9 @@ from .augmentation import add_named_augs
 from archai.common import common
 from archai.common.common import logger
 from archai.common import utils, apex_utils
-from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, get_provider_type
+from archai.supergraph.datasets.dataset_provider import DatasetProvider, get_provider_type
 from archai.common.config import Config
-from archai.supergraph.utils.datasets.limit_dataset import LimitDataset, DatasetLike
+from archai.supergraph.datasets.limit_dataset import LimitDataset, DatasetLike
 from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
 
 

@@ -10,12 +10,12 @@ from torch.utils.data.dataset import Dataset
 import torchvision
 from torchvision.transforms import transforms
 
-from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
+from archai.supergraph.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 
 
-class PersonCocoProvider(DatasetProvider):
+class StanfordCarsProvider(DatasetProvider):
     def __init__(self, conf_dataset:Config):
         super().__init__(conf_dataset)
         self._dataroot = utils.full_path(conf_dataset['dataroot'])
@@ -26,25 +26,27 @@ class PersonCocoProvider(DatasetProvider):
         trainset, testset = None, None
 
         if load_train:
-            trainpath = os.path.join(self._dataroot, 'person_coco', 'train')
+            trainpath = os.path.join(self._dataroot, 'stanfordcars', 'train')
             trainset = torchvision.datasets.ImageFolder(trainpath, transform=transform_train)
         if load_test:
-            testpath = os.path.join(self._dataroot, 'person_coco', 'test')
+            testpath = os.path.join(self._dataroot, 'stanfordcars', 'test')
             testset = torchvision.datasets.ImageFolder(testpath, transform=transform_test)
 
         return trainset, testset
 
     @overrides
     def get_transforms(self, img_size:ImgSize)->tuple:
+
+        print(f'IMG SIZE: {img_size}')
+        if isinstance(img_size, int):
+            img_size = (img_size, img_size)
+
         # TODO: update MEAN, STD, currently mit67 values
         MEAN = [0.4893, 0.4270, 0.3625]
         STD = [0.2631, 0.2565, 0.2582]
 
         # transformations match that in
         # https://github.com/antoyang/NAS-Benchmark/blob/master/DARTS/preproc.py
-        if isinstance(img_size, int):
-            img_size = (img_size, img_size)
-
         train_transf = [
             transforms.RandomResizedCrop(img_size, scale=(0.75, 1)),
             transforms.RandomHorizontalFlip(),
@@ -57,7 +59,7 @@ class PersonCocoProvider(DatasetProvider):
 
         margin_size = (int(img_size[0] + img_size[0]*0.1), int(img_size[1] + img_size[1]*0.1))
         test_transf = [transforms.Resize(margin_size), transforms.CenterCrop(img_size)]
-        #test_transf = [transforms.Resize(72), transforms.CenterCrop(img_size)]
+        #test_transf = [transforms.Resize(img_size)]
 
         normalize = [
             transforms.ToTensor(),
@@ -69,4 +71,4 @@ class PersonCocoProvider(DatasetProvider):
 
         return train_transform, test_transform
 
-register_dataset_provider('person_coco', PersonCocoProvider)
+register_dataset_provider('stanfordcars', StanfordCarsProvider)

@@ -10,12 +10,12 @@ from torch.utils.data.dataset import Dataset
 import torchvision
 from torchvision.transforms import transforms
 
-from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
+from archai.supergraph.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
 from archai.common import utils
 
 
-class Mit67Provider(DatasetProvider):
+class Sport8Provider(DatasetProvider):
     def __init__(self, conf_dataset:Config):
         super().__init__(conf_dataset)
         self._dataroot = utils.full_path(conf_dataset['dataroot'])
@@ -26,29 +26,24 @@ class Mit67Provider(DatasetProvider):
         trainset, testset = None, None
 
         if load_train:
-            trainpath = os.path.join(self._dataroot, 'mit67', 'train')
+            trainpath = os.path.join(self._dataroot, 'sport8', 'train')
             trainset = torchvision.datasets.ImageFolder(trainpath, transform=transform_train)
         if load_test:
-            testpath = os.path.join(self._dataroot, 'mit67', 'test')
+            testpath = os.path.join(self._dataroot, 'sport8', 'test')
             testset = torchvision.datasets.ImageFolder(testpath, transform=transform_test)
 
         return trainset, testset
 
     @overrides
     def get_transforms(self, img_size:ImgSize)->tuple:
-
-        print(f'IMG SIZE: {img_size}')
-        if isinstance(img_size, int):
-            img_size = (img_size, img_size)
-
-        # MEAN, STD computed for mit67
-        MEAN = [0.4893, 0.4270, 0.3625]
-        STD = [0.2631, 0.2565, 0.2582]
+        # MEAN, STD computed for sport8
+        MEAN = [0.4734, 0.4856, 0.4526]
+        STD = [0.2478, 0.2444, 0.2667]
 
         # transformations match that in
         # https://github.com/antoyang/NAS-Benchmark/blob/master/DARTS/preproc.py
         train_transf = [
-            transforms.RandomResizedCrop(img_size, scale=(0.75, 1)),
+            transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(
                 brightness=0.4,
@@ -57,8 +52,7 @@ class Mit67Provider(DatasetProvider):
                 hue=0.2)
         ]
 
-        margin_size = (int(img_size[0] + img_size[0]*0.1), int(img_size[1] + img_size[1]*0.1))
-        test_transf = [transforms.Resize(margin_size), transforms.CenterCrop(img_size)]
+        test_transf = [transforms.Resize(256), transforms.CenterCrop(224)]
 
         normalize = [
             transforms.ToTensor(),
@@ -70,4 +64,4 @@ class Mit67Provider(DatasetProvider):
 
         return train_transform, test_transform
 
-register_dataset_provider('mit67', Mit67Provider)
+register_dataset_provider('sport8', Sport8Provider)
