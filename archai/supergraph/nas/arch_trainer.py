@@ -10,11 +10,11 @@ from torch import Tensor
 from overrides import overrides, EnforceOverrides
 
 from archai.common.config import Config
-from archai.supergraph.utils import utils
-from archai.supergraph.utils.nas.model import Model
+from archai.common import utils
+from archai.supergraph.nas.model import Model
 from archai.supergraph.utils.trainer import Trainer
 from archai.supergraph.utils.datasets import data
-from archai.supergraph.utils.nas.vis_model_desc import draw_model_desc
+from archai.supergraph.nas.vis_model_desc import draw_model_desc
 from archai.supergraph.utils.checkpoint import CheckPoint
 
 TArchTrainer = Optional[Type['ArchTrainer']]

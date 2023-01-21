@@ -15,12 +15,12 @@ import torch.nn.functional as F
 
 from overrides import overrides
 
-from archai.supergraph.utils.nas.model_desc import OpDesc
-from archai.supergraph.utils.nas.operations import Op
-from archai.supergraph.utils.nas.arch_params import ArchParams
-from archai.supergraph.utils.utils import zip_eq
-from archai.supergraph.utils.common import get_conf
-from archai.supergraph.utils.common import get_expdir
+from archai.supergraph.nas.model_desc import OpDesc
+from archai.supergraph.nas.operations import Op
+from archai.supergraph.nas.arch_params import ArchParams
+from archai.common.utils import zip_eq
+from archai.common.common import get_conf
+from archai.common.common import get_expdir
 
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
@@ -49,7 +49,7 @@ class XnasOp(Op):
 
         # assume last PRIMITIVE is 'none'
         assert XnasOp.PRIMITIVES[-1] == 'none'
-        
+
         self._ops = nn.ModuleList()
         for primitive in XnasOp.PRIMITIVES:
             op = Op.create(
@@ -64,8 +64,8 @@ class XnasOp(Op):
         # any previous child modules
         self._setup_arch_params(arch_params)
 
-    def update_alphas(self, eta:float, current_t:int, total_t:int, grad_clip:float):       
-        grad_flat = torch.flatten(self._grad)        
+    def update_alphas(self, eta:float, current_t:int, total_t:int, grad_clip:float):
+        grad_flat = torch.flatten(self._grad)
         rewards = torch.tensor([-torch.dot(grad_flat, torch.flatten(activ)) for activ in self._activs])
         exprewards = torch.exp(eta * rewards).cuda()
         # NOTE: Will this remain registered?
@@ -94,7 +94,7 @@ class XnasOp(Op):
             f.write('\n')
 
 
-        
+
 
     def _save_grad(self):
         def hook(grad):
@@ -108,7 +108,7 @@ class XnasOp(Op):
         denom = sum(self._alphas[0])
         self.pt = torch.div(numer, denom)
 
-        # register hook to save gradients 
+        # register hook to save gradients
         # NOTE: it has to be done every forward call
         # otherwise the hook doesn't remain registered
         # for subsequent loss.backward calls
@@ -134,7 +134,7 @@ class XnasOp(Op):
         if arch_params is None:
             # create our own arch params
             # the alphas are updated by exponentiated gradient descent
-            # and not by gradients from backprop. so we don't require grad. 
+            # and not by gradients from backprop. so we don't require grad.
             new_p = nn.Parameter(torch.ones(len(XnasOp.PRIMITIVES)), requires_grad=False)
             self.create_arch_params([('alphas', new_p)])
         else:

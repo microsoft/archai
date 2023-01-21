@@ -8,7 +8,7 @@ from torch import nn
 
 from overrides import EnforceOverrides
 
-from archai.supergraph.utils.nas.arch_params import ArchParams, NNTypes
+from archai.supergraph.nas.arch_params import ArchParams, NNTypes
 
 class ArchModule(nn.Module, ABC, EnforceOverrides):
     """ArchModule enahnces nn.Module by making a clear separation between regular

@@ -12,18 +12,18 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 
-from archai.supergraph.utils.common import get_conf
-from archai.supergraph.utils.common import get_expdir
+from archai.common.common import get_conf
+from archai.common.common import get_expdir
 from archai.common.logger import Logger
 logger = Logger(source=__name__)
 from archai.supergraph.utils.datasets.data import get_data
-from archai.supergraph.utils.nas.model import Model
-from archai.supergraph.utils.nas.cell import Cell
-from archai.supergraph.utils.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
-from archai.supergraph.utils.nas.finalizers import Finalizers
+from archai.supergraph.nas.model import Model
+from archai.supergraph.nas.cell import Cell
+from archai.supergraph.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
+from archai.supergraph.nas.finalizers import Finalizers
 from archai.supergraph.algos.divnas.analyse_activations import compute_brute_force_sol
 from archai.supergraph.algos.divnas.divop import DivOp
-from archai.supergraph.utils.nas.operations import Zero
+from archai.supergraph.nas.operations import Zero
 
 from .divnas_cell import Divnas_Cell
 

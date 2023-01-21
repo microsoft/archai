@@ -27,19 +27,19 @@ from archai.supergraph.utils import ml_utils
 
 from archai.supergraph.utils.trainer import Trainer
 from archai.common.config import Config
-from archai.supergraph.utils.common import get_expdir, logger
+from archai.common.common import get_expdir, logger
 from archai.supergraph.utils.datasets import data
-from archai.supergraph.utils.nas.model_desc import CellType, ModelDesc
-from archai.supergraph.utils.nas.model import Model
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils.nas import nas_utils
-from archai.supergraph.utils import common
-from archai.supergraph.utils import utils
+from archai.supergraph.nas.model_desc import CellType, ModelDesc
+from archai.supergraph.nas.model import Model
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas import nas_utils
+from archai.common import common
+from archai.common import utils
 from archai.supergraph.utils.metrics import Metrics
-from archai.supergraph.utils.nas.evaluater import Evaluater, EvalResult
+from archai.supergraph.nas.evaluater import Evaluater, EvalResult
 from archai.supergraph.algos.petridish.petridish_utils import ConvexHullPoint, ExperimentStage, JobStage, \
     save_hull, plot_pool
-    
+
 def filepath_ext(filepath:str)->str:
     """Returns '.f' for '/a/b/c/d.e.f' """
     return pathlib.Path(filepath).suffix
@@ -159,7 +159,7 @@ class EvaluaterPetridish(Evaluater):
         model_desc.save(full_desc_filename)
 
         model = evaluater.model_from_desc(model_desc)
-        
+
         train_metrics = evaluater.train_model(conf_eval, model, checkpoint)
         train_metrics.save(metrics_filename)
 

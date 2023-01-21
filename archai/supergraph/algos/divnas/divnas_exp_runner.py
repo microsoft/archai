@@ -5,15 +5,15 @@ from typing import Type
 
 from overrides import overrides
 
-from archai.supergraph.utils.common import get_conf
-from archai.supergraph.utils.nas.exp_runner import ExperimentRunner
-from archai.supergraph.utils.nas.arch_trainer import ArchTrainer, TArchTrainer
+from archai.common.common import get_conf
+from archai.supergraph.nas.exp_runner import ExperimentRunner
+from archai.supergraph.nas.arch_trainer import ArchTrainer, TArchTrainer
 from archai.supergraph.algos.darts.bilevel_arch_trainer import BilevelArchTrainer
 from archai.supergraph.algos.gumbelsoftmax.gs_arch_trainer import GsArchTrainer
 from archai.supergraph.algos.divnas.divnas_model_desc_builder import DivnasModelDescBuilder
 from archai.supergraph.algos.divnas.divnas_finalizers import DivnasFinalizers
 from archai.supergraph.algos.divnas.divnas_rank_finalizer import DivnasRankFinalizers
-from archai.supergraph.utils.nas.finalizers import Finalizers
+from archai.supergraph.nas.finalizers import Finalizers
 
 class DivnasExperimentRunner(ExperimentRunner):
 

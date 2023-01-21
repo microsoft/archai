@@ -6,9 +6,9 @@ import random
 
 from torch import nn
 
-from archai.supergraph.utils.nas.model_desc import NodeDesc, EdgeDesc
-from archai.supergraph.utils.nas.finalizers import Finalizers
-from archai.supergraph.utils.nas.operations import Zero
+from archai.supergraph.nas.model_desc import NodeDesc, EdgeDesc
+from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.nas.operations import Zero
 
 
 class RandomFinalizers(Finalizers):

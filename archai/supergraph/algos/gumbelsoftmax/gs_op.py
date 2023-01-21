@@ -10,10 +10,10 @@ import torch.nn.functional as F
 
 from overrides import overrides
 
-from archai.supergraph.utils.nas.model_desc import OpDesc
-from archai.supergraph.utils.nas.operations import Op
-from archai.supergraph.utils.nas.arch_params import ArchParams
-from archai.supergraph.utils.utils import zip_eq
+from archai.supergraph.nas.model_desc import OpDesc
+from archai.supergraph.nas.operations import Op
+from archai.supergraph.nas.arch_params import ArchParams
+from archai.common.utils import zip_eq
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
 #   stride 2 through input nodes however FactorizedReduce does only
@@ -67,7 +67,7 @@ class GsOp(Op):
     @overrides
     def finalize(self, sampled_weights) -> Tuple[OpDesc, Optional[float]]:
         # finalization where each edge gets to keep as many
-        # unique operations that are **sampled at the node level**        
+        # unique operations that are **sampled at the node level**
         assert sampled_weights.shape[0] == len(GsOp.PRIMITIVES)
 
         # we can't handle empty op
@@ -104,7 +104,7 @@ class GsOp(Op):
         max_alpha = 0.0
         if selected_alphas:
             max_alpha = max(selected_alphas)
-        
+
         return final_op_desc, max_alpha
 
     @overrides

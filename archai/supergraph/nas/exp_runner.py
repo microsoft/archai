@@ -7,16 +7,16 @@ import os
 
 from overrides import EnforceOverrides
 
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils.nas.arch_trainer import TArchTrainer
-from archai.supergraph.utils import common
-from archai.supergraph.utils import utils
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.arch_trainer import TArchTrainer
+from archai.common import common
+from archai.common import utils
 from archai.common.config import Config
-from archai.supergraph.utils.nas.evaluater import Evaluater, EvalResult
-from archai.supergraph.utils.nas.searcher import Searcher, SearchResult
-from archai.supergraph.utils.nas.finalizers import Finalizers
-from archai.supergraph.utils.nas.random_finalizers import RandomFinalizers
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.evaluater import Evaluater, EvalResult
+from archai.supergraph.nas.searcher import Searcher, SearchResult
+from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.nas.random_finalizers import RandomFinalizers
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 
 
 class ExperimentRunner(ABC, EnforceOverrides):

@@ -3,8 +3,8 @@
 
 import torch
 from typing import Callable
-from archai.nas.model import Model
-from archai.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.model import Model
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.common.common import common_init
 
 

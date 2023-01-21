@@ -4,19 +4,19 @@ from torch import nn
 from torch.nn import DataParallel
 # from torchvision import models
 
-from archai.supergraph.utils.nas.models.resnet import ResNet
-from archai.supergraph.utils.nas.models.pyramidnet import PyramidNet
-from archai.supergraph.utils.nas.models.shakeshake.shake_resnet import ShakeResNet
-from archai.supergraph.utils.nas.models.wideresnet import WideResNet
-from archai.supergraph.utils.nas.models.shakeshake.shake_resnext import ShakeResNeXt
+from archai.supergraph.nas.models.resnet import ResNet
+from archai.supergraph.nas.models.pyramidnet import PyramidNet
+from archai.supergraph.nas.models.shakeshake.shake_resnet import ShakeResNet
+from archai.supergraph.nas.models.wideresnet import WideResNet
+from archai.supergraph.nas.models.shakeshake.shake_resnext import ShakeResNeXt
 
-from archai.supergraph.utils.nas.models.mobilenetv2 import *
-from archai.supergraph.utils.nas.models.resnet_cifar10 import *
-from archai.supergraph.utils.nas.models.vgg import *
-from archai.supergraph.utils.nas.models.densenet import *
-from archai.supergraph.utils.nas.models.resnet_orig import *
-from archai.supergraph.utils.nas.models.googlenet import *
-from archai.supergraph.utils.nas.models.inception import *
+from archai.supergraph.nas.models.mobilenetv2 import *
+from archai.supergraph.nas.models.resnet_cifar10 import *
+from archai.supergraph.nas.models.vgg import *
+from archai.supergraph.nas.models.densenet import *
+from archai.supergraph.nas.models.resnet_orig import *
+from archai.supergraph.nas.models.googlenet import *
+from archai.supergraph.nas.models.inception import *
 
 
 def get_model(conf, num_class=10):

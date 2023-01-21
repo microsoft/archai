@@ -6,9 +6,9 @@ import copy
 
 from overrides import overrides
 
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils.nas.operations import Op
-from archai.supergraph.utils.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.operations import Op
+from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc
 from archai.supergraph.algos.darts.mixed_op import MixedOp
 from archai.common.config import Config

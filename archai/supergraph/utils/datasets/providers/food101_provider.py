@@ -12,7 +12,7 @@ from torchvision.transforms import transforms
 
 from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 class Food101Provider(DatasetProvider):
@@ -40,7 +40,7 @@ class Food101Provider(DatasetProvider):
         print(f'IMG SIZE: {img_size}')
         if isinstance(img_size, int):
             img_size = (img_size, img_size)
-            
+
         # TODO: Need to rethink the food101 transforms
         MEAN = [0.5451, 0.4435, 0.3436]
         STD = [0.2171, 0.2251, 0.2260] # TODO: should be [0.2517, 0.2521, 0.2573]

@@ -6,11 +6,11 @@ import copy
 
 from overrides import overrides
 
-from archai.supergraph.utils.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, TensorShapesList, NodeDesc, AuxTowerDesc
 from archai.common.config import Config
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils.nas.operations import MultiOp, Op
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.operations import MultiOp, Op
 
 from archai.supergraph.algos.nasbench101 import model_matrix
 from archai.supergraph.algos.nasbench101.nasbench101_op import NasBench101Op

@@ -1,7 +1,7 @@
 import logging
 import random
-from archai.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
-from archai.algos.nasbench101 import model_builder
+from archai.supergraph.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
+from archai.supergraph.algos.nasbench101 import model_builder
 import statistics
 
 def main():

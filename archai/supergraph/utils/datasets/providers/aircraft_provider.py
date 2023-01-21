@@ -12,7 +12,7 @@ from torchvision.transforms import transforms
 
 from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 class AircraftProvider(DatasetProvider):
@@ -26,7 +26,7 @@ class AircraftProvider(DatasetProvider):
         trainset, testset = None, None
 
         if load_train:
-            trainpath = os.path.join(self._dataroot, 'aircraft', 'train')            
+            trainpath = os.path.join(self._dataroot, 'aircraft', 'train')
             trainset = torchvision.datasets.ImageFolder(trainpath, transform=transform_train)
         if load_test:
             testpath = os.path.join(self._dataroot, 'aircraft', 'test')
@@ -39,7 +39,7 @@ class AircraftProvider(DatasetProvider):
 
         if isinstance(img_size, int):
             img_size = (img_size, img_size)
-        
+
         # TODO: update MEAN, STD, currently mit67 values
         MEAN = [0.4893, 0.4270, 0.3625]
         STD = [0.2631, 0.2565, 0.2582]

@@ -12,7 +12,7 @@ from torchvision.transforms import transforms
 
 from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 class PersonCocoProvider(DatasetProvider):
@@ -26,7 +26,7 @@ class PersonCocoProvider(DatasetProvider):
         trainset, testset = None, None
 
         if load_train:
-            trainpath = os.path.join(self._dataroot, 'person_coco', 'train')            
+            trainpath = os.path.join(self._dataroot, 'person_coco', 'train')
             trainset = torchvision.datasets.ImageFolder(trainpath, transform=transform_train)
         if load_test:
             testpath = os.path.join(self._dataroot, 'person_coco', 'test')

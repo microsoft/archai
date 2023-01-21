@@ -14,9 +14,9 @@ from torch.optim.lr_scheduler import _LRScheduler
 from overrides import overrides
 
 from archai.common.config import Config
-from archai.supergraph.utils.nas.arch_trainer import ArchTrainer
-from archai.supergraph.utils import utils
-from archai.supergraph.utils.nas.model import Model
+from archai.supergraph.nas.arch_trainer import ArchTrainer
+from archai.common import utils
+from archai.supergraph.nas.model import Model
 from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.supergraph.utils.datasets import data

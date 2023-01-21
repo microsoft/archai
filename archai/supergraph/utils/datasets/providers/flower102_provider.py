@@ -12,7 +12,7 @@ from torchvision.transforms import transforms
 
 from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 class Flower102Provider(DatasetProvider):
@@ -40,7 +40,7 @@ class Flower102Provider(DatasetProvider):
         print(f'IMG SIZE: {img_size}')
         if isinstance(img_size, int):
             img_size = (img_size, img_size)
-            
+
         # MEAN, STD computed for flower102
         MEAN = [0.5190, 0.4101, 0.3274]
         STD = [0.2972, 0.2488, 0.2847]

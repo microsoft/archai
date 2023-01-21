@@ -13,11 +13,11 @@ import math
 
 from overrides import overrides
 
-from archai.supergraph.utils.nas.model_desc import OpDesc
-from archai.supergraph.utils.nas.operations import Op
-from archai.supergraph.utils.common import get_conf
-from archai.supergraph.utils.nas.arch_params import ArchParams
-from archai.supergraph.utils.utils import zip_eq
+from archai.supergraph.nas.model_desc import OpDesc
+from archai.supergraph.nas.operations import Op
+from archai.common.common import get_conf
+from archai.supergraph.nas.arch_params import ArchParams
+from archai.common.utils import zip_eq
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
 #   stride 2 through input nodes however FactorizedReduce does only
@@ -115,7 +115,7 @@ class DivOp(Op):
             # as we don't consider it
             activs = activs[:-1]
             self._batch_activs = [t.cpu().detach().numpy() for t in activs]
-            
+
         if self._alphas:
             asm = F.softmax(self._alphas[0], dim=0)
             result = sum(w * op(x) for w, op in zip(asm, self._ops))
@@ -133,13 +133,13 @@ class DivOp(Op):
     # def get_valid_op_desc(self, index:int)->OpDesc:
     #     ''' index: index in the valid index list '''
     #     assert index <= self.num_valid_div_ops
-    #     orig_index = self._valid_to_orig[index]        
+    #     orig_index = self._valid_to_orig[index]
     #     desc, _ = self._ops[orig_index].finalize()
     #     return desc
 
     @overrides
     def finalize(self) -> Tuple[OpDesc, Optional[float]]:
-        ''' Divnas with default finalizer option needs this override else 
+        ''' Divnas with default finalizer option needs this override else
         the finalizer in base class returns the whole divop '''
         with torch.no_grad():
             # select except 'none' op

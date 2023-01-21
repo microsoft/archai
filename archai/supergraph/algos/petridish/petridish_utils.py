@@ -15,12 +15,12 @@ from tensorwatch import ModelStats
 import yaml
 import matplotlib.pyplot as plt
 
-from archai.supergraph.utils.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
 from archai.supergraph.utils.metrics import Metrics
 from archai.common.logger import Logger
 logger = Logger(source=__name__)
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 class JobStage(Enum):
     # below values must be assigned in sequence so getting next job stage enum is easy
@@ -329,13 +329,13 @@ def _test_convex_hull_insert():
     plt.savefig(os.path.join('./temp', 'debug', 'convex_hull_insert.png'),
         dpi=plt.gcf().dpi, bbox_inches='tight')
 
-def model_descs_on_front(hull_points:List[ConvexHullPoint], convex_hull_eps:float, 
+def model_descs_on_front(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
                          stage:ExperimentStage, lower_hull:bool=True)\
         ->Tuple[List[ConvexHullPoint], List[ConvexHullPoint], List[float], List[float]]:
     assert(len(hull_points) > 0)
 
     top1_list = get_top1_for_stage(hull_points, stage)
-    
+
     xs = [point.model_stats.MAdd for point in hull_points]
     ys = [1.0-top1 if lower_hull else top1 for top1 in top1_list]
 
@@ -392,7 +392,7 @@ def hull_points2tsv(points:List[ConvexHullPoint])->str:
 
     return '\n'.join(lines)
 
-def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float, 
+def sample_from_hull(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
                      stage:ExperimentStage=ExperimentStage.SEARCH)->ConvexHullPoint:
     front_points, eps_points, xs, ys = model_descs_on_front(hull_points,
         convex_hull_eps, stage)
@@ -460,7 +460,7 @@ def plot_frontier(hull_points:List[ConvexHullPoint], convex_hull_eps:float,
 
     top1_list_front = get_top1_for_stage(front_points, stage)
     top1_list_eps = get_top1_for_stage(eps_points, stage)
-    
+
     # save a plot of the convex hull to aid debugging
 
     hull_xs = [p.model_stats.MAdd for p in eps_points]

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 
-from archai.supergraph.utils.nas.models.shakedrop import ShakeDrop
+from archai.supergraph.nas.models.shakedrop import ShakeDrop
 
 
 def conv3x3(in_planes, out_planes, stride=1):

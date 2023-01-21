@@ -7,14 +7,14 @@ import shutil
 
 from overrides import overrides
 
-from archai.supergraph.utils.nas.exp_runner import ExperimentRunner
-from archai.supergraph.utils.nas.arch_trainer import ArchTrainer, TArchTrainer
+from archai.supergraph.nas.exp_runner import ExperimentRunner
+from archai.supergraph.nas.arch_trainer import ArchTrainer, TArchTrainer
 from archai.supergraph.algos.petridish.petridish_model_desc_builder import PetridishModelBuilder
 
 from archai.supergraph.algos.petridish.searcher_petridish import SearcherPetridish
 from archai.supergraph.algos.petridish.evaluater_petridish import EvaluaterPetridish
 from archai.common.config import Config
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 def copy_dir(src_dir:str, dest_dir:str, use_shutil:bool=True)->None:

@@ -6,7 +6,7 @@ from typing import Optional
 import tensorwatch as tw
 
 from archai.common.config import Config
-from archai.supergraph.utils.nas.model import Model
+from archai.supergraph.nas.model import Model
 from archai.common.logger import Logger
 logger = Logger(source=__name__)
 from archai.supergraph.utils.checkpoint import CheckPoint

@@ -13,9 +13,9 @@ import torch
 from torch import nn, Tensor
 
 from archai.supergraph.utils import ml_utils
-from archai.supergraph.utils.nas.model_desc import OpDesc, ConvMacroParams
-from archai.supergraph.utils.nas.arch_params import ArchParams
-from archai.supergraph.utils.nas.arch_module import ArchModule
+from archai.supergraph.nas.model_desc import OpDesc, ConvMacroParams
+from archai.supergraph.nas.arch_params import ArchParams
+from archai.supergraph.nas.arch_module import ArchModule
 
 # type alias
 OpFactoryFn = Callable[[OpDesc, Iterable[nn.Parameter]], 'Op']
@@ -295,9 +295,9 @@ class DilConv(Op):
 class MBConvModule(nn.Module):
     """ Inverted residual block, informally known as MBConv
     as utilized in MobileNetV2 paper by Sandler et al, 2018.
-    See Table 1 in the paper for details. 
-    
-    1x1 conv2d - Relu6 - 3x3 depthwise separable - Relu6 - 1x1 conv2d (no non-linearity)    
+    See Table 1 in the paper for details.
+
+    1x1 conv2d - Relu6 - 3x3 depthwise separable - Relu6 - 1x1 conv2d (no non-linearity)
     """
 
     def __init__(self, kernel_size:int, ch_in:int, ch_out: int, stride:int, expansion_ratio:int, affine:bool):
@@ -308,7 +308,7 @@ class MBConvModule(nn.Module):
         self.op = nn.Sequential(
             nn.Conv2d(ch_in, ch_intermediate, kernel_size=1, padding=0, bias=affine),
             nn.ReLU6(),
-            nn.Conv2d(ch_intermediate, ch_intermediate, kernel_size=3, 
+            nn.Conv2d(ch_intermediate, ch_intermediate, kernel_size=3,
                     groups=ch_intermediate, padding=1, stride=stride, bias=affine),
             nn.ReLU6(),
             nn.Conv2d(ch_intermediate, ch_out, kernel_size=1, padding=0, bias=affine),
@@ -318,14 +318,14 @@ class MBConvModule(nn.Module):
     @overrides
     def forward(self, input):
         out = self.op(input)
-        return out 
+        return out
 
 class MBConv(Op):
     """ Inverted residual block, informally known as MBConv
     as utilized in MobileNetV2 paper by Sandler et al, 2018.
-    See Table 1 in the paper for details. 
-    
-    1x1 conv2d - Relu6 - 3x3 depthwise separable - Relu6 - 1x1 conv2d (no non-linearity)    
+    See Table 1 in the paper for details.
+
+    1x1 conv2d - Relu6 - 3x3 depthwise separable - Relu6 - 1x1 conv2d (no non-linearity)
     """
 
     def __init__(self, op_desc:OpDesc, stride:int, expansion_ratio:int, affine:bool):
@@ -339,7 +339,7 @@ class MBConv(Op):
     @overrides
     def forward(self, input):
         out = self.op(input)
-        return out 
+        return out
 
 class SepConv(Op):
     """ Depthwise separable conv

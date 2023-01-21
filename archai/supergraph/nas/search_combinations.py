@@ -12,13 +12,13 @@ from overrides import overrides
 from archai.common.logger import Logger
 logger = Logger(source=__name__)
 from archai.common.config import Config
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils.nas.arch_trainer import TArchTrainer
-from archai.supergraph.utils.nas import nas_utils
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.arch_trainer import TArchTrainer
+from archai.supergraph.nas import nas_utils
 from archai.supergraph.utils.metrics import Metrics
-from archai.supergraph.utils import utils
-from archai.supergraph.utils.nas.finalizers import Finalizers
-from archai.supergraph.utils.nas.searcher import ModelMetrics, Searcher, SearchResult
+from archai.common import utils
+from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.nas.searcher import ModelMetrics, Searcher, SearchResult
 
 
 class SearchCombinations(Searcher):

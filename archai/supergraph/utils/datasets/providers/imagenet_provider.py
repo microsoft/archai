@@ -17,7 +17,7 @@ from overrides import overrides, EnforceOverrides
 
 from archai.supergraph.utils.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
-from archai.supergraph.utils import utils
+from archai.common import utils
 from archai.datasets.cv.transforms.lighting import Lighting
 
 

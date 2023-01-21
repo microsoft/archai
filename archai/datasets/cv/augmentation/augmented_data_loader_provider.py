@@ -23,7 +23,7 @@ from torch.utils.data import (
 from torch.utils.data.distributed import DistributedSampler
 from torchvision.transforms import transforms
 
-from archai.supergraph.utils import common, utils
+from archai.common import common, utils
 from archai.common.logger import Logger
 logger = Logger(source=__name__)
 from archai.common.config import Config

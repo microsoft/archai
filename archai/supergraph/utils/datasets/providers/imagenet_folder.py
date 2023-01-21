@@ -10,7 +10,7 @@ import torchvision
 from torchvision.transforms import transforms
 from torch.utils.data.dataset import Dataset
 from torchvision.datasets.utils import check_integrity, download_url
-from archai.supergraph.utils.utils import download_and_extract_tar, extract_tar
+from archai.common.utils import download_and_extract_tar, extract_tar
 from archai.common.logger import Logger
 
 logger = Logger(source=__name__)

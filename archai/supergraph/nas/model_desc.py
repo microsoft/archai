@@ -12,7 +12,7 @@ import copy
 
 import yaml
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 from archai.common.logger import Logger
 logger = Logger(source=__name__)
 from archai.common.config import Config

@@ -1,12 +1,12 @@
 import logging
 
-from archai.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
-from archai.algos.nasbench101 import model_builder
+from archai.supergraph.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
+from archai.supergraph.algos.nasbench101 import model_builder
 from archai.common.trainer import Trainer
 from archai.common.config import Config
 from archai.common.common import common_init
 from archai.cv.datasets import data
-from archai.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
+from archai.supergraph.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
 
 
 def main():

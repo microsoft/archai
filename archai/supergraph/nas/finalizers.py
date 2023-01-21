@@ -6,9 +6,9 @@ from overrides import EnforceOverrides
 
 from torch import nn
 
-from archai.supergraph.utils.nas.model import Model
-from archai.supergraph.utils.nas.cell import Cell
-from archai.supergraph.utils.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
+from archai.supergraph.nas.model import Model
+from archai.supergraph.nas.cell import Cell
+from archai.supergraph.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
 
 class Finalizers(EnforceOverrides):
     """Provides base algorithms for finalizing model, cell and edge which can be overriden

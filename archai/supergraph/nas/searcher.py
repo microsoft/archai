@@ -10,14 +10,14 @@ from archai.common.logger import Logger
 logger = Logger(source=__name__)
 
 from archai.common.config import Config
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils.nas.arch_trainer import TArchTrainer
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.arch_trainer import TArchTrainer
 from archai.supergraph.utils.trainer import Trainer
-from archai.supergraph.utils.nas.model_desc import ModelDesc
+from archai.supergraph.nas.model_desc import ModelDesc
 from archai.supergraph.utils.datasets import data
-from archai.supergraph.utils.nas.model import Model
+from archai.supergraph.nas.model import Model
 from archai.supergraph.utils.metrics import Metrics
-from archai.supergraph.utils.nas.finalizers import Finalizers
+from archai.supergraph.nas.finalizers import Finalizers
 
 
 class ModelMetrics:

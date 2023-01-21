@@ -9,7 +9,7 @@ import os
 import torch
 
 from archai.common.config import Config
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 _CallbackType = Callable #[['CheckPoint', *kargs: Any, **kwargs: Any], None]
 class CheckPoint(UserDict):

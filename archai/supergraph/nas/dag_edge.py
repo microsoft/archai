@@ -7,9 +7,9 @@ import torch
 from torch import nn
 from overrides import overrides
 
-from archai.supergraph.utils.nas.operations import Op, DropPath_
-from archai.supergraph.utils.nas.model_desc import EdgeDesc
-from archai.supergraph.utils.nas.arch_module import ArchModule
+from archai.supergraph.nas.operations import Op, DropPath_
+from archai.supergraph.nas.model_desc import EdgeDesc
+from archai.supergraph.nas.arch_module import ArchModule
 
 class DagEdge(ArchModule):
     def __init__(self, desc:EdgeDesc, affine:bool, droppath:bool,

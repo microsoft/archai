@@ -7,10 +7,10 @@ import copy
 from overrides import EnforceOverrides
 
 from archai.common.config import Config
-from archai.supergraph.utils.nas.model_desc import ModelDesc, OpDesc, CellType, NodeDesc, \
+from archai.supergraph.nas.model_desc import ModelDesc, OpDesc, CellType, NodeDesc, \
                                   CellDesc, AuxTowerDesc, ConvMacroParams, \
                                   TensorShape, TensorShapes, TensorShapesList
-from archai.supergraph.utils.nas.operations import StemBase, Op
+from archai.supergraph.nas.operations import StemBase, Op
 
 
 class ModelDescBuilder(EnforceOverrides):

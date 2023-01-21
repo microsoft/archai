@@ -5,15 +5,15 @@ import argparse
 from typing import Dict, Type
 
 from archai.common import utils
-from archai.nas.exp_runner import ExperimentRunner
-from archai.algos.darts.darts_exp_runner import DartsExperimentRunner
-from archai.algos.petridish.petridish_exp_runner import PetridishExperimentRunner
-from archai.algos.random.random_exp_runner import RandomExperimentRunner
-from archai.algos.manual.manual_exp_runner import ManualExperimentRunner
-from archai.algos.xnas.xnas_exp_runner import XnasExperimentRunner
-from archai.algos.gumbelsoftmax.gs_exp_runner import GsExperimentRunner
-from archai.algos.divnas.divnas_exp_runner import DivnasExperimentRunner
-from archai.algos.didarts.didarts_exp_runner import DiDartsExperimentRunner
+from archai.supergraph.nas.exp_runner import ExperimentRunner
+from archai.supergraph.algos.darts.darts_exp_runner import DartsExperimentRunner
+from archai.supergraph.algos.petridish.petridish_exp_runner import PetridishExperimentRunner
+from archai.supergraph.algos.random.random_exp_runner import RandomExperimentRunner
+from archai.supergraph.algos.manual.manual_exp_runner import ManualExperimentRunner
+from archai.supergraph.algos.xnas.xnas_exp_runner import XnasExperimentRunner
+from archai.supergraph.algos.gumbelsoftmax.gs_exp_runner import GsExperimentRunner
+from archai.supergraph.algos.divnas.divnas_exp_runner import DivnasExperimentRunner
+from archai.supergraph.algos.didarts.didarts_exp_runner import DiDartsExperimentRunner
 
 
 def main():

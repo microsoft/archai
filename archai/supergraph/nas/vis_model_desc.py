@@ -6,8 +6,8 @@
 from graphviz import Digraph
 from typing import Tuple, Optional
 
-from archai.supergraph.utils.nas.model_desc import CellDesc, CellType, ModelDesc
-from archai.supergraph.utils.utils import first_or_default
+from archai.supergraph.nas.model_desc import CellDesc, CellType, ModelDesc
+from archai.common.utils import first_or_default
 from archai.common.logger import Logger
 logger = Logger(source=__name__)
 

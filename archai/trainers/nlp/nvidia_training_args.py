@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np
 import torch
 
-from archai.supergraph.utils.common import default_dataroot, pt_dirs
+from archai.common.common import default_dataroot, pt_dirs
 from archai.common.distributed_utils import (
     get_world_size,
     init_distributed,

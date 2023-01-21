@@ -5,7 +5,7 @@ import math
 import torch.nn as nn
 import torch.nn.functional as F
 
-from archai.supergraph.utils.nas.models.shakeshake.shakeshake import ShakeShake, Shortcut
+from archai.supergraph.nas.models.shakeshake.shakeshake import ShakeShake, Shortcut
 
 
 class ShakeBlock(nn.Module):
