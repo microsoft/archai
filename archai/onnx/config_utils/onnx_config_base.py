@@ -43,23 +43,13 @@ class OnnxConfig(EnforceOverrides):
 
     @property
     def is_ort_graph_optimizable(self) -> bool:
-        """Whether configuation support additional ONNX Runtime graph optimization.
-
-        Returns:
-            Whether configuration supports additional graph optimization.
-
-        """
+        """Return whether configuration supports additional graph optimization."""
 
         return False
 
     @property
     def ort_graph_optimizer_args(self) -> Tuple[Any, ...]:
-        """Get the ONNX Runtime additional graph optimization arguments.
-
-        Returns:
-            Additional arguments used by the ORT graph optimizer.
-
-        """
+        """Return additional arguments used by the ORT graph optimizer."""
 
         return None
 
@@ -142,12 +132,7 @@ class OnnxConfigWithPast(OnnxConfig):
 
     @property
     def hidden_size(self) -> int:
-        """Get the dimensionality of hidden units.
-
-        Returns:
-            Hidden units size.
-
-        """
+        """Return the dimensionality of hidden units."""
 
         if not hasattr(self.config, "hidden_size"):
             raise AttributeError("Please override `hidden_size` with correct attribute.")
@@ -156,12 +141,7 @@ class OnnxConfigWithPast(OnnxConfig):
 
     @property
     def num_layers(self) -> int:
-        """Get the number of layers.
-
-        Returns:
-            Number of layers.
-
-        """
+        """Return the number of layers."""
 
         if not hasattr(self.config, "num_layers"):
             raise AttributeError("Please override `num_layers` with correct attribute.")
@@ -170,12 +150,7 @@ class OnnxConfigWithPast(OnnxConfig):
 
     @property
     def num_attention_heads(self) -> int:
-        """Get the number of attention heads.
-
-        Returns:
-            Number of attention heads.
-
-        """
+        """Return the number of attention heads."""
 
         if not hasattr(self.config, "num_attention_heads"):
             raise AttributeError("Please override `num_attention_heads` with correct attribute.")

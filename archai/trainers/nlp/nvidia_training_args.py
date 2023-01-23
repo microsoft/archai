@@ -227,12 +227,7 @@ class NvidiaTrainingArguments:
 
     @property
     def device(self) -> torch.device:
-        """Return a PyTorch device instance.
-
-        Returns:
-            Instance of PyTorch device class.
-
-        """
+        """Return a PyTorch device instance."""
 
         return torch.device("cuda" if not self.no_cuda else "cpu")
 
