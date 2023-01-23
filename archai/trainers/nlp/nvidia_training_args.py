@@ -8,13 +8,39 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np
 import torch
 
-from archai.supergraph.utils.common import default_dataroot, pt_dirs
 from archai.common.distributed_utils import (
     get_world_size,
     init_distributed,
     sync_workers,
 )
 from archai.common.file_utils import get_full_path
+
+
+def get_amlt_dirs() -> Tuple[str, str]:
+    """Get AMLT folders.
+
+    Returns:
+        Tuple containing data and output folders.
+
+    """
+
+    data_dir = os.environ.get("AMLT_DATA_DIR", "")
+    output_dir = os.environ.get("AMLT_OUTPUT_DIR", "")
+
+    return data_dir, output_dir
+
+
+def get_default_dataroot() -> str:
+    """Get default data root folder.
+
+    Returns:
+        Default data root folder.
+
+    """
+
+    is_amlt_available = os.environ.get("AMLT_OUTPUT_DIR", None)
+
+    return "/var/tmp/dataroot" if is_amlt_available else "~/dataroot"
 
 
 def create_dirs(
@@ -52,11 +78,11 @@ def create_dirs(
 
         raise RuntimeError(f"Dataset: {dataset_name} is not supported yet.")
 
-    pt_data_dir, pt_output_dir = pt_dirs()
+    pt_data_dir, pt_output_dir = get_amlt_dirs()
     if pt_output_dir:
         pt_output_dir = os.path.join(pt_output_dir, experiment_name)
 
-    dataroot = dataroot or pt_data_dir or default_dataroot()
+    dataroot = dataroot or pt_data_dir or get_default_dataroot()
     dataroot = get_full_path(dataroot)
 
     dataset_dir = get_full_path(os.path.join(dataroot, "textpred", _get_dataset_dir_name(dataset_name)))
