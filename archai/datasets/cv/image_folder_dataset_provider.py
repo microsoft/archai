@@ -21,7 +21,7 @@ class ImageFolderDatasetProvider(DatasetProvider):
         self,
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes Image Folder dataset provider.
+        """Initialize an image folder dataset provider.
 
         Args:
             root: Root directory of dataset where is saved.

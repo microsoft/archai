@@ -21,7 +21,7 @@ class Food101DatasetProvider(DatasetProvider):
         self,
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes Food-101 dataset provider.
+        """Initialize Food-101 dataset provider.
 
         Args:
             root: Root directory of dataset where is saved.

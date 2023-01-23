@@ -41,7 +41,7 @@ class CocobBackprop(optim.Optimizer):
         super(CocobBackprop, self).__init__(params, defaults)
 
     def step(self, closure: Optional[Callable] = None) -> torch.FloatTensor:
-        """Performs a single optimization step.
+        """Perform a single optimization step.
 
         Args:
             closure: A closure that reevaluates the model and returns the loss.
@@ -153,7 +153,7 @@ class CocobOns(optim.Optimizer):
         super(CocobOns, self).__init__(params, defaults)
 
     def step(self, closure: Optional[Callable] = None) -> torch.FloatTensor:
-        """Performs a single optimization step.
+        """Perform a single optimization step.
 
         Args:
             closure: A closure that reevaluates the model and returns the loss.

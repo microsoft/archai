@@ -27,7 +27,7 @@ class CocoDatasetProvider(DatasetProvider):
         dataset: Optional[str] = "coco_captions",
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes COCO-based dataset provider.
+        """Initialize COCO-based dataset provider.
 
         Args:
             dataset: Name of dataset.

@@ -21,7 +21,7 @@ class SVHNDatasetProvider(DatasetProvider):
         self,
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes SVHN dataset provider.
+        """Initialize SVHN dataset provider.
 
         Args:
             root: Root directory of dataset where is saved.

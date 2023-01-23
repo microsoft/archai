@@ -90,7 +90,7 @@ class GradualWarmupScheduler(_LRScheduler):
                 self.after_scheduler.step(epoch - self.total_epoch, metrics)
 
     def step(self, epoch: Optional[int] = None, metrics: Optional[Dict[str, Any]] = None) -> None:
-        """Sstep for ReduceLROnPlateau scheduler.
+        """Step for ReduceLROnPlateau scheduler.
 
         Args:
             epoch: Current epoch.

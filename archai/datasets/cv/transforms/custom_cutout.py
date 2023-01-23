@@ -10,7 +10,7 @@ class CustomCutout:
     """Custom-based cutout transform."""
 
     def __init__(self, length: int) -> None:
-        """Initializes the custom-based cutout transform.
+        """Initialize the custom-based cutout transform.
 
         Args:
             length: Length of the cutout.

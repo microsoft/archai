@@ -13,7 +13,7 @@ from archai.api.model_evaluator import AsyncModelEvaluator, ModelEvaluator
 
 
 class SearchObjectives:
-    """Manages search objectives and constraints."""
+    """Search objectives and constraints."""
 
     def __init__(self, cache_objective_evaluation: Optional[bool] = True) -> None:
         """Create, evaluate and cache search objectives and constraints for search algorithms.
@@ -58,7 +58,7 @@ class SearchObjectives:
         higher_is_better: bool,
         compute_intensive: bool = True,
         constraint: Optional[Tuple[float, float]] = None,
-    ):
+    ) -> None:
         """Add an objective function to the `SearchObjectives` object.
 
         Args:
@@ -87,7 +87,7 @@ class SearchObjectives:
 
     def add_constraint(
         self, name: str, model_evaluator: Union[ModelEvaluator, AsyncModelEvaluator], constraint: Tuple[float, float]
-    ):
+    ) -> None:
         """Add a search constraint to the `SearchObjectives` object.
 
         Constraints are typically evaluated multiple times by search algorithms to validate
@@ -270,7 +270,7 @@ class SearchObjectives:
         dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
         progress_bar: bool = False,
     ) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
-        """Evaluates constraints for a list of models and returns the indices of models that
+        """Evaluate constraints for a list of models and returns the indices of models that
         satisfy all constraints.
 
         Args:
@@ -296,7 +296,7 @@ class SearchObjectives:
         return eval_results, self._get_valid_arch_indices(constraints, eval_results)
 
     def is_model_valid(self, model: ArchaiModel, dataset_provider: DatasetProvider) -> bool:
-        """Checks if a model satisfies all constraints.
+        """Check if a model satisfies all constraints.
 
         Args:
             model: Model to check.
@@ -317,7 +317,7 @@ class SearchObjectives:
         budgets: Optional[Dict[str, List]] = None,
         progress_bar: bool = False,
     ) -> Dict[str, np.ndarray]:
-        """Evaluates all cheap objectives for a list of models and dataset provider(s).
+        """Evaluate all cheap objectives for a list of models and dataset provider(s).
 
         Args:
             models: List of models to evaluate.
@@ -339,7 +339,7 @@ class SearchObjectives:
         budgets: Optional[Dict[str, List]] = None,
         progress_bar: bool = False,
     ) -> Dict[str, np.ndarray]:
-        """Evaluates all expensive objective functions for a list of models and
+        """Evaluate all expensive objective functions for a list of models and
         dataset provider(s).
 
         Args:
@@ -362,7 +362,7 @@ class SearchObjectives:
         budgets: Optional[Dict[str, List]] = None,
         progress_bar: bool = False,
     ) -> Dict[str, np.ndarray]:
-        """Evaluates all objective functions for a list of models and dataset provider(s).
+        """Evaluate all objective functions for a list of models and dataset provider(s).
 
         Args:
             models: List of models to evaluate.
@@ -378,7 +378,7 @@ class SearchObjectives:
         return self._eval_objs(dict(self.exp_objs, **self.cheap_objs), models, dataset_providers, budgets, progress_bar)
 
     def save_cache(self, file_path: str) -> None:
-        """Saves the state of the SearchObjectives object to a YAML file.
+        """Save the state of the SearchObjectives object to a YAML file.
 
         Args:
             file_path: Path to save YAML file.
@@ -389,10 +389,11 @@ class SearchObjectives:
             yaml.dump(self.cache, f)
 
     def load_cache(self, file_path: str) -> None:
-        """Loads the state of the SearchObjectives object from a YAML file.
+        """Load the state of the SearchObjectives object from a YAML file.
 
         Args:
             file_path: Path to YAML file.
+
         """
 
         with open(file_path, "r", encoding="utf-8") as f:

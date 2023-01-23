@@ -49,7 +49,7 @@ class DistributedStratifiedSampler(Sampler):
         is_val_split: Optional[bool] = False,
         max_samples: Optional[int] = None,
     ) -> None:
-        """Initializes the sampler.
+        """Initialize the sampler.
 
         Args:
             dataset: Input dataset.

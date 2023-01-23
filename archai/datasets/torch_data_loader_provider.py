@@ -30,7 +30,7 @@ class TorchDataLoaderProvider(DataLoaderProvider):
         persistent_workers: Optional[bool] = False,
         pin_memory_device: Optional[str] = "",
     ) -> None:
-        """Initializes PyTorch data loader provider.
+        """Initialize PyTorch data loader provider.
 
         Args:
             batch_size: Amount of samples per batch.

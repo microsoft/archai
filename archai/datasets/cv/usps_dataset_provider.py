@@ -21,7 +21,7 @@ class USPSDatasetProvider(DatasetProvider):
         self,
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes USPS dataset provider.
+        """Initialize USPS dataset provider.
 
         Args:
             root: Root directory of dataset where is saved.

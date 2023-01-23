@@ -12,10 +12,12 @@ from torch.optim import Optimizer
 
 
 class Lamb(Optimizer):
-    """Implement the Lamb algorithm for large batch optimization.
+    """Lamb algorithm for large batch optimization.
+
+    It has been proposed in `Large Batch Optimization for Deep Learning:
+        Training BERT in 76 minutes.`
 
     Reference:
-        Large Batch Optimization for Deep Learning: Training BERT in 76 minutes.
         https://arxiv.org/abs/1904.00962
 
     """
@@ -190,10 +192,12 @@ def lamb_kernel(
 
 
 class JITLamb(Optimizer):
-    """Implement the JIT-based version of the Lamb algorithm for large batch optimization.
+    """JIT-based version of the Lamb algorithm for large batch optimization.
+
+    It has been proposed in `Large Batch Optimization for Deep Learning:
+        Training BERT in 76 minutes.`
 
     Reference:
-        Large Batch Optimization for Deep Learning: Training BERT in 76 minutes.
         https://arxiv.org/abs/1904.00962
 
     """

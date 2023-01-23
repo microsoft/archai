@@ -26,7 +26,7 @@ def optimize_onnx(
     float16: Optional[bool] = False,
     input_int32: Optional[bool] = False,
 ) -> str:
-    """Optimizes an ONNX model using a combination of standard ORT-based optimization
+    """Optimize an ONNX model using a combination of standard ORT-based optimization
     and additional transformer-based optimization.
 
     Args:

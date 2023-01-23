@@ -88,9 +88,21 @@ class TensorpackLmdbDataset(Dataset):
         self.mask_interpolation_method = mask_interpolation_method
 
     def __len__(self) -> int:
+        """Return length of the dataset."""
+
         return len(self.keys)
 
     def _get_datapoint(self, idx: int) -> Dict[str, Any]:
+        """Get a data point from the dataset.
+
+        Args:
+            idx: Index of the data point.
+
+        Returns:
+            Data point.
+
+        """
+
         key = self.keys[idx]
         value = self.txn.get(key)
 
@@ -110,6 +122,16 @@ class TensorpackLmdbDataset(Dataset):
         return sample
 
     def __getitem__(self, idx: int) -> Dict[str, Any]:
+        """Get a sample from the dataset.
+
+        Args:
+            idx: Index of the sample.
+
+        Returns:
+            Sample.
+
+        """
+
         try:
             sample = self._get_datapoint(idx)
 

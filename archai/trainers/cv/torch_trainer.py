@@ -10,7 +10,7 @@ class TorchTrainer(TrainerBase):
     """PyTorch trainer."""
 
     def __init__(self) -> None:
-        """Initializes the trainer."""
+        """Initialize the trainer."""
 
         super().__init__()
 

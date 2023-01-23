@@ -16,7 +16,7 @@ class NvidiaDataLoaderProvider(DataLoaderProvider):
     """NVIDIA data loader provider."""
 
     def __init__(self, dataset_name: Optional[str] = "wt103") -> None:
-        """Initializes NVIDIA data loader provider.
+        """Initialize NVIDIA data loader provider.
 
         Args:
             dataset_name: Name of the dataset.

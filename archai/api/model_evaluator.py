@@ -51,7 +51,7 @@ class ModelEvaluator(EnforceOverrides):
 
     @abstractmethod
     def evaluate(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
-        """Evaluates an `ArchaiModel` instance, optionally using a `DatasetProvider` and budget value.
+        """Evaluate an `ArchaiModel` instance, optionally using a `DatasetProvider` and budget value.
 
         Args:
             arch: Model to be evaluated.
@@ -107,7 +107,7 @@ class AsyncModelEvaluator(EnforceOverrides):
 
     @abstractmethod
     def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
-        """Sends an evaluation job for a given (model, dataset, budget) triplet.
+        """Send an evaluation job for a given (model, dataset, budget) triplet.
 
         Args:
             arch: Model to be evaluated
@@ -123,7 +123,7 @@ class AsyncModelEvaluator(EnforceOverrides):
 
     @abstractmethod
     def fetch_all(self) -> List[Optional[float]]:
-        """Fetches all evaluation results from the job queue.
+        """Fetch all evaluation results from the job queue.
 
         Returns:
             List of evaluation results. Each result is a `float` `None` if evaluation job failed.

@@ -31,7 +31,7 @@ class HfHubDatasetProvider(DatasetProvider):
         cache_dir: Optional[str] = None,
         revision: Optional[Union[str, Version]] = None,
     ) -> None:
-        """Initializes Hugging Face Hub dataset provider.
+        """Initialize Hugging Face Hub dataset provider.
 
         Args:
             dataset: Name of the dataset.
@@ -126,7 +126,7 @@ class HfDiskDatasetProvider(DatasetProvider):
         data_dir: str,
         keep_in_memory: Optional[bool] = False,
     ) -> None:
-        """Initializes Hugging Face disk-saved dataset provider.
+        """Initialize Hugging Face disk-saved dataset provider.
 
         Args:
             data_dir: Path to the disk-saved dataset.

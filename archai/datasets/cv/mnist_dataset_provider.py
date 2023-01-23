@@ -29,7 +29,7 @@ class MnistDatasetProvider(DatasetProvider):
         dataset: Optional[str] = "mnist",
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes MNIST-based dataset provider.
+        """Initialize MNIST-based dataset provider.
 
         Args:
             dataset: Name of dataset.

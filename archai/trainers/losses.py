@@ -14,7 +14,7 @@ class SmoothCrossEntropyLoss(_WeightedLoss):
     def __init__(
         self, weight: Optional[torch.Tensor] = None, reduction: Optional[str] = "mean", smoothing: Optional[float] = 0.0
     ) -> None:
-        """Initializes the loss function.
+        """Initialize the loss function.
 
         Args:
             weight: Weight for each class.
@@ -31,7 +31,7 @@ class SmoothCrossEntropyLoss(_WeightedLoss):
 
     @staticmethod
     def _smooth_one_hot(targets: torch.Tensor, n_classes: int, smoothing: Optional[float] = 0.0) -> torch.Tensor:
-        """Applies label smoothing to targets.
+        """Apply label smoothing to targets.
 
         Args:
             targets: Target tensor.
@@ -56,7 +56,7 @@ class SmoothCrossEntropyLoss(_WeightedLoss):
         return targets
 
     def forward(self, inputs: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
-        """Computes the loss.
+        """Compute the loss.
 
         Args:
             inputs: Input tensor.
