@@ -7,10 +7,10 @@ from typing import Optional, Type
 from overrides import overrides
 
 from archai.common.config import Config
-from archai.supergraph.utils.nas import nas_utils
-from archai.supergraph.utils.nas.exp_runner import ExperimentRunner
-from archai.supergraph.utils.nas.arch_trainer import ArchTrainer, TArchTrainer
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas import nas_utils
+from archai.supergraph.nas.exp_runner import ExperimentRunner
+from archai.supergraph.nas.arch_trainer import ArchTrainer, TArchTrainer
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.supergraph.algos.manual.manual_searcher import ManualSearcher
 from archai.supergraph.algos.manual.manual_evaluater import ManualEvaluater
 

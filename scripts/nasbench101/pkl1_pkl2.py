@@ -6,7 +6,7 @@ import base64
 from collections import OrderedDict
 import yaml
 
-from archai.algos.nasbench101 import model_metrics_pb2
+from archai.supergraph.algos.nasbench101 import model_metrics_pb2
 
 from archai.common import utils
 

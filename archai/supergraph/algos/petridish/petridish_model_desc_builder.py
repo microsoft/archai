@@ -6,10 +6,10 @@ import copy
 
 from overrides import overrides
 
-from archai.supergraph.utils.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils.nas.operations import MultiOp, Op
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.operations import MultiOp, Op
 from archai.common.config import Config
 from archai.supergraph.algos.random.random_model_desc_builder import RandomModelDescBuilder
 
@@ -19,7 +19,7 @@ from archai.supergraph.algos.petridish.petridish_op import PetridishOp, TempIden
 class PetridishModelBuilder(RandomModelDescBuilder):
     @overrides
     def pre_build(self, conf_model_desc:Config)->None:
-        
+
         super().pre_build(conf_model_desc)
 
         Op.register_op('petridish_normal_op',

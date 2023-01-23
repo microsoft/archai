@@ -24,26 +24,26 @@ import tensorwatch as tw
 from torch.utils.data.dataloader import DataLoader
 import yaml
 
-from archai.supergraph.utils import common
-from archai.common.logger import Logger
-logger = Logger(source=__name__),
-from archai.supergraph.utils.common import CommonState
+from archai.common import common
+
+from archai.common.common import logger
+from archai.common.common import CommonState
 from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.common.config import Config
-from archai.supergraph.utils.nas.arch_trainer import TArchTrainer
-from archai.supergraph.utils.nas import nas_utils
-from archai.supergraph.utils.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+from archai.supergraph.nas.arch_trainer import TArchTrainer
+from archai.supergraph.nas import nas_utils
+from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
                                   EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
 from archai.supergraph.utils.trainer import Trainer
-from archai.supergraph.utils.datasets import data
-from archai.supergraph.utils.nas.model import Model
+from archai.supergraph.datasets import data
+from archai.supergraph.nas.model import Model
 from archai.supergraph.utils.metrics import Metrics
-from archai.supergraph.utils import utils
-from archai.supergraph.utils.nas.finalizers import Finalizers
+from archai.common import utils
+from archai.supergraph.nas.finalizers import Finalizers
 from archai.supergraph.algos.petridish.petridish_utils import _convex_hull_from_points
-from archai.supergraph.utils.nas.searcher import SearchResult
-from archai.supergraph.utils.nas.search_combinations import SearchCombinations
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.searcher import SearchResult
+from archai.supergraph.nas.search_combinations import SearchCombinations
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.supergraph.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
     sample_from_hull, plot_frontier, save_hull_frontier, save_hull, plot_pool, plot_seed_model_stats
 
@@ -253,7 +253,7 @@ class SearcherPetridish(SearchCombinations):
         conf_seed_train = conf_search['seed_train']
 
         future_ids = [] # ray job IDs
-        seed_model_stats = [] # seed model stats for visualization and debugging 
+        seed_model_stats = [] # seed model stats for visualization and debugging
         macro_combinations = list(self.get_combinations(conf_search))
         for reductions, cells, nodes in macro_combinations:
             # if N R N R N R cannot be satisfied, ignore combination
@@ -277,7 +277,7 @@ class SearcherPetridish(SearchCombinations):
             # build a model so we can get its model stats
             temp_model = Model(model_desc, droppath=True, affine=True)
             seed_model_stats.append(nas_utils.get_model_stats(temp_model))
-        
+
         # save the model stats in a plot and tsv file so we can
         # visualize the spread on the x-axis
         expdir = common.get_expdir()

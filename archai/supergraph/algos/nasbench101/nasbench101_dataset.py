@@ -29,7 +29,7 @@ from numpy.lib.function_base import average
 
 from torch import nn
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 from archai.supergraph.algos.nasbench101 import config
 from archai.supergraph.algos.nasbench101 import model_metrics_pb2
 from archai.supergraph.algos.nasbench101 import model_spec as _model_spec

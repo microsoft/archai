@@ -5,8 +5,8 @@ from typing import Type
 
 from overrides import overrides
 
-from archai.supergraph.utils.nas.exp_runner import ExperimentRunner
-from archai.supergraph.utils.nas.arch_trainer import TArchTrainer
+from archai.supergraph.nas.exp_runner import ExperimentRunner
+from archai.supergraph.nas.arch_trainer import TArchTrainer
 from archai.supergraph.algos.xnas.xnas_model_desc_builder import XnasModelDescBuilder
 from archai.supergraph.algos.xnas.xnas_arch_trainer import XnasArchTrainer
 
