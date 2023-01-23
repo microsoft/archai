@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import yaml
@@ -13,17 +13,23 @@ from archai.api.model_evaluator import AsyncModelEvaluator, ModelEvaluator
 
 
 class SearchObjectives:
-    def __init__(self, cache_objective_evaluation: bool = True) -> None:
-        """Class used to create, evaluate and cache search objectives and constraints for search algorithms.
+    """Manages search objectives and constraints."""
 
-        Besides objectives, this class also supports registering search constraints, which are used to filter out candidate
-        architectures that do not meet certain criteria (e.g., number of parameters, FLOPs). Constraints are typically evaluated
-        multiple times by search algorithms and should not be computationally expensive to evaluate.
+    def __init__(self, cache_objective_evaluation: Optional[bool] = True) -> None:
+        """Create, evaluate and cache search objectives and constraints for search algorithms.
+
+        Besides objectives, this class also supports registering search constraints,
+        which are used to filter out candidate architectures that do not meet certain
+        criteria (e.g., number of parameters, FLOPs). Constraints are typically evaluated
+        multiple times by search algorithms and should not be computationally expensive to
+        evaluate.
 
         Args:
-            cache_objective_evaluation (bool, optional): If `True`, objective evaluations are cached.
-                using the tuple `(obj_name, archid, dataset_provider_name, budget)` as key. Defaults to `True`.
+            cache_objective_evaluation: If `True`, objective evaluations are cached using the
+                tuple `(obj_name, archid, dataset_provider_name, budget)` as key.
+
         """
+
         self.cache_objective_evaluation = cache_objective_evaluation
 
         self.cheap_objs = {}
@@ -35,10 +41,14 @@ class SearchObjectives:
 
     @property
     def objs(self) -> Dict[str, Dict]:
+        """Return a dictionary of all objectives."""
+
         return dict(self.cheap_objs, **self.exp_objs)
 
     @property
     def objs_and_constraints(self) -> Dict[str, Dict]:
+        """Return a dictionary of all objectives and constraints."""
+
         return dict(self.objs, **self.extra_constraints)
 
     def add_objective(
@@ -49,22 +59,19 @@ class SearchObjectives:
         compute_intensive: bool = True,
         constraint: Optional[Tuple[float, float]] = None,
     ):
-        """Adds an objective function to the `SearchObjectives` object.
+        """Add an objective function to the `SearchObjectives` object.
 
         Args:
-            name (str): The name of the objective.
-            model_evaluator (Union[ModelEvaluator, AsyncModelEvaluator]): The model evaluator responsible
-                for evaluating the objective.
-
-            higher_is_better (bool): Weather the objective should be maximized (`True`) or minimized (`False`).
-
-            compute_intensive (bool, optional): If `True`, the objective is considered computationally expensive and
-                will be estimated using surrogate models when possible. Defaults to `True`.
-
-            constraint (Optional[Tuple[float, float]], optional): Optional objective constraint used to filter
-                out candidate architectures. Expects `(lower_bound, upper_bound)` tuple. Can only be set
-                if `compute_intensive` is set to `False`. Defaults to None.
+            name: The name of the objective.
+            model_evaluator: The model evaluator responsible for evaluating the objective.
+            higher_is_better: Whether the objective should be maximized (`True`) or minimized (`False`).
+            compute_intensive: If `True`, the objective is considered computationally expensive
+            and will be estimated using surrogate models when possible.
+            constraint: Objective constraint used to filter out candidate architectures.
+                Expects `(lower_bound, upper_bound)` tuple. Can only be set
+                if `compute_intensive` is set to `False`.
         """
+
         assert isinstance(model_evaluator, (ModelEvaluator, AsyncModelEvaluator))
         assert name not in dict(
             self.objs, **self.extra_constraints
@@ -81,18 +88,18 @@ class SearchObjectives:
     def add_constraint(
         self, name: str, model_evaluator: Union[ModelEvaluator, AsyncModelEvaluator], constraint: Tuple[float, float]
     ):
-        """Adds a search constraint to the `SearchObjectives` object. Constraints are typically evaluated
-        multiple times by search algorithms to validate candidate architectures and should not be computationally
-        expensive to evaluate.
+        """Add a search constraint to the `SearchObjectives` object.
+
+        Constraints are typically evaluated multiple times by search algorithms to validate
+        candidate architectures and should not be computationally expensive to evaluate.
 
         Args:
-            name (str): The name of the constraint.
-            model_evaluator (Union[ModelEvaluator, AsyncModelEvaluator]): The model evaluator responsible
-                for evaluating the constraint.
-
-            constraint (Tuple[float, float]): The valid range of the constraint. Expects
-                a `(lower_bound, upper_bound)` tuple.
+            name: The name of the constraint.
+            model_evaluator: The model evaluator responsible for evaluating the constraint.
+            constraint: The valid range of the constraint. Expects a `(lower_bound, upper_bound)`
+                tuple.
         """
+
         assert isinstance(model_evaluator, (ModelEvaluator, AsyncModelEvaluator))
         assert name not in dict(
             self.extra_constraints, **self.objs
@@ -104,6 +111,17 @@ class SearchObjectives:
         }
 
     def _filter_objs(self, objs: Dict[str, Dict], field_name: str, query_fn: Callable) -> Dict[str, Dict]:
+        """Filter `objs` by `field_name` and `query_fn`
+
+        Args:
+            objs: Dictionary of objectives or constraints.
+            field_name: The field name to filter by.
+            query_fn: The query function to filter by.
+
+        Returns:
+            A dictionary of objectives or constraints that satisfy the query.
+        """
+
         return {obj_name: obj_dict for obj_name, obj_dict in objs.items() if query_fn(obj_dict[field_name])}
 
     def _eval_objs(
@@ -111,9 +129,23 @@ class SearchObjectives:
         objs: Dict[str, Dict],
         models: List[ArchaiModel],
         dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
-        budgets: Optional[Dict[str, List]] = None,
+        budgets: Optional[Dict[str, List[Any]]] = None,
         progress_bar: bool = False,
     ) -> Dict[str, np.ndarray]:
+        """Evaluate objectives or constraints.
+
+        Args:
+            objs: Dictionary of objectives or constraints.
+            models: List of models to evaluate.
+            dataset_providers: List of dataset providers to evaluate on.
+            budgets: List of budgets to evaluate on.
+            progress_bar: If `True`, a progress bar is displayed.
+
+        Returns:
+            A dictionary of objective or constraint values.
+
+        """
+
         if not objs or not models:
             return {}
 
@@ -205,6 +237,17 @@ class SearchObjectives:
     def _get_valid_arch_indices(
         self, objs_or_constraints: Dict[str, Dict], results: Dict[str, np.ndarray]
     ) -> np.ndarray:
+        """Get the indices of architectures that satisfy all constraints.
+
+        Args:
+            objs_or_constraints: Dictionary of objectives or constraints.
+            results: Dictionary of objective or constraint values.
+
+        Returns:
+            A numpy array of valid architecture indices.
+
+        """
+
         eval_lens = {len(r) for r in results.values()}
         assert len(eval_lens) == 1
 
@@ -227,17 +270,19 @@ class SearchObjectives:
         dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
         progress_bar: bool = False,
     ) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
-        """Evaluates constraints for a list of models and returns the indices of models that satisfy all constraints.
+        """Evaluates constraints for a list of models and returns the indices of models that
+        satisfy all constraints.
 
         Args:
-            models (List[ArchaiModel]): List of models to evaluate.
-            dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): Dataset provider or list of dataset providers.
-            progress_bar (bool, optional): Whether to show progress bar. Defaults to False.
+            models: List of models to evaluate.
+            dataset_providers: Dataset provider or list of dataset providers.
+            progress_bar: Whether to show progress bar.
 
         Returns:
-            Tuple[Dict[str, np.ndarray], np.ndarray]: Tuple containing evaluation results
-                and indices of models that satisfy all constraints.
+            Evaluation results and indices of models that satisfy all constraints.
+
         """
+
         # Gets all constraints from cheap_objectives and extra_constraints
         constraints = dict(
             self.extra_constraints, **self._filter_objs(self.cheap_objs, "constraint", lambda x: x is not None)
@@ -254,12 +299,14 @@ class SearchObjectives:
         """Checks if a model satisfies all constraints.
 
         Args:
-            model (ArchaiModel): Model to check.
-            dataset_provider (DatasetProvider): Dataset provider.
+            model: Model to check.
+            dataset_provider: Dataset provider.
 
         Returns:
-            bool: True if model is valid, False otherwise.
+            `True` if model is valid, `False` otherwise.
+
         """
+
         _, idx = self.validate_constraints([model], dataset_provider, progress_bar=False)
         return len(idx) > 0
 
@@ -273,18 +320,16 @@ class SearchObjectives:
         """Evaluates all cheap objectives for a list of models and dataset provider(s).
 
         Args:
-            models (List[ArchaiModel]): List of models to evaluate.
-
-            dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): Dataset provider or
-                list of dataset providers.
-
-            budgets (Optional[Dict[str, List]], optional): Budgets for each objective. Defaults to None.
-
-            progress_bar (bool, optional): Weather to show progress bar. Defaults to False.
+            models: List of models to evaluate.
+            dataset_providers: Dataset provider or list of dataset providers.
+            budgets: Budgets for each objective.
+            progress_bar: Whether to show progress bar.
 
         Returns:
-            Dict[str, np.ndarray]: Dictionary with evaluation results.
+            Dictionary with evaluation results.
+
         """
+
         return self._eval_objs(self.cheap_objs, models, dataset_providers, budgets, progress_bar)
 
     def eval_expensive_objs(
@@ -294,22 +339,20 @@ class SearchObjectives:
         budgets: Optional[Dict[str, List]] = None,
         progress_bar: bool = False,
     ) -> Dict[str, np.ndarray]:
-        """Evaluates all expensive objective functions for a list of models and dataset provider(s).
+        """Evaluates all expensive objective functions for a list of models and
+        dataset provider(s).
 
         Args:
-            models (List[ArchaiModel]): List of models to evaluate.
-
-            dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): Dataset provider or
-                list of dataset providers.
-
-            budgets (Optional[Dict[str, List]], optional): Budgets for each objective.
-                Defaults to None.
-
-            progress_bar (bool, optional): Weather to show progress bar. Defaults to False.
+            models: List of models to evaluate.
+            dataset_providers: Dataset provider or list of dataset providers.
+            budgets: Budgets for each objective.
+            progress_bar: Whether to show progress bar. Defaults to False.
 
         Returns:
-            Dict[str, np.ndarray]: Dictionary with evaluation results.
+            Dictionary with evaluation results.
+
         """
+
         return self._eval_objs(self.exp_objs, models, dataset_providers, budgets, progress_bar)
 
     def eval_all_objs(
@@ -322,35 +365,35 @@ class SearchObjectives:
         """Evaluates all objective functions for a list of models and dataset provider(s).
 
         Args:
-            models (List[ArchaiModel]): List of models to evaluate.
-
-            dataset_providers (Union[DatasetProvider, List[DatasetProvider]]): Dataset provider or
-                list of dataset providers.
-
-            budgets (Optional[Dict[str, List]], optional): Budgets for each objective.
-                Defaults to None.
-
-            progress_bar (bool, optional): Weather to show progress bar. Defaults to False.
+            models: List of models to evaluate.
+            dataset_providers: Dataset provider or list of dataset providers.
+            budgets: Budgets for each objective.
+            progress_bar: Whether to show progress bar.
 
         Returns:
-            Dict[str, np.ndarray]: Dictionary with evaluation results.
+            Dictionary with evaluation results.
+
         """
+
         return self._eval_objs(dict(self.exp_objs, **self.cheap_objs), models, dataset_providers, budgets, progress_bar)
 
-    def save_cache(self, path: str) -> None:
+    def save_cache(self, file_path: str) -> None:
         """Saves the state of the SearchObjectives object to a YAML file.
 
         Args:
-            path (str): Path to save YAML file.
+            file_path: Path to save YAML file.
+
         """
-        with open(path, "w", encoding="utf-8") as f:
+
+        with open(file_path, "w", encoding="utf-8") as f:
             yaml.dump(self.cache, f)
 
-    def load_cache(self, path: str) -> None:
+    def load_cache(self, file_path: str) -> None:
         """Loads the state of the SearchObjectives object from a YAML file.
 
         Args:
-            path (str): Path to YAML file.
+            file_path: Path to YAML file.
         """
-        with open(path, "r", encoding="utf-8") as f:
+
+        with open(file_path, "r", encoding="utf-8") as f:
             self.cache = yaml.load(f)
