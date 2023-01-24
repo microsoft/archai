@@ -10,9 +10,9 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-from archai.common.logger import Logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 
-logger = Logger(source=__name__)
+logger = OrderedDictLogger(source=__name__)
 
 
 class TensorpackLmdbDataset(Dataset):

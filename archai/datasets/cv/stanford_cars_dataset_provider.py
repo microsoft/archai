@@ -9,9 +9,9 @@ from torchvision.datasets import StanfordCars
 from torchvision.transforms import ToTensor
 
 from archai.api.dataset_provider import DatasetProvider
-from archai.common.logger import Logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 
-logger = Logger(source=__name__)
+logger = OrderedDictLogger(source=__name__)
 
 
 class StanfordCarsDatasetProvider(DatasetProvider):

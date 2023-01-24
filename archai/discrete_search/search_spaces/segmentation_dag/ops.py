@@ -1,16 +1,27 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from functools import partial
-from torch import nn
+
 import torch
+from torch import nn
+
 
 class NormalConvBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int,
-                 kernel_size: int = 3, stride: int = 1,
-                 padding: int = 1, bias: bool = True, **kwargs):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int = 3,
+        stride: int = 1,
+        padding: int = 1,
+        bias: bool = True,
+        **kwargs
+    ):
         super().__init__()
 
         self.conv = nn.Conv2d(
-            in_channels, out_channels, kernel_size=kernel_size,
-            stride=stride, padding=padding, bias=bias
+            in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding, bias=bias
         )
 
         self.bn = nn.BatchNorm2d(out_channels)
@@ -21,9 +32,17 @@ class NormalConvBlock(nn.Module):
 
 
 class SeparableConvBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, kernel_size: int = 3, stride: int = 1,
-                 padding: int = 1, expand_ratio: float = 1.0, id_skip: bool = False,
-                 bias: bool = True):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: int = 3,
+        stride: int = 1,
+        padding: int = 1,
+        expand_ratio: float = 1.0,
+        id_skip: bool = False,
+        bias: bool = True,
+    ):
         super().__init__()
 
         self.in_channels = in_channels
@@ -44,8 +63,13 @@ class SeparableConvBlock(nn.Module):
 
         # Depthwise convolution phase
         self._depthwise_conv = nn.Conv2d(
-            in_channels=oup, out_channels=oup, groups=oup,  # groups makes it depthwise
-            kernel_size=kernel_size, stride=stride, bias=bias, padding=padding
+            in_channels=oup,
+            out_channels=oup,
+            groups=oup,  # groups makes it depthwise
+            kernel_size=kernel_size,
+            stride=stride,
+            bias=bias,
+            padding=padding,
         )
         self._bn1 = nn.BatchNorm2d(num_features=oup)
 
@@ -71,14 +95,15 @@ class SeparableConvBlock(nn.Module):
 
         return out
 
+
 OPS = {
-    'conv3x3': partial(NormalConvBlock, kernel_size=3, padding=1),
-    'conv5x5': partial(NormalConvBlock, kernel_size=5, padding=2),
-    'conv7x7': partial(NormalConvBlock, kernel_size=7, padding=3),
-    'mbconv3x3_e1': partial(SeparableConvBlock, kernel_size=3, padding=1),
-    'mbconv3x3_e2': partial(SeparableConvBlock, kernel_size=3, padding=1, expand_ratio=2),
-    'mbconv5x5_e1': partial(SeparableConvBlock, kernel_size=5, padding=2),
-    'mbconv5x5_e2': partial(SeparableConvBlock, kernel_size=5, padding=2, expand_ratio=2),
+    "conv3x3": partial(NormalConvBlock, kernel_size=3, padding=1),
+    "conv5x5": partial(NormalConvBlock, kernel_size=5, padding=2),
+    "conv7x7": partial(NormalConvBlock, kernel_size=7, padding=3),
+    "mbconv3x3_e1": partial(SeparableConvBlock, kernel_size=3, padding=1),
+    "mbconv3x3_e2": partial(SeparableConvBlock, kernel_size=3, padding=1, expand_ratio=2),
+    "mbconv5x5_e1": partial(SeparableConvBlock, kernel_size=5, padding=2),
+    "mbconv5x5_e2": partial(SeparableConvBlock, kernel_size=5, padding=2, expand_ratio=2),
 }
 
 
@@ -93,13 +118,11 @@ class Block(nn.Module):
         assert (out_scale % in_scale == 0) or (in_scale % out_scale == 0)
 
         if out_scale >= in_scale:
-            self.op = nn.Sequential(
-                OPS[op_name](in_ch, out_ch, stride=int(out_scale // in_scale))
-            )
+            self.op = nn.Sequential(OPS[op_name](in_ch, out_ch, stride=int(out_scale // in_scale)))
         else:
             self.op = nn.Sequential(
                 OPS[op_name](in_ch, out_ch, stride=1),
-                nn.Upsample(scale_factor=int(in_scale // out_scale), mode='nearest')
+                nn.Upsample(scale_factor=int(in_scale // out_scale), mode="nearest"),
             )
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:

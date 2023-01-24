@@ -9,13 +9,13 @@ import numpy as np
 import torch
 
 from archai.common.file_utils import get_full_path
-from archai.common.logger import Logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer import BbpeTokenizer
 from archai.datasets.nlp.tokenizer_utils.gpt2_tokenizer import Gpt2Tokenizer
 from archai.datasets.nlp.tokenizer_utils.tokenizer_base import TokenizerBase
 from archai.datasets.nlp.tokenizer_utils.word_tokenizer import WordTokenizer
 
-logger = Logger(source=__name__)
+logger = OrderedDictLogger(source=__name__)
 
 
 def delete_file(file_path: str) -> bool:

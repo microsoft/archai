@@ -14,10 +14,10 @@ from typing import Any, Dict, List, Optional, Union
 
 import yaml
 
-from archai.common.logger_utils import get_logger
+from archai.common.ordered_dict_logger_utils import get_logger
 
 
-class Logger:
+class OrderedDictLogger:
     """Log and save data in a hierarchical YAML structure."""
 
     def __init__(
@@ -47,7 +47,7 @@ class Logger:
             backup_file_path = pathlib.Path(self.file_path)
             backup_file_path.rename(backup_file_path.with_suffix(f".{str(int(time.time()))}.yaml"))
 
-    def __enter__(self) -> Logger:
+    def __enter__(self) -> OrderedDictLogger:
         """Context manager entry method.
 
         Returns:
@@ -278,7 +278,7 @@ class Logger:
 
         self.log(obj, level=logging.ERROR, override_key=override_key)
 
-    def pushd(self, *keys: Any) -> Logger:
+    def pushd(self, *keys: Any) -> OrderedDictLogger:
         """Push the provided keys onto the current path stack.
 
         Returns:

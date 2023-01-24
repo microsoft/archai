@@ -7,14 +7,14 @@ from typing import Optional
 import numpy as np
 import torch
 
-from archai.common.logger import Logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.onnx.config_utils.codegen_onnx_config import CodeGenOnnxConfig
 from archai.onnx.config_utils.gpt2_onnx_config import GPT2FlexOnnxConfig, GPT2OnnxConfig
 from archai.onnx.config_utils.onnx_config_base import OnnxConfig
 from archai.onnx.export_utils import prepare_model_for_onnx, weight_sharing
 from archai.onnx.onnx_loader import load_from_onnx
 
-logger = Logger(source=__name__)
+logger = OrderedDictLogger(source=__name__)
 
 AVAILABLE_ONNX_CONFIGS = {"codegen": CodeGenOnnxConfig, "gpt2": GPT2OnnxConfig, "gpt2-flex": GPT2FlexOnnxConfig}
 

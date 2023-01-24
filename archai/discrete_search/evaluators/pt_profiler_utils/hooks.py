@@ -2,7 +2,6 @@
 # Licensed under the MIT License.
 # https://github.com/microsoft/DeepSpeed/blob/master/deepspeed/profiling/flops_profiler/profiler.py
 
-
 from collections import OrderedDict
 from typing import Callable, List, Optional, Tuple, Union
 

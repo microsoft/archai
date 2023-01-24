@@ -8,11 +8,11 @@ from onnxruntime.transformers.onnx_model_gpt2 import Gpt2OnnxModel
 from onnxruntime.transformers.optimizer import optimize_by_onnxruntime
 
 from archai.common.file_utils import create_file_name_identifier
-from archai.common.logger import Logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.onnx.config_utils.onnx_config_base import OnnxConfig
 from archai.onnx.optimization_utils.fusion_options import FusionOptions
 
-logger = Logger(source=__name__)
+logger = OrderedDictLogger(source=__name__)
 
 AVAILABLE_ONNX_MODELS = {"gpt2": Gpt2OnnxModel, "gpt2-flex": Gpt2OnnxModel}
 

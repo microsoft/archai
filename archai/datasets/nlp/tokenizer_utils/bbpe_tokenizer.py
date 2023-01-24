@@ -11,15 +11,15 @@ from tokenizers import ByteLevelBPETokenizer
 from transformers import PreTrainedTokenizerFast
 
 from archai.common.distributed_utils import sync_workers
-from archai.common.logger import Logger
 from archai.common.file_utils import copy_file, get_full_path
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.datasets.nlp.tokenizer_utils.token_config import (
     SpecialTokenEnum,
     TokenConfig,
 )
 from archai.datasets.nlp.tokenizer_utils.tokenizer_base import TokenizerBase
 
-logger = Logger(source=__name__)
+logger = OrderedDictLogger(source=__name__)
 
 
 class BbpeTokenizer(TokenizerBase):

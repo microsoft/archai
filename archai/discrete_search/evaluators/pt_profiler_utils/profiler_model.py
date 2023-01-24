@@ -2,7 +2,6 @@
 # Licensed under the MIT License.
 # https://github.com/microsoft/DeepSpeed/blob/master/deepspeed/profiling/flops_profiler/profiler.py
 
-
 import time
 from functools import partial
 from typing import List, Optional

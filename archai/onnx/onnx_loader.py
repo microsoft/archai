@@ -5,9 +5,9 @@ from os import environ
 
 from onnxruntime import GraphOptimizationLevel, InferenceSession, SessionOptions
 
-from archai.common.logger import Logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 
-logger = Logger(source=__name__)
+logger = OrderedDictLogger(source=__name__)
 
 
 def load_from_onnx(onnx_model_path: str) -> InferenceSession:

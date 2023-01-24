@@ -13,10 +13,10 @@ from datasets.utils.version import Version
 from overrides import overrides
 
 from archai.api.dataset_provider import DatasetProvider
-from archai.common.logger import Logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.datasets.nlp.hf_dataset_provider_utils import should_refresh_cache
 
-logger = Logger(source=__name__)
+logger = OrderedDictLogger(source=__name__)
 
 
 class HfHubDatasetProvider(DatasetProvider):

@@ -8,12 +8,12 @@ from overrides import overrides
 from torch.utils.data import ConcatDataset
 
 from archai.api.dataset_provider import DatasetProvider
-from archai.common.logger import Logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.datasets.cv.tensorpack_lmdb_dataset_provider_utils import (
     TensorpackLmdbDataset,
 )
 
-logger = Logger(source=__name__)
+logger = OrderedDictLogger(source=__name__)
 
 
 class TensorpackLmdbDatasetProvider(DatasetProvider):
