@@ -1,19 +1,19 @@
-# Harness
+# LM-Eval-Harness
 
 ## Installation
 
-To install Harness, run the following commands in your command line:
+To install `lm_eval_harness`, run the following commands in your command line:
 
 ```shell
-conda create -n harness python=3.8
-conda activate harness
+conda create -n lm_eval_harness python=3.8
+conda activate lm_eval_harness
 
 pip install -e .
 ```
 
-## Evaluating with LM-Evaluation-Harness (lm-eval)
+## Evaluating with `lm_eval_harness`
 
-To evaluate your model with LM-Evaluation-Harness, run the following command:
+To evaluate your model with `lm_eval_harness`, run the following command:
 
 ```shell
 python evaluate_with_lm_eval.py --help

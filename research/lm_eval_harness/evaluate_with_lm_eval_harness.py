@@ -4,14 +4,13 @@
 import argparse
 import json
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
-
-from harness.lm_eval_evaluator import evaluate_wrapper
-from harness.lm_eval_hf_model import HFEvalModel
-from harness.tasks.human_eval import HumanEval
-from harness.utils.regex import MultiChoice, pattern_match
 from lm_eval.evaluator import make_table
 from lm_eval.tasks import ALL_TASKS, TASK_REGISTRY
+from lm_eval_harness.lm_eval_evaluator import evaluate_wrapper
+from lm_eval_harness.lm_eval_hf_model import HFEvalModel
+from lm_eval_harness.tasks.human_eval import HumanEval
+from lm_eval_harness.utils.regex import MultiChoice, pattern_match
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 # Ensures additional tasks are loaded and registered
 ALL_TASKS.append("human_eval")
@@ -112,7 +111,7 @@ if __name__ == "__main__":
     model = AutoModelForCausalLM.from_pretrained(args.pre_trained_model_path)
     tokenizer = AutoTokenizer.from_pretrained(args.hub_tokenizer_path)
     hf_model = HFEvalModel(model, tokenizer)
-    
+
     outputs = evaluate_wrapper(
         hf_model,
         task_names,

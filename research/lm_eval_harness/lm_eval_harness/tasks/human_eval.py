@@ -6,9 +6,9 @@ from typing import Any, Dict, List
 
 from datasets.arrow_dataset import Dataset
 from evaluate import load
-from harness.utils.request_factory import Request, rf
 from lm_eval.base import Task
 from lm_eval.metrics import mean
+from lm_eval_harness.utils.request_factory import Request, rf
 
 # Allow code evaluation
 os.environ["HF_ALLOW_CODE_EVAL"] = "1"

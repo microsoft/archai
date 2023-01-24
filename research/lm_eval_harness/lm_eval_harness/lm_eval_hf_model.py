@@ -4,16 +4,20 @@
 from typing import List, Optional
 
 import torch
-from harness.utils.multiple_token_stopping_criteria import MultipleTokenStoppingCriteria
-from harness.utils.request_factory import Request
 from lm_eval.base import BaseLM
+from lm_eval_harness.utils.multiple_token_stopping_criteria import (
+    MultipleTokenStoppingCriteria,
+)
+from lm_eval_harness.utils.request_factory import Request
 from tqdm import tqdm
 from transformers.generation.stopping_criteria import StoppingCriteriaList
 from transformers.tokenization_utils import PreTrainedTokenizer
 
 
 class HFEvalModel(BaseLM):
-    def __init__(self, model: torch.nn.Module, tokenizer: PreTrainedTokenizer, force_attention_mask: Optional[bool] = False) -> None:
+    def __init__(
+        self, model: torch.nn.Module, tokenizer: PreTrainedTokenizer, force_attention_mask: Optional[bool] = False
+    ) -> None:
         super().__init__()
 
         self._device = torch.device("cpu")

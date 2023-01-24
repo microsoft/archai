@@ -2,15 +2,15 @@
 # Licensed under the MIT license.
 
 import random
-from typing import List, Optional
 from hashlib import sha1
+from typing import List, Optional
 
 import numpy as np
-from harness.lm_eval_hf_model import HFEvalModel
 from lm_eval.base import CachingLM
 from lm_eval.evaluator import evaluate
 from lm_eval.tasks import get_task_dict
 from lm_eval.utils import run_task_tests
+from lm_eval_harness.lm_eval_hf_model import HFEvalModel
 
 
 def evaluate_wrapper(
