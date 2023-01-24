@@ -13,7 +13,7 @@ class MeasureBlockTime:
     """Context manager that measures the time elapsed in a block of code."""
 
     def __init__(self, name: str, disable_gc: Optional[bool] = False, verbose: Optional[bool] = False) -> None:
-        """Initilizes the timer.
+        """Initilize the timer.
 
         Args:
             name: Name of the timer.

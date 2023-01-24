@@ -18,12 +18,12 @@ from archai.common.logger_utils import get_logger
 
 
 class Logger:
-    """Logs and saves data in a hierarchical YAML structure."""
+    """Log and save data in a hierarchical YAML structure."""
 
     def __init__(
         self, source: Optional[str] = None, file_path: Optional[str] = "archai.log.yaml", delay: Optional[float] = 30.0
     ) -> None:
-        """Initializes the logger.
+        """Initialize the logger.
 
         Args:
             source: Source of the logger.

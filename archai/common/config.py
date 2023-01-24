@@ -51,7 +51,7 @@ class Config(UserDict):
         cl_description: Optional[str] = None,
         resolve_redirect: Optional[bool] = True,
     ) -> None:
-        """Initializes a configuration object.
+        """Initialize a configuration object.
 
         Args:
             file_path: Path to YAML-based configuration file.
@@ -197,7 +197,7 @@ class Config(UserDict):
         return 2  # Path was found or created, increment arg pointer by 2 as we use up val
 
     def to_dict(self) -> Dict[str, Any]:
-        """Converts the `Config` object to a dictionary.
+        """Convert the `Config` object to a dictionary.
 
         Returns:
             `Config` represented as a dictionary.

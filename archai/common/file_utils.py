@@ -107,7 +107,7 @@ def create_file_name_identifier(file_name: str, identifier: str) -> str:
 
 
 def create_empty_file(file_path: str) -> None:
-    """Creates an empty file at the given path.
+    """Create an empty file at the given path.
 
     Args:
         file_path: The path to the file to be created.
@@ -118,7 +118,7 @@ def create_empty_file(file_path: str) -> None:
 
 
 def create_file_with_string(file_path: str, content: str) -> None:
-    """Creates a file at the given path and writes the given string to it.
+    """Create a file at the given path and writes the given string to it.
 
     Args:
         file_path: The path to the file to be created.
