@@ -10,12 +10,12 @@ import yaml
 from torch.utils.tensorboard.writer import SummaryWriter
 
 from archai.common.config import Config
-from archai.common.ordered_dict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.utils import utils
 from archai.supergraph.utils.apex_utils import ApexUtils
 from send2trash import send2trash
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 class SummaryWriterDummy:
@@ -36,7 +36,7 @@ _atexit_reg = False # is hook for atexit registered?
 def get_conf(conf:Optional[Config]=None)->Config:
     if conf is not None:
         return conf
-    return Config.get_inst()
+    return Config.get_instance()
 
 def get_conf_common(conf:Optional[Config]=None)->Config:
     return get_conf(conf)['common']
@@ -60,9 +60,10 @@ def get_tb_writer() -> SummaryWriterAny:
 
 class CommonState:
     def __init__(self) -> None:
-        global _tb_writer
-        self.tb_writer = _tb_writer
+        global _logger, _conf, _tb_writer
+        self.logger = get_global_logger()
         self.conf = get_conf()
+        self.tb_writer = _tb_writer
 
 def on_app_exit():
     print('Process exit:', os.getpid(), flush=True)
@@ -103,7 +104,7 @@ def get_state()->CommonState:
 def init_from(state:CommonState)->None:
     global _tb_writer
 
-    Config.set_inst(state.conf)
+    Config.set_instance(state.conf)
 
     _tb_writer = state.tb_writer
 
@@ -119,9 +120,9 @@ def create_conf(config_filepath: Optional[str]=None,
     if 'default_dataroot' not in os.environ:
         os.environ['default_dataroot'] = default_dataroot()
 
-    conf = Config(config_filepath=config_filepath,
-                  param_args=param_overrides,
-                  use_args=use_args)
+    conf = Config(file_path=config_filepath,
+                  args=param_overrides,
+                  parse_cl_args=use_args)
     _update_conf(conf)
 
     return conf
@@ -138,10 +139,9 @@ def common_init(config_filepath: Optional[str]=None,
     # if not utils.is_main_process():
     #     raise RuntimeError('common_init should not be called from child process. Please use Common.init_from()')
 
-    conf = create_conf(config_filepath, param_args, use_args)
-
     # setup global instance
-    Config.set_inst(conf)
+    conf = create_conf(config_filepath, param_args, use_args)
+    Config.set_instance(conf)
 
     # setup env vars which might be used in paths
     update_envvars(conf)

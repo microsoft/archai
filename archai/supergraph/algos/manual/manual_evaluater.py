@@ -13,12 +13,12 @@ from archai.supergraph.utils import ml_utils
 
 from archai.common.config import Config
 
-from archai.common.ordered_dict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.evaluater import Evaluater
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 class ManualEvaluater(Evaluater):

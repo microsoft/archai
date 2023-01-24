@@ -19,7 +19,7 @@ from torch.nn.parallel import DistributedDataParallel
 
 from archai.api.trainer_base import TrainerBase
 from archai.common.distributed_utils import all_reduce, sync_workers
-from archai.common.ordered_dict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.datasets.nlp.nvidia_data_loader_provider import NvidiaDataLoaderProvider
 from archai.datasets.nlp.nvidia_dataset_provider import NvidiaDatasetProvider
 from archai.quantization.mixed_qat import MixedQAT
@@ -28,7 +28,7 @@ from archai.trainers.cyclic_cosine_scheduler import CyclicCosineDecayLR
 from archai.trainers.lamb_optimizer import JITLamb, Lamb
 from archai.trainers.nlp.nvidia_training_args import NvidiaTrainingArguments
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 def save_checkpoint(

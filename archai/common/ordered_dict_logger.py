@@ -161,7 +161,7 @@ class OrderedDictLogger:
         value: Any,
         node: Optional[OrderedDict] = None,
         path: Optional[List[str]] = None,
-        override_key: Optional[bool] = False,
+        override_key: Optional[bool] = True,
     ) -> None:
         """Update a key in a node in the current stack.
 
@@ -189,7 +189,7 @@ class OrderedDictLogger:
             current_node = current_node[p]
         current_node[str(key)] = value
 
-    def update(self, obj: Dict[str, Any], override_key: Optional[bool] = False) -> None:
+    def update(self, obj: Dict[str, Any], override_key: Optional[bool] = True) -> None:
         """Update the current node with the key-value pairs in the provided object.
 
         Args:
@@ -202,7 +202,7 @@ class OrderedDictLogger:
             self.update_key(k, v, override_key=override_key)
 
     def log(
-        self, obj: Union[Dict[str, Any], str], level: Optional[int] = None, override_key: Optional[bool] = False
+        self, obj: Union[Dict[str, Any], str], level: Optional[int] = None, override_key: Optional[bool] = True
     ) -> None:
         """Log the provided dictionary/string at the specified level.
 
@@ -234,7 +234,7 @@ class OrderedDictLogger:
             self.save()
             self.timestamp = time.time()
 
-    def info(self, obj: Union[Dict[str, Any], str], override_key: Optional[bool] = False) -> None:
+    def info(self, obj: Union[Dict[str, Any], str], override_key: Optional[bool] = True) -> None:
         """Log the provided dictionary/string at the `info` level.
 
         Args:
@@ -245,7 +245,7 @@ class OrderedDictLogger:
 
         self.log(obj, level=logging.INFO, override_key=override_key)
 
-    def debug(self, obj: Union[Dict[str, Any], str], override_key: Optional[bool] = False) -> None:
+    def debug(self, obj: Union[Dict[str, Any], str], override_key: Optional[bool] = True) -> None:
         """Log the provided dictionary/string at the `debug` level.
 
         Args:
@@ -256,7 +256,7 @@ class OrderedDictLogger:
 
         self.log(obj, level=logging.DEBUG, override_key=override_key)
 
-    def warn(self, obj: Union[Dict[str, Any], str], override_key: Optional[bool] = False) -> None:
+    def warn(self, obj: Union[Dict[str, Any], str], override_key: Optional[bool] = True) -> None:
         """Log the provided dictionary/string at the `warning` level.
 
         Args:
@@ -267,7 +267,7 @@ class OrderedDictLogger:
 
         self.log(obj, level=logging.WARNING, override_key=override_key)
 
-    def error(self, obj: Union[Dict[str, Any], str], override_key: Optional[bool] = False) -> None:
+    def error(self, obj: Union[Dict[str, Any], str], override_key: Optional[bool] = True) -> None:
         """Log the provided dictionary/string at the `error` level.
 
         Args:
@@ -300,3 +300,53 @@ class OrderedDictLogger:
 
         self.stack.pop()
         self.paths.pop()
+
+    @staticmethod
+    def set_instance(instance: OrderedDictLogger) -> None:
+        """Set a global logger instance.
+        
+        Args:
+            instance: Instance to be set globally.
+            
+        """
+
+        global _logger
+        _logger = instance
+
+    @staticmethod
+    def get_instance() -> OrderedDictLogger:
+        """Get a global logger instance.
+        
+        Returns:
+            Global logger.s
+            
+        """
+        
+        global _logger
+        return _logger
+
+
+def get_global_logger() -> OrderedDictLogger:
+    """
+    """
+    
+    try:
+        OrderedDictLogger.get_instance()
+    except:
+        logger = OrderedDictLogger()
+        OrderedDictLogger.set_instance(logger)
+
+    return OrderedDictLogger.get_instance()
+
+
+# def get_logger(logger:Optional[OrderedDictLogger]=None)->OrderedDictLogger:
+#     if logger is not None:
+#         return logger
+    
+#     try:
+#         OrderedDictLogger.get_instance()
+#     except:
+#         logger = OrderedDictLogger()
+#         OrderedDictLogger.set_instance(logger)
+
+#     return OrderedDictLogger.get_instance()

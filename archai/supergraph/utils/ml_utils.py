@@ -27,9 +27,9 @@ from archai.trainers.losses import SmoothCrossEntropyLoss
 
 def create_optimizer(conf_opt: Config, params) -> Optimizer:
     optim_type = conf_opt["type"]
-    lr = conf_opt.get_val("lr", math.nan)
-    decay = conf_opt.get_val("decay", math.nan)
-    decay_bn = conf_opt.get_val("decay_bn", math.nan)  # some optim may not support weight decay
+    lr = conf_opt.get("lr", math.nan)
+    decay = conf_opt.get("decay", math.nan)
+    decay_bn = conf_opt.get("decay_bn", math.nan)  # some optim may not support weight decay
 
     if not math.isnan(decay_bn):
         bn_params = [v for n, v in params if "bn" in n]
@@ -91,7 +91,7 @@ def create_lr_scheduler(
     # epoch_or_step - apply every epoch or every step
     scheduler, epoch_or_step = None, True  # by default sched step on epoch
 
-    conf_warmup = conf_lrs.get_val("warmup", None)
+    conf_warmup = conf_lrs.get("warmup", None)
     warmup_epochs = 0
     if conf_warmup is not None and "epochs" in conf_warmup:
         warmup_epochs = conf_warmup["epochs"]
@@ -131,7 +131,7 @@ def create_lr_scheduler(
         if warmup_epochs:
             scheduler = GradualWarmupScheduler(
                 optimizer,
-                multiplier=conf_lrs["warmup"].get_val("multiplier", 1.0),
+                multiplier=conf_lrs["warmup"].get("multiplier", 1.0),
                 total_epoch=warmup_epochs,
                 after_scheduler=scheduler,
             )

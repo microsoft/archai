@@ -13,11 +13,12 @@ from torch import Tensor
 
 import yaml
 
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.utils import ml_utils, utils
 from archai.supergraph.utils.common import get_tb_writer
 from archai.supergraph.utils.apex_utils import ApexUtils
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 class Metrics:
@@ -51,7 +52,7 @@ class Metrics:
     def _reset_run(self)->None:
         self.run_metrics = RunMetrics()
         self.global_step = -1
-        self._tb_path = logger.path()
+        self._tb_path = logger.current_path
 
     def pre_run(self)->None:
         self._reset_run()

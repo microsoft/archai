@@ -14,7 +14,7 @@ from archai.supergraph.utils.metrics import Accumulator
 from archai.supergraph.datasets.data import get_dataloaders
 from archai.supergraph.models import get_model, num_class
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 # TODO: remove scheduler parameter?

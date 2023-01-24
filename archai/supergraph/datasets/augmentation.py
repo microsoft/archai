@@ -12,10 +12,10 @@ import PIL, PIL.ImageOps, PIL.ImageEnhance, PIL.ImageDraw
 import numpy as np
 
 from archai.supergraph.datasets.aug_policies import fa_reduced_cifar10, fa_reduced_svhn, fa_resnet50_rimagenet
-from archai.common.ordered_dict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.datasets.cv.transforms.custom_cutout import CustomCutout
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 _random_mirror = True
 
 

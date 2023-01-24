@@ -3,7 +3,7 @@ import json
 from archai.supergraph.utils.augmented_trainer import train_and_eval
 from archai.supergraph.utils.common import common_init, expdir_abspath, logger
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 if __name__ == "__main__":

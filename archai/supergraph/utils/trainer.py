@@ -15,13 +15,13 @@ from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.utils.tester import Tester
 from archai.common.config import Config
 from archai.supergraph.utils import ml_utils
-from archai.common.ordered_dict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.datasets import data
 from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.supergraph.utils.apex_utils import ApexUtils
 from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 class Trainer(EnforceOverrides):
@@ -46,7 +46,7 @@ class Trainer(EnforceOverrides):
 
         logger.pushd(self._title + '__init__')
 
-        self._apex = ApexUtils(conf_apex, logger)
+        self._apex = ApexUtils(conf_apex)
 
         self._checkpoint = checkpoint
         self.model = model

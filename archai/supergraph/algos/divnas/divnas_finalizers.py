@@ -9,7 +9,7 @@ from torch import nn
 
 from archai.supergraph.utils.common import get_conf
 
-from archai.common.ordered_dict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.datasets.data import get_data
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.cell import Cell
@@ -19,7 +19,7 @@ from archai.supergraph.algos.divnas.analyse_activations import compute_brute_for
 from archai.supergraph.algos.divnas.divop import DivOp
 from archai.supergraph.algos.divnas.divnas_cell import Divnas_Cell
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 class DivnasFinalizers(Finalizers):

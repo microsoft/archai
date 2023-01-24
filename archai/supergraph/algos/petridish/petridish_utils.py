@@ -18,10 +18,10 @@ import matplotlib.pyplot as plt
 from archai.supergraph.nas.model_desc import ModelDesc
 from archai.supergraph.utils.metrics import Metrics
 
-from archai.common.ordered_dict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.utils import utils
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 class JobStage(Enum):

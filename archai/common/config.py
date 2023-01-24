@@ -66,22 +66,23 @@ class Config(UserDict):
         super().__init__()
 
         args = args or []
-        extra_args = []
+        extra_cl_args = []
 
         if parse_cl_args:
             parser = argparse.ArgumentParser(description=cl_description)
             parser.add_argument(
-                "-c" "--config",
+                "-c",
+                "--config",
                 type=str,
                 default=None,
-                help="YAML-based configuration file-paths (separated by `,` if multiple).",
+                help="YAML-based configuration file-paths (separated by `;` if multiple).",
             )
 
-            args, extra_args = parser.parse_known_args()
-            file_path = args.config or file_path
+            cl_args, extra_cl_args = parser.parse_known_args()
+            file_path = cl_args.config or file_path
 
         if file_path:
-            for fp in file_path.strip().split(","):
+            for fp in file_path.strip().split(";"):
                 self._load(fp.strip())
 
         # Create a copy and resolve it, which can be used to search for overrides
@@ -92,7 +93,7 @@ class Config(UserDict):
 
         # Update with additional arguments
         self._update_from_args(args, r_config)  # Merge from supplied args
-        self._update_from_args(extra_args, r_config)  # Merge from command line args
+        self._update_from_args(extra_cl_args, r_config)  # Merge from command line args
 
         if resolve_redirect:
             resolve_all_values(self)
@@ -132,7 +133,7 @@ class Config(UserDict):
 
             for include in includes:
                 include_file_path = os.path.join(os.path.dirname(file_path), include)
-                self._load_from_file(include_file_path)
+                self._load(include_file_path)
 
     def _update_from_args(self, args: List[Any], resolved_section: Config) -> None:
         """Update the configuration from extra/command line arguments.
@@ -219,3 +220,27 @@ class Config(UserDict):
         """
 
         return super().get(key, default_value)
+
+    @staticmethod
+    def set_instance(instance: Config) -> None:
+        """Set a global configuration instance.
+        
+        Args:
+            instance: Instance to be set globally.
+            
+        """
+
+        global _config
+        _config = instance
+
+    @staticmethod
+    def get_instance() -> Config:
+        """Get a global configuration instance.
+        
+        Returns:
+            Global configuration.
+            
+        """
+        
+        global _config
+        return _config

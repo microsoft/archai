@@ -16,7 +16,7 @@ from ray.tune.trial import Trial
 from tqdm import tqdm
 
 from archai.common.config import Config
-from archai.common.ordered_dict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.utils.common import expdir_abspath
 from archai.supergraph.utils.metrics import Accumulator
 from archai.supergraph.utils.stopwatch import StopWatch
@@ -25,7 +25,7 @@ from archai.supergraph.datasets.augmentation import policy_decoder, remove_depli
 from archai.supergraph.datasets.data import get_dataloaders
 from archai.supergraph.models import get_model, num_class
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 # this method is overriden version of ray.tune.trial_runner.TrialRunner.step using monkey patching

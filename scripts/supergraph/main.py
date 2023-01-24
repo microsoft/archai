@@ -4,6 +4,7 @@
 import argparse
 from typing import Dict, Type
 
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.algos.darts.darts_exp_runner import DartsExperimentRunner
 from archai.supergraph.algos.didarts.didarts_exp_runner import DiDartsExperimentRunner
 from archai.supergraph.algos.divnas.divnas_exp_runner import DivnasExperimentRunner
@@ -90,3 +91,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    logger = get_global_logger()
+    logger.close()

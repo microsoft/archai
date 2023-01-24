@@ -19,11 +19,11 @@ import ray
 import psutil
 
 from archai.common.config import Config
-from archai.common.ordered_dict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.utils import ml_utils, utils
 from archai.supergraph.utils.multi_optim import MultiOptim
 
-logger = OrderedDictLogger(source=__name__)
+logger = get_global_logger()
 
 
 class ApexUtils:
@@ -183,7 +183,7 @@ class ApexUtils:
 
     def _log_info(self, d:dict)->None:
         if logger is not None:
-            logger.info(d)
+            logger.info(d, override_key=True)
 
     def sync_devices(self)->None:
         if self.is_dist():
