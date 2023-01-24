@@ -304,10 +304,10 @@ class OrderedDictLogger:
     @staticmethod
     def set_instance(instance: OrderedDictLogger) -> None:
         """Set a global logger instance.
-        
+
         Args:
             instance: Instance to be set globally.
-            
+
         """
 
         global _logger
@@ -316,20 +316,27 @@ class OrderedDictLogger:
     @staticmethod
     def get_instance() -> OrderedDictLogger:
         """Get a global logger instance.
-        
+
         Returns:
-            Global logger.s
-            
+            Global logger.
+
         """
-        
+
         global _logger
         return _logger
 
 
 def get_global_logger() -> OrderedDictLogger:
+    """Get a global logger instance.
+
+    This method assures that if a global logger instance does not exist,
+    it will be created and set as the global logger instance.
+
+    Returns:
+        Global logger.
+
     """
-    """
-    
+
     try:
         OrderedDictLogger.get_instance()
     except:
@@ -337,16 +344,3 @@ def get_global_logger() -> OrderedDictLogger:
         OrderedDictLogger.set_instance(logger)
 
     return OrderedDictLogger.get_instance()
-
-
-# def get_logger(logger:Optional[OrderedDictLogger]=None)->OrderedDictLogger:
-#     if logger is not None:
-#         return logger
-    
-#     try:
-#         OrderedDictLogger.get_instance()
-#     except:
-#         logger = OrderedDictLogger()
-#         OrderedDictLogger.set_instance(logger)
-
-#     return OrderedDictLogger.get_instance()
