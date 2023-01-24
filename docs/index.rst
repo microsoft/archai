@@ -56,7 +56,7 @@ If you use Archai in a scientific publication, please consider citing it:
    Computer Vision <advanced_guide/cv>
    Natural Language Processing <advanced_guide/nlp>
    Large-Scale Training <advanced_guide/large_scale_training>
-   DevOps <advanced_guide/devops>
+   Cloud-Based Search <advanced_guide/cloud>
 
 .. toctree::
    :hidden:

@@ -1,10 +1,15 @@
 import pytest
 import torch
 
-from archai.discrete_search.search_spaces.segmentation_dag import SegmentationDagSearchSpace
-
-from archai.discrete_search.evaluators.torch_profiler import (
-    TorchNumParameters, TorchFlops, TorchMacs, TorchLatency, TorchCudaPeakMemory
+from archai.discrete_search.evaluators.pt_profiler import (
+    TorchCudaPeakMemory,
+    TorchFlops,
+    TorchLatency,
+    TorchMacs,
+    TorchNumParameters,
+)
+from archai.discrete_search.search_spaces.segmentation_dag import (
+    SegmentationDagSearchSpace,
 )
 
 
@@ -52,19 +57,19 @@ def test_torch_macs(models, sample_input):
 def test_torch_latency(models, sample_input):
     torch_latency = TorchLatency(sample_args=(sample_input,), num_warmups=2, num_samples=2)
     latency = [torch_latency.evaluate(model, None, None) for model in models]
-    assert all(l > 0 for l in latency)
+    assert all(lt > 0 for lt in latency)
 
     torch_latency2 = TorchLatency(sample_args=(sample_input,), num_warmups=0, num_samples=3, use_median=True)
     latency2 = [torch_latency2.evaluate(model, None, None) for model in models]
-    assert all(l > 0 for l in latency2)
+    assert all(lt > 0 for lt in latency2)
 
 
 def test_torch_peak_memory(models, sample_input):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     torch_peak_memory = TorchCudaPeakMemory(sample_args=(sample_input.to(device),))
-    
+
     for model in models:
         model.arch.to(device)
 
     peak_memory = [torch_peak_memory.evaluate(model, None, None) for model in models]
-    assert all((m > 0 if device == 'cuda' else m == 0) for m in peak_memory)
+    assert all((m > 0 if device == "cuda" else m == 0) for m in peak_memory)

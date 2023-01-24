@@ -1,28 +1,5 @@
-Discrete Search API
-===================
-
-ArchaiModel
------------
-
-.. automodule:: archai.discrete_search.api.archai_model
-   :members:
-   :undoc-members:
-
-Objectives
-----------
-
-.. automodule:: archai.discrete_search.api.objective
-   :members:
-   :undoc-members:
-
-
-Search Spaces
--------------
-
-.. automodule:: archai.discrete_search.api.search_space
-   :members:
-   :undoc-members:
-
+API
+===
 
 Predictor
 ---------
@@ -31,6 +8,19 @@ Predictor
    :members:
    :undoc-members:
 
+Search Results
+--------------
+
+.. automodule:: archai.discrete_search.api.search_results
+   :members:
+   :undoc-members:
+
+Search Space
+------------
+
+.. automodule:: archai.discrete_search.api.search_space
+   :members:
+   :undoc-members:
 
 Searcher
 --------

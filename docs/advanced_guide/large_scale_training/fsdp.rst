@@ -1,11 +1,4 @@
 Fully Shared Data Parallel (FSDP)
 =================================
 
-Installation
-------------
-
-Usage
------
-
-Configuration File
-------------------
+This page is under development.

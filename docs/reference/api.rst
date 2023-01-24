@@ -8,9 +8,11 @@ This section of the documentation is intended for developers and researchers who
 .. toctree::
    :maxdepth: 2
 
-   api/archai.algos
+   api/archai.api
    api/archai.common
-   api/archai.cv
+   api/archai.datasets
    api/archai.discrete_search
-   api/archai.nas
-   api/archai.nlp
+   api/archai.onnx
+   api/archai.quantization
+   api/archai.supergraph
+   api/archai.trainers
