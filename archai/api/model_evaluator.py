@@ -110,8 +110,8 @@ class AsyncModelEvaluator(EnforceOverrides):
         """Send an evaluation job for a given (model, dataset, budget) triplet.
 
         Args:
-            arch: Model to be evaluated
-            dataset: A dataset provider object
+            arch: Model to be evaluated.
+            dataset: A dataset provider object.
             budget: A budget multiplier value, used by search algorithms like `SucessiveHalving`
                 to specify how much compute should be spent in this evaluation. In order to use
                 this type of search algorithm, the implementation of `send()` must use the passed
@@ -126,7 +126,7 @@ class AsyncModelEvaluator(EnforceOverrides):
         """Fetch all evaluation results from the job queue.
 
         Returns:
-            List of evaluation results. Each result is a `float` `None` if evaluation job failed.
+            List of evaluation results. Each result is a `float` or `None` if evaluation job failed.
 
         """
 

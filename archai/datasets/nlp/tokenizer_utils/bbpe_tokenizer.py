@@ -12,7 +12,7 @@ from transformers import PreTrainedTokenizerFast
 
 from archai.common.distributed_utils import sync_workers
 from archai.common.logger import Logger
-from archai.common.utils import copy_file, full_path
+from archai.common.file_utils import copy_file, get_full_path
 from archai.datasets.nlp.tokenizer_utils.token_config import (
     SpecialTokenEnum,
     TokenConfig,
@@ -72,7 +72,7 @@ class BbpeTokenizer(TokenizerBase):
         )
 
         self._tokenizer = None
-        self._tokenizer_filepath = os.path.join(full_path(save_path, create=True), "bbpe_tokenizer.json")
+        self._tokenizer_filepath = os.path.join(get_full_path(save_path, create=True), "bbpe_tokenizer.json")
 
         self.vocab_size = vocab_size
         self.sorted_vocab = sorted_vocab

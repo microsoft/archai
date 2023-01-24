@@ -12,10 +12,9 @@ class ArchaiModel:
 
         Args:
             arch: Model object (e.g torch.nn.Module).
-            archid: **Architecture** string identifier of `arch` object. Will be used
-                to deduplicate models of the same architecture, so architecture hashes
-                are prefered. `archid` should only identify neural network architectures
-                and not model weight information.
+            archid: String identifier of `arch` object. Will be used to deduplicate models
+                of the same architecture, so architecture hashes are prefered. `archid` should
+                only identify neural network architectures and not model weight information.
             metadata: Optional model metadata dictionary.
 
         """

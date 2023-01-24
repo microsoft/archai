@@ -9,7 +9,7 @@ from overrides import overrides
 
 from archai.common.distributed_utils import sync_workers
 from archai.common.logger import Logger
-from archai.common.utils import full_path
+from archai.common.file_utils import get_full_path
 from archai.datasets.nlp.tokenizer_utils.token_config import (
     SpecialTokenEnum,
     TokenConfig,
@@ -241,7 +241,7 @@ class WordTokenizer(TokenizerBase):
 
         """
 
-        vocab_dir = full_path(os.path.join(self.save_path), create=True)
+        vocab_dir = get_full_path(os.path.join(self.save_path), create=True)
 
         return os.path.join(vocab_dir, "vocab.txt")
 
