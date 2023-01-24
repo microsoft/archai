@@ -11,20 +11,20 @@ from overrides import overrides
 
 from torch.utils.data.dataloader import DataLoader
 
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
+
+from archai.common.common import logger
 
 from archai.common.config import Config
-from archai.supergraph.utils.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils.nas.arch_trainer import TArchTrainer
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.arch_trainer import TArchTrainer
 from archai.supergraph.utils.trainer import Trainer
-from archai.supergraph.utils.nas.model_desc import CellType, ModelDesc
-from archai.supergraph.utils.datasets import data
-from archai.supergraph.utils.nas.model import Model
+from archai.supergraph.nas.model_desc import CellType, ModelDesc
+from archai.supergraph.datasets import data
+from archai.supergraph.nas.model import Model
 from archai.supergraph.utils.metrics import EpochMetrics, Metrics
-from archai.supergraph.utils import utils
-from archai.supergraph.utils.nas.finalizers import Finalizers
-from archai.supergraph.utils.nas.searcher import Searcher, SearchResult
+from archai.common import utils
+from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.nas.searcher import Searcher, SearchResult
 
 class ManualSearcher(Searcher):
     @overrides

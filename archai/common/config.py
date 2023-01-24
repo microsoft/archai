@@ -1,19 +1,20 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from __future__ import annotations
-
 import argparse
-import copy
-import os
+from typing import Callable, List, Type, Optional, Any, Union
 from collections import UserDict
+from typing import Sequence
+from argparse import ArgumentError
+from collections.abc import Mapping, MutableMapping
+import os
 from distutils.util import strtobool
-from typing import Any, Callable, Dict, List, Mapping, MutableMapping, Optional
+import copy
+from os import stat
 
 import yaml
 
-from archai.common.config_utils import resolve_all
-
+from . import yaml_utils
 
 def deep_update(d: MutableMapping, u: Mapping, mapping_fn: Callable[[], MutableMapping]) -> MutableMapping:
     """Recursively update a dictionary with another dictionary.
@@ -28,14 +29,15 @@ def deep_update(d: MutableMapping, u: Mapping, mapping_fn: Callable[[], MutableM
 
     """
 
+# TODO: remove this duplicate code which is also in utils.py without circular deps
+def deep_update(d:MutableMapping, u:Mapping, create_map:Callable[[],MutableMapping])\
+        ->MutableMapping:
     for k, v in u.items():
         if isinstance(v, Mapping):
-            d[k] = deep_update(d.get(k, mapping_fn()), v, mapping_fn)
+            d[k] = deep_update(d.get(k, create_map()), v, create_map)
         else:
             d[k] = v
-
     return d
-
 
 class Config(UserDict):
     """Configuration class that supports YAML-based configuration files and
@@ -127,7 +129,7 @@ class Config(UserDict):
             includes = config_yaml["__include__"]
             if isinstance(includes, str):
                 includes = [includes]
-
+            assert isinstance(includes, List), "'__include__' value must be string or list"
             for include in includes:
                 include_file_path = os.path.join(os.path.dirname(file_path), include)
                 self._load_from_file(include_file_path)
@@ -141,8 +143,9 @@ class Config(UserDict):
 
         """
 
+    def _update_from_args(self, args:Sequence, resolved_section:'Config')->None:
         i = 0
-        while i < len(args) - 1:
+        while i < len(args)-1:
             arg = args[i]
             if arg.startswith("--"):
                 path = arg[2:].split(".")
@@ -163,7 +166,9 @@ class Config(UserDict):
 
         """
 
-        for p in range(len(path) - 1):
+    @staticmethod
+    def _update_section(section:'Config', path:List[str], val:Any, resolved_section:'Config')->int:
+        for p in range(len(path)-1):
             sub_path = path[p]
             if sub_path in resolved_section:
                 resolved_section = resolved_section[sub_path]
@@ -204,7 +209,10 @@ class Config(UserDict):
 
         """
 
-        return deep_update({}, self, lambda: dict())
+    @staticmethod
+    def set_inst(instance:'Config')->None:
+        global _config
+        _config = instance
 
     def get(self, key: str, default_value: Optional[Any] = None) -> Any:
         """Get a value from the `Config` object.
@@ -218,4 +226,3 @@ class Config(UserDict):
 
         """
 
-        return super().get(key, default_value)

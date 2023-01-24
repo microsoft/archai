@@ -13,29 +13,10 @@ from torch import Tensor
 
 import yaml
 
-from archai.supergraph.utils import utils
-from archai.common.logger import Logger
-logger = Logger(source=__name__)
-from archai.supergraph.utils.common import get_tb_writer
-from archai.supergraph.utils.apex_utils import ApexUtils
+from archai.common import utils
 from archai.supergraph.utils import ml_utils
-
-class AverageMeter:
-
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self.avg = 0.
-        self.sum = 0.
-        self.cnt = 0
-        self.last = 0.
-
-    def update(self, val, n=1):
-        self.last = val
-        self.sum += val * n
-        self.cnt += n
-        self.avg = self.sum / self.cnt
+from archai.common.common import logger, get_tb_writer
+from archai.common.apex_utils import ApexUtils
 
 
 class Metrics:
@@ -123,11 +104,8 @@ class Metrics:
         assert len(x)==len(y) and len(y)==len(logits) and len(loss.shape)==0
         # update metrics after optimizer step
         batch_size = x.size(0)
-
-        # NOTE: This is going to be a silent bug when we have a 
-        # dataset which actually has >5 classes
-        top1, top5 = ml_utils.accuracy(logits, y, topk=(1, 1))
-        #top1, top5 = ml_utils.accuracy(logits, y, topk=(1, 5))
+        # TODO: code for more than 5 classes?
+        top1, top5 = ml_utils.accuracy(logits, y, topk=(1, 5))
 
         epoch = self.run_metrics.cur_epoch()
         epoch.post_step(top1.item(), top5.item(),

@@ -11,10 +11,10 @@ from torch import Tensor, nn
 
 from overrides import overrides
 
-from archai.supergraph.utils.nas.model_desc import ConvMacroParams, OpDesc
-from archai.supergraph.utils.nas.operations import Identity, Op, FactorizedReduce
-from archai.supergraph.utils.utils import zip_eq
-from archai.supergraph.utils.nas.arch_params import ArchParams
+from archai.supergraph.nas.model_desc import ConvMacroParams, OpDesc
+from archai.supergraph.nas.operations import Identity, Op, FactorizedReduce
+from archai.common.utils import zip_eq
+from archai.supergraph.nas.arch_params import ArchParams
 
 class StopForward(Op):
     def __init__(self):
@@ -77,12 +77,9 @@ class PetridishOp(Op):
         'avg_pool_3x3',
         'skip_connect',  # identity
         'sep_conv_3x3',
-        #'sep_conv_5x5',
+        'sep_conv_5x5',
         'dil_conv_3x3',
-        #'dil_conv_5x5',
-        'mbconv_r3',
-        'mbconv_r2',
-        'mbconv_r1',
+        'dil_conv_5x5',
         'none'  # this must be at the end so top1 doesn't chose it
     ]
 
@@ -204,3 +201,4 @@ class PetridishOp(Op):
         # we store alphas in list so Pytorch don't register them
         self._alphas = list(self.arch_params().paramlist_by_kind('alphas'))
         assert len(self._alphas)==1
+

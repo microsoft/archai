@@ -15,9 +15,9 @@ from overrides import overrides, EnforceOverrides
 
 import archai.supergraph.algos.divnas.analyse_activations as aa
 
-from archai.supergraph.utils.nas.cell import Cell
-from archai.supergraph.utils.nas.operations import Zero
-from archai.supergraph.utils.nas.operations import Op
+from archai.supergraph.nas.cell import Cell
+from archai.supergraph.nas.operations import Zero
+from archai.supergraph.nas.operations import Op
 
 
 class Divnas_Cell():
@@ -31,8 +31,8 @@ class Divnas_Cell():
         self._sigma = None
         self._counter = 0
         self.node_covs:Dict[int, np.array] = {}
-        self.node_num_to_node_op_to_cov_ind:Dict[int, Dict[Op, int]] = {}        
-        
+        self.node_num_to_node_op_to_cov_ind:Dict[int, Dict[Op, int]] = {}
+
     def collect_activations(self, edgeoptype, sigma:float)->None:
         self._collect_activations = True
         self._edgeoptype = edgeoptype
@@ -47,22 +47,22 @@ class Divnas_Cell():
                     if isinstance(op, Zero):
                         continue
                     node_op_to_cov_ind[op] = counter
-                    counter += 1                        
+                    counter += 1
             self.node_num_to_node_op_to_cov_ind[i] = node_op_to_cov_ind
 
 
         # go through all edges in the DAG and if they are of edgeoptype
         # type then set them to collect activations
-        for i, node in enumerate(self._cell.dag):            
+        for i, node in enumerate(self._cell.dag):
             # initialize the covariance matrix for this node
             num_ops = 0
             for edge in node:
                 if hasattr(edge._op, 'PRIMITIVES') and type(edge._op) == self._edgeoptype:
                     num_ops += edge._op.num_primitive_ops - 1
                     edge._op.collect_activations = True
-                   
+
             self.node_covs[id(node)] = np.zeros((num_ops, num_ops))
-            
+
 
     def update_covs(self):
         assert self._collect_activations
@@ -74,7 +74,7 @@ class Divnas_Cell():
                 if type(edge._op) == self._edgeoptype:
                     activs = edge._op.activations
                     all_activs.append(activs)
-            # update covariance matrix    
+            # update covariance matrix
             activs_converted = self._convert_activations(all_activs)
             new_cov = aa.compute_rbf_kernel_covariance(activs_converted, sigma=self._sigma)
             updated_cov = (self._counter * self.node_covs[id(node)] + new_cov) / (self._counter + 1)
@@ -82,7 +82,7 @@ class Divnas_Cell():
 
 
     def clear_collect_activations(self):
-        for _, node in enumerate(self._cell.dag):            
+        for _, node in enumerate(self._cell.dag):
             for edge in node:
                 if hasattr(edge._op, 'PRIMITIVES') and type(edge._op) == self._edgeoptype:
                     edge._op.collect_activations = False
@@ -95,7 +95,7 @@ class Divnas_Cell():
 
     def _convert_activations(self, all_activs:List[List[np.array]])->List[np.array]:
         ''' Converts to the format needed by covariance computing functions
-        Input all_activs: List[List[np.array]]. Outer list len is num_edges. 
+        Input all_activs: List[List[np.array]]. Outer list len is num_edges.
         Inner list is of num_ops length. Each element in inner list is [batch_size, x, y, z] '''
 
         num_ops = len(all_activs[0])
@@ -103,7 +103,7 @@ class Divnas_Cell():
             assert num_ops == len(activs)
 
         all_edge_list = []
-        
+
         for edge in all_activs:
             obsv_dict = defaultdict(list)
             # assumption edge_np will be (num_ops, batch_size, x, y, z)
@@ -122,4 +122,3 @@ class Divnas_Cell():
             all_edge_list.extend(feature_list)
 
         return all_edge_list
-    

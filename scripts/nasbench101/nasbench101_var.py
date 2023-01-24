@@ -18,7 +18,7 @@ import torchvision.transforms as transforms
 import yaml
 
 from archai.common import utils, common
-from archai.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
+from archai.supergraph.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
 
 
 def train(epochs, train_dl, val_dal, net, device, crit, optim,

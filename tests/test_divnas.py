@@ -12,10 +12,10 @@ from tqdm import tqdm
 from typing import Any, Callable, List, Tuple, Set
 
 import archai.algos.divnas.analyse_activations as aa
-from archai.algos.divnas.seqopt import SeqOpt
-from archai.algos.divnas.analyse_activations import _compute_mi, compute_brute_force_sol
-from archai.algos.divnas.analyse_activations import create_submod_f
-from archai.algos.divnas.wmr import Wmr
+from archai.supergraph.algos.divnas.seqopt import SeqOpt
+from archai.supergraph.algos.divnas.analyse_activations import _compute_mi, compute_brute_force_sol
+from archai.supergraph.algos.divnas.analyse_activations import create_submod_f
+from archai.supergraph.algos.divnas.wmr import Wmr
 
 def create_rbf_func(first:np.array, sigma:float)->Callable:
     assert len(first.shape) == 1
@@ -74,7 +74,7 @@ def compute_synthetic_data_covariance(Y:List[Tuple[np.array, np.array]], sigma=0
             if i == j:
                 covariance[i][j] = covariance[j][i] = 1.0
                 continue
-        
+
             obsv_i = Y[i][0]
             obsv_j = Y[j][0]
             assert obsv_i.shape == obsv_j.shape
@@ -95,7 +95,7 @@ class SeqOptSyntheticDataTestCase(unittest.TestCase):
 
     def setUp(self):
         self.Y = synthetic_data2()
-        self.vals = [item[0] for item in self.Y]    
+        self.vals = [item[0] for item in self.Y]
         self.cov_kernel = compute_synthetic_data_covariance(self.Y)
 
     def test_marginal_gain_calculation(self):
@@ -113,9 +113,9 @@ class SeqOptSyntheticDataTestCase(unittest.TestCase):
         print(f'MI(A) {I_A_random}, MI(A U y) {I_A_aug}, diff {diff_via_direct}')
 
         diff = aa.compute_marginal_gain(y, A_random, V, self.cov_kernel)
-        # the marginal_gain leaves out 0.5 * log term as it does not 
+        # the marginal_gain leaves out 0.5 * log term as it does not
         # matter for ranking elements
-        half_log_diff = 0.5 * np.log(diff) 
+        half_log_diff = 0.5 * np.log(diff)
         print(f'Diff via aa.compute {half_log_diff}')
         self.assertAlmostEqual(diff_via_direct, half_log_diff, delta=0.01)
 
@@ -179,12 +179,12 @@ class SeqOptSyntheticDataTestCase(unittest.TestCase):
         num_rounds = 100
 
         for i in tqdm(range(num_rounds)):
-            
+
             # sample a list of activations from seqopt
             sel_list = seqopt.sample_sequence(with_replacement=False)
 
-            # NOTE: we are going to use the batch covariance 
-            # every round as this is a toy setting and we want to 
+            # NOTE: we are going to use the batch covariance
+            # every round as this is a toy setting and we want to
             # verify that seqopt is converging to good solutions
 
             # update seqopt
@@ -210,7 +210,7 @@ def main():
     unittest.main()
 
 
-    # # generate some synthetic 1d data 
+    # # generate some synthetic 1d data
     # Y = synthetic_data2()
     # vals = [item[0] for item in Y]
     # print(f'{np.unique(vals).shape[0]} unique observations' )
@@ -249,12 +249,12 @@ def main():
     # num_rounds = 100
     # for i in range(num_rounds):
     #     print(f'Round {i}/{num_rounds}')
-        
+
     #     # sample a list of activations from seqopt
     #     sel_list = seqopt.sample_sequence(with_replacement=False)
 
-    #     # NOTE: we are going to use the batch covariance 
-    #     # every round as this is a toy setting and we want to 
+    #     # NOTE: we are going to use the batch covariance
+    #     # every round as this is a toy setting and we want to
     #     # verify that seqopt is converging to good solutions
 
     #     # update seqopt
