@@ -1,17 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional, Tuple, Iterator
+from typing import Iterator, Optional, Tuple
 
 import torch
-from torch import nn
 import torch.nn.functional as F
-
 from overrides import overrides
+from torch import nn
 
+from archai.supergraph.nas.arch_params import ArchParams
 from archai.supergraph.nas.model_desc import OpDesc
 from archai.supergraph.nas.operations import Op
-from archai.supergraph.nas.arch_params import ArchParams
 from archai.supergraph.utils.utils import zip_eq
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to

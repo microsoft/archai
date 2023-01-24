@@ -1,15 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, Tuple, Optional, Union
 from abc import abstractmethod
+from typing import Dict, Optional, Tuple, Union
 
 from overrides import EnforceOverrides
-
 from torch.utils.data.dataset import Dataset
 
 from archai.common.config import Config
-
 
 TrainTestDatasets = Tuple[Optional[Dataset], Optional[Dataset]]
 ImgSize = Optional[Union[int, Tuple[int, int]]]

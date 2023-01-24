@@ -1,22 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional, Tuple, Dict
 import copy
+from typing import Dict, Optional, Tuple
 
 from overrides import EnforceOverrides
 
-from archai.common.ordered_dict_logger import get_global_logger
-
 from archai.common.config import Config
-from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.nas.arch_trainer import TArchTrainer
-from archai.supergraph.utils.trainer import Trainer
-from archai.supergraph.nas.model_desc import ModelDesc
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.datasets import data
-from archai.supergraph.nas.model import Model
-from archai.supergraph.utils.metrics import Metrics
+from archai.supergraph.nas.arch_trainer import TArchTrainer
 from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.nas.model import Model
+from archai.supergraph.nas.model_desc import ModelDesc
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.utils.metrics import Metrics
+from archai.supergraph.utils.trainer import Trainer
 
 logger = get_global_logger()
 

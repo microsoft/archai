@@ -11,8 +11,8 @@ import torch
 from onnxruntime import InferenceSession
 from overrides import overrides
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.api.archai_model import ArchaiModel
+from archai.api.dataset_provider import DatasetProvider
 from archai.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import (
     TransformerFlexSearchSpace,

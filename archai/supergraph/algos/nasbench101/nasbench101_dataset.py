@@ -12,20 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Optional, OrderedDict
+import logging
+import pickle
 import random
 import time
-import pickle
-import logging
+from typing import List, Optional, OrderedDict
 
 import numpy as np
-
 from torch import nn
 
-from archai.supergraph.utils import utils
-from archai.supergraph.algos.nasbench101 import config
+from archai.supergraph.algos.nasbench101 import config, model_builder
 from archai.supergraph.algos.nasbench101 import model_spec as _model_spec
-from archai.supergraph.algos.nasbench101 import model_builder
+from archai.supergraph.utils import utils
 
 # Bring ModelSpec to top-level for convenience. See lib/model_spec.py.
 ModelSpec = _model_spec.ModelSpec

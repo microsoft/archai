@@ -1,13 +1,12 @@
-from overrides import overrides
-
 import torch
-from torch import nn
 import torch.nn.functional as F
+from overrides import overrides
+from torch import nn
 
-from archai.supergraph.utils.common import get_conf
-from archai.supergraph.nas.model_desc import NodeDesc, EdgeDesc
-from archai.supergraph.nas.finalizers import Finalizers
 from archai.supergraph.algos.gumbelsoftmax.gs_op import GsOp
+from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.nas.model_desc import EdgeDesc, NodeDesc
+from archai.supergraph.utils.common import get_conf
 
 
 class GsFinalizers(Finalizers):

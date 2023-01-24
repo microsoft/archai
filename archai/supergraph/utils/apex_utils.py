@@ -2,21 +2,19 @@
 # Licensed under the MIT license.
 
 import contextlib
-from typing import Optional
 import os
+from typing import Optional
 
+import psutil
+import ray
 import torch
-from torch.optim.optimizer import Optimizer
+import torch.distributed as dist
 from torch import Tensor, nn
 from torch.backends import cudnn
-import torch.distributed as dist
 from torch.cuda.amp import GradScaler
 from torch.nn import SyncBatchNorm
 from torch.nn.parallel import DistributedDataParallel
-
-import ray
-
-import psutil
+from torch.optim.optimizer import Optimizer
 
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger

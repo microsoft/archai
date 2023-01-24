@@ -1,19 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import torch
-from torch import nn, Tensor
+from overrides import EnforceOverrides
+from torch import Tensor, nn
 from torch.utils.data import DataLoader
 
-from overrides import EnforceOverrides
-
-from archai.supergraph.utils.metrics import Metrics
 from archai.common.config import Config
-from archai.supergraph.utils import ml_utils
 from archai.common.ordered_dict_logger import get_global_logger
+from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.apex_utils import ApexUtils
+from archai.supergraph.utils.metrics import Metrics
 
 logger = get_global_logger()
 

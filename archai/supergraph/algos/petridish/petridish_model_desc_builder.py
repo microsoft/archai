@@ -3,11 +3,12 @@
 
 from overrides import overrides
 
-from archai.supergraph.nas.operations import Op
 from archai.common.config import Config
-from archai.supergraph.algos.random.random_model_desc_builder import RandomModelDescBuilder
-
 from archai.supergraph.algos.petridish.petridish_op import PetridishOp, TempIdentityOp
+from archai.supergraph.algos.random.random_model_desc_builder import (
+    RandomModelDescBuilder,
+)
+from archai.supergraph.nas.operations import Op
 
 
 class PetridishModelBuilder(RandomModelDescBuilder):

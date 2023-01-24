@@ -4,11 +4,7 @@
 import gc
 import math
 from collections import Counter
-from typing import (
-    List,
-    Optional,
-    Tuple,
-)
+from typing import List, Optional, Tuple
 
 import numpy as np
 import statopt

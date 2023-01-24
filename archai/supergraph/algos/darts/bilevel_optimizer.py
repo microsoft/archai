@@ -1,19 +1,19 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterator
 import copy
+from typing import Iterator
 
 import torch
-from torch import Tensor, nn, autograd
+from torch import Tensor, autograd, nn
 from torch.nn.modules.loss import _Loss
 from torch.optim.optimizer import Optimizer
 
 from archai.common.config import Config
 from archai.supergraph.nas.model import Model
-
-from archai.supergraph.utils.utils import zip_eq
 from archai.supergraph.utils import ml_utils
+from archai.supergraph.utils.utils import zip_eq
+
 
 def _get_loss(model:Model, lossfn, x, y):
     logits, *_ = model(x) # might also return aux tower logits

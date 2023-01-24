@@ -1,12 +1,11 @@
-from typing import List
 import logging
+from typing import List
 
 import torch
 from torch import nn
 
 from archai.supergraph.algos.nasbench101.model import Network
 from archai.supergraph.algos.nasbench101.model_spec import ModelSpec
-
 from archai.supergraph.utils import ml_utils
 
 EXAMPLE_VERTEX_OPS = ['input', 'conv1x1-bn-relu', 'conv3x3-bn-relu', 'conv3x3-bn-relu', 'conv3x3-bn-relu', 'maxpool3x3', 'output']

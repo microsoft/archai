@@ -3,6 +3,7 @@
 
 from collections import UserDict
 from typing import Iterable, Iterator, Optional, Tuple, Union
+
 from torch import nn
 
 _param_suffix = '_arch_param' # all arch parameter names must have this suffix

@@ -1,18 +1,19 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Tuple, Optional
+from typing import Iterable, Optional, Tuple
+
 import numpy as np
-
 import torch
-from torch import nn, Tensor
 from overrides import overrides
+from torch import Tensor, nn
 
-from archai.supergraph.nas.cell import Cell
-from archai.supergraph.nas.operations import Op, DropPath_
-from archai.supergraph.nas.model_desc import ModelDesc, AuxTowerDesc, CellDesc
-from archai.supergraph.utils import ml_utils
 from archai.supergraph.nas.arch_module import ArchModule
+from archai.supergraph.nas.cell import Cell
+from archai.supergraph.nas.model_desc import AuxTowerDesc, CellDesc, ModelDesc
+from archai.supergraph.nas.operations import DropPath_, Op
+from archai.supergraph.utils import ml_utils
+
 
 class Model(ArchModule):
     def __init__(self, model_desc:ModelDesc, droppath:bool, affine:bool):

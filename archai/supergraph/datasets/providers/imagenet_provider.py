@@ -2,15 +2,19 @@
 # Licensed under the MIT license.
 
 import os
-from torchvision.transforms import transforms
-from torchvision import datasets
-
-from PIL import Image
 
 from overrides import overrides
+from PIL import Image
+from torchvision import datasets
+from torchvision.transforms import transforms
 
-from archai.supergraph.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
+from archai.supergraph.datasets.dataset_provider import (
+    DatasetProvider,
+    ImgSize,
+    TrainTestDatasets,
+    register_dataset_provider,
+)
 from archai.supergraph.utils import utils
 
 

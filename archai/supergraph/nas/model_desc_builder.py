@@ -1,16 +1,25 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional, Tuple, List
 import copy
+from typing import List, Optional, Tuple
 
 from overrides import EnforceOverrides
 
 from archai.common.config import Config
-from archai.supergraph.nas.model_desc import ModelDesc, OpDesc, CellType, NodeDesc, \
-                                  CellDesc, AuxTowerDesc, ConvMacroParams, \
-                                  TensorShape, TensorShapes, TensorShapesList
-from archai.supergraph.nas.operations import StemBase, Op
+from archai.supergraph.nas.model_desc import (
+    AuxTowerDesc,
+    CellDesc,
+    CellType,
+    ConvMacroParams,
+    ModelDesc,
+    NodeDesc,
+    OpDesc,
+    TensorShape,
+    TensorShapes,
+    TensorShapesList,
+)
+from archai.supergraph.nas.operations import Op, StemBase
 
 
 class ModelDescBuilder(EnforceOverrides):

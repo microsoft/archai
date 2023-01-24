@@ -3,8 +3,8 @@
 
 from typing import Iterator, List, Optional
 
-from torch.optim.optimizer import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
+from torch.optim.optimizer import Optimizer
 
 from archai.supergraph.utils.utils import zip_eq
 

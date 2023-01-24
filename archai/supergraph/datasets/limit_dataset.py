@@ -1,9 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Union, Optional
+from typing import Optional, Union
 
-from torch.utils.data import Subset, ConcatDataset, Dataset
+from torch.utils.data import ConcatDataset, Dataset, Subset
+
 
 class LimitDataset(Dataset):
     def __init__(self, dataset, n):

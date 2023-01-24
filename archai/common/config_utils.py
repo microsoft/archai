@@ -9,14 +9,14 @@ COPY_VALUE_PREFIX = "_copy:"  # For copying the value of a node (must be scalar)
 
 def merge_dicts(source: Mapping, destination: MutableMapping) -> None:
     """Recursively merge dictionaries.
-    
+
     If a key is present in both `source` and `destination`, the value in `destination` is
     overwritten with the value in `source`.
-    
+
     Args:
         source: Source dictionary.
         destination: Destination dictionary.
-        
+
     """
 
     # Copy anything that source has but destination doesn't
@@ -34,16 +34,16 @@ def merge_dicts(source: Mapping, destination: MutableMapping) -> None:
 
 def concatenate_paths(path1: str, path2: str) -> str:
     """Concatenates two paths.
-    
+
     For example, `path1=/a/b/c` and `path2=d/e` should return `/a/b/c/d/e`.
-    
+
     Args:
         path1: First path.
         path2: Second path.
-        
+
     Returns:
         Concatenated path.
-        
+
     """
 
     def _normalize_path(path: str) -> str:
@@ -67,13 +67,13 @@ def concatenate_paths(path1: str, path2: str) -> str:
 
 def is_path_valid(path: str) -> bool:
     """Checks if a path is valid.
-    
+
     Args:
         path: Path to check.
-        
+
     Returns:
         `True` if path is valid, `False` otherwise.
-        
+
     """
 
     return path.startswith("/") and (len(path) == 1 or not path.endswith("/"))
@@ -81,14 +81,14 @@ def is_path_valid(path: str) -> bool:
 
 def get_absolute_path(current_working_directory: str, relative_path: str) -> str:
     """Returns an absolute path given a current working directory and a relative path.
-    
+
     Args:
         current_working_directory: Current working directory.
         relative_path: Relative path.
-        
+
     Returns:
         Absolute path.
-        
+
     """
 
     assert len(current_working_directory) > 0 and current_working_directory.startswith(
@@ -124,13 +124,13 @@ def get_absolute_path(current_working_directory: str, relative_path: str) -> str
 
 def get_path_to_resolve(value: Any) -> Optional[str]:
     """Returns path to resolve if value is a copy node, otherwise returns None.
-    
+
     Args:
         value: Value to check.
-        
+
     Returns:
         Path to resolve if value is a copy node, otherwise returns None.
-    
+
     """
 
     if isinstance(value, str) and value.startswith(COPY_VALUE_PREFIX):
@@ -141,15 +141,15 @@ def get_path_to_resolve(value: Any) -> Optional[str]:
 
 def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> Any:
     """Resolves a path in a dictionary.
-    
+
     Args:
         root_dict: Root dictionary.
         path: Path to resolve.
         visited_paths: Set of paths that have already been visited.
-        
+
     Returns:
         Value at path.
-        
+
     """
 
     assert is_path_valid(path)
@@ -193,13 +193,13 @@ def resolve_values_recursively(
     root_dict: MutableMapping, current_dict: MutableMapping, current_path: str, visited_paths: set
 ) -> None:
     """Resolves values in a dictionary recursively.
-    
+
     Args:
         root_dict: Root dictionary.
         current_dict: Current dictionary.
         current_path: Current path.
         visited_paths: Set of paths that have already been visited.
-        
+
     """
 
     assert is_path_valid(current_path)
@@ -237,10 +237,10 @@ def resolve_values_recursively(
 
 def resolve_all_values(root_dict: MutableMapping) -> None:
     """Resolves all values in a dictionary recursively.
-    
+
     Args:
         root_dict: Root dictionary.
-        
+
     """
 
     resolve_values_recursively(root_dict, root_dict, "/", set())

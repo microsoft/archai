@@ -1,23 +1,22 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Dict
-from overrides import overrides
+from typing import Dict, List
 
 import torch
+from overrides import overrides
 from torch import nn
 
-from archai.supergraph.utils.common import get_conf
-
 from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.datasets.data import get_data
-from archai.supergraph.nas.model import Model
-from archai.supergraph.nas.cell import Cell
-from archai.supergraph.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
-from archai.supergraph.nas.finalizers import Finalizers
 from archai.supergraph.algos.divnas.analyse_activations import compute_brute_force_sol
-from archai.supergraph.algos.divnas.divop import DivOp
 from archai.supergraph.algos.divnas.divnas_cell import Divnas_Cell
+from archai.supergraph.algos.divnas.divop import DivOp
+from archai.supergraph.datasets.data import get_data
+from archai.supergraph.nas.cell import Cell
+from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.nas.model import Model
+from archai.supergraph.nas.model_desc import CellDesc, EdgeDesc, ModelDesc, NodeDesc
+from archai.supergraph.utils.common import get_conf
 
 logger = get_global_logger()
 

@@ -3,13 +3,17 @@
 
 import os
 
-from overrides import overrides
-
 import torchvision
+from overrides import overrides
 from torchvision.transforms import transforms
 
-from archai.supergraph.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
+from archai.supergraph.datasets.dataset_provider import (
+    DatasetProvider,
+    ImgSize,
+    TrainTestDatasets,
+    register_dataset_provider,
+)
 from archai.supergraph.utils import utils
 
 

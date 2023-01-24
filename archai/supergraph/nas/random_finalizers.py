@@ -1,13 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from overrides import overrides
 import random
 
+from overrides import overrides
 from torch import nn
 
-from archai.supergraph.nas.model_desc import NodeDesc, EdgeDesc
 from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.nas.model_desc import EdgeDesc, NodeDesc
 from archai.supergraph.nas.operations import Zero
 
 

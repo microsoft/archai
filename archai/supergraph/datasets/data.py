@@ -1,17 +1,20 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
-from torch.utils.data import Sampler, Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset, Sampler
 
-from archai.supergraph.datasets.augmentation import add_named_augs
-from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.utils import utils, apex_utils
-from archai.supergraph.datasets.dataset_provider import DatasetProvider, get_provider_type
 from archai.common.config import Config
-from archai.supergraph.datasets.limit_dataset import DatasetLike
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
+from archai.supergraph.datasets.augmentation import add_named_augs
+from archai.supergraph.datasets.dataset_provider import (
+    DatasetProvider,
+    get_provider_type,
+)
+from archai.supergraph.datasets.limit_dataset import DatasetLike
+from archai.supergraph.utils import apex_utils, utils
 
 logger = get_global_logger()
 

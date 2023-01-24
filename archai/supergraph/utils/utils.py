@@ -1,29 +1,41 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, Iterable, Sized, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
-import  numpy as np
-import logging
 import csv
-from collections import OrderedDict
-import sys
-import  os
-import pathlib
-import random
-from itertools import zip_longest
-import shutil
+import logging
 import multiprocessing
-from datetime import datetime
+import os
+import pathlib
 import platform
-from urllib.parse import urlparse, unquote
+import random
+import shutil
+import subprocess
+import sys
+from collections import OrderedDict
+from datetime import datetime
+from itertools import zip_longest
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    MutableMapping,
+    Optional,
+    Sized,
+    Tuple,
+    Type,
+    Union,
+)
+from urllib.parse import unquote, urlparse
 from urllib.request import url2pathname
 
-import  torch
+import numpy as np
+import torch
 import torch.backends.cudnn as cudnn
+import yaml
 from torchvision.datasets import utils as tvutils
 
-import yaml
-import subprocess
 
 class AverageMeter:
 

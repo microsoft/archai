@@ -4,19 +4,18 @@
 from typing import Optional
 
 import torch
+import torch.nn.functional as F
+from overrides import overrides
 from torch import Tensor, nn
 from torch.optim.optimizer import Optimizer
-import torch.nn.functional as F
-
-from overrides import overrides
 
 from archai.common.config import Config
+from archai.supergraph.algos.gumbelsoftmax.gs_op import GsOp
 from archai.supergraph.nas.arch_trainer import ArchTrainer
 from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
-
 from archai.supergraph.utils.common import get_conf
-from archai.supergraph.algos.gumbelsoftmax.gs_op import GsOp
+
 
 class GsArchTrainer(ArchTrainer):
     def __init__(self, conf_train: Config, model: nn.Module, checkpoint: Optional[CheckPoint]) -> None:

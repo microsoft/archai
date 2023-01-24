@@ -1,29 +1,41 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List
 import copy
+from typing import List
 
 # latest verion of ray works on Windows as well
 import ray
-
 from overrides import overrides
 
-from archai.supergraph.utils import common
-
-from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.utils.common import CommonState
 from archai.common.config import Config
-from archai.supergraph.nas.arch_trainer import TArchTrainer
+from archai.common.ordered_dict_logger import get_global_logger
+from archai.supergraph.algos.petridish.petridish_utils import (
+    ConvexHullPoint,
+    JobStage,
+    plot_frontier,
+    plot_pool,
+    plot_seed_model_stats,
+    sample_from_hull,
+    save_hull,
+    save_hull_frontier,
+)
 from archai.supergraph.nas import nas_utils
-from archai.supergraph.nas.model_desc import CellType, OpDesc, EdgeDesc, NodeDesc, ModelDesc
-from archai.supergraph.nas.model import Model
+from archai.supergraph.nas.arch_trainer import TArchTrainer
 from archai.supergraph.nas.finalizers import Finalizers
-from archai.supergraph.nas.searcher import SearchResult
-from archai.supergraph.nas.search_combinations import SearchCombinations
+from archai.supergraph.nas.model import Model
+from archai.supergraph.nas.model_desc import (
+    CellType,
+    EdgeDesc,
+    ModelDesc,
+    NodeDesc,
+    OpDesc,
+)
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
-    sample_from_hull, plot_frontier, save_hull_frontier, save_hull, plot_pool, plot_seed_model_stats
+from archai.supergraph.nas.search_combinations import SearchCombinations
+from archai.supergraph.nas.searcher import SearchResult
+from archai.supergraph.utils import common
+from archai.supergraph.utils.common import CommonState
 
 logger = get_global_logger()
 

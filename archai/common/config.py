@@ -4,12 +4,12 @@
 from __future__ import annotations
 
 import argparse
-from typing import Callable, Dict, List, Optional, Any
+import copy
+import os
 from collections import UserDict
 from collections.abc import Mapping, MutableMapping
-import os
 from distutils.util import strtobool
-import copy
+from typing import Any, Callable, Dict, List, Optional
 
 import yaml
 
@@ -224,10 +224,10 @@ class Config(UserDict):
     @staticmethod
     def set_instance(instance: Config) -> None:
         """Set a global configuration instance.
-        
+
         Args:
             instance: Instance to be set globally.
-            
+
         """
 
         global _config
@@ -236,11 +236,11 @@ class Config(UserDict):
     @staticmethod
     def get_instance() -> Config:
         """Get a global configuration instance.
-        
+
         Returns:
             Global configuration.
-            
+
         """
-        
+
         global _config
         return _config

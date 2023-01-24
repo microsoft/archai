@@ -1,21 +1,30 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from argparse import ArgumentError
-from typing import Callable, Iterable, Iterator, List, Mapping, Tuple, Dict, Optional, Union
-from abc import ABC
 import copy
 import math
-
-from overrides import overrides, EnforceOverrides
+from abc import ABC
+from argparse import ArgumentError
+from typing import (
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Mapping,
+    Optional,
+    Tuple,
+    Union,
+)
 
 import torch
-from torch import nn, Tensor
+from overrides import EnforceOverrides, overrides
+from torch import Tensor, nn
 
-from archai.supergraph.utils import ml_utils
-from archai.supergraph.nas.model_desc import OpDesc, ConvMacroParams
-from archai.supergraph.nas.arch_params import ArchParams
 from archai.supergraph.nas.arch_module import ArchModule
+from archai.supergraph.nas.arch_params import ArchParams
+from archai.supergraph.nas.model_desc import ConvMacroParams, OpDesc
+from archai.supergraph.utils import ml_utils
 
 # type alias
 OpFactoryFn = Callable[[OpDesc, Iterable[nn.Parameter]], 'Op']

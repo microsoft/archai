@@ -3,9 +3,12 @@
 
 from overrides import overrides
 
-from archai.supergraph.nas.exp_runner import ExperimentRunner
+from archai.supergraph.algos.random.random_model_desc_builder import (
+    RandomModelDescBuilder,
+)
 from archai.supergraph.nas.arch_trainer import TArchTrainer
-from archai.supergraph.algos.random.random_model_desc_builder import RandomModelDescBuilder
+from archai.supergraph.nas.exp_runner import ExperimentRunner
+
 
 class RandomExperimentRunner(ExperimentRunner):
     @overrides

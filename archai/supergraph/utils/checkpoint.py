@@ -1,10 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import os
+import weakref
 from collections import UserDict
 from typing import Callable
-import weakref
-import os
 
 import torch
 

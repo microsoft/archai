@@ -1,12 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from graphviz import Digraph
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
+from graphviz import Digraph
+
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.nas.model_desc import CellDesc, CellType, ModelDesc
 from archai.supergraph.utils.utils import first_or_default
-from archai.common.ordered_dict_logger import get_global_logger
 
 logger = get_global_logger()
 

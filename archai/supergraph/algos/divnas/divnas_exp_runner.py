@@ -3,14 +3,17 @@
 
 from overrides import overrides
 
-from archai.supergraph.utils.common import get_conf
-from archai.supergraph.nas.exp_runner import ExperimentRunner
-from archai.supergraph.nas.arch_trainer import ArchTrainer, TArchTrainer
 from archai.supergraph.algos.darts.bilevel_arch_trainer import BilevelArchTrainer
-from archai.supergraph.algos.divnas.divnas_model_desc_builder import DivnasModelDescBuilder
 from archai.supergraph.algos.divnas.divnas_finalizers import DivnasFinalizers
+from archai.supergraph.algos.divnas.divnas_model_desc_builder import (
+    DivnasModelDescBuilder,
+)
 from archai.supergraph.algos.divnas.divnas_rank_finalizer import DivnasRankFinalizers
+from archai.supergraph.nas.arch_trainer import ArchTrainer, TArchTrainer
+from archai.supergraph.nas.exp_runner import ExperimentRunner
 from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.utils.common import get_conf
+
 
 class DivnasExperimentRunner(ExperimentRunner):
 

@@ -3,18 +3,17 @@
 
 from typing import Optional
 
+from overrides import overrides
 from torch import Tensor
 
-from overrides import overrides
-
 from archai.common.config import Config
+from archai.supergraph.algos.darts.bilevel_optimizer import BilevelOptimizer
+from archai.supergraph.datasets import data
 from archai.supergraph.nas.arch_trainer import ArchTrainer
 from archai.supergraph.nas.model import Model
 from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.supergraph.datasets import data
 
-from archai.supergraph.algos.darts.bilevel_optimizer import BilevelOptimizer
 
 class BilevelArchTrainer(ArchTrainer):
     def __init__(self, conf_train: Config, model: Model,

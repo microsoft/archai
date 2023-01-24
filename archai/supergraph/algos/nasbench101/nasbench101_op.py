@@ -4,13 +4,12 @@
 from typing import List, Optional
 
 import torch
+from overrides import overrides
 from torch import Tensor
 
-from overrides import overrides
-
+from archai.supergraph.nas.arch_params import ArchParams
 from archai.supergraph.nas.model_desc import OpDesc
 from archai.supergraph.nas.operations import Op
-from archai.supergraph.nas.arch_params import ArchParams
 
 
 class NasBench101Op(Op):

@@ -4,16 +4,23 @@
 # code in this file is adpated from rpmcruz/autoaugment
 # https://github.com/rpmcruz/autoaugment/blob/master/transformations.py
 
-from typing import List, Union
 import random
 from collections import defaultdict
+from typing import List, Union
 
-import PIL, PIL.ImageOps, PIL.ImageEnhance, PIL.ImageDraw
 import numpy as np
+import PIL
+import PIL.ImageDraw
+import PIL.ImageEnhance
+import PIL.ImageOps
 
-from archai.supergraph.datasets.aug_policies import fa_reduced_cifar10, fa_reduced_svhn, fa_resnet50_rimagenet
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.datasets.cv.transforms.custom_cutout import CustomCutout
+from archai.supergraph.datasets.aug_policies import (
+    fa_reduced_cifar10,
+    fa_reduced_svhn,
+    fa_resnet50_rimagenet,
+)
 
 logger = get_global_logger()
 _random_mirror = True

@@ -1,22 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import time
 import copy
-from typing import List, Mapping, Optional, Tuple
-import pathlib
 import math
+import pathlib
 import statistics
-
+import time
 from collections import defaultdict
-from torch import Tensor
+from typing import List, Mapping, Optional, Tuple
 
 import yaml
+from torch import Tensor
 
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.utils import ml_utils, utils
-from archai.supergraph.utils.common import get_tb_writer
 from archai.supergraph.utils.apex_utils import ApexUtils
+from archai.supergraph.utils.common import get_tb_writer
 
 logger = get_global_logger()
 

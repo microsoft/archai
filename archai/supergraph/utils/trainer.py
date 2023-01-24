@@ -1,25 +1,24 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Callable, Tuple, Optional
+from typing import Callable, Optional, Tuple
 
 import torch
-from torch import nn, Tensor
-from torch.optim.optimizer import Optimizer
+from overrides import EnforceOverrides
+from torch import Tensor, nn
 from torch.optim.lr_scheduler import _LRScheduler
+from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
-from overrides import EnforceOverrides
-
-from archai.supergraph.utils.metrics import Metrics
-from archai.supergraph.utils.tester import Tester
 from archai.common.config import Config
-from archai.supergraph.utils import ml_utils
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.datasets import data
-from archai.supergraph.utils.checkpoint import CheckPoint
+from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.apex_utils import ApexUtils
+from archai.supergraph.utils.checkpoint import CheckPoint
+from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched
+from archai.supergraph.utils.tester import Tester
 
 logger = get_global_logger()
 

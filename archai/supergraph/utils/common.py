@@ -1,19 +1,19 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os
-from typing import Union, Optional, Tuple
 import atexit
+import os
 import subprocess
-import yaml
+from typing import Optional, Tuple, Union
 
+import yaml
+from send2trash import send2trash
 from torch.utils.tensorboard.writer import SummaryWriter
 
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.utils import utils
 from archai.supergraph.utils.apex_utils import ApexUtils
-from send2trash import send2trash
 
 logger = get_global_logger()
 

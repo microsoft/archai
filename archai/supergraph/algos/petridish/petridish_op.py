@@ -1,19 +1,19 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from copy import deepcopy
-from typing import List, Optional, Iterator, Tuple
 import heapq
+from copy import deepcopy
+from typing import Iterator, List, Optional, Tuple
 
 import torch
+from overrides import overrides
 from torch import Tensor, nn
 
-from overrides import overrides
-
-from archai.supergraph.nas.model_desc import OpDesc
-from archai.supergraph.nas.operations import Identity, Op, FactorizedReduce
-from archai.supergraph.utils.utils import zip_eq
 from archai.supergraph.nas.arch_params import ArchParams
+from archai.supergraph.nas.model_desc import OpDesc
+from archai.supergraph.nas.operations import FactorizedReduce, Identity, Op
+from archai.supergraph.utils.utils import zip_eq
+
 
 class StopForward(Op):
     def __init__(self):
