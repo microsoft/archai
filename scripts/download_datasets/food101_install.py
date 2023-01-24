@@ -12,8 +12,6 @@ to work.
 """
 
 import os
-import pdb
-import time
 import argparse
 import os
 import tempfile
@@ -21,12 +19,9 @@ import tempfile
 from torchvision.datasets.utils import download_and_extract_archive
 from torch.utils.model_zoo import tqdm
 
-from PIL import Image
-import shutil
-from collections import defaultdict
 import pathlib
 
-from archai.common import utils
+from archai.supergraph.utils import utils
 
 
 

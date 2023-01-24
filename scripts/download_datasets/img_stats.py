@@ -4,7 +4,6 @@
 import pathlib
 from runstats import Statistics
 import itertools
-import yaml
 import numpy as np
 from PIL import Image
 from concurrent.futures import ThreadPoolExecutor

@@ -8,12 +8,10 @@ import time
 from collections import Counter
 import random
 
-import torch
 from torch.utils.data import Dataset
 
-from archai.cv.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
-from archai.cv.datasets import data
-from archai.common import common
+from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
+from archai.supergraph.datasets import data
 
 class ListDataset(Dataset):
     def __init__(self, x, y, transform=None):

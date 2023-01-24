@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.common import utils
+from archai.supergraph.utils import utils
 
 class A:
     def __init__(self):

@@ -2,7 +2,8 @@
 # Licensed under the MIT license.
 
 import tensorwatch as tw
-from archai.cv import models
+
+from archai.supergraph import models
 
 model_names = ['resnet18', 'resnet34', 'resnet101', 'densenet121']
 

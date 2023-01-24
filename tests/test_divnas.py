@@ -2,14 +2,10 @@
 # Licensed under the MIT license.
 
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from itertools import combinations
 from copy import deepcopy
-import math as ma
 import unittest
 from tqdm import tqdm
-from typing import Any, Callable, List, Tuple, Set
+from typing import Callable, List, Tuple
 
 import archai.algos.divnas.analyse_activations as aa
 from archai.supergraph.algos.divnas.seqopt import SeqOpt

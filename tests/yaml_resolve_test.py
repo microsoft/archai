@@ -3,8 +3,8 @@
 
 import yaml
 
-from archai.common import yaml_utils
-from archai.common import utils
+from archai.common import config_utils
+from archai.supergraph.utils import utils
 
 def test_yaml1():
     input="""
@@ -58,7 +58,7 @@ def test_yaml1():
     """
 
     d_input = yaml.safe_load(input)
-    yaml_utils.resolve_all(d_input)
+    config_utils.resolve_all(d_input)
     #print(yaml.dump(d))
     d_expected = yaml.safe_load(expected)
 
@@ -112,7 +112,7 @@ def test_yaml2():
 
     d_input = yaml.safe_load(input)
     #print(d)
-    yaml_utils.resolve_all(d_input)
+    config_utils.resolve_all(d_input)
     d_expected = yaml.safe_load(expected)
 
     assert utils.deep_comp(d_input, d_expected)

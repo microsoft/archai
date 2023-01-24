@@ -2,8 +2,7 @@
 # Licensed under the MIT license.
 
 import argparse
-from typing import Dict, List, Type, Iterator, Tuple
-import glob
+from typing import Dict, List, Iterator, Tuple
 import os
 import pathlib
 from collections import OrderedDict
@@ -18,11 +17,9 @@ matplotlib.use('Agg')
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 
 
-from archai.common import utils
-from archai.common.ordereddict_logger import OrderedDictLogger
+from archai.supergraph.utils import utils
 import re
 
 

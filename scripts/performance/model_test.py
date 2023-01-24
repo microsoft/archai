@@ -2,10 +2,9 @@
 # Licensed under the MIT license.
 
 import torch
-import numpy as np
 
 from torch_testbed import utils, cifar10_models
-from torch_testbed.timing import MeasureTime, print_all_timings, print_timing, get_timing
+from torch_testbed.timing import MeasureTime, print_all_timings
 
 utils.create_logger()
 utils.setup_cuda(42, local_rank=0)

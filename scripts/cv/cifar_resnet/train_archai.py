@@ -2,11 +2,12 @@
 # Licensed under the MIT license.
 
 import torch
-from archai.cv import models
-from archai.common.trainer import Trainer
 from archai.common.config import Config
-from archai.common.common import common_init
-from archai.cv.datasets import data
+from archai.supergraph import models
+from archai.supergraph.utils.trainer import Trainer
+from archai.supergraph.utils.common import common_init
+from archai.supergraph.datasets import data
+
 
 def train_test(conf_eval:Config):
     conf_loader = conf_eval['loader']

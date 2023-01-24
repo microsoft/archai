@@ -1,8 +1,8 @@
 import logging
-import random
-from archai.supergraph.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
-from archai.supergraph.algos.nasbench101 import model_builder
 import statistics
+
+from archai.supergraph.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
+
 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)

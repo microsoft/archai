@@ -1,14 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Mapping, Sized, Sequence
+from typing import Iterable, Mapping, Sequence
 import math
 
 import torch
 import torch.nn as nn
 
 from collections import OrderedDict
-import numpy as np
 
 from numbers import Number
 

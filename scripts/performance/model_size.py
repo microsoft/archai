@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from archai.supergraph.nas.model_desc import ModelDesc
-from archai.common.common import common_init
+from archai.supergraph.utils.common import common_init
 from archai.supergraph.nas.model import Model
 from archai.supergraph.algos.petridish.petridish_model_desc_builder import PetridishModelBuilder
 

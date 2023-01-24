@@ -1,33 +1,15 @@
 """Assess the changes in rank due to change in LR"""
 
 import argparse
-import math
 import pathlib
-from typing import List, Mapping, Optional, Tuple, Any
 import os
-import logging
-import numpy as np
-import time
-from numpy.core.fromnumeric import sort
 from ast import literal_eval
 import statistics
 import scipy
 
-import torch
-from torch import nn
-from torch._C import ThroughputBenchmark
-from torch.optim.optimizer import Optimizer
-from torch.optim.lr_scheduler import _LRScheduler
-from torch.nn.modules.loss import _Loss
-from torch.utils.data import DataLoader
-import torchvision
-import torchvision.transforms as transforms
+from archai.supergraph.utils import utils
 
-import yaml
-
-from archai.common import utils, common
-from archai.supergraph.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
-from scripts.nasbench101 import delimited_text
+import delimited_text
 
 
 def main():

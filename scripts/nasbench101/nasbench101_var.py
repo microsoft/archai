@@ -1,6 +1,6 @@
 import argparse
 import math
-from typing import List, Mapping, Optional, Tuple, Any
+from typing import List, Mapping, Optional, Tuple
 import os
 import logging
 import numpy as np
@@ -17,7 +17,7 @@ import torchvision.transforms as transforms
 
 import yaml
 
-from archai.common import utils, common
+from archai.supergraph.utils import utils, common
 from archai.supergraph.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
 
 

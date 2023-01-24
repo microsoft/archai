@@ -1,6 +1,6 @@
 import argparse
 import math
-from typing import List, Mapping, Optional, Tuple, Any
+from typing import List, Mapping, Optional, Tuple
 import os
 import logging
 import numpy as np
@@ -17,8 +17,8 @@ import torchvision.transforms as transforms
 
 import yaml
 
-from archai.common import utils
-from archai.cv import models
+from archai.supergraph.utils import utils
+from archai.supergraph import models
 
 
 def train(epochs, train_dl, val_dal, net, device, crit, optim,

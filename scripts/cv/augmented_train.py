@@ -1,7 +1,6 @@
 import json
-import os
-from archai.common.common import logger, common_init, expdir_abspath
-from archai.cv.augmented_train import train_and_eval
+from archai.supergraph.utils.common import logger, common_init, expdir_abspath
+from archai.supergraph.utils.augmented_trainer import train_and_eval
 
 
 if __name__ == '__main__':

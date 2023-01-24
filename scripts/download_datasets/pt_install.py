@@ -2,16 +2,11 @@
 # Licensed under the MIT license.
 
 import argparse
-from decimal import Decimal
-from typing import Dict, Type
 import os
-import sys
 import pathlib
 
-import psutil
-
 from archai.common.config import Config
-from archai.common import utils
+from archai.supergraph.utils import utils
 
 # To upload dataset on Azure, tar the folder and use command like
 # azcopy copy "H:\dataroot_cloud\ImageNet.tar" "https://archai.blob.core.windows.net/phillytools/dataroot/ImageNet.tar"

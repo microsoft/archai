@@ -2,8 +2,6 @@
 # Licensed under the MIT license.
 
 import argparse
-from typing import Dict, Type
-import glob
 import os
 import pathlib
 

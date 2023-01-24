@@ -4,7 +4,7 @@
 import argparse
 from typing import Dict, Type
 
-from archai.common import utils
+from archai.supergraph.utils import utils
 from archai.supergraph.nas.exp_runner import ExperimentRunner
 from archai.supergraph.algos.darts.darts_exp_runner import DartsExperimentRunner
 from archai.supergraph.algos.petridish.petridish_exp_runner import PetridishExperimentRunner

@@ -1,12 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from torch_testbed.timing import print_all_timings
+
 from archai.supergraph.algos.darts.mixed_op import MixedOp
-from archai.common import utils, timing
+from archai.supergraph.utils import utils
 
 import torch
-import torch.backends.cudnn as cudnn
-import numpy as np
 
 
 utils.setup_cuda(2, local_rank=0)
@@ -21,7 +21,7 @@ x = torch.randn((64,16,32,32), requires_grad=True).to(device=device)
 for i in range(1000):
     y = mop(x, a)
 
-timing.print_all_timings()
+print_all_timings()
 
 """
 Without cudnn setup, requires_grad=False:

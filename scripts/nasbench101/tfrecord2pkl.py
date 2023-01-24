@@ -1,10 +1,8 @@
 import tensorflow as tf
-import json, base64
-import numpy as np
-#import model_metrics_pb2
+import json
 import pickle
 
-from archai.common import utils
+from archai.supergraph.utils import utils
 
 dataset_file = utils.full_path('~/dataroot/nasbench_ds/nasbench_only108.tfrecord')
 

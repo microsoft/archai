@@ -1,6 +1,6 @@
 import pickle
 
-from archai.common import utils
+from archai.supergraph.utils import utils
 
 def main():
     in_dataset_file = utils.full_path('~/dataroot/nasbench_ds/nasbench_full.tfrecord.pkl')

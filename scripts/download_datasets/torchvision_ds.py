@@ -4,7 +4,8 @@
 
 from torchvision import transforms
 import torchvision
-from . import dataset_utils
+
+import dataset_utils
 
 if __name__ == '__main__':
     dataroot = dataset_utils.get_dataroot()

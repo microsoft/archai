@@ -1,10 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.common.config import Config
-from archai.cv.datasets import data
 from torchvision import transforms
-from archai.common.ml_utils import channel_norm
+from archai.common.config import Config
+from archai.supergraph.datasets import data
+from archai.supergraph.utils.ml_utils import channel_norm
 
 if __name__ == '__main__':
     conf = Config(config_filepath='confs/datasets/flower102.yaml')

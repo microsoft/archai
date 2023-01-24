@@ -4,24 +4,17 @@
 """ Script to prepare flower102 dataset for pytorch dataloader.
 """
 
-from typing import List, Dict, Tuple, Union, Optional
+from typing import List, Dict
 import os
-import pdb
-import time
 import argparse
 import os
 import tempfile
-import requests
 
 from torchvision.datasets.utils import download_and_extract_archive, download_url
-from torch.utils.model_zoo import tqdm
 
-from PIL import Image
-import shutil
 from collections import defaultdict
-import pathlib
 
-from archai.common import utils
+from archai.supergraph.utils import utils
 
 
 def check_flower102(dataroot: str) -> bool:

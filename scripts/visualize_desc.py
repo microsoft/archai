@@ -2,14 +2,11 @@
 # Licensed under the MIT license.
 
 import argparse
-from typing import Dict, Type
-import glob
-import os
 import pathlib
 
 from archai.supergraph.nas.vis_model_desc import draw_model_desc
 from archai.supergraph.nas.model_desc import ModelDesc
-from archai.common import utils
+from archai.supergraph.utils import utils
 
 def main():
     parser = argparse.ArgumentParser(description='Visualize model description')

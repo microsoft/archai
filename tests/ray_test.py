@@ -1,20 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-
-from typing import Optional
 import time
-import random
 
 import ray
 import torch
 
-from archai.cv import models
-from archai.common.trainer import Trainer
-from archai.common.config import Config
-from archai.common import common
-from archai.cv.datasets import data
-from archai.common.metrics import Metrics
+from archai.supergraph import models
+from archai.supergraph.utils.trainer import Trainer
+from archai.supergraph.utils import common
+from archai.supergraph.datasets import data
+from archai.supergraph.utils.metrics import Metrics
 
 def train_test()->Metrics:
     conf = common.get_conf()

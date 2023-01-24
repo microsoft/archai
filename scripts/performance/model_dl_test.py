@@ -1,14 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import logging
-
 import torch
-import torch.backends.cudnn as cudnn
-import numpy as np
 
 from torch_testbed import utils, cifar10_models
-from torch_testbed.timing import MeasureTime, print_all_timings, print_timing, get_timing, clear_timings
+from torch_testbed.timing import MeasureTime, print_all_timings, clear_timings
 from torch_testbed.dataloader_dali import cifar10_dataloaders
 
 

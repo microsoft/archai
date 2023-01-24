@@ -1,10 +1,9 @@
 import argparse
 import os
-import pathlib
 import numpy as np
 from collections import Counter
 
-from archai.common import utils
+from archai.supergraph.utils import utils
 
 """Creates sorted version of wikitext103 dataset"""
 

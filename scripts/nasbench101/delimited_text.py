@@ -1,6 +1,7 @@
-from typing import Iterable, List, Mapping, OrderedDict, Tuple
+from typing import Iterable, List, Mapping, OrderedDict
 
-from archai.common import utils
+from archai.supergraph.utils import utils
+
 
 class DelimitedText:
     def __init__(self)->None:
