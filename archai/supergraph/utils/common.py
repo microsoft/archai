@@ -5,14 +5,12 @@ import os
 from typing import Union, Optional, Tuple
 import atexit
 import subprocess
-import datetime
 import yaml
-import sys
 
 from torch.utils.tensorboard.writer import SummaryWriter
 
 from archai.common.config import Config
-from archai.common.ordereddict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.utils import utils
 from archai.supergraph.utils.apex_utils import ApexUtils
 from send2trash import send2trash

@@ -16,7 +16,7 @@ from ray.tune.trial import Trial
 from tqdm import tqdm
 
 from archai.common.config import Config
-from archai.common.ordereddict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.utils.common import expdir_abspath
 from archai.supergraph.utils.metrics import Accumulator
 from archai.supergraph.utils.stopwatch import StopWatch

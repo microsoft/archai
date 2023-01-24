@@ -19,7 +19,7 @@ import ray
 import psutil
 
 from archai.common.config import Config
-from archai.common.ordereddict_logger import OrderedDictLogger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.utils import ml_utils, utils
 from archai.supergraph.utils.multi_optim import MultiOptim
 
