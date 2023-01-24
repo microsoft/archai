@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-"""Quantization-related utilities."""
-
 import functools
 from typing import Any
 

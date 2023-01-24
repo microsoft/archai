@@ -31,12 +31,7 @@ class FakeQuantEmbedding(torch.nn.Embedding):
 
     @property
     def fake_quant_weight(self) -> torch.Tensor:
-        """Perform a fake quantization over the weight matrix.
-
-        Returns:
-            Fake quantized weight matrix.
-
-        """
+        """Return a fake quantization over the weight matrix."""
 
         return self.weight_fake_quant(self.weight)
 
@@ -151,12 +146,7 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
 
     @property
     def fake_quant_weight(self) -> torch.Tensor:
-        """Perform a fake quantization over the weight matrix.
-
-        Returns:
-            Fake quantized weight matrix.
-
-        """
+        """Return a fake quantization over the weight matrix."""
 
         return self.weight_fake_quant(self.weight)
 
@@ -294,12 +284,7 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
 
     @property
     def fake_quant_weight(self) -> torch.Tensor:
-        """Perform a fake quantization over the weight matrix.
-
-        Returns:
-            Fake quantized weight matrix.
-
-        """
+        """Return a fake quantization over the weight matrix."""
 
         return self.weight_fake_quant(self.weight)
 

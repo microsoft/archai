@@ -68,7 +68,7 @@ class LMOrderedIterator:
         self.n_batch = (self.input_ids.size(1) + self.bptt - 1) // self.bptt
 
     def roll(self, seed: int) -> None:
-        """Rolls/shifts the data according to a random seed.
+        """Roll the data according to a random seed.
 
         This method shuffles the input sequence for each batch in the iterator by
         rolling/shifting the data according to the specified seed. This is useful for

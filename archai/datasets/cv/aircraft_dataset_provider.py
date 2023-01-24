@@ -18,7 +18,7 @@ class AircraftDatasetProvider(DatasetProvider):
         self,
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes FGVC Aircraft dataset provider.
+        """Initialize FGVC Aircraft dataset provider.
 
         Args:
             root: Root directory of dataset where is saved.

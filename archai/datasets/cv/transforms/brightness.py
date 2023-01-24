@@ -11,7 +11,7 @@ class Brightness:
     """Brightness transform."""
 
     def __init__(self, value: float) -> None:
-        """Initializes the brightness transform.
+        """Initialize the brightness transform.
 
         Args:
             value: Brightness factor, e.g., 0 = no change, 1 = completely white,
@@ -35,7 +35,7 @@ class RandomBrightness:
     """Random brightness transform."""
 
     def __init__(self, min_val: float, max_val: float) -> None:
-        """ "Initializes the random brightness transform.
+        """Initialize the random brightness transform.
 
         Args:
             min_val: Minimum brightness factor.

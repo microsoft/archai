@@ -22,7 +22,7 @@ class NvidiaDatasetProvider(DatasetProvider):
         vocab_size: Optional[int] = None,
         refresh_cache: Optional[bool] = False,
     ) -> None:
-        """Initializes NVIDIA dataset provider.
+        """Initialize NVIDIA dataset provider.
 
         Args:
             dataset_name: Name of the dataset.

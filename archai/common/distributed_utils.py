@@ -166,7 +166,7 @@ def get_cuda_device_name() -> str:
 
 
 def init_cuda(seed: int, local_rank: Optional[int] = 0) -> None:
-    """Setup CUDA for distributed training.
+    """Initialize CUDA for distributed training.
 
     Args:
         seed: The seed to use for initializing the random number generator.

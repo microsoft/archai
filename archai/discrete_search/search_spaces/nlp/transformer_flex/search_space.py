@@ -101,7 +101,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         att_dropout_rate: Optional[float] = 0.0,
         random_seed: Optional[int] = 1,
     ) -> None:
-        """Initializes a `TransformerFlexSearchSpace` object.
+        """Initialize a `TransformerFlexSearchSpace` object.
 
         Args:
             arch_type: Type of Transformer architecture.

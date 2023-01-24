@@ -10,7 +10,7 @@ class Lighting:
     """Lighting transform."""
 
     def __init__(self, std: float, eigval: List[float], eigvec: List[float]) -> None:
-        """Initializes the lighting transform.
+        """Initialize the lighting transform.
 
         Args:
             std: Standard deviation of the normal distribution.

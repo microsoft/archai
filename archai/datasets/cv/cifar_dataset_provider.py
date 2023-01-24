@@ -27,7 +27,7 @@ class CifarDatasetProvider(DatasetProvider):
         dataset: Optional[str] = "cifar10",
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes CIFAR-based dataset provider.
+        """Initialize CIFAR-based dataset provider.
 
         Args:
             dataset: Name of dataset.

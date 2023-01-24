@@ -18,12 +18,12 @@ from archai.common.logger_utils import get_logger
 
 
 class Logger:
-    """Logs and saves data in a hierarchical YAML structure."""
+    """Log and save data in a hierarchical YAML structure."""
 
     def __init__(
         self, source: Optional[str] = None, file_path: Optional[str] = "archai.log.yaml", delay: Optional[float] = 30.0
     ) -> None:
-        """Initializes the logger.
+        """Initialize the logger.
 
         Args:
             source: Source of the logger.
@@ -76,32 +76,19 @@ class Logger:
         return key in self.current_node
 
     def __len__(self) -> int:
-        """Calculate the number of items in the current node.
-
-        Returns:
-            Number of items in the current node.
-
-        """
+        """Return the number of items in the current node."""
 
         return len(self.current_node)
 
     @property
     def root_node(self) -> OrderedDict:
-        """Root node of the current stack.
-
-        Returns:
-            Root node of the current stack.
-
-        """
+        """Return the root node of the current stack."""
 
         return self.stack[0]
 
     @property
     def current_node(self) -> OrderedDict:
-        """Current node of the current stack.
-
-        Returns:
-            Current node of the current stack.
+        """Return the current node of the current stack.
 
         Raises:
             RuntimeError: If a `key` stores a scalar value and is trying to store
@@ -130,12 +117,7 @@ class Logger:
 
     @property
     def current_path(self) -> str:
-        """Current path of the current stack.
-
-        Returns:
-            Current path of the current stack.
-
-        """
+        """Return the current path of the current stack."""
 
         return "/".join(itertools.chain.from_iterable(self.paths[1:]))
 

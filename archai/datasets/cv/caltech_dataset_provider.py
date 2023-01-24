@@ -27,7 +27,7 @@ class CaltechDatasetProvider(DatasetProvider):
         dataset: Optional[str] = "caltech101",
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes Caltech-based dataset provider.
+        """Initialize Caltech-based dataset provider.
 
         Args:
             dataset: Name of dataset.

@@ -37,7 +37,7 @@ def delete_file(file_path: str) -> bool:
 
 
 class Corpus:
-    """Creates and trains the vocabulary/tokenizer, loads the dataset and encodes the data."""
+    """Create and train the vocabulary/tokenizer, load the dataset and encode the data."""
 
     def __init__(
         self,

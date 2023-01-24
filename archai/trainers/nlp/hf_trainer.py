@@ -68,7 +68,7 @@ class HfDistillerTrainer(HfTrainer):
     """Hugging Face distillation-based trainer."""
 
     def __init__(self, teacher_model: torch.nn.Module, **kwargs) -> None:
-        """Initializes Hugging Face distillation-based trainer.
+        """Initialize Hugging Face distillation-based trainer.
 
         Args:
             teacher_model: Pre-trained teacher model.

@@ -21,7 +21,7 @@ class ImageNetDatasetProvider(DatasetProvider):
         self,
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes ImageNet dataset provider.
+        """Initialize ImageNet dataset provider.
 
         Args:
             root: Root directory of dataset where is saved.

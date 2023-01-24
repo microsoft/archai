@@ -21,7 +21,7 @@ class StanfordCarsDatasetProvider(DatasetProvider):
         self,
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes Stanford Cars dataset provider.
+        """Initialize Stanford Cars dataset provider.
 
         Args:
             root: Root directory of dataset where is saved.

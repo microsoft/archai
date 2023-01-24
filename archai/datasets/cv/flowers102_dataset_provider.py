@@ -18,7 +18,7 @@ class Flowers102DatasetProvider(DatasetProvider):
         self,
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes Oxford 102 Flower dataset provider.
+        """Initialize Oxford 102 Flower dataset provider.
 
         Args:
             root: Root directory of dataset where is saved.

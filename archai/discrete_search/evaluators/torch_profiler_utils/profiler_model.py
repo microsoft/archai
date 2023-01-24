@@ -23,7 +23,7 @@ class ProfilerModel:
     """Prepares a model to be used with profilling."""
 
     def __init__(self, model: torch.nn.Module) -> None:
-        """Initializes with custom arguments and keyword arguments.
+        """Initialize with custom arguments and keyword arguments.
 
         Args:
             model: Pre-trained model.

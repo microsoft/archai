@@ -56,12 +56,7 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
 
     @property
     def fake_quant_weight(self) -> torch.Tensor:
-        """Perform a fake quantization over the weight matrix.
-
-        Returns:
-            Fake quantized weight matrix.
-
-        """
+        """Return a fake quantization over the weight matrix."""
 
         return self.weight_fake_quant(self.weight)
 

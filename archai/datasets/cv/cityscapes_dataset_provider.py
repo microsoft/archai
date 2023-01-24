@@ -18,7 +18,7 @@ class CityscapesDatasetProvider(DatasetProvider):
         self,
         root: Optional[str] = "dataroot",
     ) -> None:
-        """Initializes Cityscapes dataset provider.
+        """Initialize Cityscapes dataset provider.
 
         Args:
             root: Root directory of dataset where is saved.

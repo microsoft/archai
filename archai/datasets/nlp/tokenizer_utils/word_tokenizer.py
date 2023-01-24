@@ -78,13 +78,6 @@ class WordTokenizer(TokenizerBase):
 
     @overrides
     def __len__(self) -> int:
-        """Length of the vocabulary.
-
-        Returns:
-            (int): Length of the vocabulary.
-
-        """
-
         return len(self.idx2sym)
 
     @overrides
@@ -124,8 +117,6 @@ class WordTokenizer(TokenizerBase):
 
     @overrides
     def load(self) -> None:
-        """Load a cached tokenizer file."""
-
         vocab_filepath = self._vocab_filepath()
         self._clear()
 

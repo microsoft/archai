@@ -1,53 +1,55 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT license.
-
-"""
-The code below is
-directly from https://raw.githubusercontent.com/IssamLaradji/sls/master/others/cocob.py
-Two coin betting optimization algorithms are implemented here :
-Cocob Backprop: https://arxiv.org/pdf/1705.07795.pdf
-Cocob through Ons: https://arxiv.org/pdf/1705.07795.pdf
-both of which do not require any learning rates and yet
-have optimal convergence gauarantees for non-smooth
-convex functions.
-
-Cocob-Ons is an experimental variation from paper.
-Please don't use it yet.
-
-Please check https://francesco.orabona.com/papers/slides_cocob.pdf for
-simple explanation for going from coin betting game to convex optimization.
-Both algorithms are similar except the coin betting strategy used.
-"""
+# Copyright (c) @IssamLaradji.
+# https://github.com/IssamLaradji/sls/blob/master/src/optimizers/others/cocob.py
 
 import math
+from typing import Any, Callable, Dict, Iterable, Optional, Union
 
 import torch
 from torch import optim
 
 
 class CocobBackprop(optim.Optimizer):
-    """Implements Cocob-Backprop .
+    """Coin Betting optimizer with Backpropagation.
 
     It has been proposed in `Training Deep Networks without Learning Rates
-    Through Coin Betting`__.
+    Through Coin Betting`.
 
-    Arguments:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        alpha (float, optional): positive number to adjust betting fraction.
-            Theoretical convergence gauarantee does not depend on choice of
-            alpha (default: 100.0)
+    Reference:
+        https://arxiv.org/pdf/1705.07795.pdf
 
-    __ https://arxiv.org/pdf/1705.07795.pdf
     """
 
-    def __init__(self, params, alpha=100.0, eps=1e-8):
+    def __init__(
+        self, params: Union[Iterable, Dict[str, Any]], alpha: Optional[float] = 100.0, eps: Optional[float] = 1e-8
+    ) -> None:
+        """Initialize the optimizer.
+
+        Args:
+            params: Iterable of parameters to optimize or dicts defining
+                parameter groups.
+            alpha: Positive number to adjust betting fraction. Theoretical convergence
+                gauarantee does not depend on choice of `alpha`.
+            eps: Positive initial wealth for betting algorithm. Theoretical convergence
+                gauarantee does not depend on choice of `eps`.
+
+        """
+
         self.alpha = alpha
         self.eps = eps
         defaults = dict(alpha=alpha, eps=eps)
+
         super(CocobBackprop, self).__init__(params, defaults)
 
-    def step(self, closure=None):
+    def step(self, closure: Optional[Callable] = None) -> torch.FloatTensor:
+        """Perform a single optimization step.
+
+        Args:
+            closure: A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            Loss value at the end of the optimization step.
+
+        """
 
         loss = None
         if closure is not None:
@@ -124,31 +126,42 @@ class CocobBackprop(optim.Optimizer):
 
 
 class CocobOns(optim.Optimizer):
-    """Implements Coin-Betting through ONS .
+    """Coin Betting optimizer with Online Learning.
 
     It has been proposed in `Black-Box Reductions for Parameter-free
-    Online Learning in Banach Spaces`__.
+    Online Learning in Banach Spaces`.
 
-    Cocob-Ons is an experimental variation from the paper.
-    Do not use it yet.
+    Reference:
+        https://arxiv.org/pdf/1705.07795.pdf
 
-    Arguments:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        eps (float, optional): positive initial wealth for betting algorithm.
-            Theoretical convergence gauarantee does not depend on choice of
-            eps (default: 1e-8)
-
-    __ https://arxiv.org/pdf/1705.07795.pdf
     """
 
-    def __init__(self, params, eps=1e-8):
+    def __init__(self, params: Union[Iterable, Dict[str, Any]], eps: Optional[float] = 1e-8):
+        """Initialize the optimizer.
+
+        Args:
+            params: Iterable of parameters to optimize or dicts defining
+                parameter groups.
+            eps: Positive initial wealth for betting algorithm. Theoretical convergence
+                gauarantee does not depend on choice of `eps`.
+
+        """
 
         self.eps = eps
         defaults = dict(eps=eps)
+
         super(CocobOns, self).__init__(params, defaults)
 
-    def step(self, closure=None):
+    def step(self, closure: Optional[Callable] = None) -> torch.FloatTensor:
+        """Perform a single optimization step.
+
+        Args:
+            closure: A closure that reevaluates the model and returns the loss.
+
+        Returns:
+            Loss value at the end of the optimization step.
+
+        """
 
         loss = None
         if closure is not None:

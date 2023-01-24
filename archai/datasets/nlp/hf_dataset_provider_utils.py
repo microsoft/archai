@@ -111,7 +111,7 @@ def tokenize_nsp_dataset(
     padding: Optional[Union[bool, str]] = "max_length",
     **kwargs,
 ) -> Dict[str, Any]:
-    """Tokenizes a list of examples using a specified tokenizer and
+    """Tokenize a list of examples using a specified tokenizer and
     with next-sentence prediction (NSP).
 
     Args:
