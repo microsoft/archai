@@ -29,17 +29,17 @@ File-Related (Utilities)
    :members:
    :undoc-members:
 
-Logger
-------
+Ordered Dict Logger
+-------------------
 
-.. automodule:: archai.common.logger
+.. automodule:: archai.common.ordered_dict_logger
    :members:
    :undoc-members:
 
-Logger (Utilities)
-------------------
+Ordered Dict Logger (Utilities)
+-------------------------------
 
-.. automodule:: archai.common.logger_utils
+.. automodule:: archai.common.ordered_dict_logger_utils
    :members:
    :undoc-members:
 

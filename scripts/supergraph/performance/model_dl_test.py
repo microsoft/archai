@@ -6,7 +6,7 @@ from torch_testbed import cifar10_models, utils
 from torch_testbed.dataloader_dali import cifar10_dataloaders
 from torch_testbed.timing import MeasureTime, clear_timings, print_all_timings
 
-utils.create_logger()
+
 utils.setup_cuda(42, local_rank=0)
 
 batch_size = 512

@@ -168,12 +168,10 @@ def param_size(module: nn.Module, ignore_aux=True, only_req_grad=False):
 
 
 def save_model(model, model_path):
-    # logger.info('saved to model: {}'.format(model_path))
     torch.save(model.state_dict(), model_path)
 
 
 def load_model(model, model_path):
-    # logger.info('load from model: {}'.format(model_path))
     model.load_state_dict(torch.load(model_path))
 
 

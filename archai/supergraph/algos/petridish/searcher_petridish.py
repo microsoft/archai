@@ -11,7 +11,7 @@ from overrides import overrides
 
 from archai.supergraph.utils import common
 
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.utils.common import CommonState
 from archai.common.config import Config
 from archai.supergraph.nas.arch_trainer import TArchTrainer
@@ -24,6 +24,8 @@ from archai.supergraph.nas.search_combinations import SearchCombinations
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.supergraph.algos.petridish.petridish_utils import ConvexHullPoint, JobStage, \
     sample_from_hull, plot_frontier, save_hull_frontier, save_hull, plot_pool, plot_seed_model_stats
+
+logger = OrderedDictLogger(source=__name__)
 
 
 class SearcherPetridish(SearchCombinations):

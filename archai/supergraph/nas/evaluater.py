@@ -9,7 +9,7 @@ from overrides import EnforceOverrides
 
 from archai.supergraph.utils.trainer import Trainer
 from archai.common.config import Config
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.datasets import data
 from archai.supergraph.nas.model_desc import ModelDesc
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
@@ -18,6 +18,8 @@ from archai.supergraph.utils import ml_utils, utils
 from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.nas.model import Model
 from archai.supergraph.utils.checkpoint import CheckPoint
+
+logger = OrderedDictLogger(source=__name__)
 
 
 class EvalResult:

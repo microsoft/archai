@@ -12,10 +12,12 @@ import PIL, PIL.ImageOps, PIL.ImageEnhance, PIL.ImageDraw
 import numpy as np
 
 from archai.supergraph.datasets.aug_policies import fa_reduced_cifar10, fa_reduced_svhn, fa_resnet50_rimagenet
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.datasets.cv.transforms.custom_cutout import CustomCutout
 
+logger = OrderedDictLogger(source=__name__)
 _random_mirror = True
+
 
 class Augmentation:
     def __init__(self, policies):

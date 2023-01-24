@@ -18,8 +18,11 @@ import matplotlib.pyplot as plt
 from archai.supergraph.nas.model_desc import ModelDesc
 from archai.supergraph.utils.metrics import Metrics
 
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.utils import utils
+
+logger = OrderedDictLogger(source=__name__)
+
 
 class JobStage(Enum):
     # below values must be assigned in sequence so getting next job stage enum is easy

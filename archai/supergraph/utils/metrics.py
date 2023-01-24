@@ -14,8 +14,10 @@ from torch import Tensor
 import yaml
 
 from archai.supergraph.utils import ml_utils, utils
-from archai.supergraph.utils.common import logger, get_tb_writer
+from archai.supergraph.utils.common import get_tb_writer
 from archai.supergraph.utils.apex_utils import ApexUtils
+
+logger = OrderedDictLogger(source=__name__)
 
 
 class Metrics:

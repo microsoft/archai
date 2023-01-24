@@ -6,12 +6,14 @@ from typing import Tuple, Optional
 from torch.utils.data import Sampler, Dataset, DataLoader
 
 from archai.supergraph.datasets.augmentation import add_named_augs
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.utils import utils, apex_utils
 from archai.supergraph.datasets.dataset_provider import DatasetProvider, get_provider_type
 from archai.common.config import Config
 from archai.supergraph.datasets.limit_dataset import DatasetLike
 from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
+
+logger = OrderedDictLogger(source=__name__)
 
 
 class DataLoaders:

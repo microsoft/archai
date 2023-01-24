@@ -17,6 +17,9 @@ from archai.supergraph.utils import utils
 from archai.supergraph.utils.apex_utils import ApexUtils
 from send2trash import send2trash
 
+logger = OrderedDictLogger(source=__name__)
+
+
 class SummaryWriterDummy:
     def __init__(self, log_dir):
         pass
@@ -28,7 +31,6 @@ class SummaryWriterDummy:
 
 SummaryWriterAny = Union[SummaryWriterDummy, SummaryWriter]
 
-logger = OrderedDictLogger(None, None, yaml_log=False)
 _tb_writer: Optional[SummaryWriterAny] = None
 _atexit_reg = False # is hook for atexit registered?
 
@@ -53,12 +55,6 @@ def get_expdir(conf:Optional[Config]=None)->Optional[str]:
 def get_datadir(conf:Optional[Config]=None)->Optional[str]:
     return get_conf(conf)['dataset']['dataroot']
 
-def get_logger() -> OrderedDictLogger:
-    global logger
-    if logger is None:
-        raise RuntimeError('get_logger call made before logger was setup!')
-    return logger
-
 def get_tb_writer() -> SummaryWriterAny:
     global _tb_writer
     assert _tb_writer
@@ -66,8 +62,7 @@ def get_tb_writer() -> SummaryWriterAny:
 
 class CommonState:
     def __init__(self) -> None:
-        global logger, _tb_writer
-        self.logger = logger
+        global _tb_writer
         self.tb_writer = _tb_writer
         self.conf = get_conf()
 
@@ -75,8 +70,6 @@ def on_app_exit():
     print('Process exit:', os.getpid(), flush=True)
     writer = get_tb_writer()
     writer.flush()
-    if isinstance(logger, OrderedDictLogger):
-        logger.close()
 
 def pt_dirs()->Tuple[str, str]:
     # dirs for pt infrastructure are supplied in env vars
@@ -109,17 +102,10 @@ def _pt_params(param_args: list)->list:
 def get_state()->CommonState:
     return CommonState()
 
-def init_from(state:CommonState, recreate_logger=True)->None:
-    global logger, _tb_writer
+def init_from(state:CommonState)->None:
+    global _tb_writer
 
     Config.set_inst(state.conf)
-
-    if recreate_logger:
-        create_logger(state.conf)
-    else:
-        logger = state.logger
-
-    logger.info({'common_init_from_state': True})
 
     _tb_writer = state.tb_writer
 
@@ -165,14 +151,11 @@ def common_init(config_filepath: Optional[str]=None,
     # create experiment dir
     create_dirs(conf, clean_expdir)
 
-    # create global logger
-    create_logger(conf)
-
     _create_sysinfo(conf)
 
     # create apex to know distributed processing paramters
     conf_apex = get_conf_common(conf)['apex']
-    apex = ApexUtils(conf_apex, logger=logger)
+    apex = ApexUtils(conf_apex)
 
     # setup tensorboard
     global _tb_writer
@@ -307,43 +290,3 @@ def create_dirs(conf:Config, clean_expdir:bool)->Optional[str]:
     logger.info({'expdir': expdir,
                  # create info file for current system
                  'PT_DATA_DIR': pt_data_dir, 'PT_OUTPUT_DIR': pt_output_dir})
-
-def create_logger(conf:Config):
-    global logger
-    logger.close()  # close any previous instances
-
-    conf_common = get_conf_common(conf)
-    expdir = conf_common['expdir']
-    distdir = conf_common['distdir']
-    log_prefix = conf_common['log_prefix']
-    yaml_log = conf_common['yaml_log']
-    log_level = conf_common['log_level']
-
-    if utils.is_main_process():
-        logdir, log_suffix = expdir, ''
-    else:
-        logdir, log_suffix = distdir, '_' + str(os.getpid())
-
-    # ensure folders
-    os.makedirs(logdir, exist_ok=True)
-
-    # file where logger would log messages
-    sys_log_filepath = utils.full_path(os.path.join(logdir, f'{log_prefix}{log_suffix}.log'))
-    logs_yaml_filepath = utils.full_path(os.path.join(logdir, f'{log_prefix}{log_suffix}.yaml'))
-    experiment_name = get_experiment_name(conf) + log_suffix
-    #print(f'experiment_name={experiment_name}, log_stdout={sys_log_filepath}, log_file={sys_log_filepath}')
-
-    sys_logger = utils.create_logger(filepath=sys_log_filepath,
-                                     name=experiment_name, level=log_level,
-                                     enable_stdout=True)
-    if not sys_log_filepath:
-        sys_logger.warn(
-            'log_prefix not specified, logs will be stdout only')
-
-    # reset to new file path
-    #logger.reset(logs_yaml_filepath, sys_logger, yaml_log=yaml_log, backup_existing_file=False)
-    logger.info({'command_line': ' '.join(sys.argv) if utils.is_main_process() else f'Child process: {utils.process_name()}-{os.getpid()}'})
-    logger.info({'process_name': utils.process_name(), 'is_main_process': utils.is_main_process(),
-                 'main_process_pid':utils.main_process_pid(), 'pid':os.getpid(), 'ppid':os.getppid(), 'is_debugging': utils.is_debugging()})
-    logger.info({'experiment_name': experiment_name, 'datetime:': datetime.datetime.now()})
-    logger.info({'logs_yaml_filepath': logs_yaml_filepath, 'sys_log_filepath': sys_log_filepath})

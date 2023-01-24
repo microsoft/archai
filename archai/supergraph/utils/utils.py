@@ -131,38 +131,6 @@ def write_string(filepath:str, content:str)->None:
 def read_string(filepath:str)->str:
     return pathlib.Path(filepath).read_text()
 
-def create_logger(filepath:Optional[str]=None,
-                  name:Optional[str]=None,
-                  level=logging.INFO,
-                  enable_stdout=True)->logging.Logger:
-    logging.basicConfig(level=level) # this sets level for standard logging.info calls
-    logger = logging.getLogger(name=name)
-
-    # close current handlers
-    for handler in logger.handlers[:]:
-        handler.close()
-        logger.removeHandler(handler)
-
-    logger.setLevel(level)
-
-    if enable_stdout:
-        ch = logging.StreamHandler()
-        ch.setLevel(level)
-        ch.setFormatter(logging.Formatter('%(asctime)s %(message)s', '%H:%M'))
-        logger.addHandler(ch)
-
-    logger.propagate = False # otherwise root logger prints things again
-
-    if filepath:
-        filepath = full_path(filepath)
-        # log files gets appeneded if already exist
-        # zero_file(filepath)
-        fh = logging.FileHandler(filename=full_path(filepath))
-        fh.setLevel(level)
-        fh.setFormatter(logging.Formatter('[%(asctime)s][%(levelname)s] %(message)s'))
-        logger.addHandler(fh)
-    return logger
-
 def fmt(val:Any)->str:
     if isinstance(val, float):
         return f'{val:.4g}'

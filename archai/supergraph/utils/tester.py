@@ -12,10 +12,11 @@ from overrides import EnforceOverrides
 from archai.supergraph.utils.metrics import Metrics
 from archai.common.config import Config
 from archai.supergraph.utils import ml_utils
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.utils.apex_utils import ApexUtils
 
-# pyright: reportOptionalMemberAccess=false
+logger = OrderedDictLogger(source=__name__)
+
 
 class Tester(EnforceOverrides):
     def __init__(self, conf_val:Config, model:nn.Module, apex:ApexUtils)->None:

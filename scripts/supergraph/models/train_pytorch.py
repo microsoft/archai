@@ -1,5 +1,4 @@
 import argparse
-import logging
 import math
 import os
 import time
@@ -16,8 +15,11 @@ from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph import models
 from archai.supergraph.utils import utils
+
+logger = OrderedDictLogger(source=__name__)
 
 
 def train(
@@ -32,19 +34,19 @@ def train(
         val_acc = test(net, val_dal, device, half) if val_dal is not None else math.nan
         metrics.append({"val_top1": val_acc, "train_top1": train_acc, "lr": lr, "epoch": epoch, "train_loss": loss})
         if not quiet:
-            logging.info(f"train_epoch={epoch}, val_top1={val_acc}," f" train_top1={train_acc}, lr={lr:.4g}")
+            logger.info(f"train_epoch={epoch}, val_top1={val_acc}," f" train_top1={train_acc}, lr={lr:.4g}")
     return metrics
 
 
 def optim_sched_orig(net, epochs):
     lr, momentum, weight_decay = 0.1, 0.9, 1.0e-4
     optim = torch.optim.SGD(net.parameters(), lr, momentum=momentum, weight_decay=weight_decay)
-    logging.info(f"lr={lr}, momentum={momentum}, weight_decay={weight_decay}")
+    logger.info(f"lr={lr}, momentum={momentum}, weight_decay={weight_decay}")
 
     sched = torch.optim.lr_scheduler.MultiStepLR(optim, milestones=[100, 150, 200, 400, 600])  # resnet original paper
     sched_on_epoch = True
 
-    logging.info(f"sched_on_epoch={sched_on_epoch}, sched={str(sched)}")
+    logger.info(f"sched_on_epoch={sched_on_epoch}, sched={str(sched)}")
 
     return optim, sched, sched_on_epoch
 
@@ -52,12 +54,12 @@ def optim_sched_orig(net, epochs):
 def optim_sched_cosine(net, epochs):
     lr, momentum, weight_decay = 0.025, 0.9, 1.0e-4
     optim = torch.optim.SGD(net.parameters(), lr, momentum=momentum, weight_decay=weight_decay)
-    logging.info(f"lr={lr}, momentum={momentum}, weight_decay={weight_decay}")
+    logger.info(f"lr={lr}, momentum={momentum}, weight_decay={weight_decay}")
 
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(optim, epochs)
     sched_on_epoch = True
 
-    logging.info(f"sched_on_epoch={sched_on_epoch}, sched={str(sched)}")
+    logger.info(f"sched_on_epoch={sched_on_epoch}, sched={str(sched)}")
 
     return optim, sched, sched_on_epoch
 
@@ -73,7 +75,7 @@ def get_data(
 ) -> Tuple[DataLoader, Optional[DataLoader], DataLoader]:
     if utils.is_debugging():
         train_num_workers = test_num_workers = 0
-        logging.info("debugger=true, num_workers=0")
+        logger.info("debugger=true, num_workers=0")
     if train_num_workers <= -1:
         train_num_workers = torch.cuda.device_count() * 4
     if test_num_workers <= -1:
@@ -106,7 +108,7 @@ def get_data(
         testset, batch_size=test_batch_size, shuffle=False, num_workers=test_num_workers, pin_memory=True
     )
 
-    logging.info(f"train_len={train_len}, val_len={val_len}, test_len={len(testset)}")
+    logger.info(f"train_len={train_len}, val_len={val_len}, test_len={len(testset)}")
 
     return train_dl, val_dl, test_dl
 
@@ -256,7 +258,7 @@ def create_crit(device, half):
 def create_model(model_name, device, half) -> nn.Module:
     model_class = getattr(models, model_name)
     net = model_class()
-    logging.info(f"param_size_m={param_size(net):.1e}")
+    logger.info(f"param_size_m={param_size(net):.1e}")
     net = net.to(device)
     if half:
         net.half()
@@ -300,15 +302,13 @@ def main():
     datadir = utils.full_path(args.datadir)
     os.makedirs(datadir, exist_ok=True)
 
-    utils.create_logger(filepath=os.path.join(expdir, "logs.log"))
-
     # log config for reference
-    logging.info(f'exp_name="{args.experiment_name}", exp_desc="{args.experiment_description}"')
-    logging.info(f'model_name="{args.model_name}", seed={args.seed}, epochs={args.epochs}')
-    logging.info(f"half={args.half}, cutout={args.cutout}")
-    logging.info(f'datadir="{datadir}"')
-    logging.info(f'expdir="{expdir}"')
-    logging.info(f"train_batch_size={args.train_batch_size}")
+    logger.info(f'exp_name="{args.experiment_name}", exp_desc="{args.experiment_description}"')
+    logger.info(f'model_name="{args.model_name}", seed={args.seed}, epochs={args.epochs}')
+    logger.info(f"half={args.half}, cutout={args.cutout}")
+    logger.info(f'datadir="{datadir}"')
+    logger.info(f'expdir="{expdir}"')
+    logger.info(f"train_batch_size={args.train_batch_size}")
 
     if args.device:
         device = torch.device(args.device)

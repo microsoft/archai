@@ -17,7 +17,7 @@ import glob
 from archai.supergraph.utils import ml_utils
 
 from archai.common.config import Config
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.nas.model_desc import CellType, ModelDesc
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.supergraph.nas import nas_utils
@@ -25,6 +25,9 @@ from archai.supergraph.utils import common, utils
 from archai.supergraph.nas.evaluater import Evaluater, EvalResult
 from archai.supergraph.algos.petridish.petridish_utils import ConvexHullPoint, ExperimentStage, JobStage, \
     save_hull, plot_pool
+
+logger = OrderedDictLogger(source=__name__)
+
 
 def filepath_ext(filepath:str)->str:
     """Returns '.f' for '/a/b/c/d.e.f' """

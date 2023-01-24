@@ -40,10 +40,6 @@ class Model(ArchModule):
         # it indicates the input channel number
         self.logits_op = Op.create(model_desc.logits_op, affine=affine)
 
-        # for i,cell in enumerate(self.cells):
-        #     print(i, ml_utils.param_size(cell))
-        #logger.info({'model_summary': self.summary()})
-
     def _build_cell(self, cell_desc:CellDesc,
                     aux_tower_desc:Optional[AuxTowerDesc],
                     droppath:bool, affine:bool)->None:

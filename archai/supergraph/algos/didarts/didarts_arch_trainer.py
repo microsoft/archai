@@ -9,8 +9,11 @@ from archai.supergraph.nas.arch_trainer import ArchTrainer
 from archai.supergraph.nas.model import Model
 from archai.supergraph.utils.checkpoint import CheckPoint
 
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched
+
+logger = OrderedDictLogger(source=__name__)
+
 
 class DidartsArchTrainer(ArchTrainer):
     """Train network using different optimizers for alphas and other parameters"""

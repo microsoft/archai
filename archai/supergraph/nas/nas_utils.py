@@ -7,8 +7,10 @@ import tensorwatch as tw
 
 from archai.common.config import Config
 from archai.supergraph.nas.model import Model
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.supergraph.utils.checkpoint import CheckPoint
+
+logger = OrderedDictLogger(source=__name__)
 
 
 def checkpoint_empty(checkpoint:Optional[CheckPoint])->bool:

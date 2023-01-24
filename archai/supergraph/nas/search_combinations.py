@@ -9,7 +9,7 @@ import yaml
 
 from overrides import overrides
 
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.common.config import Config
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.supergraph.nas.arch_trainer import TArchTrainer
@@ -18,6 +18,8 @@ from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.utils import utils
 from archai.supergraph.nas.finalizers import Finalizers
 from archai.supergraph.nas.searcher import ModelMetrics, Searcher, SearchResult
+
+logger = OrderedDictLogger(source=__name__)
 
 
 class SearchCombinations(Searcher):

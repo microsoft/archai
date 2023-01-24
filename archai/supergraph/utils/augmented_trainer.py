@@ -9,10 +9,12 @@ from torch.nn.parallel.data_parallel import DataParallel
 from tqdm import tqdm
 
 from archai.supergraph.utils import ml_utils, utils
-from archai.supergraph.utils.common import get_tb_writer, logger
+from archai.supergraph.utils.common import get_tb_writer
 from archai.supergraph.utils.metrics import Accumulator
 from archai.supergraph.datasets.data import get_dataloaders
 from archai.supergraph.models import get_model, num_class
+
+logger = OrderedDictLogger(source=__name__)
 
 
 # TODO: remove scheduler parameter?

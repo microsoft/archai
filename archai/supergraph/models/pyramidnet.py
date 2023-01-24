@@ -163,7 +163,6 @@ class PyramidNet(nn.Module):
                     temp_cfg = int((depth - 2) / 8)
 
                 layers[depth] = [temp_cfg, temp_cfg, temp_cfg, temp_cfg]
-                #logger.info('=> the layer configuration for each stage is set to', layers[depth])
 
             self.inplanes = 64
             self.addrate = alpha / (sum(layers[depth]) * 1.0)

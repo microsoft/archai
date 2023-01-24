@@ -23,8 +23,11 @@ from archai.common.ordereddict_logger import OrderedDictLogger
 from archai.supergraph.utils import ml_utils, utils
 from archai.supergraph.utils.multi_optim import MultiOptim
 
+logger = OrderedDictLogger(source=__name__)
+
+
 class ApexUtils:
-    def __init__(self, apex_config:Config, logger:Optional[OrderedDictLogger])->None:
+    def __init__(self, apex_config:Config)->None:
         # region conf vars
         self._enabled = apex_config['enabled'] # global switch to disable anything apex
         self._distributed_enabled = apex_config['distributed_enabled'] # enable/disable distributed mode
@@ -45,9 +48,6 @@ class ApexUtils:
         self.ray_enabled = conf_ray['enabled']
         self.ray_local_mode = conf_ray['local_mode']
         # endregion
-
-        # to avoid circular references= with common, logger is passed from outside
-        self.logger = logger
 
         self._scaler = None
 
@@ -182,8 +182,8 @@ class ApexUtils:
         return self.ray_enabled
 
     def _log_info(self, d:dict)->None:
-        if self.logger is not None:
-            self.logger.info(d)
+        if logger is not None:
+            logger.info(d)
 
     def sync_devices(self)->None:
         if self.is_dist():

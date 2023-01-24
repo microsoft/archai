@@ -6,7 +6,7 @@ import copy
 
 from overrides import EnforceOverrides
 
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
 
 from archai.common.config import Config
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
@@ -17,6 +17,8 @@ from archai.supergraph.datasets import data
 from archai.supergraph.nas.model import Model
 from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.nas.finalizers import Finalizers
+
+logger = OrderedDictLogger(source=__name__)
 
 
 class ModelMetrics:

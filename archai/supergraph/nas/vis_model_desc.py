@@ -6,7 +6,9 @@ from typing import Tuple, Optional
 
 from archai.supergraph.nas.model_desc import CellDesc, CellType, ModelDesc
 from archai.supergraph.utils.utils import first_or_default
-from archai.supergraph.utils.common import logger
+from archai.common.ordered_dict_logger import OrderedDictLogger
+
+logger = OrderedDictLogger(source=__name__)
 
 
 def draw_model_desc(model_desc:ModelDesc, filepath:str=None, caption:str=None)\
