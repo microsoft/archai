@@ -1,29 +1,36 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import numpy as np
-from copy import deepcopy
 import unittest
-from tqdm import tqdm
+from copy import deepcopy
 from typing import Callable, List, Tuple
 
+import numpy as np
+from tqdm import tqdm
+
 import archai.algos.divnas.analyse_activations as aa
+from archai.supergraph.algos.divnas.analyse_activations import (
+    _compute_mi,
+    compute_brute_force_sol,
+    create_submod_f,
+)
 from archai.supergraph.algos.divnas.seqopt import SeqOpt
-from archai.supergraph.algos.divnas.analyse_activations import _compute_mi, compute_brute_force_sol
-from archai.supergraph.algos.divnas.analyse_activations import create_submod_f
 from archai.supergraph.algos.divnas.wmr import Wmr
 
-def create_rbf_func(first:np.array, sigma:float)->Callable:
+
+def create_rbf_func(first: np.array, sigma: float) -> Callable:
     assert len(first.shape) == 1
     assert sigma >= 0.0
-    def rbf_bound(second:np.array):
+
+    def rbf_bound(second: np.array):
         assert len(second.shape) == 1
-        val =  aa.rbf(first, second, sigma)
+        val = aa.rbf(first, second, sigma)
         return val
+
     return rbf_bound
 
 
-def synthetic_data2()->List[Tuple[np.array, np.array]]:
+def synthetic_data2() -> List[Tuple[np.array, np.array]]:
     # num grid locations
     num_loc = 10
     # plop some kernels on 0, 3, 9
@@ -42,7 +49,7 @@ def synthetic_data2()->List[Tuple[np.array, np.array]]:
     return Y
 
 
-def synthetic_data()->List[Tuple[np.array, np.array]]:
+def synthetic_data() -> List[Tuple[np.array, np.array]]:
     # num grid locations
     num_loc = 10
     # plop some kernels on 0, 3, 9
@@ -61,7 +68,7 @@ def synthetic_data()->List[Tuple[np.array, np.array]]:
     return Y
 
 
-def compute_synthetic_data_covariance(Y:List[Tuple[np.array, np.array]], sigma=0.8):
+def compute_synthetic_data_covariance(Y: List[Tuple[np.array, np.array]], sigma=0.8):
     num_obsvs = len(Y)
     covariance = np.zeros((num_obsvs, num_obsvs), np.float32)
 
@@ -78,24 +85,21 @@ def compute_synthetic_data_covariance(Y:List[Tuple[np.array, np.array]], sigma=0
                 obsv_i = np.reshape(obsv_i, (obsv_i.shape[0], 1))
                 obsv_j = np.reshape(obsv_j, (obsv_j.shape[0], 1))
 
-            rbfs = np.exp(-np.sum(np.square(obsv_i - obsv_j), axis=1) / (2*sigma*sigma))
-            avg_cov = np.sum(rbfs)/obsv_i.shape[0]
+            rbfs = np.exp(-np.sum(np.square(obsv_i - obsv_j), axis=1) / (2 * sigma * sigma))
+            avg_cov = np.sum(rbfs) / obsv_i.shape[0]
             covariance[i][j] = covariance[j][i] = avg_cov
 
     return covariance
 
 
-
-
 class SeqOptSyntheticDataTestCase(unittest.TestCase):
-
     def setUp(self):
         self.Y = synthetic_data2()
         self.vals = [item[0] for item in self.Y]
         self.cov_kernel = compute_synthetic_data_covariance(self.Y)
 
     def test_marginal_gain_calculation(self):
-        """ Tests that marginal gain calculation is correct """
+        """Tests that marginal gain calculation is correct"""
         V = set(range(self.cov_kernel.shape[0]))
         A_random = set([1])
         V_minus_A_random = V - A_random
@@ -106,13 +110,13 @@ class SeqOptSyntheticDataTestCase(unittest.TestCase):
         V_minus_A_aug = V - A_aug
         I_A_aug = _compute_mi(self.cov_kernel, A_aug, V_minus_A_aug)
         diff_via_direct = abs(I_A_aug - I_A_random)
-        print(f'MI(A) {I_A_random}, MI(A U y) {I_A_aug}, diff {diff_via_direct}')
+        print(f"MI(A) {I_A_random}, MI(A U y) {I_A_aug}, diff {diff_via_direct}")
 
         diff = aa.compute_marginal_gain(y, A_random, V, self.cov_kernel)
         # the marginal_gain leaves out 0.5 * log term as it does not
         # matter for ranking elements
         half_log_diff = 0.5 * np.log(diff)
-        print(f'Diff via aa.compute {half_log_diff}')
+        print(f"Diff via aa.compute {half_log_diff}")
         self.assertAlmostEqual(diff_via_direct, half_log_diff, delta=0.01)
 
     def test_greedy(self):
@@ -121,7 +125,7 @@ class SeqOptSyntheticDataTestCase(unittest.TestCase):
 
         # brute force solution
         bf_sensors, bf_val = compute_brute_force_sol(self.cov_kernel, budget)
-        print(f'Brute force max subset {bf_sensors}, max mi {bf_val}')
+        print(f"Brute force max subset {bf_sensors}, max mi {bf_val}")
 
         # greedy
         greedy_sensors = aa.greedy_op_selection(self.cov_kernel, budget)
@@ -130,7 +134,7 @@ class SeqOptSyntheticDataTestCase(unittest.TestCase):
         A_greedy = set(greedy_sensors)
         V_minus_A_greedy = V - A_greedy
         I_greedy = _compute_mi(self.cov_kernel, A_greedy, V_minus_A_greedy)
-        print(f'Greedy solution is {greedy_sensors}, mi is {I_greedy}')
+        print(f"Greedy solution is {greedy_sensors}, mi is {I_greedy}")
 
         self.assertAlmostEqual(bf_val, I_greedy, delta=0.1)
 
@@ -157,7 +161,7 @@ class SeqOptSyntheticDataTestCase(unittest.TestCase):
 
         # brute force solution
         bf_sensors, bf_val = compute_brute_force_sol(self.cov_kernel, budget)
-        print(f'Brute force max subset {bf_sensors}, max mi {bf_val}')
+        print(f"Brute force max subset {bf_sensors}, max mi {bf_val}")
 
         # greedy
         greedy_sensors = aa.greedy_op_selection(self.cov_kernel, budget)
@@ -166,7 +170,7 @@ class SeqOptSyntheticDataTestCase(unittest.TestCase):
         A_greedy = set(greedy_sensors)
         V_minus_A_greedy = V - A_greedy
         I_greedy = _compute_mi(self.cov_kernel, A_greedy, V_minus_A_greedy)
-        print(f'Greedy solution is {greedy_sensors}, mi is {I_greedy}')
+        print(f"Greedy solution is {greedy_sensors}, mi is {I_greedy}")
 
         # online greedy
         eps = 0.1
@@ -195,16 +199,14 @@ class SeqOptSyntheticDataTestCase(unittest.TestCase):
         A_seqopt = set(seqopt_sensors)
         V_minus_A_seqopt = V - A_seqopt
         I_seqopt = _compute_mi(self.cov_kernel, A_seqopt, V_minus_A_seqopt)
-        print(f'SeqOpt solution is {seqopt_sensors}, mi is {I_seqopt}')
+        print(f"SeqOpt solution is {seqopt_sensors}, mi is {I_seqopt}")
 
         self.assertAlmostEqual(I_seqopt, I_greedy, delta=0.1)
         self.assertAlmostEqual(I_greedy, bf_val, delta=0.1)
 
 
-
 def main():
     unittest.main()
-
 
     # # generate some synthetic 1d data
     # Y = synthetic_data2()
@@ -266,9 +268,5 @@ def main():
     # print(f'SeqOpt solution is {seqopt_sensors}, mi is {I_seqopt}')
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
-
-
