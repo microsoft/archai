@@ -2,14 +2,14 @@
 # Licensed under the MIT license.
 
 from collections import UserDict
-from typing import Callable, Any
+from typing import Callable
 import weakref
 import os
 
 import torch
 
 from archai.common.config import Config
-from archai.common import utils
+from archai.supergraph.utils import utils
 
 _CallbackType = Callable #[['CheckPoint', *kargs: Any, **kwargs: Any], None]
 class CheckPoint(UserDict):

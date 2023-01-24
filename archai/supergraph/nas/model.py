@@ -1,11 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Tuple, Optional, Any, List
-from collections import OrderedDict
+from typing import Iterable, Tuple, Optional
 import numpy as np
-import yaml
-import os
 
 import torch
 from torch import nn, Tensor

@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.common.config import Config
-from typing import List, Tuple, Optional, Iterator
+from typing import List, Tuple, Optional
 from overrides import EnforceOverrides
 
 from torch import nn

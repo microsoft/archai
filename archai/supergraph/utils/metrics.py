@@ -13,10 +13,9 @@ from torch import Tensor
 
 import yaml
 
-from archai.common import utils
-from archai.supergraph.utils import ml_utils
-from archai.common.common import logger, get_tb_writer
-from archai.common.apex_utils import ApexUtils
+from archai.supergraph.utils import ml_utils, utils
+from archai.supergraph.utils.common import logger, get_tb_writer
+from archai.supergraph.utils.apex_utils import ApexUtils
 
 
 class Metrics:

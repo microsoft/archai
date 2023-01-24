@@ -13,15 +13,14 @@ from hyperopt import hp
 from ray.tune import register_trainable, run_experiments
 from ray.tune.suggest import HyperOptSearch
 from ray.tune.trial import Trial
-from ray.tune.trial_runner import TrialRunner  # will be patched but not used
 from tqdm import tqdm
 
-from archai.common.common import expdir_abspath, logger
 from archai.common.config import Config
+from archai.supergraph.utils.common import expdir_abspath, logger
 from archai.supergraph.utils.metrics import Accumulator
-from archai.common.stopwatch import StopWatch
+from archai.supergraph.utils.stopwatch import StopWatch
 from archai.supergraph.utils.augmented_trainer import train_and_eval
-from archai.datasets.cv.augmentation.augmentation_policy import policy_decoder, remove_deplicates, augment_list
+from archai.supergraph.datasets.augmentation import policy_decoder, remove_deplicates, augment_list
 from archai.supergraph.datasets.data import get_dataloaders
 from archai.supergraph.models import get_model, num_class
 

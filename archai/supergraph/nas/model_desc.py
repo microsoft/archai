@@ -1,10 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-
-
 from enum import Enum
-from typing import Mapping, Optional, List, Tuple, Union
+from typing import Mapping, Optional, List, Union
 import pathlib
 import os
 import torch
@@ -12,8 +10,8 @@ import copy
 
 import yaml
 
-from archai.common import utils
-from archai.common.common import logger
+from archai.supergraph.utils import utils
+from archai.supergraph.utils.common import logger
 from archai.common.config import Config
 
 """

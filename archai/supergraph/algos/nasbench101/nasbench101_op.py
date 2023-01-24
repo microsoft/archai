@@ -1,19 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from copy import deepcopy
-from typing import Iterable, List, Optional, Iterator, Tuple, Mapping
-import heapq
-import copy
+from typing import List, Optional
 
 import torch
-from torch import Tensor, nn
+from torch import Tensor
 
 from overrides import overrides
 
-from archai.supergraph.nas.model_desc import ConvMacroParams, OpDesc
-from archai.supergraph.nas.operations import Identity, Op, FactorizedReduce
-from archai.common.utils import zip_eq
+from archai.supergraph.nas.model_desc import OpDesc
+from archai.supergraph.nas.operations import Op
 from archai.supergraph.nas.arch_params import ArchParams
 
 

@@ -14,12 +14,11 @@ from overrides import EnforceOverrides
 from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.utils.tester import Tester
 from archai.common.config import Config
-from archai.common import utils
 from archai.supergraph.utils import ml_utils
-from archai.common.common import logger
+from archai.supergraph.utils.common import logger
 from archai.supergraph.datasets import data
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.common.apex_utils import ApexUtils
+from archai.supergraph.utils.apex_utils import ApexUtils
 from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched
 
 # pyright: reportOptionalMemberAccess=false, reportOptionalSubscript=false

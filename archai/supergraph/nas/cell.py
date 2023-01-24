@@ -1,9 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Callable, Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional
 
-from torch import nn, tensor
+from torch import nn
 from overrides import overrides, EnforceOverrides
 
 from archai.supergraph.nas.dag_edge import DagEdge

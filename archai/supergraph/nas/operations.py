@@ -3,14 +3,14 @@
 
 from argparse import ArgumentError
 from typing import Callable, Iterable, Iterator, List, Mapping, Tuple, Dict, Optional, Union
-from abc import ABC, abstractmethod
+from abc import ABC
 import copy
 import math
 
 from overrides import overrides, EnforceOverrides
 
 import torch
-from torch import affine_grid_generator, nn, Tensor, strided
+from torch import nn, Tensor
 
 from archai.supergraph.utils import ml_utils
 from archai.supergraph.nas.model_desc import OpDesc, ConvMacroParams

@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Tuple, Optional, Iterator, Dict
+from typing import List, Dict
 from overrides import overrides
 
 import torch
@@ -12,10 +12,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 
-from archai.common.common import get_conf
-from archai.common.common import get_expdir
+from archai.supergraph.utils.common import get_conf
+from archai.supergraph.utils.common import get_expdir
 
-from archai.common.common import logger
+from archai.supergraph.utils.common import logger
 from archai.supergraph.datasets.data import get_data
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.cell import Cell
@@ -25,7 +25,7 @@ from archai.supergraph.algos.divnas.analyse_activations import compute_brute_for
 from archai.supergraph.algos.divnas.divop import DivOp
 from archai.supergraph.nas.operations import Zero
 
-from .divnas_cell import Divnas_Cell
+from archai.supergraph.algos.divnas.divnas_cell import Divnas_Cell
 
 
 class DivnasRankFinalizers(Finalizers):

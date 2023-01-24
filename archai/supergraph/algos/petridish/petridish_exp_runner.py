@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Type, Optional, Tuple
 import os
 import shutil
 
@@ -13,8 +12,7 @@ from archai.supergraph.algos.petridish.petridish_model_desc_builder import Petri
 
 from archai.supergraph.algos.petridish.searcher_petridish import SearcherPetridish
 from archai.supergraph.algos.petridish.evaluater_petridish import EvaluaterPetridish
-from archai.common.config import Config
-from archai.common import utils
+from archai.supergraph.utils import utils
 
 
 def copy_dir(src_dir:str, dest_dir:str, use_shutil:bool=True)->None:

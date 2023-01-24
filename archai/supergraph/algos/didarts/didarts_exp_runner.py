@@ -1,8 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Type
-
 from overrides import overrides
 
 from archai.supergraph.nas.exp_runner import ExperimentRunner

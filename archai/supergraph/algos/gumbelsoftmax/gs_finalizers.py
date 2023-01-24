@@ -1,22 +1,11 @@
-from typing import List, Tuple, Optional, Iterator, Dict
 from overrides import overrides
 
 import torch
 from torch import nn
 import torch.nn.functional as F
 
-import numpy as np
-import matplotlib.pyplot as plt
-import os
-
-from archai.common.common import get_conf
-from archai.common.common import get_expdir
-
-from archai.common.common import logger
-from archai.supergraph.datasets.data import get_data
-from archai.supergraph.nas.model import Model
-from archai.supergraph.nas.cell import Cell
-from archai.supergraph.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
+from archai.supergraph.utils.common import get_conf
+from archai.supergraph.nas.model_desc import NodeDesc, EdgeDesc
 from archai.supergraph.nas.finalizers import Finalizers
 from archai.supergraph.algos.gumbelsoftmax.gs_op import GsOp
 

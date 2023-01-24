@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 import numpy as np
-from typing import List, Optional, Set, Dict
+from typing import List
 
 from archai.supergraph.algos.divnas.wmr import Wmr
 

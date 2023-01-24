@@ -4,7 +4,6 @@
 import numpy as np
 
 
-
 class Wmr:
     """ Implements the Randomized Weighted Majority algorithm by Littlestone and Warmuth
     We use the version in Fig 1 in The Multiplicative Weight Update with the gain version """

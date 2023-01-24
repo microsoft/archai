@@ -3,15 +3,16 @@
 
 # code in this file is adpated from rpmcruz/autoaugment
 # https://github.com/rpmcruz/autoaugment/blob/master/transformations.py
-from typing import List, Tuple, Union, Optional
+
+from typing import List, Union
 import random
 from collections import defaultdict
 
 import PIL, PIL.ImageOps, PIL.ImageEnhance, PIL.ImageDraw
 import numpy as np
 
-from .aug_policies import fa_reduced_cifar10, fa_reduced_svhn, fa_resnet50_rimagenet
-from archai.common.common import logger
+from archai.supergraph.datasets.aug_policies import fa_reduced_cifar10, fa_reduced_svhn, fa_resnet50_rimagenet
+from archai.supergraph.utils.common import logger
 from archai.datasets.cv.transforms.custom_cutout import CustomCutout
 
 _random_mirror = True

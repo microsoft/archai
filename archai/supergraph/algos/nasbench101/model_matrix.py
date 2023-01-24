@@ -1,4 +1,4 @@
-from typing import List, Sequence
+from typing import List
 import numpy as np
 import copy
 

@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import functools
 from typing import Dict, Iterable, Sized, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
 import  numpy as np
 import logging
@@ -10,25 +9,16 @@ from collections import OrderedDict
 import sys
 import  os
 import pathlib
-from pathlib import Path
 import random
 from itertools import zip_longest
 import shutil
 import multiprocessing
-from distutils import dir_util
 from datetime import datetime
 import platform
 from urllib.parse import urlparse, unquote
 from urllib.request import url2pathname
 
 import  torch
-import torch.backends.cudnn as cudnn
-from torch import nn
-from torch.optim import lr_scheduler, SGD, Adam
-from torch.optim.lr_scheduler import _LRScheduler
-from torch.optim.optimizer import Optimizer
-from torch.nn.modules.loss import _WeightedLoss, _Loss
-import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 from torchvision.datasets import utils as tvutils
 

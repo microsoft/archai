@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Mapping, Optional, Union, Iterator
+from typing import Iterator
 import copy
 
 import torch
@@ -10,11 +10,9 @@ from torch.nn.modules.loss import _Loss
 from torch.optim.optimizer import Optimizer
 
 from archai.common.config import Config
-from archai.common import utils
 from archai.supergraph.nas.model import Model
 
-from archai.common.common import logger
-from archai.common.utils import zip_eq
+from archai.supergraph.utils.utils import zip_eq
 from archai.supergraph.utils import ml_utils
 
 def _flatten_concate(xs):

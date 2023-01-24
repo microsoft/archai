@@ -2,9 +2,7 @@
 # Licensed under the MIT license.
 
 import numpy as np
-import pdb
 from collections import defaultdict
-from itertools import combinations_with_replacement
 import matplotlib.pyplot as plt
 import seaborn as sns
 import math as ma
@@ -13,7 +11,7 @@ import os
 from copy import deepcopy
 from typing import List, Set, Dict, Tuple, Any, Callable
 from tqdm import tqdm
-from itertools import permutations, combinations
+from itertools import combinations
 
 from archai.supergraph.algos.divnas.seqopt import SeqOpt
 

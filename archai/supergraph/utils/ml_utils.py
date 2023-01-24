@@ -3,25 +3,18 @@
 
 import gc
 import math
-from collections import Counter, OrderedDict, defaultdict
+from collections import Counter
 from typing import (
-    Any,
-    Iterable,
     List,
-    Mapping,
-    MutableMapping,
     Optional,
-    Sequence,
     Tuple,
-    Type,
 )
 
 import numpy as np
 import statopt
 import torch
-import torch.nn.functional as F
 from torch import Tensor, nn
-from torch.nn.modules.loss import _Loss, _WeightedLoss
+from torch.nn.modules.loss import _Loss
 from torch.optim import SGD, Adam, lr_scheduler
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer

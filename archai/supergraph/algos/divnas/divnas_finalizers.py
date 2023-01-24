@@ -1,17 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Tuple, Optional, Iterator, Dict
+from typing import List, Dict
 from overrides import overrides
 
 import torch
 from torch import nn
 
-import numpy as np
+from archai.supergraph.utils.common import get_conf
 
-from archai.common.common import get_conf
-
-from archai.common.common import logger
+from archai.supergraph.utils.common import logger
 from archai.supergraph.datasets.data import get_data
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.cell import Cell

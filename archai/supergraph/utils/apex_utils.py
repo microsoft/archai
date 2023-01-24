@@ -2,9 +2,8 @@
 # Licensed under the MIT license.
 
 import contextlib
-from typing import Optional, Sequence, Tuple, List
+from typing import Optional
 import os
-import argparse
 
 import torch
 from torch.optim.optimizer import Optimizer
@@ -20,9 +19,8 @@ import ray
 import psutil
 
 from archai.common.config import Config
-from archai.common import utils
-from archai.supergraph.utils import ml_utils
 from archai.common.ordereddict_logger import OrderedDictLogger
+from archai.supergraph.utils import ml_utils, utils
 from archai.supergraph.utils.multi_optim import MultiOptim
 
 class ApexUtils:

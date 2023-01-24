@@ -1,19 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Tuple, Union, Optional
 import os
 import shutil
 import torch
 
 import torchvision
-from torchvision.transforms import transforms
-from torch.utils.data.dataset import Dataset
-from torchvision.datasets.utils import check_integrity, download_url
-from archai.common.utils import download_and_extract_tar, extract_tar
+from torchvision.datasets.utils import check_integrity
+from archai.supergraph.utils.utils import download_and_extract_tar, extract_tar
 
 
-from archai.common.common import logger
+from archai.supergraph.utils.common import logger
 
 
 

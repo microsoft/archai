@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Sequence, Tuple, List, Set, Optional
+from typing import Tuple, List
 import copy
 
 from overrides import overrides
@@ -10,7 +10,7 @@ from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType
                                   EdgeDesc, TensorShape, TensorShapes, TensorShapesList, NodeDesc, AuxTowerDesc
 from archai.common.config import Config
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.nas.operations import MultiOp, Op
+from archai.supergraph.nas.operations import Op
 
 from archai.supergraph.algos.nasbench101 import model_matrix
 from archai.supergraph.algos.nasbench101.nasbench101_op import NasBench101Op

@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterator, Mapping, Type, Optional, Tuple, List
+from typing import Optional, Tuple, List
 from enum import Enum
 import os
 import math
@@ -15,12 +15,11 @@ from tensorwatch import ModelStats
 import yaml
 import matplotlib.pyplot as plt
 
-from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
-                                  EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
+from archai.supergraph.nas.model_desc import ModelDesc
 from archai.supergraph.utils.metrics import Metrics
 
-from archai.common.common import logger
-from archai.common import utils
+from archai.supergraph.utils.common import logger
+from archai.supergraph.utils import utils
 
 class JobStage(Enum):
     # below values must be assigned in sequence so getting next job stage enum is easy

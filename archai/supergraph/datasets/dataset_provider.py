@@ -1,13 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, Tuple, Type, Optional, Union
+from typing import Dict, Tuple, Optional, Union
 from abc import abstractmethod
 
-from overrides import overrides, EnforceOverrides
+from overrides import EnforceOverrides
 
 from torch.utils.data.dataset import Dataset
-from torchvision.transforms import transforms
 
 from archai.common.config import Config
 

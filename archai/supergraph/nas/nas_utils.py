@@ -1,18 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Tuple, Optional
-
-from torch import nn
-from torch.utils.data.dataloader import DataLoader
+from typing import Optional
 
 import tensorwatch as tw
 
 from archai.common.config import Config
 from archai.supergraph.nas.model import Model
-from archai.common.common import logger
+from archai.supergraph.utils.common import logger
 from archai.supergraph.utils.checkpoint import CheckPoint
-
 
 
 def checkpoint_empty(checkpoint:Optional[CheckPoint])->bool:

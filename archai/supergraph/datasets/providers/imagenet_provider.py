@@ -1,24 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Tuple, Union, Optional
 import os
-import shutil
-import torch
-
-import torchvision
 from torchvision.transforms import transforms
 from torchvision import datasets
-from torchvision.datasets.utils import check_integrity, download_url
 
 from PIL import Image
 
-from overrides import overrides, EnforceOverrides
+from overrides import overrides
 
 from archai.supergraph.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
 from archai.common.config import Config
-from archai.common import utils
-from archai.datasets.cv.transforms.lighting import Lighting
+from archai.supergraph.utils import utils
 
 
 class ImagenetProvider(DatasetProvider):

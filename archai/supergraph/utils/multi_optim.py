@@ -2,13 +2,11 @@
 # Licensed under the MIT license.
 
 from typing import Iterator, List, Optional
-from collections import UserList
 
-from torch import nn, Tensor
 from torch.optim.optimizer import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
 
-from archai.common.utils import zip_eq
+from archai.supergraph.utils.utils import zip_eq
 
 
 class OptimSched:

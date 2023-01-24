@@ -11,10 +11,9 @@ from overrides import EnforceOverrides
 
 from archai.supergraph.utils.metrics import Metrics
 from archai.common.config import Config
-from archai.common import utils
 from archai.supergraph.utils import ml_utils
-from archai.common.common import logger
-from archai.common.apex_utils import ApexUtils
+from archai.supergraph.utils.common import logger
+from archai.supergraph.utils.apex_utils import ApexUtils
 
 # pyright: reportOptionalMemberAccess=false
 
