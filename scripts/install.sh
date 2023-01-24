@@ -1,6 +1,5 @@
 #!/bin/bash
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT license.
+
 
 # Fails if any errors
 set -e
