@@ -8,7 +8,18 @@ COPY_VALUE_PREFIX = "_copy:"  # For copying the value of a node (must be scalar)
 
 
 def merge_dicts(source: Mapping, destination: MutableMapping) -> None:
-    # for anything that source has but dest doesn't, just do copy
+    """Recursively merge dictionaries.
+    
+    If a key is present in both `source` and `destination`, the value in `destination` is
+    overwritten with the value in `source`.
+    
+    Args:
+        source: Source dictionary.
+        destination: Destination dictionary.
+        
+    """
+
+    # Copy anything that source has but destination doesn't
     for source_key in source:
         if source_key not in destination:
             destination[source_key] = source[source_key]
@@ -16,13 +27,25 @@ def merge_dicts(source: Mapping, destination: MutableMapping) -> None:
             source_value = source[source_key]
             destination_value = destination[source_key]
 
-            # recursively merge child nodes
+            # Recursively merge child nodes
             if isinstance(source_value, Mapping) and isinstance(destination_value, MutableMapping):
                 merge_dicts(source_value, destination_value)
-            # else at least dest value is not dict and should not be overriden
 
 
-def concatenate_paths(path1: str, path2: str):
+def concatenate_paths(path1: str, path2: str) -> str:
+    """Concatenates two paths.
+    
+    For example, `path1=/a/b/c` and `path2=d/e` should return `/a/b/c/d/e`.
+    
+    Args:
+        path1: First path.
+        path2: Second path.
+        
+    Returns:
+        Concatenated path.
+        
+    """
+
     def _normalize_path(path: str) -> str:
         if len(path) > 1 and path.endswith("/"):
             path = path[:-1]
@@ -42,15 +65,32 @@ def concatenate_paths(path1: str, path2: str):
     return _normalize_path(res)
 
 
-def is_valid_path(path: str) -> bool:
+def is_path_valid(path: str) -> bool:
+    """Checks if a path is valid.
+    
+    Args:
+        path: Path to check.
+        
+    Returns:
+        `True` if path is valid, `False` otherwise.
+        
+    """
+
     return path.startswith("/") and (len(path) == 1 or not path.endswith("/"))
 
 
 def get_absolute_path(current_working_directory: str, relative_path: str) -> str:
-    """Given current directory and path, we return abolute path. For example,
-    current_working_directory='/a/b/c' and relative_path='../d/e' should return '/a/b/d/e'.
-    Note that relative_path can hold an absolute path in which case it will start with '/'
+    """Returns an absolute path given a current working directory and a relative path.
+    
+    Args:
+        current_working_directory: Current working directory.
+        relative_path: Relative path.
+        
+    Returns:
+        Absolute path.
+        
     """
+
     assert len(current_working_directory) > 0 and current_working_directory.startswith(
         "/"
     ), "current_working_directory must be an absolute path"
@@ -78,12 +118,21 @@ def get_absolute_path(current_working_directory: str, relative_path: str) -> str
             final_parts.append(part)
 
     final_path = "/" + "/".join(final_parts)  # should work even when final_parts is empty
-    assert ".." not in final_path and is_valid_path(final_path)  # make algorithm indeed worked
+    assert ".." not in final_path and is_path_valid(final_path)  # make algorithm indeed worked
     return final_path
 
 
 def get_path_to_resolve(value: Any) -> Optional[str]:
-    """If the value is actually a path we need resolve then return that path or return None"""
+    """Returns path to resolve if value is a copy node, otherwise returns None.
+    
+    Args:
+        value: Value to check.
+        
+    Returns:
+        Path to resolve if value is a copy node, otherwise returns None.
+    
+    """
+
     if isinstance(value, str) and value.startswith(COPY_VALUE_PREFIX):
         # we will almost always have space after _copy command
         return value[len(COPY_VALUE_PREFIX) :].strip()
@@ -91,9 +140,19 @@ def get_path_to_resolve(value: Any) -> Optional[str]:
 
 
 def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> Any:
-    """For given path returns value or node from root_dict"""
+    """Resolves a path in a dictionary.
+    
+    Args:
+        root_dict: Root dictionary.
+        path: Path to resolve.
+        visited_paths: Set of paths that have already been visited.
+        
+    Returns:
+        Value at path.
+        
+    """
 
-    assert is_valid_path(path)
+    assert is_path_valid(path)
 
     # traverse path in root dict hierarchy
     current_path = "/"  # path at each iteration of for loop
@@ -107,7 +166,7 @@ def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> An
         if isinstance(current_dict, Mapping):
             # for this section, make sure everything is resolved
             # before we prob for the key
-            _resolve_values_recursively(root_dict, current_dict, current_path, visited_paths)
+            resolve_values_recursively(root_dict, current_dict, current_path, visited_paths)
 
             if part in current_dict:
                 # "cd" into child node
@@ -130,10 +189,20 @@ def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> An
     return current_dict
 
 
-def _resolve_values_recursively(
+def resolve_values_recursively(
     root_dict: MutableMapping, current_dict: MutableMapping, current_path: str, visited_paths: set
 ) -> None:
-    assert is_valid_path(current_path)
+    """Resolves values in a dictionary recursively.
+    
+    Args:
+        root_dict: Root dictionary.
+        current_dict: Current dictionary.
+        current_path: Current path.
+        visited_paths: Set of paths that have already been visited.
+        
+    """
+
+    assert is_path_valid(current_path)
 
     if current_path in visited_paths:
         return  # to avoid infinite recursion
@@ -161,10 +230,17 @@ def _resolve_values_recursively(
             )
         # recursively resolve values in nested dicts
         if isinstance(current_dict[key], MutableMapping):
-            _resolve_values_recursively(
+            resolve_values_recursively(
                 root_dict, current_dict[key], concatenate_paths(current_path, key), visited_paths
             )
 
 
-def resolve_all_values(root_dict: MutableMapping):
-    _resolve_values_recursively(root_dict, root_dict, "/", set())
+def resolve_all_values(root_dict: MutableMapping) -> None:
+    """Resolves all values in a dictionary recursively.
+    
+    Args:
+        root_dict: Root dictionary.
+        
+    """
+
+    resolve_values_recursively(root_dict, root_dict, "/", set())
