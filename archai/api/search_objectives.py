@@ -70,6 +70,7 @@ class SearchObjectives:
             constraint: Objective constraint used to filter out candidate architectures.
                 Expects `(lower_bound, upper_bound)` tuple. Can only be set
                 if `compute_intensive` is set to `False`.
+
         """
 
         assert isinstance(model_evaluator, (ModelEvaluator, AsyncModelEvaluator))
@@ -98,6 +99,7 @@ class SearchObjectives:
             model_evaluator: The model evaluator responsible for evaluating the constraint.
             constraint: The valid range of the constraint. Expects a `(lower_bound, upper_bound)`
                 tuple.
+
         """
 
         assert isinstance(model_evaluator, (ModelEvaluator, AsyncModelEvaluator))
@@ -120,6 +122,7 @@ class SearchObjectives:
 
         Returns:
             A dictionary of objectives or constraints that satisfy the query.
+
         """
 
         return {obj_name: obj_dict for obj_name, obj_dict in objs.items() if query_fn(obj_dict[field_name])}

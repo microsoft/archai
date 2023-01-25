@@ -20,6 +20,8 @@ from archai.supergraph.utils import utils
 
 
 def main():
+    logger = get_global_logger()
+
     runner_types: Dict[str, Type[ExperimentRunner]] = {
         "darts": DartsExperimentRunner,
         "petridish": PetridishExperimentRunner,
@@ -88,8 +90,8 @@ def main():
 
             runner.run(search=not args.no_search, eval=not args.no_eval)
 
+    logger.close()
+
 
 if __name__ == "__main__":
     main()
-    logger = get_global_logger()
-    logger.close()

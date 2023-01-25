@@ -19,7 +19,7 @@ def merge_dicts(source: Mapping, destination: MutableMapping) -> None:
 
     """
 
-    # Copy anything that source has but destination doesn't
+    # Copy anything that source has but destination does not have
     for source_key in source:
         if source_key not in destination:
             destination[source_key] = source[source_key]
@@ -33,7 +33,7 @@ def merge_dicts(source: Mapping, destination: MutableMapping) -> None:
 
 
 def concatenate_paths(path1: str, path2: str) -> str:
-    """Concatenates two paths.
+    """Concatenate two paths.
 
     For example, `path1=/a/b/c` and `path2=d/e` should return `/a/b/c/d/e`.
 
@@ -51,22 +51,21 @@ def concatenate_paths(path1: str, path2: str) -> str:
             path = path[:-1]
         return path
 
-    mid = 1 if path1.endswith("/") else 0
-    mid += 1 if path2.startswith("/") else 0
+    split_point = 1 if path1.endswith("/") else 0
+    split_point += 1 if path2.startswith("/") else 0
 
-    # only 3 possibilities
-    if mid == 0:
-        res = path1 + "/" + path2
-    elif mid == 1:
-        res = path1 + path2
+    if split_point == 0:
+        concat_path = path1 + "/" + path2
+    elif split_point == 1:
+        concat_path = path1 + path2
     else:
-        res = path1[:-1] + path2
+        concat_path = path1[:-1] + path2
 
-    return _normalize_path(res)
+    return _normalize_path(concat_path)
 
 
 def is_path_valid(path: str) -> bool:
-    """Checks if a path is valid.
+    """Check if a path is valid.
 
     Args:
         path: Path to check.
@@ -79,68 +78,67 @@ def is_path_valid(path: str) -> bool:
     return path.startswith("/") and (len(path) == 1 or not path.endswith("/"))
 
 
-def get_absolute_path(current_working_directory: str, relative_path: str) -> str:
-    """Returns an absolute path given a current working directory and a relative path.
+def get_absolute_path(src_folder: str, rel_path: str) -> str:
+    """Get an absolute path given a current source folder and a relative path.
 
     Args:
-        current_working_directory: Current working directory.
-        relative_path: Relative path.
+        src_folder: Current source folder.
+        rel_path: Relative path.
 
     Returns:
         Absolute path.
 
     """
 
-    assert len(current_working_directory) > 0 and current_working_directory.startswith(
-        "/"
-    ), "current_working_directory must be an absolute path"
+    assert len(src_folder) > 0 and src_folder.startswith("/"), "`src_folder` must be an absolute path"
 
-    relative_parts = relative_path.split("/")
-    if relative_path.startswith("/"):
-        current_working_directory_parts = []  # relative_path is absolute path so ignore current_working_directory
+    rel_paths = rel_path.split("/")
+    if rel_path.startswith("/"):
+        src_folder_paths = []  # `rel_path` is absolute path so ignore `src_folder`
     else:
-        current_working_directory_parts = current_working_directory.split("/")
-    full_parts = current_working_directory_parts + relative_parts
+        src_folder_paths = src_folder.split("/")
+    full_paths = src_folder_paths + rel_paths
 
-    final_parts = []
-    for i in range(len(full_parts)):
-        part = full_parts[i].strip()
-        if not part or part == ".":  # remove blank strings and single dots
+    final_paths = []
+    for i in range(len(full_paths)):
+        path = full_paths[i].strip()
+        if not path or path == ".":  # Remove blank strings and single dots
             continue
-        if part == "..":
-            if len(final_parts):
-                final_parts.pop()
-            else:
-                raise RuntimeError(
-                    f"cannot create abs path for current_working_directory={current_working_directory} and relative_path={relative_path}"
-                )
-        else:
-            final_parts.append(part)
 
-    final_path = "/" + "/".join(final_parts)  # should work even when final_parts is empty
-    assert ".." not in final_path and is_path_valid(final_path)  # make algorithm indeed worked
+        if path == "..":
+            if len(final_paths):
+                final_paths.pop()
+            else:
+                raise RuntimeError(f"cannot create abs path for src_folder={src_folder} and rel_path={rel_path}")
+        else:
+            final_paths.append(path)
+
+    final_path = "/" + "/".join(final_paths)  # Should work even when `final_paths` is empty
+    assert ".." not in final_path and is_path_valid(final_path)
+
     return final_path
 
 
 def get_path_to_resolve(value: Any) -> Optional[str]:
-    """Returns path to resolve if value is a copy node, otherwise returns None.
+    """Get a path that will be resolved.
 
     Args:
         value: Value to check.
 
     Returns:
-        Path to resolve if value is a copy node, otherwise returns None.
+        Path to resolve if value is a copy node, otherwise returns `None`.
 
     """
 
     if isinstance(value, str) and value.startswith(COPY_VALUE_PREFIX):
-        # we will almost always have space after _copy command
+        # Almost always have space after _copy command
         return value[len(COPY_VALUE_PREFIX) :].strip()
+
     return None
 
 
 def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> Any:
-    """Resolves a path in a dictionary.
+    """Resolve a path in a dictionary.
 
     Args:
         root_dict: Root dictionary.
@@ -154,29 +152,28 @@ def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> An
 
     assert is_path_valid(path)
 
-    # traverse path in root dict hierarchy
-    current_path = "/"  # path at each iteration of for loop
+    # Traverse path in root dict hierarchy
+    current_path = "/"  # Path at each iteration of for loop
     current_dict = root_dict
-    for part in path.split("/"):
-        if not part:
-            continue  # there will be blank vals at start
+    for path in path.split("/"):
+        if not path:
+            continue  # There will be blank vals at start
 
-        # For each part, we need to be able find key in dict but some dics may not
-        # be fully resolved yet. For last key, current_dict will be either dict or other value.
+        # For each path, we need to be able find key in dict but some dics may not be fully resolved yet
+        # For last key, `current_dict` will be either dict or other value
         if isinstance(current_dict, Mapping):
-            # for this section, make sure everything is resolved
-            # before we prob for the key
-            resolve_values_recursively(root_dict, current_dict, current_path, visited_paths)
+            # For this section, make sure everything is resolved before we search for the key
+            _resolve_dict(root_dict, current_dict, current_path, visited_paths)
 
-            if part in current_dict:
+            if path in current_dict:
                 # "cd" into child node
-                current_dict = current_dict[part]
-                current_path = concatenate_paths(current_path, part)
+                current_dict = current_dict[path]
+                current_path = concatenate_paths(current_path, path)
             else:
-                raise RuntimeError(f'Path {path} could not be found in specified dictionary at "{part}"')
+                raise RuntimeError(f"Path `{path}` could not be found in specified dictionary at `{path}`.")
         else:
             raise KeyError(
-                f'Path "{path}" cannot be resolved because "{current_path}" is not a dictionary so "{part}" cannot exist in it'
+                f"Path `{path}` cannot be resolved because `{current_path}` is not a dictionary so `{path}` cannot exist in it."
             )
 
     # last child is our answer
@@ -184,15 +181,16 @@ def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> An
     if resolved_path:
         next_path = get_absolute_path(current_path, resolved_path)
         if next_path == path:
-            raise RuntimeError(f'Cannot resolve path "{path}" because it is circular reference')
+            raise RuntimeError(f"Cannot resolve path `{path}` because it is circular reference.")
         current_dict = resolve_path(root_dict, next_path, visited_paths)
+
     return current_dict
 
 
-def resolve_values_recursively(
+def _resolve_dict(
     root_dict: MutableMapping, current_dict: MutableMapping, current_path: str, visited_paths: set
 ) -> None:
-    """Resolves values in a dictionary recursively.
+    """Recursively resolve values in a dictionary.
 
     Args:
         root_dict: Root dictionary.
@@ -205,42 +203,36 @@ def resolve_values_recursively(
     assert is_path_valid(current_path)
 
     if current_path in visited_paths:
-        return  # to avoid infinite recursion
+        return  # Avoids infinite recursion
     visited_paths.add(current_path)
 
-    # check if current dict has a copy node key
     child_path = current_dict.get(COPY_NODE_KEY, None)
     if child_path and isinstance(child_path, str):
-        # resolve the path to get the source dict
         child_dict = resolve_path(root_dict, get_absolute_path(current_path, child_path), visited_paths)
-        # ensure the target path points to a dict that can be merged
         if not isinstance(child_dict, Mapping):
-            raise RuntimeError(f'Path "{child_path}" should be dictionary but its instead "{child_dict}"')
-        # merge keys that have not been overridden
+            raise RuntimeError(f"Path `{child_path}` should be dictionary but its instead `{child_dict}`.")
+
         merge_dicts(child_dict, current_dict)
-        # remove the copy node key
         del current_dict[COPY_NODE_KEY]
 
     for key in current_dict.keys():
-        # check if this key needs path resolution
         resolved_path = get_path_to_resolve(current_dict[key])
         if resolved_path:
             current_dict[key] = resolve_path(
                 root_dict, get_absolute_path(concatenate_paths(current_path, key), resolved_path), visited_paths
             )
-        # recursively resolve values in nested dicts
+
+        # Recursively resolve values in nested dicts
         if isinstance(current_dict[key], MutableMapping):
-            resolve_values_recursively(
-                root_dict, current_dict[key], concatenate_paths(current_path, key), visited_paths
-            )
+            _resolve_dict(root_dict, current_dict[key], concatenate_paths(current_path, key), visited_paths)
 
 
-def resolve_all_values(root_dict: MutableMapping) -> None:
-    """Resolves all values in a dictionary recursively.
+def resolve_dict(root_dict: MutableMapping) -> None:
+    """Resolve all values in a dictionary recursively.
 
     Args:
         root_dict: Root dictionary.
 
     """
 
-    resolve_values_recursively(root_dict, root_dict, "/", set())
+    _resolve_dict(root_dict, root_dict, "/", set())

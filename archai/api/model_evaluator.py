@@ -41,7 +41,7 @@ class ModelEvaluator(EnforceOverrides):
         >>>             )
         >>>
         >>>         return np.mean(labels == preds)
-
+        >>>
         >>> class NumberOfModules(ModelEvaluator):
         >>>     @overrides
         >>>     def evaluate(self, model: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None):

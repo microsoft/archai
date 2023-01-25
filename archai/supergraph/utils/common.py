@@ -36,7 +36,7 @@ _atexit_reg = False # is hook for atexit registered?
 def get_conf(conf:Optional[Config]=None)->Config:
     if conf is not None:
         return conf
-    return Config.get_instance()
+    return Config.get_global_instance()
 
 def get_conf_common(conf:Optional[Config]=None)->Config:
     return get_conf(conf)['common']
@@ -60,8 +60,7 @@ def get_tb_writer() -> SummaryWriterAny:
 
 class CommonState:
     def __init__(self) -> None:
-        global _logger, _conf, _tb_writer
-        self.logger = get_global_logger()
+        global _conf, _tb_writer
         self.conf = get_conf()
         self.tb_writer = _tb_writer
 
@@ -104,7 +103,7 @@ def get_state()->CommonState:
 def init_from(state:CommonState)->None:
     global _tb_writer
 
-    Config.set_instance(state.conf)
+    Config.set_global_instance(state.conf)
 
     _tb_writer = state.tb_writer
 
@@ -141,7 +140,7 @@ def common_init(config_filepath: Optional[str]=None,
 
     # setup global instance
     conf = create_conf(config_filepath, param_args, use_args)
-    Config.set_instance(conf)
+    Config.set_global_instance(conf)
 
     # setup env vars which might be used in paths
     update_envvars(conf)

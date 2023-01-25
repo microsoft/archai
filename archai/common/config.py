@@ -13,10 +13,10 @@ from typing import Any, Callable, Dict, List, Optional
 
 import yaml
 
-from archai.common.config_utils import resolve_all_values
+from archai.common.config_utils import resolve_dict
 
 
-def deep_update(d: MutableMapping, u: Mapping, mapping_fn: Callable[[], MutableMapping]) -> MutableMapping:
+def update_nested_dict(d: MutableMapping, u: Mapping, mapping_fn: Callable[[], MutableMapping]) -> MutableMapping:
     """Recursively update a dictionary with another dictionary.
 
     Args:
@@ -31,7 +31,7 @@ def deep_update(d: MutableMapping, u: Mapping, mapping_fn: Callable[[], MutableM
 
     for k, v in u.items():
         if isinstance(v, Mapping):
-            d[k] = deep_update(d.get(k, mapping_fn()), v, mapping_fn)
+            d[k] = update_nested_dict(d.get(k, mapping_fn()), v, mapping_fn)
         else:
             d[k] = v
 
@@ -89,14 +89,14 @@ class Config(UserDict):
         # that would not have existed before resolution
         r_config = copy.deepcopy(self)
         if resolve_redirect:
-            resolve_all_values(r_config)
+            resolve_dict(r_config)
 
         # Update with additional arguments
         self._update_from_args(args, r_config)  # Merge from supplied args
         self._update_from_args(extra_cl_args, r_config)  # Merge from command line args
 
         if resolve_redirect:
-            resolve_all_values(self)
+            resolve_dict(self)
 
         self.file_path = file_path
 
@@ -114,7 +114,7 @@ class Config(UserDict):
                 config_yaml = yaml.load(f, Loader=yaml.Loader)
 
             self._update_from_include(config_yaml, file_path)
-            deep_update(self, config_yaml, lambda: Config(resolve_redirect=False))
+            update_nested_dict(self, config_yaml, lambda: Config(resolve_redirect=False))
 
     def _update_from_include(self, config_yaml: Dict[str, Any], file_path: str) -> None:
         """Update the configuration from the __include__ directive.
@@ -145,7 +145,7 @@ class Config(UserDict):
         """
 
         i = 0
-        while i < len(args)-1:
+        while i < len(args) - 1:
             arg = args[i]
             if arg.startswith("--"):
                 path = arg[2:].split(".")
@@ -166,7 +166,7 @@ class Config(UserDict):
 
         """
 
-        for p in range(len(path)-1):
+        for p in range(len(path) - 1):
             sub_path = path[p]
             if sub_path in resolved_section:
                 resolved_section = resolved_section[sub_path]
@@ -183,8 +183,10 @@ class Config(UserDict):
                 original_type = type(original_val)
 
                 if original_type == bool:  # bool('False') is True :(
+
                     def original_type(x):
                         return strtobool(x) == 1
+
                 self[key] = original_type(value)
 
             except Exception:
@@ -205,7 +207,7 @@ class Config(UserDict):
 
         """
 
-        return deep_update({}, self, lambda: dict())
+        return update_nested_dict({}, self, lambda: dict())
 
     def get(self, key: str, default_value: Optional[Any] = None) -> Any:
         """Get a value from the `Config` object.
@@ -222,7 +224,7 @@ class Config(UserDict):
         return super().get(key, default_value)
 
     @staticmethod
-    def set_instance(instance: Config) -> None:
+    def set_global_instance(instance: Config) -> None:
         """Set a global configuration instance.
 
         Args:
@@ -234,7 +236,7 @@ class Config(UserDict):
         _config = instance
 
     @staticmethod
-    def get_instance() -> Config:
+    def get_global_instance() -> Config:
         """Get a global configuration instance.
 
         Returns:

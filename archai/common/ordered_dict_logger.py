@@ -302,7 +302,7 @@ class OrderedDictLogger:
         self.paths.pop()
 
     @staticmethod
-    def set_instance(instance: OrderedDictLogger) -> None:
+    def set_global_instance(instance: OrderedDictLogger) -> None:
         """Set a global logger instance.
 
         Args:
@@ -314,7 +314,7 @@ class OrderedDictLogger:
         _logger = instance
 
     @staticmethod
-    def get_instance() -> OrderedDictLogger:
+    def get_global_instance() -> OrderedDictLogger:
         """Get a global logger instance.
 
         Returns:
@@ -338,9 +338,9 @@ def get_global_logger() -> OrderedDictLogger:
     """
 
     try:
-        OrderedDictLogger.get_instance()
+        logger = OrderedDictLogger.get_global_instance()
     except:
-        logger = OrderedDictLogger()
-        OrderedDictLogger.set_instance(logger)
+        OrderedDictLogger.set_global_instance(OrderedDictLogger())
+        logger = OrderedDictLogger.get_global_instance()
 
-    return OrderedDictLogger.get_instance()
+    return logger
