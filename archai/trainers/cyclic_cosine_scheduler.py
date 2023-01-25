@@ -120,15 +120,6 @@ class CyclicCosineDecayLR(_LRScheduler):
         super(CyclicCosineDecayLR, self).__init__(optimizer, last_epoch, verbose=verbose)
 
     def get_lr(self) -> float:
-        """Return the learning rate.
-
-        This is the learning rate that will be used for the next iteration of training.
-
-        Returns:
-            The learning rate.
-
-        """
-
         if self._warmup_epochs > 0 and self.last_epoch < self._warmup_epochs:
             return self._calc(self.last_epoch, self._warmup_epochs, self._warmup_start_lr, self.base_lrs)
         elif self.last_epoch < self._init_decay_epochs + self._warmup_epochs:
@@ -156,47 +147,13 @@ class CyclicCosineDecayLR(_LRScheduler):
                 return self._min_decay_lr
 
     def _calc(self, t: int, T: int, lrs: List[float], min_lrs: List[float]) -> List[float]:
-        """Calculate the learning rate for the current cycle epoch.
-
-        Args:
-            t: The current cycle epoch.
-            T: The total number of epochs in the current cycle.
-            lrs: The initial learning rates for each parameter group.
-            min_lrs: The minimum learning rates for each parameter group.
-
-        Returns:
-            The annealed learning rates for each parameter group.
-
-        """
-
         return [min_lr + (lr - min_lr) * ((1 + cos(pi * t / T)) / 2) for lr, min_lr in zip(lrs, min_lrs)]
 
     def _get_n(self, epoch: int) -> int:
-        """Return the value of `n` for the current epoch.
-
-        Args:
-            epoch: The current epoch.
-
-        Returns:
-            int: The value of `n` for the current epoch.
-
-        """
-
         _t = 1 - (1 - self._restart_interval_multiplier) * epoch / self._restart_interval
-
         return floor(log(_t, self._restart_interval_multiplier))
 
     def _partial_sum(self, n: int) -> float:
-        """Calculate the partial sum of the geometric sequence.
-
-        Args:
-            n: The exponent of the current epoch.
-
-        Returns:
-            The partial sum of the geometric sequence.
-
-        """
-
         return (
             self._restart_interval
             * (1 - self._restart_interval_multiplier**n)

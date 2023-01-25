@@ -7,18 +7,7 @@ COPY_NODE_KEY = "_copy"  # For copying the content of a node (must be dict)
 COPY_VALUE_PREFIX = "_copy:"  # For copying the value of a node (must be scalar)
 
 
-def merge_dicts(source: Mapping, destination: MutableMapping) -> None:
-    """Recursively merge dictionaries.
-
-    If a key is present in both `source` and `destination`, the value in `destination` is
-    overwritten with the value in `source`.
-
-    Args:
-        source: Source dictionary.
-        destination: Destination dictionary.
-
-    """
-
+def _merge_dicts(source: Mapping, destination: MutableMapping) -> None:
     # Copy anything that source has but destination does not have
     for source_key in source:
         if source_key not in destination:
@@ -29,23 +18,10 @@ def merge_dicts(source: Mapping, destination: MutableMapping) -> None:
 
             # Recursively merge child nodes
             if isinstance(source_value, Mapping) and isinstance(destination_value, MutableMapping):
-                merge_dicts(source_value, destination_value)
+                _merge_dicts(source_value, destination_value)
 
 
-def concatenate_paths(path1: str, path2: str) -> str:
-    """Concatenate two paths.
-
-    For example, `path1=/a/b/c` and `path2=d/e` should return `/a/b/c/d/e`.
-
-    Args:
-        path1: First path.
-        path2: Second path.
-
-    Returns:
-        Concatenated path.
-
-    """
-
+def _concatenate_paths(path1: str, path2: str) -> str:
     def _normalize_path(path: str) -> str:
         if len(path) > 1 and path.endswith("/"):
             path = path[:-1]
@@ -64,32 +40,11 @@ def concatenate_paths(path1: str, path2: str) -> str:
     return _normalize_path(concat_path)
 
 
-def is_path_valid(path: str) -> bool:
-    """Check if a path is valid.
-
-    Args:
-        path: Path to check.
-
-    Returns:
-        `True` if path is valid, `False` otherwise.
-
-    """
-
+def _is_path_valid(path: str) -> bool:
     return path.startswith("/") and (len(path) == 1 or not path.endswith("/"))
 
 
-def get_absolute_path(src_folder: str, rel_path: str) -> str:
-    """Get an absolute path given a current source folder and a relative path.
-
-    Args:
-        src_folder: Current source folder.
-        rel_path: Relative path.
-
-    Returns:
-        Absolute path.
-
-    """
-
+def _get_absolute_path(src_folder: str, rel_path: str) -> str:
     assert len(src_folder) > 0 and src_folder.startswith("/"), "`src_folder` must be an absolute path"
 
     rel_paths = rel_path.split("/")
@@ -114,22 +69,12 @@ def get_absolute_path(src_folder: str, rel_path: str) -> str:
             final_paths.append(path)
 
     final_path = "/" + "/".join(final_paths)  # Should work even when `final_paths` is empty
-    assert ".." not in final_path and is_path_valid(final_path)
+    assert ".." not in final_path and _is_path_valid(final_path)
 
     return final_path
 
 
-def get_path_to_resolve(value: Any) -> Optional[str]:
-    """Get a path that will be resolved.
-
-    Args:
-        value: Value to check.
-
-    Returns:
-        Path to resolve if value is a copy node, otherwise returns `None`.
-
-    """
-
+def _get_path_to_resolve(value: Any) -> Optional[str]:
     if isinstance(value, str) and value.startswith(COPY_VALUE_PREFIX):
         # Almost always have space after _copy command
         return value[len(COPY_VALUE_PREFIX) :].strip()
@@ -137,20 +82,8 @@ def get_path_to_resolve(value: Any) -> Optional[str]:
     return None
 
 
-def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> Any:
-    """Resolve a path in a dictionary.
-
-    Args:
-        root_dict: Root dictionary.
-        path: Path to resolve.
-        visited_paths: Set of paths that have already been visited.
-
-    Returns:
-        Value at path.
-
-    """
-
-    assert is_path_valid(path)
+def _resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> Any:
+    assert _is_path_valid(path)
 
     # Traverse path in root dict hierarchy
     current_path = "/"  # Path at each iteration of for loop
@@ -168,7 +101,7 @@ def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> An
             if path in current_dict:
                 # "cd" into child node
                 current_dict = current_dict[path]
-                current_path = concatenate_paths(current_path, path)
+                current_path = _concatenate_paths(current_path, path)
             else:
                 raise RuntimeError(f"Path `{path}` could not be found in specified dictionary at `{path}`.")
         else:
@@ -177,12 +110,12 @@ def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> An
             )
 
     # last child is our answer
-    resolved_path = get_path_to_resolve(current_dict)
+    resolved_path = _get_path_to_resolve(current_dict)
     if resolved_path:
-        next_path = get_absolute_path(current_path, resolved_path)
+        next_path = _get_absolute_path(current_path, resolved_path)
         if next_path == path:
             raise RuntimeError(f"Cannot resolve path `{path}` because it is circular reference.")
-        current_dict = resolve_path(root_dict, next_path, visited_paths)
+        current_dict = _resolve_path(root_dict, next_path, visited_paths)
 
     return current_dict
 
@@ -190,17 +123,7 @@ def resolve_path(root_dict: MutableMapping, path: str, visited_paths: set) -> An
 def _resolve_dict(
     root_dict: MutableMapping, current_dict: MutableMapping, current_path: str, visited_paths: set
 ) -> None:
-    """Recursively resolve values in a dictionary.
-
-    Args:
-        root_dict: Root dictionary.
-        current_dict: Current dictionary.
-        current_path: Current path.
-        visited_paths: Set of paths that have already been visited.
-
-    """
-
-    assert is_path_valid(current_path)
+    assert _is_path_valid(current_path)
 
     if current_path in visited_paths:
         return  # Avoids infinite recursion
@@ -208,23 +131,23 @@ def _resolve_dict(
 
     child_path = current_dict.get(COPY_NODE_KEY, None)
     if child_path and isinstance(child_path, str):
-        child_dict = resolve_path(root_dict, get_absolute_path(current_path, child_path), visited_paths)
+        child_dict = _resolve_path(root_dict, _get_absolute_path(current_path, child_path), visited_paths)
         if not isinstance(child_dict, Mapping):
             raise RuntimeError(f"Path `{child_path}` should be dictionary but its instead `{child_dict}`.")
 
-        merge_dicts(child_dict, current_dict)
+        _merge_dicts(child_dict, current_dict)
         del current_dict[COPY_NODE_KEY]
 
     for key in current_dict.keys():
-        resolved_path = get_path_to_resolve(current_dict[key])
+        resolved_path = _get_path_to_resolve(current_dict[key])
         if resolved_path:
-            current_dict[key] = resolve_path(
-                root_dict, get_absolute_path(concatenate_paths(current_path, key), resolved_path), visited_paths
+            current_dict[key] = _resolve_path(
+                root_dict, _get_absolute_path(_concatenate_paths(current_path, key), resolved_path), visited_paths
             )
 
         # Recursively resolve values in nested dicts
         if isinstance(current_dict[key], MutableMapping):
-            _resolve_dict(root_dict, current_dict[key], concatenate_paths(current_path, key), visited_paths)
+            _resolve_dict(root_dict, current_dict[key], _concatenate_paths(current_path, key), visited_paths)
 
 
 def resolve_dict(root_dict: MutableMapping) -> None:

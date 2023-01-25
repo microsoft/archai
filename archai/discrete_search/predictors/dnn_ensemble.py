@@ -28,7 +28,7 @@ class PredictiveDNNEnsemble(Predictor):
         lr: Optional[float] = 1e-4,
         num_tr_steps: Optional[int] = 2_000,
     ) -> None:
-        """Initializes the predictor.
+        """Initialize the predictor.
 
         Args:
             num_ensemble_members: Number of ensemble members.
@@ -135,7 +135,7 @@ class FFEnsembleMember(nn.Module):
         num_layers: Optional[int] = 10,
         width: Optional[int] = 20,
     ) -> None:
-        """Initializes the ensemble member.
+        """Initialize the ensemble member.
 
         Args:
             num_objectives: Number of objectives.

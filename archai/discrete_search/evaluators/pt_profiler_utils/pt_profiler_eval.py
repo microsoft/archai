@@ -20,7 +20,7 @@ def profile(
     use_median: Optional[bool] = False,
     ignore_layers: Optional[List[str]] = None,
 ) -> Dict[str, Union[float, int]]:
-    """Profiles a PyTorch model.
+    """Profile a PyTorch model.
 
     Outputs FLOPs, MACs, number of parameters, latency and peak memory.
 

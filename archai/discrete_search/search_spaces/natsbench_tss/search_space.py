@@ -34,7 +34,7 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
     OPS = ["none", "avg_pool_3x3", "nor_conv_1x1", "nor_conv_3x3", "skip_connect"]
 
     def __init__(self, natsbench_location: str, base_dataset: str, seed: Optional[int] = 1) -> None:
-        """Initializes the search space.
+        """Initialize the search space.
 
         Args:
             natsbench_location: Path to the NATS-Bench-TSS dataset.

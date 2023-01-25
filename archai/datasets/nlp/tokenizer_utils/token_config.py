@@ -6,17 +6,7 @@ from enum import Enum
 from typing import List, Optional
 
 
-def dedup_list(input_list: List[str]) -> List[str]:
-    """Remove duplicate elements from a list while preserving order.
-
-    Args:
-        input_list: List of elements.
-
-    Returns:
-        List of elements with duplicates removed.
-
-    """
-
+def _dedup_list(input_list: List[str]) -> List[str]:
     return list(OrderedDict.fromkeys(input_list))
 
 
@@ -75,7 +65,7 @@ class TokenConfig:
 
         """
 
-        return dedup_list([stok for stok in (self.unk_token, self.bos_token, self.eos_token, self.pad_token) if stok])
+        return _dedup_list([stok for stok in (self.unk_token, self.bos_token, self.eos_token, self.pad_token) if stok])
 
     def special_token_name(self, sp: SpecialTokenEnum) -> str:
         """Return the name of a special token.

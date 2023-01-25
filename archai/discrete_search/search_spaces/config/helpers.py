@@ -10,7 +10,7 @@ from archai.discrete_search.search_spaces.config.discrete_choice import Discrete
 def repeat_config(
     config_dict: Dict[str, Any], repeat_times: List[int], share_arch: Optional[bool] = False
 ) -> Dict[str, Any]:
-    """Repeats a configuration multiple times.
+    """Repeat a configuration multiple times.
 
     Args:
         config_dict: Configuration dictionary.

@@ -21,37 +21,44 @@ logger = OrderedDictLogger(source=__name__)
 
 
 class RegularizedEvolutionSearch(Searcher):
+    """Regularized Evolution algorithm.
+
+    It has been proposed in `Regularized Evolution for Image Classifier Architecture Search`.
+
+    Reference:
+        https://arxiv.org/abs/1802.01548v7.
+
+    """
+
     def __init__(
         self,
         search_space: EvolutionarySearchSpace,
         search_objectives: SearchObjectives,
         dataset_provider: DatasetProvider,
         output_dir: str,
-        num_iters: int = 10,
-        init_num_models: int = 10,
+        num_iters: Optional[int] = 10,
+        init_num_models: Optional[int] = 10,
         initial_population_paths: Optional[List[str]] = None,
-        pareto_sample_size: int = 40,
-        history_size: int = 100,
-        seed: int = 1,
-    ):
-        """Implementation of the Regularized Evolution algorithm described in "Regularized Evolution for
-        Image Classifier Architecture Search" (https://arxiv.org/abs/1802.01548v7).
+        pareto_sample_size: Optional[int] = 40,
+        history_size: Optional[int] = 100,
+        seed: Optional[int] = 1,
+    ) -> None:
+        """Initialize the Regularized Evolution.
 
         Args:
-            search_space (EvolutionarySearchSpace): Discrete search space compatible with evolutionary algorithms
-            search_objectives (SearchObjectives): Search objectives
-            dataset_provider (DatasetProvider): Dataset provider used to evaluate models
-            output_dir (str): Output directory
-            num_iters (int, optional): Number of search iterations. Defaults to 10.
-            init_num_models (int, optional): Number of initial models. Defaults to 10.
-            initial_population_paths (Optional[List[str]], optional): Paths to initial population. If None, then
-                `init_num_models` random models are used. Defaults to None.
-            pareto_sample_size (int, optional): Number of models to sample from the pareto frontier.
-                Defaults to 40.
-            history_size (int, optional): Number of models to keep in the history.
-                Defaults to 100.
-            seed (int, optional): Random seed. Defaults to 1.
+            search_space: Discrete search space compatible with evolutionary algorithms.
+            search_objectives: Search objectives.
+            dataset_provider: Dataset provider.
+            output_dir: Output directory.
+            num_iters: Number of iterations.
+            init_num_models: Number of initial models to evaluate.
+            initial_population_paths: Paths to initial population models.
+            pareto_sample_size: Number of models to sample from the pareto frontier.
+            history_size: Number of models to keep in the history.
+            seed: Random seed.
+
         """
+
         assert isinstance(
             search_space, EvolutionarySearchSpace
         ), f"{str(search_space.__class__)} is not compatible with {str(self.__class__)}"
@@ -80,9 +87,43 @@ class RegularizedEvolutionSearch(Searcher):
         assert self.init_num_models > 0
         assert self.num_iters > 0
 
+    def sample_models(self, num_models: int, patience: Optional[int] = 5) -> List[ArchaiModel]:
+        """Sample models from the search space.
+
+        Args:
+            num_models: Number of models to sample.
+            patience: Number of tries to sample a valid model.
+
+        Returns:
+            List of sampled models.
+
+        """
+
+        nb_tries, valid_sample = 0, []
+
+        while len(valid_sample) < num_models and nb_tries < patience:
+            sample = [self.search_space.random_sample() for _ in range(num_models)]
+
+            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
+            valid_sample += [sample[i] for i in valid_indices]
+
+        return valid_sample[:num_models]
+
     def mutate_parents(
-        self, parents: List[ArchaiModel], mutations_per_parent: int = 1, patience: int = 20
+        self, parents: List[ArchaiModel], mutations_per_parent: Optional[int] = 1, patience: Optional[int] = 20
     ) -> List[ArchaiModel]:
+        """Mutate parents to generate new models.
+
+        Args:
+            parents: List of parent models.
+            mutations_per_parent: Number of mutations to apply to each parent.
+            patience: Number of tries to sample a valid model.
+
+        Returns:
+            List of mutated models.
+
+        """
+
         mutations = {}
 
         for p in tqdm(parents, desc="Mutating parents"):
@@ -104,20 +145,8 @@ class RegularizedEvolutionSearch(Searcher):
 
         return list(mutations.values())
 
-    def sample_models(self, num_models: int, patience: int = 5) -> List[ArchaiModel]:
-        nb_tries, valid_sample = 0, []
-
-        while len(valid_sample) < num_models and nb_tries < patience:
-            sample = [self.search_space.random_sample() for _ in range(num_models)]
-
-            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
-            valid_sample += [sample[i] for i in valid_indices]
-
-        return valid_sample[:num_models]
-
     @overrides
     def search(self) -> DiscreteSearchResults:
-        # sample the initial population
         self.iter_num = 0
 
         if self.initial_population_paths:
@@ -157,14 +186,11 @@ class RegularizedEvolutionSearch(Searcher):
 
             # Saves search iteration results
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
-
             self.search_state.save_pareto_frontier_models(str(self.output_dir / f"pareto_models_iter_{self.iter_num}"))
-
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
 
             # Samples subset of models from the history buffer
             history_indices = list(range(max(0, len(self.all_pop) - self.history_size), len(self.all_pop)))
-
             sample_indices = self.rng.sample(history_indices, min(self.pareto_sample_size, self.history_size))
 
             logger.info(
@@ -173,7 +199,6 @@ class RegularizedEvolutionSearch(Searcher):
 
             # Gets the pareto frontier of the history sample
             logger.info(f"iter {i}: calculating pareto frontier of the sample")
-
             pareto_sample = get_pareto_frontier(
                 [self.all_pop[sample_idx] for sample_idx in sample_indices],
                 {

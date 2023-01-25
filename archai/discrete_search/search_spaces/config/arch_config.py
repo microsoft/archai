@@ -13,7 +13,7 @@ import yaml
 
 
 def build_arch_config(config_dict: Dict[str, Any]) -> ArchConfig:
-    """Builds an `ArchConfig` object from a sampled config dictionary.
+    """Build an `ArchConfig` object from a sampled config dictionary.
 
     Args:
         config_dict: Config dictionary
@@ -56,8 +56,6 @@ class ArchConfig:
                 self.nodes[param_name] = param
 
     def __repr__(self) -> str:
-        """Returns a print representation of the object."""
-
         class ArchConfigJsonEncoder(json.JSONEncoder):
             def default(self, o):
                 if isinstance(o, ArchConfig):

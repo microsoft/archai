@@ -36,16 +36,6 @@ class FakeQuantEmbedding(torch.nn.Embedding):
         return self.weight_fake_quant(self.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Perform a forward pass over the fake quantized Embedding layer.
-
-        Args:
-            x: Input tensor.
-
-        Returns:
-            Quantized tensor.
-
-        """
-
         return self.fake_quant_weight[x]
 
     @classmethod
@@ -151,16 +141,6 @@ class FakeDynamicQuantLinear(torch.nn.Linear):
         return self.weight_fake_quant(self.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Perform a forward pass over the fake quantized Linear layer.
-
-        Args:
-            x: Input tensor.
-
-        Returns:
-            Quantized tensor.
-
-        """
-
         x = self.input_pre_process(x)
 
         return F.linear(x, self.fake_quant_weight, self.bias)
@@ -289,16 +269,6 @@ class FakeDynamicQuantConv1d(torch.nn.Conv1d):
         return self.weight_fake_quant(self.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Perform a forward pass over the fake quantized Conv1d layer.
-
-        Args:
-            x: Input tensor.
-
-        Returns:
-            Quantized tensor.
-
-        """
-
         x = self.input_pre_process(x)
 
         return self._conv_forward(x, self.fake_quant_weight, self.bias)

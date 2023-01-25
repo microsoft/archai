@@ -136,16 +136,16 @@ class DiscreteSearchResults(SearchResults):
 
         return state_df.drop(["models"], axis=1)
 
-    def save_search_state(self, file: Union[str, Path]) -> None:
+    def save_search_state(self, file_path: Union[str, Path]) -> None:
         """Save the search state to a .csv file.
 
         Args:
-            file: File path to save the search state.
+            file_path: File path to save the search state.
 
         """
 
         state_df = self.get_search_state_df()
-        state_df.to_csv(file, index=False)
+        state_df.to_csv(file_path, index=False)
 
     def save_pareto_frontier_models(self, directory: str, save_weights: Optional[bool] = False) -> None:
         """Save the pareto-frontier models to a directory.
@@ -218,17 +218,17 @@ class DiscreteSearchResults(SearchResults):
         plt.close()
         return fig
 
-    def save_2d_pareto_evolution_plot(self, objective_names: Tuple[str, str], path: str) -> None:
+    def save_2d_pareto_evolution_plot(self, objective_names: Tuple[str, str], file_path: str) -> None:
         """Save the evolution of the pareto-frontier in 2D.
 
         Args:
             objective_names: Names of the objectives to plot.
-            path: Path to save the plot.
+            file_path: Path to save the plot.
 
         """
 
         fig = self.plot_2d_pareto_evolution(objective_names)
-        fig.savefig(path)
+        fig.savefig(file_path)
 
     def save_all_2d_pareto_evolution_plots(self, directory: Union[str, Path]) -> None:
         """Save all the 2D pareto-frontier evolution plots.

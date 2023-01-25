@@ -170,16 +170,6 @@ class WordTokenizer(TokenizerBase):
         return [self._get_sym(id) for id in ids]
 
     def _preprocess_text(self, text: str) -> str:
-        """Pre-process the text.
-
-        Args:
-            text: The input text.
-
-        Returns:
-            Pre-processed text.
-
-        """
-
         if self._config.add_prefix_space:
             text = " " + text
         if self._config.add_prefix_new_line:
@@ -190,14 +180,6 @@ class WordTokenizer(TokenizerBase):
         return text
 
     def _add_file(self, path: str, verbose: Optional[bool] = True) -> None:
-        """Setup the counter with tokens' frequencies for the entire file.
-
-        Args:
-            path: A path to input file.
-            verbose: Whether should log additional verbosity.
-
-        """
-
         if verbose:
             logger.debug(f"Counting file: {path}")
 
@@ -212,97 +194,42 @@ class WordTokenizer(TokenizerBase):
                 self.counter.update(symbols)
 
     def _tokenize_text(self, text: str) -> List[str]:
-        """Tokenize the text.
-
-        Args:
-            text: The input text.
-
-        Returns:
-            A list of tokens.
-
-        """
-
         text = self._preprocess_text(text)
         symbols = text.split(self.delimiter)
 
         return symbols
 
     def _clear(self) -> None:
-        """Clear the vocabulary."""
-
         self.idx2sym = []
         self.sym2idx = OrderedDict()
 
     def _vocab_filepath(self) -> str:
-        """Get the vocabulary file path.
-
-        Returns:
-            Path to the vocabulary file.
-
-        """
-
         vocab_dir = get_full_path(os.path.join(self.save_path), create=True)
 
         return os.path.join(vocab_dir, "vocab.txt")
 
     def _save(self) -> None:
-        """Save the tokenizer."""
-
         vocab_filepath = self._vocab_filepath()
         with open(vocab_filepath, "w", encoding="utf-8") as f:
             f.write("\n".join(self.idx2sym))
 
     def _add_special(self, sym: str) -> None:
-        """Add a special symbol/token to vocabulary.
-
-        Args:
-            sym: Special symbol.
-
-        """
-
         if sym not in self.sym2idx:
             self.idx2sym.append(sym)
             self.sym2idx[sym] = len(self.idx2sym) - 1
             setattr(self, "{}_idx".format(sym.strip("<>")), self.sym2idx[sym])
 
     def _add_symbol(self, sym: str) -> None:
-        """Add a symbol to vocabulary.
-
-        Args:
-            sym: Symbol.
-
-        """
-
         if sym not in self.sym2idx:
             self.idx2sym.append(sym)
             self.sym2idx[sym] = len(self.idx2sym) - 1
 
     def _get_sym(self, idx: int) -> str:
-        """Get a symbol based on its index.
-
-        Args:
-            idx: Index of symbol.
-
-        Returns:
-            Symbol.
-
-        """
-
         assert 0 <= idx < len(self), f"Index {idx} out of range."
 
         return self.idx2sym[idx]
 
     def _get_idx(self, sym: str) -> int:
-        """Get an index based on its symbol.
-
-        Args:
-            idx: Symbol.
-
-        Returns:
-            Index of symbol.
-
-        """
-
         if sym in self.sym2idx:
             return self.sym2idx[sym]
 

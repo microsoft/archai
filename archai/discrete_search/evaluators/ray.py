@@ -12,10 +12,10 @@ from archai.api.model_evaluator import AsyncModelEvaluator, ModelEvaluator
 
 
 def _wrap_metric_calculate(class_method) -> Callable:
-    def calculate(arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> Callable:
+    def _calculate(arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> Callable:
         return class_method(arch, dataset, budget)
 
-    return calculate
+    return _calculate
 
 
 class RayParallelEvaluator(AsyncModelEvaluator):
@@ -37,8 +37,7 @@ class RayParallelEvaluator(AsyncModelEvaluator):
                 indefinitely for results. If timeout is reached, then incomplete tasks
                 are canceled and returned as None.
             force_stop: If incomplete tasks (within `timeout` seconds) should be force-killed.
-                If  set to `False`, Ray will just send a `KeyboardInterrupt` signal to
-                the process.
+                If set to `False`, Ray will just send a `KeyboardInterrupt` signal to the process.
             **ray_kwargs: Key-value arguments for ray.remote(), e.g: num_gpus, num_cpus, max_task_retries.
 
         """

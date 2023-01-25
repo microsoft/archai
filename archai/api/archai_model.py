@@ -24,11 +24,7 @@ class ArchaiModel:
         self.metadata = metadata or {}
 
     def __repr__(self) -> str:
-        """Return a representation of the model."""
-
         return f"ArchaiModel(\n\tarchid={self.archid}, \n\t" f"metadata={self.metadata}, \n\tarch={self.arch}\n)"
 
     def __str__(self) -> str:
-        """Return a string representation of the model."""
-
         return repr(self)

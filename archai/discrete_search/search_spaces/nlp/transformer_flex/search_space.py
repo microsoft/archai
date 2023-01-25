@@ -144,16 +144,6 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.att_dropout_rate = att_dropout_rate
 
     def _load_model_from_config(self, model_config: Dict[str, Any]) -> torch.nn.Module:
-        """Loads a model from a configuration dictionary.
-
-        Args:
-            model_config: Configuration dictionary.
-
-        Returns:
-            A `torch.nn.Module` object.
-
-        """
-
         param_map = self._DEFAULT_MODELS[self.arch_type]
         mapped_config = {param_map.get(p_name, p_name): p_value for p_name, p_value in model_config.items()}
 

@@ -48,36 +48,15 @@ class OrderedDictLogger:
             backup_file_path.rename(backup_file_path.with_suffix(f".{str(int(time.time()))}.yaml"))
 
     def __enter__(self) -> OrderedDictLogger:
-        """Context manager entry method.
-
-        Returns:
-            Instance of logger.
-
-        """
-
         return self
 
     def __exit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
-        """Context manager exit method that pops the current node from the stack."""
-
         self.popd()
 
     def __contains__(self, key: str) -> bool:
-        """Check if a key is in the current node.
-
-        Args:
-            key: key to check.
-
-        Returns:
-            `True` if key is in the current node, `False` otherwise.
-
-        """
-
         return key in self.current_node
 
     def __len__(self) -> int:
-        """Return the number of items in the current node."""
-
         return len(self.current_node)
 
     @property
@@ -155,7 +134,7 @@ class OrderedDictLogger:
         for handler in self.logger.handlers:
             handler.flush()
 
-    def update_key(
+    def _update_key(
         self,
         key: Any,
         value: Any,
@@ -163,20 +142,6 @@ class OrderedDictLogger:
         path: Optional[List[str]] = None,
         override_key: Optional[bool] = True,
     ) -> None:
-        """Update a key in a node in the current stack.
-
-        Args:
-            key: Key to update.
-            value: Calue to update the key with.
-            node: Node to update the key in.
-            path: Path to the node in the current stack.
-            override_key: Whether key can be overridden if it's already in current node.
-
-        Raises:
-            KeyError: If the key is already being used in the current node and `override_key` is `False`.
-
-        """
-
         if not override_key and key in self.current_node:
             raise KeyError(f"`{key}` is already being used. Cannot use it again, unless popd() is called.")
 
@@ -189,17 +154,9 @@ class OrderedDictLogger:
             current_node = current_node[p]
         current_node[str(key)] = value
 
-    def update(self, obj: Dict[str, Any], override_key: Optional[bool] = True) -> None:
-        """Update the current node with the key-value pairs in the provided object.
-
-        Args:
-            obj: Dictionary to update the current node with.
-            override_key: Whether key can be overridden if it's already in current node.
-
-        """
-
+    def _update(self, obj: Dict[str, Any], override_key: Optional[bool] = True) -> None:
         for k, v in obj.items():
-            self.update_key(k, v, override_key=override_key)
+            self._update_key(k, v, override_key=override_key)
 
     def log(
         self, obj: Union[Dict[str, Any], str], level: Optional[int] = None, override_key: Optional[bool] = True
@@ -216,7 +173,7 @@ class OrderedDictLogger:
         self.call_count += 1
 
         if isinstance(obj, dict):
-            self.update(obj, override_key=override_key)
+            self._update(obj, override_key=override_key)
             message = ", ".join(f"{k}={v}" for k, v in obj.items())
         else:
             message = obj
@@ -226,7 +183,7 @@ class OrderedDictLogger:
                 logging.WARNING: ["warnings"],
                 logging.ERROR: ["errors"],
             }
-            self.update_key(self.call_count, message, node=self.root_node, path=path[level], override_key=override_key)
+            self._update_key(self.call_count, message, node=self.root_node, path=path[level], override_key=override_key)
 
         self.logger.log(msg=self.current_path + " " + message, level=level)
 

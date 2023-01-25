@@ -60,8 +60,8 @@ class TorchFlops(ModelEvaluator):
         """Initialize the evaluator.
 
         Args:
-            sample_args: `model.forward` arguments used for profilling.
-            sample_kwargs: `model.forward` keyword arguments used for profilling.
+            sample_args: `model.forward()` arguments used for profilling.
+            sample_kwargs: `model.forward()` keyword arguments used for profilling.
             ignore_layers: List of layer names that should be ignored during the stat calculation.
 
         """
@@ -94,8 +94,8 @@ class TorchMacs(ModelEvaluator):
         """Initialize the evaluator.
 
         Args:
-            sample_args: `model.forward` arguments used for profilling.
-            sample_kwargs: `model.forward` keyword arguments used for profilling.
+            sample_args: `model.forward()` arguments used for profilling.
+            sample_kwargs: `model.forward()` keyword arguments used for profilling.
             ignore_layers: List of layer names that should be ignored during the stat calculation.
 
         """
@@ -131,8 +131,8 @@ class TorchLatency(ModelEvaluator):
         """Initialize the evaluator.
 
         Args:
-            sample_args: `model.forward` arguments used for profilling.
-            sample_kwargs: `model.forward` keyword arguments used for profilling.
+            sample_args: `model.forward()` arguments used for profilling.
+            sample_kwargs: `model.forward()` keyword arguments used for profilling.
             num_warmups: Number of warmup runs before profilling.
             num_samples: Number of runs after warmup.
             use_median: Whether to use median instead of mean to average memory and latency.
@@ -179,8 +179,8 @@ class TorchCudaPeakMemory(ModelEvaluator):
         """Initialize the evaluator.
 
         Args:
-            sample_args: `model.forward` arguments used for profilling.
-            sample_kwargs: `model.forward` keyword arguments used for profilling.
+            sample_args: `model.forward()` arguments used for profilling.
+            sample_kwargs: `model.forward()` keyword arguments used for profilling.
             num_warmups: Number of warmup runs before profilling.
             num_samples: Number of runs after warmup.
             use_median: Whether to use median instead of mean to average memory and latency.

@@ -61,16 +61,6 @@ class FakeDynamicQuantHFConv1D(transformers.modeling_utils.Conv1D):
         return self.weight_fake_quant(self.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Perform a forward pass over the fake quantized Conv1D layer.
-
-        Args:
-            x: Input tensor.
-
-        Returns:
-            Quantized tensor.
-
-        """
-
         x = self.input_pre_process(x)
         size_out = x.size()[:-1] + (self.nf,)
 

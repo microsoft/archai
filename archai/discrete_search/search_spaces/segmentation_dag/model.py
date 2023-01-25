@@ -30,7 +30,7 @@ class SegmentationDagModel(torch.nn.Module):
         img_size: Optional[Tuple[int, int]] = (256, 256),
         nb_classes: Optional[int] = 19,
     ) -> None:
-        """Initializes the model.
+        """Initialize the model.
 
         Args:
             graph: List of dictionaries with the following keys:
@@ -94,19 +94,6 @@ class SegmentationDagModel(torch.nn.Module):
         max_downsample_factor: Optional[int] = 16,
         remove_spec: Optional[bool] = False,
     ) -> Dict[str, Any]:
-        """Returns a dictionary with the number of channels for each scale.
-
-        Args:
-            ch_per_scale: Dictionary with the number of channels that should be used
-                for each scale value.
-            max_downsample_factor: Maximum downsample factor.
-            remove_spec: If True, removes the specification keys from the dictionary.
-
-        Returns:
-            Dictionary with the number of channels for each scale.
-
-        """
-
         ch_per_scale = deepcopy(ch_per_scale)
         scales = [1, 2, 4, 8, 16]
         scales = [s for s in scales if s <= max_downsample_factor]
@@ -143,17 +130,6 @@ class SegmentationDagModel(torch.nn.Module):
     def _get_edge_list(
         self, graph: OrderedDict, channels_per_scale: Dict[str, Any]
     ) -> MutableMapping[Tuple[str, str], nn.Module]:
-        """Get an `OrderedDict` with the mapping "in_node-out_node": nn.Module.
-
-        Args:
-            graph: Graph with the nodes and edges.
-            channels_per_scale: Dictionary with the number of channels for each scale.
-
-        Returns:
-            `OrderedDict` with the mapping "in_node-out_node": nn.Module.
-
-        """
-
         assert "input" in graph
         assert "output" in graph
 
@@ -179,13 +155,6 @@ class SegmentationDagModel(torch.nn.Module):
         )
 
     def _validate_edges(self, edge_dict: MutableMapping[Tuple[str, str], nn.Module]) -> None:
-        """Checks if the edges are in topological order.
-
-        Args:
-            edge_dict: Dictionary with the mapping "in_node-out_node": nn.Module.
-
-        """
-
         visited_nodes = {"input"}
 
         for edge in edge_dict.keys():

@@ -31,18 +31,6 @@ class SmoothCrossEntropyLoss(_WeightedLoss):
 
     @staticmethod
     def _smooth_one_hot(targets: torch.Tensor, n_classes: int, smoothing: Optional[float] = 0.0) -> torch.Tensor:
-        """Apply label smoothing to targets.
-
-        Args:
-            targets: Target tensor.
-            n_classes: Number of classes.
-            smoothing: Label smoothing factor.
-
-        Returns:
-            Smoothed targets.
-
-        """
-
         assert 0 <= smoothing < 1
         with torch.no_grad():
             # For label smoothing, we replace 1-hot vector with 0.9-hot vector instead.
@@ -56,17 +44,6 @@ class SmoothCrossEntropyLoss(_WeightedLoss):
         return targets
 
     def forward(self, inputs: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
-        """Compute the loss.
-
-        Args:
-            inputs: Input tensor.
-            targets: Target tensor.
-
-        Returns:
-            Loss value.
-
-        """
-
         targets = SmoothCrossEntropyLoss._smooth_one_hot(targets, inputs.size(-1), self.smoothing)
         lsm = F.log_softmax(inputs, -1)
 

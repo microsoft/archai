@@ -23,7 +23,7 @@ class ArchParamTree:
     """Tree of architecture parameters."""
 
     def __init__(self, config_tree: Dict[str, Any]) -> None:
-        """Initializes the class.
+        """Initialize the class.
 
         Args:
             config_tree: Tree of architecture parameters.
@@ -35,7 +35,7 @@ class ArchParamTree:
 
     @property
     def num_archs(self) -> int:
-        """Returns the number of architectures in the search space."""
+        """Return the number of architectures in the search space."""
 
         param_dict = self.to_dict(flatten=True, deduplicate_params=True, remove_constants=True)
         num_options = [float(len(p.choices)) for p in param_dict.values()]
@@ -43,16 +43,6 @@ class ArchParamTree:
         return reduce(operator.mul, num_options, 1)
 
     def _init_tree(self, config_tree: Dict[str, Any]) -> Tuple[OrderedDict, OrderedDict]:
-        """Initializes the tree.
-
-        Args:
-            config_tree: Tree of architecture parameters.
-
-        Returns:
-            Tuple of architecture parameters and constants.
-
-        """
-
         params, constants = OrderedDict(), OrderedDict()
 
         for param_name, param in config_tree.items():
@@ -108,7 +98,7 @@ class ArchParamTree:
         deduplicate_params: Optional[bool] = False,
         remove_constants: Optional[bool] = False,
     ) -> OrderedDict:
-        """Converts the `ArchParamTree` to an ordered dictionary.
+        """Convert the `ArchParamTree` to an ordered dictionary.
 
         Args:
             flatten: If the output dictionary should be flattened.
@@ -153,7 +143,7 @@ class ArchParamTree:
         return list(param_dict.keys())
 
     def encode_config(self, config: ArchConfig, track_unused_params: Optional[bool] = True) -> List[float]:
-        """Encodes an `ArchConfig` object into a fixed-length vector of features.
+        """Encode an `ArchConfig` object into a fixed-length vector of features.
 
         This method should be used after the model object is created.
 

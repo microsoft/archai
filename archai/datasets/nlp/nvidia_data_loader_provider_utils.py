@@ -190,13 +190,6 @@ class LMOrderedIterator:
                 break
 
     def __iter__(self) -> Generator[Tuple, None, None]:
-        """Default the standard iteration to fixed-length batches.
-
-        Yields:
-            Fixed-length batches.
-
-        """
-
         return self.get_fixlen_iter()
 
 
@@ -257,7 +250,7 @@ class LMMultiFileIterator:
     def roll(self, seed: Optional[int] = 0) -> None:
         """Backward compatibility for using same API."""
 
-        return None
+        pass
 
     def get_sequences(self, path: str) -> torch.LongTensor:
         """Get a tensor of sequences from an input file.
@@ -331,13 +324,6 @@ class LMMultiFileIterator:
             input_ids.resize_(input_ids.size(0), n_retain + self.bptt)
 
     def __iter__(self) -> Generator[Tuple, None, None]:
-        """Default the standard iteration to stream-based batches.
-
-        Yields:
-            Stream-based batches.
-
-        """
-
         if self.shuffle:
             np.random.shuffle(self.paths)
 

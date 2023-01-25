@@ -20,51 +20,50 @@ logger = OrderedDictLogger(source=__name__)
 
 
 class EvolutionParetoSearch(Searcher):
+    """Evolutionary multi-objective search algorithm that greedily
+    evolves Pareto frontier models.
+
+    It starts from an evaluated random subset of models. In each iteration, the algorithm
+    evaluates new subset of models generated from mutations (`mutation_per_parent`) and
+    crossovers (`num_crossovers`) of the current pareto frontier, and a new random subset
+    of models (`num_random_mix`). The process is repeated until `num_iters` is reached.
+
+    """
+
     def __init__(
         self,
         search_space: EvolutionarySearchSpace,
         search_objectives: SearchObjectives,
         dataset_provider: DatasetProvider,
         output_dir: str,
-        num_iters: int = 10,
-        init_num_models: int = 10,
+        num_iters: Optional[int] = 10,
+        init_num_models: Optional[int] = 10,
         initial_population_paths: Optional[List[str]] = None,
-        num_random_mix: int = 5,
-        max_unseen_population: int = 100,
-        mutations_per_parent: int = 1,
-        num_crossovers: int = 5,
-        seed: int = 1,
+        num_random_mix: Optional[int] = 5,
+        max_unseen_population: Optional[int] = 100,
+        mutations_per_parent: Optional[int] = 1,
+        num_crossovers: Optional[int] = 5,
+        seed: Optional[int] = 1,
     ):
-        """Evolutionary multi-objective search algorithm that greedily evolves Pareto frontier models
-        from a population using mutations and crossovers.
-
-        Starting from an evaluated random subset of models, in each iteration the algorithm evaluates new subset of
-        models generated from mutations (`mutation_per_parent`) and crossovers (`num_crossovers`) of the current pareto frontier
-        and a new random subset of models (`num_random_mix`). The process is repeated until `num_iters` is reached.
+        """Initialize the evolutionary search algorithm.
 
         Args:
-            search_space (EvolutionarySearchSpace): Discrete search space compatible with evolutionary algorithms
-            search_objectives (SearchObjectives): Search objectives
-            dataset_provider (DatasetProvider): Dataset provider
-            output_dir (str): Output directory
-            num_iters (int, optional): Number of iterations. Defaults to 10.
-            init_num_models (int, optional): Number of initial models to evaluate. Defaults to 10.
+            search_space: Discrete search space compatible with evolutionary algorithms.
+            search_objectives: Search objectives.
+            dataset_provider: Dataset provider.
+            output_dir: Output directory.
+            num_iters: Number of iterations.
+            init_num_models: Number of initial models to evaluate.
+            initial_population_paths: List of paths to the initial population of models.
+                If `None`, `init_num_models` random models are used.
+            num_random_mix: Number of random models to mix with the population in each iteration.
+            max_unseen_population: Maximum number of unseen models to evaluate in each iteration.
+            mutations_per_parent: Number of distincrt mutations generated for each Pareto frontier member.
+            num_crossovers: Total number of crossovers generated per iteration.
+            seed: Random seed.
 
-            initial_population_paths (Optional[List[str]], optional): List of paths to the initial population of
-                models. If None, `init_num_models` random models are used. Defaults to None.
-
-            num_random_mix (int, optional): Number of random models to mix with the population
-                in each iteration. Defaults to 5.
-
-            max_unseen_population (int, optional): Maximum number of unseen models to evaluate
-                in each iteration. Defaults to 100.
-
-            mutations_per_parent (int, optional): Number of distincrt mutations generated for each Pareto
-                frontier member. Defaults to 1.
-
-            num_crossovers (int, optional): Total number of crossovers generated per iteration. Defaults to 5.
-            seed (int, optional): Random seed. Defaults to 1.
         """
+
         assert isinstance(
             search_space, EvolutionarySearchSpace
         ), f"{str(search_space.__class__)} is not compatible with {str(self.__class__)}"
@@ -97,9 +96,43 @@ class EvolutionParetoSearch(Searcher):
         assert self.num_random_mix > 0
         assert self.max_unseen_population > 0
 
+    def sample_models(self, num_models: int, patience: Optional[int] = 5) -> List[ArchaiModel]:
+        """Sample models from the search space.
+
+        Args:
+            num_models: Number of models to sample.
+            patience: Number of tries to sample a valid model.
+
+        Returns:
+            List of sampled models.
+
+        """
+
+        nb_tries, valid_sample = 0, []
+
+        while len(valid_sample) < num_models and nb_tries < patience:
+            sample = [self.search_space.random_sample() for _ in range(num_models)]
+
+            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
+            valid_sample += [sample[i] for i in valid_indices]
+
+        return valid_sample[:num_models]
+
     def mutate_parents(
-        self, parents: List[ArchaiModel], mutations_per_parent: int = 1, patience: int = 20
+        self, parents: List[ArchaiModel], mutations_per_parent: Optional[int] = 1, patience: Optional[int] = 20
     ) -> List[ArchaiModel]:
+        """Mutate parents to generate new models.
+
+        Args:
+            parents: List of parent models.
+            mutations_per_parent: Number of mutations to apply to each parent.
+            patience: Number of tries to sample a valid model.
+
+        Returns:
+            List of mutated models.
+
+        """
+
         mutations = {}
 
         for p in tqdm(parents, desc="Mutating parents"):
@@ -122,8 +155,20 @@ class EvolutionParetoSearch(Searcher):
         return list(mutations.values())
 
     def crossover_parents(
-        self, parents: List[ArchaiModel], num_crossovers: int = 1, patience: int = 30
+        self, parents: List[ArchaiModel], num_crossovers: Optional[int] = 1, patience: Optional[int] = 30
     ) -> List[ArchaiModel]:
+        """Crossover parents to generate new models.
+
+        Args:
+            parents: List of parent models.
+            num_crossovers: Number of crossovers to apply.
+            patience: Number of tries to sample a valid model.
+
+        Returns:
+            List of crossovered models.
+
+        """
+
         # Randomly samples k distinct pairs from `parents`
         children, children_ids = [], set()
 
@@ -146,30 +191,32 @@ class EvolutionParetoSearch(Searcher):
 
         return children
 
-    def sample_models(self, num_models: int, patience: int = 5) -> List[ArchaiModel]:
-        nb_tries, valid_sample = 0, []
-
-        while len(valid_sample) < num_models and nb_tries < patience:
-            sample = [self.search_space.random_sample() for _ in range(num_models)]
-
-            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
-            valid_sample += [sample[i] for i in valid_indices]
-
-        return valid_sample[:num_models]
-
     def on_calc_task_accuracy_end(self, current_pop: List[ArchaiModel]) -> None:
-        """Callback function called right after calc_task_accuracy()"""
+        """Callback function called right after calc_task_accuracy()."""
+
+        pass
 
     def on_search_iteration_start(self, current_pop: List[ArchaiModel]) -> None:
-        """Callback function called right before each search iteration"""
+        """Callback function called right before each search iteration."""
+
+        pass
 
     def select_next_population(self, current_pop: List[ArchaiModel]) -> List[ArchaiModel]:
+        """Select the next population from the current population
+
+        Args:
+            current_pop: Current population.
+
+        Returns:
+            Next population.
+
+        """
+
         random.shuffle(current_pop)
         return current_pop[: self.max_unseen_population]
 
     @overrides
     def search(self) -> DiscreteSearchResults:
-        # sample the initial population
         self.iter_num = 0
 
         if self.initial_population_paths:
@@ -213,9 +260,7 @@ class EvolutionParetoSearch(Searcher):
 
             # Saves search iteration results
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
-
             self.search_state.save_pareto_frontier_models(str(self.output_dir / f"pareto_models_iter_{self.iter_num}"))
-
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
 
             parents = pareto

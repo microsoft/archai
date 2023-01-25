@@ -3,6 +3,7 @@
 
 import random
 from pathlib import Path
+from typing import Optional
 
 from overrides import overrides
 
@@ -18,18 +19,34 @@ logger = OrderedDictLogger(source=__name__)
 
 
 class SucessiveHalvingSearch(Searcher):
+    """Sucessive Halving algorithm"""
+
     def __init__(
         self,
         search_space: DiscreteSearchSpace,
         objectives: SearchObjectives,
         dataset_provider: DatasetProvider,
         output_dir: str,
-        num_iters: int = 10,
-        init_num_models: int = 10,
-        init_budget: float = 1.0,
-        budget_multiplier: float = 2.0,
-        seed: int = 1,
-    ):
+        num_iters: Optional[int] = 10,
+        init_num_models: Optional[int] = 10,
+        init_budget: Optional[float] = 1.0,
+        budget_multiplier: Optional[float] = 2.0,
+        seed: Optional[int] = 1,
+    ) -> None:
+        """Initialize the Sucessive Halving.
+
+        Args:
+            search_space: Discrete search space.
+            search_objectives: Search objectives.
+            dataset_provider: Dataset provider.
+            output_dir: Output directory.
+            num_iters: Number of iterations.
+            init_num_models: Number of initial models to evaluate.
+            init_budget: Initial budget.
+            budget_multiplier: Budget multiplier.
+            seed: Random seed.
+
+        """
 
         assert isinstance(search_space, DiscreteSearchSpace)
 
@@ -90,7 +107,6 @@ class SucessiveHalvingSearch(Searcher):
                 self.search_space.save_arch(model, str(models_dir / f"{model.archid}"))
 
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
-
             self.search_state.save_all_2d_pareto_evolution_plots(self.output_dir)
 
             # Keeps only the best `1/self.budget_multiplier` NDS frontiers

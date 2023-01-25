@@ -33,13 +33,6 @@ class OnnxDynamicObserver:
             self.qmin, self.qmax = -128, 127
 
     def __call__(self, x: torch.Tensor) -> None:
-        """Perform a call to set minimum and maximum tensor values.
-
-        Args:
-            x: Input tensor.
-
-        """
-
         x = x.detach().float()
         self.min_val, self.max_val = x.min().view(-1), x.max().view(-1)
 

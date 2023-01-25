@@ -62,19 +62,6 @@ class Lamb(Optimizer):
         super().__init__(params, defaults)
 
     def step(self, closure: Optional[callable] = None) -> torch.FloatTensor:
-        """Perform a single optimization step.
-
-        Args:
-            closure: A callable that re-evaluates the model and returns the loss.
-
-        Returns:
-            The loss value.
-
-        Raises:
-            RuntimeError: If the gradient is sparse.
-
-        """
-
         loss = None
         if closure is not None:
             loss = closure()
@@ -143,7 +130,7 @@ class Lamb(Optimizer):
 
 
 @torch.jit.script
-def lamb_kernel(
+def _lamb_kernel(
     param: torch.Tensor,
     grad: torch.Tensor,
     exp_avg: torch.Tensor,
@@ -154,24 +141,6 @@ def lamb_kernel(
     eps: float,
     weight_decay: float,
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    """Implement the LAMB kernel.
-
-    Args:
-        param: Parameters of the model to optimize.
-        grad: Gradient of the loss with respect to the parameters.
-        exp_avg: First moment estimates.
-        exp_avg_sq: Second moment estimates.
-        beta1: Exponential decay rate for the first moment estimates.
-        beta2: Exponential decay rate for the second moment estimates.
-        step_size: Step size for the Adam optimizer.
-        eps: Epsilon value to avoid division by zero.
-        weight_decay: Weight decay term.
-
-    Returns:
-        Updated model parameters, first moment and second moment estimates.
-
-    """
-
     exp_avg = exp_avg * beta1 + (1 - beta1) * grad
     exp_avg_sq = exp_avg_sq * beta2 + (1 - beta2) * (grad * grad)
 
@@ -242,19 +211,6 @@ class JITLamb(Optimizer):
         super().__init__(params, defaults)
 
     def step(self, closure: Optional[callable] = None) -> torch.FloatTensor:
-        """Perform a single optimization step.
-
-        Args:
-            closure: A callable that re-evaluates the model and returns the loss.
-
-        Returns:
-            The loss value.
-
-        Raises:
-            RuntimeError: If the gradient is sparse.
-
-        """
-
         loss = None
         if closure is not None:
             loss = closure()
@@ -285,7 +241,7 @@ class JITLamb(Optimizer):
                 state["step"] += 1
                 step_size = group["lr"]
 
-                param, exp_avg, exp_avg_sq = lamb_kernel(
+                param, exp_avg, exp_avg_sq = _lamb_kernel(
                     p.data,
                     grad,
                     exp_avg,

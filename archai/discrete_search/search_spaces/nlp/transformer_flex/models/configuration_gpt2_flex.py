@@ -6,18 +6,7 @@ from typing import Any, List, Optional
 from transformers.models.gpt2.configuration_gpt2 import GPT2Config
 
 
-def map_to_list(variable: Any, size: int) -> List[Any]:
-    """Map variable to list of size.
-
-    Args:
-        variable: Variable to map to list.
-        size: Size of list.
-
-    Returns:
-        List of `size` with variable mapped to it.
-
-    """
-
+def _map_to_list(variable: Any, size: int) -> List[Any]:
     if isinstance(variable, list):
         size_diff = size - len(variable)
 
@@ -42,6 +31,6 @@ class GPT2FlexConfig(GPT2Config):
             self.activation_function = "relu"
 
         self.n_inner = self.n_inner if self.n_inner is not None else 4 * self.n_embd
-        self.n_inner = map_to_list(self.n_inner, self.n_layer)
+        self.n_inner = _map_to_list(self.n_inner, self.n_layer)
 
-        self.n_head = map_to_list(self.n_head, self.n_layer)
+        self.n_head = _map_to_list(self.n_head, self.n_layer)

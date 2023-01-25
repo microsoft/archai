@@ -25,7 +25,7 @@ from archai.onnx.optimization import optimize_onnx
 
 
 class TransformerFlexOnnxLatency(ModelEvaluator):
-    """Measures the average latency of models from the Transformer-Flex search space."""
+    """Measure the average latency of models from the Transformer-Flex search space."""
 
     def __init__(
         self,
@@ -72,16 +72,6 @@ class TransformerFlexOnnxLatency(ModelEvaluator):
         self.only_ort = only_ort
 
     def _load_and_prepare(self, config: Dict[str, Any]) -> torch.nn.Module:
-        """Load and prepare a model for ONNX conversion.
-
-        Args:
-            config: The configuration to use for loading the model.
-
-        Returns:
-            The prepared model, ready for ONNX conversion.
-
-        """
-
         config = copy.deepcopy(config)
         if self.use_past:
             config["use_cache"] = True
@@ -91,18 +81,6 @@ class TransformerFlexOnnxLatency(ModelEvaluator):
         return prepare_model_for_onnx(model, self.search_space.arch_type)
 
     def _benchmark_model(self, session: InferenceSession, model_config: OnnxConfig) -> float:
-        """Benchmark a model using the given ONNX session and configuration.
-
-        Args:
-            session: The ONNX session to use for inference.
-            model_config: The ONNX configuration to use for generating dummy inputs.
-
-        Returns:
-            The median or mean of the measured times, depending on the value
-                of the `use_median` attribute.
-
-        """
-
         inputs = model_config.generate_dummy_inputs(self.batch_size, self.seq_len, self.past_seq_len)
 
         if self.use_past:

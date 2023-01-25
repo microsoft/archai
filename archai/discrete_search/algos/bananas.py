@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from overrides import overrides
@@ -42,46 +42,29 @@ class MoBananasSearch(Searcher):
         dataset_provider: DatasetProvider,
         output_dir: str,
         surrogate_model: Optional[Predictor] = None,
-        num_iters: int = 10,
-        init_num_models: int = 10,
-        num_parents: int = 10,
-        mutations_per_parent: int = 5,
-        num_candidates: int = 10,
-        seed: int = 1,
+        num_iters: Optional[int] = 10,
+        init_num_models: Optional[int] = 10,
+        num_parents: Optional[int] = 10,
+        mutations_per_parent: Optional[int] = 5,
+        num_candidates: Optional[int] = 10,
+        seed: Optional[int] = 1,
     ) -> None:
         """Initialize the multi-objective BANANAS.
 
         Args:
-            search_space (BayesOptSearchSpace): Discrete search space compatible with
-                Bayesian Optimization algorithms.
-
-            search_objectives (SearchObjectives): Search objectives. Expensive objectives
-                (registered with `compute_intensive=True`) will be estimated using a surrogate model
-                during certain parts of the search. Cheap objectives will be always evaluated
-                directly.
-
-            dataset_provider (DatasetProvider): Dataset provider.
-            output_dir (str): Output directory.
-
-            surrogate_model (Optional[Predictor], optional): Surrogate model. If `None`,
-                a `PredictiveDNNEnsemble` will be used. Defaults to None.
-
-            num_iters (int, optional): Number of iterations.
-                Defaults to 10.
-
-            init_num_models (int, optional): Number of initial models to evaluate.
-                Defaults to 10.
-
-            num_parents (int, optional): Number of parents to select for each iteration.
-                Defaults to 10.
-
-            mutations_per_parent (int, optional): Number of mutations to apply to each parent.
-                Defaults to 5.
-
-            num_candidates (int, optional): Number of selected models to add to evaluate in
-                the next iteration. Defaults to 10.
-
-            seed (int, optional): Random seed. Defaults to 1.
+            search_space: Discrete search space compatible with Bayesian Optimization algorithms.
+            search_objectives: Search objectives. Expensive objectives (registered with
+                `compute_intensive=True`) will be estimated using a surrogate model during
+                certain parts of the search. Cheap objectives will be always evaluated directly.
+            dataset_provider: Dataset provider.
+            output_dir: Output directory.
+            surrogate_model: Surrogate model. If `None`, a `PredictiveDNNEnsemble` will be used.
+            num_iters: Number of iterations.
+            init_num_models: Number of initial models to evaluate.
+            num_parents: Number of parents to select for each iteration.
+            mutations_per_parent: Number of mutations to apply to each parent.
+            num_candidates: Number of selected models to add to evaluate in the next iteration.
+            seed: Random seed.
 
         """
 
@@ -117,13 +100,34 @@ class MoBananasSearch(Searcher):
         self.surrogate_dataset = []
         self.search_state = DiscreteSearchResults(search_space, search_objectives)
 
-    def get_surrogate_iter_dataset(self, all_pop: List[ArchaiModel]):
+    def get_surrogate_iter_dataset(self, all_pop: List[ArchaiModel]) -> Tuple[np.ndarray, np.ndarray]:
+        """Get the surrogate dataset for the current iteration.
+
+        Args:
+            all_pop: All population models.
+
+        Returns:
+            Tuple of encoded architectures and target values.
+
+        """
+
         encoded_archs = np.vstack([self.search_space.encode(m) for m in all_pop])
         target = np.array([self.search_state.all_evaluated_objs[obj] for obj in self.so.exp_objs]).T
 
         return encoded_archs, target
 
-    def sample_models(self, num_models: int, patience: int = 30) -> List[ArchaiModel]:
+    def sample_models(self, num_models: int, patience: Optional[int] = 30) -> List[ArchaiModel]:
+        """Sample models from the search space.
+
+        Args:
+            num_models: Number of models to sample.
+            patience: Number of tries to sample a valid model.
+
+        Returns:
+            List of sampled models.
+
+        """
+
         nb_tries, valid_sample = 0, []
 
         while len(valid_sample) < num_models and nb_tries < patience:
@@ -135,8 +139,20 @@ class MoBananasSearch(Searcher):
         return valid_sample[:num_models]
 
     def mutate_parents(
-        self, parents: List[ArchaiModel], mutations_per_parent: int = 1, patience: int = 30
+        self, parents: List[ArchaiModel], mutations_per_parent: Optional[int] = 1, patience: Optional[int] = 30
     ) -> List[ArchaiModel]:
+        """Mutate parents to generate new models.
+
+        Args:
+            parents: List of parent models.
+            mutations_per_parent: Number of mutations to apply to each parent.
+            patience: Number of tries to sample a valid model.
+
+        Returns:
+            List of mutated models.
+
+        """
+
         mutations = {}
 
         for p in parents:
@@ -163,7 +179,16 @@ class MoBananasSearch(Searcher):
         return list(mutations.values())
 
     def predict_expensive_objectives(self, archs: List[ArchaiModel]) -> Dict[str, MeanVar]:
-        """Predicts expensive objectives for `archs` using surrogate model"""
+        """Predict expensive objectives for `archs` using surrogate model.
+
+        Args:
+            archs: List of architectures.
+
+        Returns:
+            Dictionary of predicted expensive objectives.
+
+        """
+
         encoded_archs = np.vstack([self.search_space.encode(m) for m in archs])
         pred_results = self.surrogate_model.predict(encoded_archs)
 
@@ -179,7 +204,19 @@ class MoBananasSearch(Searcher):
         pred_expensive_objs: Dict[str, MeanVar],
         cheap_objs: Dict[str, np.ndarray],
     ) -> List[int]:
-        """Returns the selected architecture list indices from Thompson Sampling"""
+        """Get the selected architecture list indices from Thompson Sampling.
+
+        Args:
+            archs: List of architectures.
+            sample_size: Number of architectures to select.
+            pred_expensive_objs: Predicted expensive objectives.
+            cheap_objs: Cheap objectives.
+
+        Returns:
+            List of selected architecture indices.
+
+        """
+
         simulation_results = cheap_objs
 
         # Simulates results from surrogate model assuming N(pred_mean, pred_std)
@@ -201,7 +238,7 @@ class MoBananasSearch(Searcher):
         return [idx for frontier in nds_frontiers for idx in frontier["indices"]][:sample_size]
 
     @overrides
-    def search(self):
+    def search(self) -> DiscreteSearchResults:
         all_pop, selected_indices, pred_expensive_objs = [], [], {}
         unseen_pop = self.sample_models(self.init_num_models)
 

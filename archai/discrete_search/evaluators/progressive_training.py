@@ -13,14 +13,14 @@ from archai.api.model_evaluator import AsyncModelEvaluator, ModelEvaluator
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
 
 
-def ray_wrap_training_fn(training_fn) -> Callable:
-    def stateful_training_fn(
+def _ray_wrap_training_fn(training_fn) -> Callable:
+    def _stateful_training_fn(
         arch: ArchaiModel, dataset: DatasetProvider, budget: float, training_state: Optional[Dict[str, Any]] = None
     ) -> Tuple[ArchaiModel, float, Dict[str, Any]]:
         metric_result, training_state = training_fn(arch, dataset, budget, training_state)
         return arch, metric_result, training_state
 
-    return stateful_training_fn
+    return _stateful_training_fn
 
 
 class ProgressiveTraining(ModelEvaluator):
@@ -77,9 +77,9 @@ class RayProgressiveTraining(AsyncModelEvaluator):
         self.search_space = search_space
 
         if ray_kwargs:
-            self.compute_fn = ray.remote(**ray_kwargs)(ray_wrap_training_fn(training_fn))
+            self.compute_fn = ray.remote(**ray_kwargs)(_ray_wrap_training_fn(training_fn))
         else:
-            self.compute_fn = ray.remote(ray_wrap_training_fn(training_fn))
+            self.compute_fn = ray.remote(_ray_wrap_training_fn(training_fn))
 
         self.timeout = timeout
         self.force_stop = force_stop

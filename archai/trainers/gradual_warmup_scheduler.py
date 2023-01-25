@@ -39,13 +39,6 @@ class GradualWarmupScheduler(_LRScheduler):
         super(GradualWarmupScheduler, self).__init__(optimizer)
 
     def get_lr(self) -> List[float]:
-        """Get learning rate at current step.
-
-        Returns:
-            List of learning rate at current step.
-
-        """
-
         if self.last_epoch > self.total_epoch:
             if self.after_scheduler:
                 if not self.finished:
@@ -63,14 +56,6 @@ class GradualWarmupScheduler(_LRScheduler):
             ]
 
     def _step_reduce_lr(self, epoch: int, metrics: Dict[str, Any]) -> None:
-        """Core computation of step for ReduceLROnPlateau scheduler.
-
-        Args:
-            epoch: Current epoch.
-            metrics: Metric to monitor.
-
-        """
-
         if epoch is None:
             epoch = self.last_epoch + 1
 
@@ -90,14 +75,6 @@ class GradualWarmupScheduler(_LRScheduler):
                 self.after_scheduler.step(epoch - self.total_epoch, metrics)
 
     def step(self, epoch: Optional[int] = None, metrics: Optional[Dict[str, Any]] = None) -> None:
-        """Step for ReduceLROnPlateau scheduler.
-
-        Args:
-            epoch: Current epoch.
-            metrics: Metric to monitor.
-
-        """
-
         if type(self.after_scheduler) != ReduceLROnPlateau:
             if self.finished and self.after_scheduler:
                 if epoch is None:

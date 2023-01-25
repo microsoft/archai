@@ -64,16 +64,6 @@ class FakeDynamicQuant(torch.nn.Module):
                 self.qmin, self.qmax = -(2 ** (bits - 1)), 2 ** (bits - 1) - 1
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Perform a forward pass over the fake dynamic quantization operator.
-
-        Args:
-            x: Input tensor.
-
-        Returns:
-            Fake dynamically quantized tensor.
-
-        """
-
         if x.dtype == torch.float32:
             if self.bits == 8:
                 if self.dtype == torch.quint8:

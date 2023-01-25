@@ -258,9 +258,9 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
 
     @overrides
     def random_sample(self) -> ArchaiModel:
-        nas_model = None
+        arch = None
 
-        while not nas_model:
+        while not arch:
             # randomly pick number of layers
             nb_layers = self.rng.randint(self.min_layers, self.max_layers)
 
@@ -332,9 +332,9 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
             found_valid, macs = self.is_valid_model(model)
 
             if found_valid:
-                nas_model = ArchaiModel(model, model.to_hash(), {"parent": None, "macs": macs})
+                arch = ArchaiModel(model, model.to_hash(), {"parent": None, "macs": macs})
 
-        return nas_model
+        return arch
 
     @overrides
     def mutate(self, base_model: ArchaiModel, patience: Optional[int] = 5) -> ArchaiModel:

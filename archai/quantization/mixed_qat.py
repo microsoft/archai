@@ -50,13 +50,6 @@ class MixedQAT(torch.nn.Module):
             assert qat_param is param, "MixedQAT parameters are not fully shared."
 
     def forward(self, *args, **kwargs) -> Tuple[torch.Tensor, ...]:
-        """Perform a forward pass over the module.
-
-        Returns:
-            A tuple containing the QAT-based model outputs.
-
-        """
-
         outputs = self.model(*args, **kwargs)
         qat_outputs = self.qat_model(*args, **kwargs)
 

@@ -18,17 +18,7 @@ from archai.datasets.nlp.tokenizer_utils.word_tokenizer import WordTokenizer
 logger = OrderedDictLogger(source=__name__)
 
 
-def delete_file(file_path: str) -> bool:
-    """Delete a file.
-
-    Args:
-        file_path: Path to the file.
-
-    Returns:
-        `True` if the file was deleted, `False` otherwise.
-
-    """
-
+def _delete_file(file_path: str) -> bool:
     if os.path.isfile(file_path):
         os.remove(file_path)
         return True
@@ -90,19 +80,6 @@ class Corpus:
     def _create_vocab(
         dataset_name: str, vocab_type: str, vocab_cache_dir: str, vocab_size: Optional[int] = None
     ) -> TokenizerBase:
-        """Create the vocabulary.
-
-        Args:
-            dataset_name: Name of the dataset.
-            vocab_type: Type of vocabulary.
-            vocab_cache_dir: Path to the vocabulary cache folder.
-            vocab_size: Vocabulary size.
-
-        Returns:
-            Vocabulary.
-
-        """
-
         if vocab_type == "word":
             bos_token, eos_token, lower_case = None, "<eos>", False
 
@@ -138,18 +115,9 @@ class Corpus:
         return vocab
 
     def _clear_cache(self) -> None:
-        """Clear the cache."""
-
         self.train = self.valid = self.test = self.vocab = None
 
     def _dataset_filepaths(self) -> Tuple[str, str, str]:
-        """Get the dataset's file paths.
-
-        Returns:
-            Training, validation and testing file paths.
-
-        """
-
         train_file_name, valid_file_name, test_file_name = "train.txt", "valid.txt", "test.txt"
         if self.dataset_name in ["wt2", "wt103"]:
             train_file_name, valid_file_name, test_file_name = (
@@ -178,8 +146,6 @@ class Corpus:
         )
 
     def _train_vocab(self) -> None:
-        """Train the vocabulary."""
-
         # If vocabulary cache does not exist
         if self.refresh_cache or not self.vocab.is_trained():
             logger.info("Training vocabulary ...")
@@ -196,13 +162,6 @@ class Corpus:
             logger.debug(f"Loading vocabulary ({self.vocab_type}, {self.vocab_size}) from: {self.vocab_cache_dir}")
 
     def _create_train_vocab(self) -> TokenizerBase:
-        """Create and trains the vocabulary.
-
-        Returns:
-            Pre-trained vocabulary.
-
-        """
-
         self.vocab = Corpus._create_vocab(
             self.dataset_name, self.vocab_type, self.vocab_cache_dir, vocab_size=self.vocab_size
         )
@@ -211,8 +170,6 @@ class Corpus:
         return self.vocab
 
     def _encode_files(self) -> None:
-        """Encode dataset (training, validation and testing sets)."""
-
         train_filepath, valid_filepath, test_filepath = self._dataset_filepaths()
 
         if self.dataset_name == "lm1b":
@@ -274,9 +231,9 @@ class Corpus:
         logger.info("Clearing and rebuilding cache ...")
         self._clear_cache()
 
-        delete_file(self.train_cache_filepath)
-        delete_file(self.valid_cache_filepath)
-        delete_file(self.test_cache_filepath)
+        _delete_file(self.train_cache_filepath)
+        _delete_file(self.valid_cache_filepath)
+        _delete_file(self.test_cache_filepath)
 
         return False
 

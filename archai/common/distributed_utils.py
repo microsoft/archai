@@ -3,11 +3,9 @@
 # https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/LanguageModeling/Transformer-XL/pytorch/utils/distributed.py
 
 import os
-import random
 from contextlib import contextmanager
 from typing import Generator, Optional, Union
 
-import numpy as np
 import torch
 
 
@@ -19,7 +17,7 @@ def init_distributed(use_cuda: bool) -> None:
     CUDA/NCCL backend. Otherwise, it uses the Gloo backend.
 
     Args:
-        use_cuda (bool): Whether to initialize the distributed mode using the CUDA/NCCL backend.
+        use_cuda: Whether to initialize the distributed mode using the CUDA/NCCL backend.
 
     Raises:
         AssertionError: If the distributed mode is not initialized successfully.
@@ -50,7 +48,7 @@ def barrier() -> None:
 
 
 def get_rank() -> int:
-    """Return the rank of the current process in the distributed backend.
+    """Get the rank of the current process in the distributed backend.
 
     Returns:
         The rank of the current process in the distributed backend. If the distributed mode
@@ -65,7 +63,7 @@ def get_rank() -> int:
 
 
 def get_world_size() -> int:
-    """Return the total number of processes in the distributed backend.
+    """Get the total number of processes in the distributed backend.
 
     Returns:
         The total number of processes in the distributed backend. If the distributed mode

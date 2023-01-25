@@ -161,13 +161,6 @@ class BbpeTokenizer(TokenizerBase):
         return self._tokenizer.convert_ids_to_tokens(id)
 
     def _rewrite_json_sorted(self, filepaths: List[str]) -> None:
-        """Re-write a sorted version of the vocabulary.
-
-        Args:
-            filepaths: A list of paths to input files.
-
-        """
-
         logger.info("Saving sorted vocabulary ...")
 
         tokens_counter = self._count_token_freq(filepaths)
@@ -196,8 +189,6 @@ class BbpeTokenizer(TokenizerBase):
             f.write(json.dumps(tok_json, ensure_ascii=False, indent=2))
 
     def _finalize_tokenizer(self) -> None:
-        """Finalize the tokenizer by padding the vocabulary."""
-
         if self.pad_vocab_size:
             vocab_size = len(self._tokenizer)
 
@@ -207,16 +198,6 @@ class BbpeTokenizer(TokenizerBase):
                 self._tokenizer.add_tokens([token])
 
     def _preprocess_text(self, text: str) -> str:
-        """Pre-process the text.
-
-        Args:
-            text: The input text.
-
-        Returns:
-            Pre-processed text.
-
-        """
-
         text = text.strip()
 
         # Does not add space for empty lines
@@ -232,16 +213,6 @@ class BbpeTokenizer(TokenizerBase):
         return text
 
     def _count_token_freq(self, filepaths: List[str]) -> Counter:
-        """Count the frequency of tokens.
-
-        Args:
-            filepaths: A list of paths to input files.
-
-        Returns:
-            Tokens' frequencies.
-
-        """
-
         logger.info("Counting token frequencies...")
 
         tokens_counter = Counter()
@@ -261,13 +232,6 @@ class BbpeTokenizer(TokenizerBase):
         return tokens_counter
 
     def _train_tokenizer(self, filepaths: List[str]) -> None:
-        """Inner loop of tokenizer's training.
-
-        Args:
-            filepaths: A list of paths to input files.
-
-        """
-
         logger.info("Training tokenizer ...")
 
         special_tokens = self._config.get_special_tokens()

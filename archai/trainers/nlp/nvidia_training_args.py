@@ -16,34 +16,20 @@ from archai.common.distributed_utils import (
 from archai.common.file_utils import get_full_path
 
 
-def get_amlt_dirs() -> Tuple[str, str]:
-    """Get AMLT folders.
-
-    Returns:
-        Tuple containing data and output folders.
-
-    """
-
+def _get_amlt_dirs() -> Tuple[str, str]:
     data_dir = os.environ.get("AMLT_DATA_DIR", "")
     output_dir = os.environ.get("AMLT_OUTPUT_DIR", "")
 
     return data_dir, output_dir
 
 
-def get_default_dataroot() -> str:
-    """Get default data root folder.
-
-    Returns:
-        Default data root folder.
-
-    """
-
+def _get_default_dataroot() -> str:
     is_amlt_available = os.environ.get("AMLT_OUTPUT_DIR", None)
 
     return "/var/tmp/dataroot" if is_amlt_available else "~/dataroot"
 
 
-def create_dirs(
+def _create_dirs(
     dataroot: str,
     dataset_name: str,
     experiment_name: Optional[str] = "tmp",
@@ -51,21 +37,6 @@ def create_dirs(
     pretrained_path: Optional[str] = "",
     cache_dir: Optional[str] = "",
 ) -> Tuple[str, str, str, str]:
-    """Create dataset-related folders with proper paths.
-
-    Args:
-        dataroot: Dataset folder.
-        dataset_name: Name of the dataset.
-        experiment_name: Experiment name.
-        output_dir: Output folder.
-        pretrained_path: Path to the pre-trained checkpoint file.
-        cache_dir: Dataset cache folder.
-
-    Returns:
-        Tuple containing dataset, output, pre-trained checkpoint and cache folders.
-
-    """
-
     def _get_dataset_dir_name(dataset_name: str) -> str:
         if dataset_name == "wt2":
             return "wikitext-2"
@@ -78,11 +49,11 @@ def create_dirs(
 
         raise RuntimeError(f"Dataset: {dataset_name} is not supported yet.")
 
-    pt_data_dir, pt_output_dir = get_amlt_dirs()
+    pt_data_dir, pt_output_dir = _get_amlt_dirs()
     if pt_output_dir:
         pt_output_dir = os.path.join(pt_output_dir, experiment_name)
 
-    dataroot = dataroot or pt_data_dir or get_default_dataroot()
+    dataroot = dataroot or pt_data_dir or _get_default_dataroot()
     dataroot = get_full_path(dataroot)
 
     dataset_dir = get_full_path(os.path.join(dataroot, "textpred", _get_dataset_dir_name(dataset_name)))
@@ -250,7 +221,7 @@ class NvidiaTrainingArguments:
             torch.cuda.set_device(self.local_rank)
             init_distributed(True)
 
-        (self.dataset_dir, self.output_dir, self.checkpoint_file_path, self.dataset_cache_dir,) = create_dirs(
+        (self.dataset_dir, self.output_dir, self.checkpoint_file_path, self.dataset_cache_dir,) = _create_dirs(
             self.dataset_dir,
             self.dataset_name,
             self.experiment_name,

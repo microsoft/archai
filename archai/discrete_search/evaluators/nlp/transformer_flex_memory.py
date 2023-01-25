@@ -20,7 +20,7 @@ from archai.onnx.optimization import optimize_onnx
 
 
 class TransformerFlexOnnxMemory(ModelEvaluator):
-    """Measures the memory usage of models from the Transformer-Flex search space."""
+    """Measure the memory usage of models from the Transformer-Flex search space."""
 
     def __init__(
         self,
@@ -51,16 +51,6 @@ class TransformerFlexOnnxMemory(ModelEvaluator):
         self.only_ort = only_ort
 
     def _load_and_prepare(self, config: Dict[str, Any]) -> torch.nn.Module:
-        """Load and prepare a model for ONNX conversion.
-
-        Args:
-            config: The configuration to use for loading the model.
-
-        Returns:
-            The prepared model, ready for ONNX conversion.
-
-        """
-
         config = copy.deepcopy(config)
         if self.use_past:
             config["use_cache"] = True

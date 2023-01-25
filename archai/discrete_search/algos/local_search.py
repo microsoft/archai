@@ -26,11 +26,11 @@ class LocalSearch(Searcher):
         search_objectives: SearchObjectives,
         dataset_provider: DatasetProvider,
         output_dir: str,
-        num_iters: int = 10,
-        init_num_models: int = 10,
+        num_iters: Optional[int] = 10,
+        init_num_models: Optional[int] = 10,
         initial_population_paths: Optional[List[str]] = None,
-        mutations_per_parent: int = 1,
-        seed: int = 1,
+        mutations_per_parent: Optional[int] = 1,
+        seed: Optional[int] = 1,
     ):
         """Local search algorithm. In each iteration, the algorithm generates a new population by
         mutating the current Pareto frontier. The process is repeated until `num_iters` is reached.
@@ -74,9 +74,43 @@ class LocalSearch(Searcher):
         assert self.init_num_models > 0
         assert self.num_iters > 0
 
+    def sample_models(self, num_models: int, patience: Optional[int] = 5) -> List[ArchaiModel]:
+        """Sample models from the search space.
+
+        Args:
+            num_models: Number of models to sample.
+            patience: Number of tries to sample a valid model.
+
+        Returns:
+            List of sampled models.
+
+        """
+
+        nb_tries, valid_sample = 0, []
+
+        while len(valid_sample) < num_models and nb_tries < patience:
+            sample = [self.search_space.random_sample() for _ in range(num_models)]
+
+            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
+            valid_sample += [sample[i] for i in valid_indices]
+
+        return valid_sample[:num_models]
+
     def mutate_parents(
-        self, parents: List[ArchaiModel], mutations_per_parent: int = 1, patience: int = 20
+        self, parents: List[ArchaiModel], mutations_per_parent: Optional[int] = 1, patience: Optional[int] = 20
     ) -> List[ArchaiModel]:
+        """Mutate parents to generate new models.
+
+        Args:
+            parents: List of parent models.
+            mutations_per_parent: Number of mutations to apply to each parent.
+            patience: Number of tries to sample a valid model.
+
+        Returns:
+            List of mutated models.
+
+        """
+
         mutations = {}
 
         for p in tqdm(parents, desc="Mutating parents"):
@@ -98,20 +132,8 @@ class LocalSearch(Searcher):
 
         return list(mutations.values())
 
-    def sample_models(self, num_models: int, patience: int = 5) -> List[ArchaiModel]:
-        nb_tries, valid_sample = 0, []
-
-        while len(valid_sample) < num_models and nb_tries < patience:
-            sample = [self.search_space.random_sample() for _ in range(num_models)]
-
-            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
-            valid_sample += [sample[i] for i in valid_indices]
-
-        return valid_sample[:num_models]
-
     @overrides
     def search(self) -> DiscreteSearchResults:
-        # sample the initial population
         self.iter_num = 0
 
         if self.initial_population_paths:
@@ -156,9 +178,7 @@ class LocalSearch(Searcher):
 
             # Saves search iteration results
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
-
             self.search_state.save_pareto_frontier_models(str(self.output_dir / f"pareto_models_iter_{self.iter_num}"))
-
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
 
             # mutate random 'k' subsets of the parents

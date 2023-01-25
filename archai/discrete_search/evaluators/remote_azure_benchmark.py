@@ -20,7 +20,7 @@ from archai.api.dataset_provider import DatasetProvider
 from archai.api.model_evaluator import AsyncModelEvaluator
 
 
-def get_utc_date() -> str:
+def _get_utc_date() -> str:
     current_date = datetime.datetime.now()
     current_date = current_date.replace(tzinfo=datetime.timezone.utc)
 
@@ -89,21 +89,21 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         # Architecture list
         self.archids = []
 
+    def __contains__(self, rowkey_id: str) -> bool:
+        try:
+            self._get_entity(rowkey_id)
+        except ResourceNotFoundError:
+            return False
+
+        return True
+
     @property
     def table_client(self) -> Any:
         """Return the table client."""
 
         return self.table_service_client.create_table_if_not_exists(self.table_name)
 
-    def __contains__(self, rowkey_id: str) -> bool:
-        try:
-            self.get_entity(rowkey_id)
-        except ResourceNotFoundError:
-            return False
-
-        return True
-
-    def upload_blob(self, src_path: str, dst_path: str) -> None:
+    def _upload_blob(self, src_path: str, dst_path: str) -> None:
         """Upload a file to Azure Blob storage.
 
         Args:
@@ -120,7 +120,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         with open(src_path, "rb") as data:
             blob_client.upload_blob(data, overwrite=self.overwrite)
 
-    def get_entity(self, rowkey_id: str) -> Dict[str, Any]:
+    def _get_entity(self, rowkey_id: str) -> Dict[str, Any]:
         """Return the entity with the given `rowkey_id`.
 
         Args:
@@ -133,7 +133,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
 
         return self.table_client.get_entity(partition_key=self.partition_key, row_key=rowkey_id)
 
-    def update_entity(self, rowkey_id: str, entity_dict: Dict[str, Any]) -> Dict[str, Any]:
+    def _update_entity(self, rowkey_id: str, entity_dict: Dict[str, Any]) -> Dict[str, Any]:
         """Update the entity with the given `rowkey_id`.
 
         Args:
@@ -156,7 +156,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
 
         # Checks if architecture was already benchmarked
         if archid in self:
-            entity = self.get_entity(archid)
+            entity = self._get_entity(archid)
             if entity["status"] == "complete":
                 self.archids.append(archid)
                 return
@@ -170,7 +170,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
             "name": archid,
             "node": platform.node(),
             "benchmark_only": 1,
-            "model_date": get_utc_date(),
+            "model_date": _get_utc_date(),
             "model_name": "model.onnx",
         }
 
@@ -189,14 +189,14 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                 **self.onnx_export_kwargs,
             )
 
-            self.update_entity(archid, entity)
-            self.upload_blob(str(tmp_dir / "model.onnx"), f"{archid}/model.onnx")
+            self._update_entity(archid, entity)
+            self._upload_blob(str(tmp_dir / "model.onnx"), f"{archid}/model.onnx")
 
         # Updates model status
         del entity["node"]
         entity["status"] = "new"
 
-        self.update_entity(archid, entity)
+        self._update_entity(archid, entity)
         self.archids.append(archid)
 
     @overrides
@@ -206,7 +206,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         for _ in range(self.max_retries):
             for i, archid in enumerate(self.archids):
                 if archid in self:
-                    entity = self.get_entity(archid)
+                    entity = self._get_entity(archid)
 
                     if self.metric_key in entity and entity[self.metric_key]:
                         results[i] = entity[self.metric_key]

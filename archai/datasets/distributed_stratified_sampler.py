@@ -115,13 +115,9 @@ class DistributedStratifiedSampler(Sampler):
         self._len = self.val_split_len if self.is_val_split else self.main_split_len
 
     def __len__(self) -> int:
-        """Return the length of the current replica's split."""
-
         return self._len
 
     def __iter__(self) -> Iterable:
-        """Return an iterator over the current replica's split."""
-
         indices, targets = self._get_indices()
         indices, targets = self._split_rank(indices, targets)
         indices, targets = self._limit_indices(indices, targets, self.max_samples)
@@ -135,17 +131,6 @@ class DistributedStratifiedSampler(Sampler):
         return iter(indices)
 
     def _split_rank(self, indices: np.ndarray, targets: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """Split the indices into `world_size` folds and return the one for current rank.
-
-        Args:
-            indices: Indices to split.
-            targets: Targets to split.
-
-        Returns:
-            Indices and targets for current rank.
-
-        """
-
         if self.world_size > 1:
             replica_fold_idxs = None
 
@@ -163,13 +148,6 @@ class DistributedStratifiedSampler(Sampler):
         return indices, targets
 
     def _get_indices(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Get indices for the current epoch.
-
-        Returns:
-            Indices and targets for the current epoch.
-
-        """
-
         if self.shuffle:
             g = torch.Generator()
             g.manual_seed(self._get_seed())
@@ -190,48 +168,17 @@ class DistributedStratifiedSampler(Sampler):
     def _limit_indices(
         self, indices: np.ndarray, targets: np.ndarray, max_samples: Optional[int]
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """Limit the number of indices to `max_samples`.
-
-        Args:
-            indices: Indices to limit.
-            targets: Targets to limit.
-
-        Returns:
-            Limited indices and targets.
-
-        """
-
         if max_samples is not None:
             return self._split_indices(indices, targets, len(indices) - max_samples, False)
 
         return indices, targets
 
     def _get_seed(self) -> int:
-        """Get the seed for the current epoch.
-
-        Returns:
-            Seed for the current epoch.
-
-        """
-
         return self.epoch if self.val_ratio == 0.0 else 0
 
     def _split_indices(
         self, indices: np.ndarray, targets: np.ndarray, val_size: int, return_val_split: bool
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """Split the indices into train and validation sets.
-
-        Args:
-            indices: Indices to split.
-            targets: Targets to split.
-            val_size: Number of samples to use for validation.
-            return_val_split: Whether to return the validation split.
-
-        Returns:
-            Train/validation indices and targets.
-
-        """
-
         if val_size:
             assert isinstance(val_size, int)
 

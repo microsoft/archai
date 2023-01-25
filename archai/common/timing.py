@@ -27,14 +27,6 @@ class MeasureBlockTime:
         self.verbose = verbose
 
     def __enter__(self) -> MeasureBlockTime:
-        """Context manager entry method that optionally disables garbage collector
-        and defines the initial time.
-
-        Returns:
-            Instance of timer.
-
-        """
-
         self.is_gc_enabled = gc.isenabled()
 
         if self.disable_gc:
@@ -45,11 +37,6 @@ class MeasureBlockTime:
         return self
 
     def __exit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
-        """Context manager exit method that re-enables garbage collector and
-        defines the final time.
-
-        """
-
         if self.disable_gc and self.is_gc_enabled:
             gc.enable()
 

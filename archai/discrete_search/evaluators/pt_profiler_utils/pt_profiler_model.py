@@ -19,7 +19,7 @@ from archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks impor
 
 
 class ProfilerModel:
-    """Prepares a model to be used with profilling."""
+    """Prepare a model to be used with profilling."""
 
     def __init__(self, model: torch.nn.Module) -> None:
         """Initialize with custom arguments and keyword arguments.
@@ -34,7 +34,7 @@ class ProfilerModel:
         self.is_patched = False
 
     def start(self, ignore_layers: Optional[List[str]] = None) -> None:
-        """Starts profiling.
+        """Start profiling.
 
         Args:
             ignore_layers: Layers to be ignored when profiling.
@@ -97,7 +97,7 @@ class ProfilerModel:
         self.is_patched = True
 
     def stop(self) -> None:
-        """Stops profiling."""
+        """Stop profiling."""
 
         if self.is_profiling and self.is_patched:
             disable_functional_hooks()
@@ -128,7 +128,7 @@ class ProfilerModel:
         self.model.apply(remove_hooks)
 
     def reset(self) -> None:
-        """Resets the profiler."""
+        """Reset the profiler."""
 
         def reset_attrs(module: torch.nn.Module) -> None:
             module.__flops__ = 0
@@ -141,7 +141,7 @@ class ProfilerModel:
         self.model.apply(reset_attrs)
 
     def end(self) -> None:
-        """Ends the profiler."""
+        """End the profiler."""
 
         if not self.is_profiling:
             return
@@ -166,7 +166,7 @@ class ProfilerModel:
         self.model.apply(remove_attrs)
 
     def get_flops(self) -> int:
-        """Gets the model's number of FLOPs.
+        """Get the model's number of FLOPs.
 
         Returns:
             Number of floating point operations.
@@ -182,7 +182,7 @@ class ProfilerModel:
         return _get(self.model)
 
     def get_macs(self) -> int:
-        """Gets the model's number of MACs.
+        """Get the model's number of MACs.
 
         Returns:
             Number of multiply-accumulate operations.
@@ -198,7 +198,7 @@ class ProfilerModel:
         return _get(self.model)
 
     def get_params(self) -> int:
-        """Gets the model's total number of parameters.
+        """Get the model's total number of parameters.
 
         Returns:
             Number of parameters.
@@ -208,7 +208,7 @@ class ProfilerModel:
         return self.model.__params__
 
     def get_latency(self) -> float:
-        """Gets the model's latency.
+        """Get the model's latency.
 
         Returns:
             Latency (seconds).
@@ -225,7 +225,7 @@ class ProfilerModel:
         return _get(self.model)
 
     def get_peak_memory(self) -> float:
-        """Gets the model's peak memory.
+        """Get the model's peak memory.
 
         Returns:
             Peak memory (bytes).

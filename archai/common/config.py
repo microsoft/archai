@@ -16,22 +16,10 @@ import yaml
 from archai.common.config_utils import resolve_dict
 
 
-def update_nested_dict(d: MutableMapping, u: Mapping, mapping_fn: Callable[[], MutableMapping]) -> MutableMapping:
-    """Recursively update a dictionary with another dictionary.
-
-    Args:
-        d: Dictionary to update.
-        u: Dictionary to update from.
-        mapping_fn: Dunction to create a new dictionary.
-
-    Returns:
-        Updated dictionary.
-
-    """
-
+def _update_nested_dict(d: MutableMapping, u: Mapping, mapping_fn: Callable[[], MutableMapping]) -> MutableMapping:
     for k, v in u.items():
         if isinstance(v, Mapping):
-            d[k] = update_nested_dict(d.get(k, mapping_fn()), v, mapping_fn)
+            d[k] = _update_nested_dict(d.get(k, mapping_fn()), v, mapping_fn)
         else:
             d[k] = v
 
@@ -101,30 +89,15 @@ class Config(UserDict):
         self.file_path = file_path
 
     def _load(self, file_path: str) -> None:
-        """Load a YAML-based configuration file.
-
-        Args:
-            file_path: Path to YAML-based configuration file.
-
-        """
-
         if file_path:
             file_path = os.path.abspath(os.path.expanduser(os.path.expandvars(file_path)))
             with open(file_path, "r") as f:
                 config_yaml = yaml.load(f, Loader=yaml.Loader)
 
             self._update_from_include(config_yaml, file_path)
-            update_nested_dict(self, config_yaml, lambda: Config(resolve_redirect=False))
+            _update_nested_dict(self, config_yaml, lambda: Config(resolve_redirect=False))
 
     def _update_from_include(self, config_yaml: Dict[str, Any], file_path: str) -> None:
-        """Update the configuration from the __include__ directive.
-
-        Args:
-            config_yaml: YAML-based configuration.
-            file_path: Path to YAML-based configuration file.
-
-        """
-
         if "__include__" in config_yaml:
             includes = config_yaml["__include__"]
             if isinstance(includes, str):
@@ -136,14 +109,6 @@ class Config(UserDict):
                 self._load(include_file_path)
 
     def _update_from_args(self, args: List[Any], resolved_section: Config) -> None:
-        """Update the configuration from extra/command line arguments.
-
-        Args:
-            args: List of extra arguments, e.g., ["--arg", "value", "--arg2", "value2"].
-            resolved_section: Resolved configuration.
-
-        """
-
         i = 0
         while i < len(args) - 1:
             arg = args[i]
@@ -154,18 +119,6 @@ class Config(UserDict):
                 i += 1
 
     def _update_section(self, path: List[str], value: Any, resolved_section: Config) -> int:
-        """Update the section of a configuration object.
-
-        Args:
-            path: Path to the configuration section.
-            value: Value to set.
-            resolved_section: Resolved configuration.
-
-        Returns:
-            Number of consumed arguments (2).
-
-        """
-
         for p in range(len(path) - 1):
             sub_path = path[p]
             if sub_path in resolved_section:
@@ -207,7 +160,7 @@ class Config(UserDict):
 
         """
 
-        return update_nested_dict({}, self, lambda: dict())
+        return _update_nested_dict({}, self, lambda: dict())
 
     def get(self, key: str, default_value: Optional[Any] = None) -> Any:
         """Get a value from the `Config` object.

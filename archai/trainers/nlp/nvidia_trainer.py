@@ -180,17 +180,7 @@ class NvidiaTrainer(TrainerBase):
         except FileNotFoundError:
             return 0, 0, 0, 0
 
-    def get_dataloader(self, split: str) -> Iterator:
-        """Return a data loader from the pre-loaded dataset.
-
-        Args:
-            split: Split of dataset to be retrieved as data loader.
-
-        Returns:
-            An instance of data loader/iterator based on the loaded dataset.
-
-        """
-
+    def _get_dataloader(self, split: str) -> Iterator:
         if split == "train":
             input_ids = self.dataset_provider.get_train_dataset()
         elif split == "valid":
@@ -207,14 +197,7 @@ class NvidiaTrainer(TrainerBase):
             device=self.args.device,
         )
 
-    def create_optimizer(self) -> None:
-        """Create an optimizer and attaches model's parameters.
-
-        Raises:
-            NotImplementedError: If the optimizer name is not supported.
-
-        """
-
+    def _create_optimizer(self) -> None:
         optimizer_name = self.args.optim.lower()
         if optimizer_name == "sgd":
             self.optimizer = optim.SGD(self.model.parameters(), lr=self.args.learning_rate, momentum=self.args.momentum)
@@ -235,16 +218,12 @@ class NvidiaTrainer(TrainerBase):
         else:
             raise NotImplementedError(f"Optimizer: {self.args.optim} is not implemented yet.")
 
-    def create_scaler(self) -> None:
-        """Create an automatic gradient scaler to support FP16 precision."""
-
+    def _create_scaler(self) -> None:
         self.scaler = None
         if self.args.fp16:
             self.scaler = torch.cuda.amp.GradScaler()
 
-    def create_scheduler(self) -> None:
-        """Create a learning rate scheduler."""
-
+    def _create_scheduler(self) -> None:
         scheduler_name = self.args.lr_qat_scheduler_type if self.args.qat else self.args.lr_scheduler_type
         if scheduler_name == "cosine":
             if self.args.lr_scheduler_max_steps:
@@ -281,18 +260,14 @@ class NvidiaTrainer(TrainerBase):
         elif scheduler_name == "constant":
             pass
 
-    def setup_qat(self) -> None:
-        """Setup whether Quantization Aware Training (QAT) should be used."""
-
+    def _setup_qat(self) -> None:
         if self.args.qat:
             prepare_with_qat(self.model, onnx_compatible=True)
 
         if self.args.mixed_qat:
             self.model = MixedQAT(self.model)
 
-    def setup_distributed_training(self) -> None:
-        """Setup distributed training."""
-
+    def _setup_distributed_training(self) -> None:
         self.dist_model = self.model
 
         if self.args.strategy == "ddp" and torch.distributed.is_initialized():
@@ -307,22 +282,9 @@ class NvidiaTrainer(TrainerBase):
         elif self.args.strategy == "dp":
             self.dist_model = nn.DataParallel(self.model, dim=1)
 
-    def training_step_chunk(
+    def _training_step_chunk(
         self, input_ids: torch.LongTensor, labels: torch.LongTensor, autocast: torch.autocast
     ) -> float:
-        """Perform the training step of a single chunk.
-
-        Args:
-            input_ids: Input data chunk.
-            labels: Input labels chunk.
-            autocast: An autocast instance that automatically performs
-                fp16 or bf16 precision.
-
-        Returns:
-            Training loss chunk.
-
-        """
-
         with autocast:
             loss = self.dist_model(input_ids, labels=input_ids)[0]
             loss = loss.float().mean().type_as(loss) / self.args.gradient_accumulation_steps
@@ -334,7 +296,7 @@ class NvidiaTrainer(TrainerBase):
 
         return loss.float().item()
 
-    def training_step(
+    def _training_step(
         self,
         train_dataloader: Iterator,
         eval_dataloader: Iterator,
@@ -343,18 +305,6 @@ class NvidiaTrainer(TrainerBase):
         start_batch: int,
         step: int,
     ) -> None:
-        """Perform the training over the supplied data loaders.
-
-        Args:
-            train_dataloader: Training data iterator.
-            eval_dataloader: Validation data iterator.
-            iterator: Current iterator.
-            epoch: Current epoch.
-            start_batch: At which batch the training should start.
-            step: Current step.
-
-        """
-
         self.model.train()
 
         train_loss, log_step, n_labels_tokens = 0.0, 0, 0
@@ -389,7 +339,7 @@ class NvidiaTrainer(TrainerBase):
                 input_ids_chunk = input_ids_chunks[i].contiguous()
                 labels_chunk = labels_chunks[i].contiguous()
 
-                train_loss_chunk = self.training_step_chunk(
+                train_loss_chunk = self._training_step_chunk(
                     input_ids_chunk,
                     labels_chunk,
                     autocast,
@@ -462,7 +412,7 @@ class NvidiaTrainer(TrainerBase):
 
             # Evaluation and checkpoint
             if (do_periodic_eval or is_final_step) and self.args.do_eval:
-                eval_loss, eval_time = self.evaluation_step(eval_dataloader)
+                eval_loss, eval_time = self._evaluation_step(eval_dataloader)
                 eval_loss = all_reduce(eval_loss, op="mean")
 
                 self.trainer_state["log_history"].append(
@@ -538,9 +488,9 @@ class NvidiaTrainer(TrainerBase):
 
         """
 
-        self.create_optimizer()
-        self.create_scaler()
-        self.create_scheduler()
+        self._create_optimizer()
+        self._create_scaler()
+        self._create_scheduler()
 
         if checkpoint_file_path:
             iterator, start_epoch, start_batch, step = self.load_checkpoint(checkpoint_file_path)
@@ -550,11 +500,11 @@ class NvidiaTrainer(TrainerBase):
         if step >= self.args.max_steps:
             sys.exit(1)
 
-        self.setup_qat()
-        self.setup_distributed_training()
+        self._setup_qat()
+        self._setup_distributed_training()
 
-        train_dataloader = self.get_dataloader("train")
-        eval_dataloader = self.get_dataloader("valid")
+        train_dataloader = self._get_dataloader("train")
+        eval_dataloader = self._get_dataloader("valid")
 
         logger.info("Starting training ...")
         logger.debug(f"Training arguments: {self.args.to_dict()}")
@@ -565,7 +515,7 @@ class NvidiaTrainer(TrainerBase):
                 if self.args.iterator_roll:
                     train_dataloader.roll(seed=self.args.seed + epoch)
 
-                step = self.training_step(train_dataloader, eval_dataloader, iterator, epoch, start_batch, step)
+                step = self._training_step(train_dataloader, eval_dataloader, iterator, epoch, start_batch, step)
 
                 iterator, start_batch = 0, 0
 
@@ -580,17 +530,7 @@ class NvidiaTrainer(TrainerBase):
         train_time = end_time - start_time
         logger.info(f"Training time: {train_time:.3f} seconds")
 
-    def evaluation_step(self, eval_dataloader: Iterator) -> Tuple[float, float]:
-        """Perform the evaluation over the supplied data loader.
-
-        Args:
-            eval_dataloader: Evaluation-related data loader.
-
-        Returns:
-            Evaluation loss and time.
-
-        """
-
+    def _evaluation_step(self, eval_dataloader: Iterator) -> Tuple[float, float]:
         self.model.eval()
 
         eval_loss, n_tokens = 0.0, 0
@@ -623,9 +563,9 @@ class NvidiaTrainer(TrainerBase):
         """
 
         if not eval_dataloader:
-            eval_dataloader = self.get_dataloader("test")
+            eval_dataloader = self._get_dataloader("test")
 
-        eval_loss, eval_time = self.evaluation_step(eval_dataloader)
+        eval_loss, eval_time = self._evaluation_step(eval_dataloader)
 
         eval_metrics = {
             "eval_time": eval_time,

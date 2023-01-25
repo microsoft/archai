@@ -8,7 +8,7 @@ from archai.discrete_search.search_spaces.config.discrete_choice import Discrete
 
 
 def flatten_dict(odict: Dict[str, Any]) -> OrderedDict:
-    """Flattens a nested dictionary into a single level dictionary.
+    """Flatten a nested dictionary into a single level dictionary.
 
     Args:
         odict: Nested dictionary.
@@ -40,7 +40,7 @@ def flatten_dict(odict: Dict[str, Any]) -> OrderedDict:
 def replace_ptree_choices(
     config_tree: Union[Dict, DiscreteChoice], repl_fn: Callable[[DiscreteChoice], Any]
 ) -> OrderedDict:
-    """Replaces all DiscreteChoice nodes in a tree with the output of a function.
+    """Replace all DiscreteChoice nodes in a tree with the output of a function.
 
     Args:
         config_tree: Tree with DiscreteChoice nodes.
@@ -74,7 +74,7 @@ def replace_ptree_choices(
 def replace_ptree_pair_choices(
     query_tree: Union[Dict, DiscreteChoice], aux_tree: Union[Dict, Any], repl_fn: Callable[[DiscreteChoice, Any], Any]
 ) -> OrderedDict:
-    """Replaces all DiscreteChoice nodes in a tree with the output of a function.
+    """Replace all DiscreteChoice nodes in a tree with the output of a function.
 
     Args:
         query_tree: Tree with DiscreteChoice nodes.

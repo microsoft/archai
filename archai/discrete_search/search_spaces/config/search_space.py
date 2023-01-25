@@ -56,7 +56,7 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.rng = Random(seed)
 
     def get_archid(self, arch_config: ArchConfig) -> str:
-        """Returns the architecture identifier for the given architecture configuration.
+        """Return the architecture identifier for the given architecture configuration.
 
         Args:
             arch_config: Architecture configuration.
