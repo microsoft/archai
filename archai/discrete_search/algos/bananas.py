@@ -174,7 +174,7 @@ class MoBananasSearch(Searcher):
             mutations.update(candidates)
 
         if len(mutations) == 0:
-            logger.warning(f"No mutations found after {patience} tries for each one of the {len(parents)} parents.")
+            logger.warn(f"No mutations found after {patience} tries for each one of the {len(parents)} parents.")
 
         return list(mutations.values())
 

@@ -8,7 +8,7 @@ from typing import Callable, List, Tuple
 import numpy as np
 from tqdm import tqdm
 
-import archai.algos.divnas.analyse_activations as aa
+import archai.supergraph.algos.divnas.analyse_activations as aa
 from archai.supergraph.algos.divnas.analyse_activations import (
     _compute_mi,
     compute_brute_force_sol,
