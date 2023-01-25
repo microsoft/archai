@@ -43,6 +43,27 @@ Search Objectives
    :members:
    :undoc-members:
 
+Search Results
+--------------
+
+.. automodule:: archai.api.search_results
+   :members:
+   :undoc-members:
+
+Search Space
+------------
+
+.. automodule:: archai.api.search_space
+   :members:
+   :undoc-members:
+
+Searcher
+--------
+
+.. automodule:: archai.api.searcher
+   :members:
+   :undoc-members:
+
 Trainer (Base Class)
 --------------------
 

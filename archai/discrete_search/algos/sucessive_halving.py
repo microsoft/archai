@@ -8,10 +8,10 @@ from overrides import overrides
 
 from archai.api.dataset_provider import DatasetProvider
 from archai.api.search_objectives import SearchObjectives
+from archai.api.searcher import Searcher
 from archai.common.ordered_dict_logger import OrderedDictLogger
-from archai.discrete_search.api.search_results import SearchResults
+from archai.discrete_search.api.search_results import DiscreteSearchResults
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
-from archai.discrete_search.api.searcher import Searcher
 from archai.discrete_search.utils.multi_objective import get_non_dominated_sorting
 
 logger = OrderedDictLogger(source=__name__)
@@ -49,13 +49,13 @@ class SucessiveHalvingSearch(Searcher):
         self.iter_num = 0
         self.num_sampled_models = 0
         self.seed = seed
-        self.search_state = SearchResults(search_space, objectives)
+        self.search_state = DiscreteSearchResults(search_space, objectives)
         self.rng = random.Random(seed)
 
         self.output_dir.mkdir(exist_ok=True, parents=True)
 
     @overrides
-    def search(self) -> SearchResults:
+    def search(self) -> DiscreteSearchResults:
         current_budget = self.init_budget
         population = [self.search_space.random_sample() for _ in range(self.init_num_models)]
         selected_models = population

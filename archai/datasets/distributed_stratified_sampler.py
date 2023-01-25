@@ -102,7 +102,7 @@ class DistributedStratifiedSampler(Sampler):
         self.val_ratio = val_ratio
         self.is_val_split = is_val_split
 
-        # Computing duplications of dataset to make it divisible by world_size
+        # Computes duplications of dataset to make it divisible by world_size
         self.replica_len = self.replica_len_full = int(math.ceil(float(self.data_len) / self.world_size))
         self.total_size = self.replica_len_full * self.world_size
         assert self.total_size >= self.data_len
@@ -245,11 +245,11 @@ class DistributedStratifiedSampler(Sampler):
 
         return indices, targets
 
-    def set_epoch(self, epoch: int) -> int:
+    def set_epoch(self, epoch: int) -> None:
         """Set the epoch for the current replica, which is used to seed the shuffling.
 
         Args:
-            epoch (int): Epoch number.
+            epoch: Epoch number.
 
         """
 

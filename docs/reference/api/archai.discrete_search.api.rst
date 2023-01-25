@@ -8,23 +8,16 @@ Predictor
    :members:
    :undoc-members:
 
-Search Results
---------------
+Discrete Search Results
+-----------------------
 
 .. automodule:: archai.discrete_search.api.search_results
    :members:
    :undoc-members:
 
-Search Space
-------------
+Discrete Search Space
+---------------------
 
 .. automodule:: archai.discrete_search.api.search_space
-   :members:
-   :undoc-members:
-
-Searcher
---------
-
-.. automodule:: archai.discrete_search.api.searcher
    :members:
    :undoc-members:

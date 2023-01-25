@@ -11,10 +11,10 @@ from tqdm import tqdm
 from archai.api.archai_model import ArchaiModel
 from archai.api.dataset_provider import DatasetProvider
 from archai.api.search_objectives import SearchObjectives
+from archai.api.searcher import Searcher
 from archai.common.ordered_dict_logger import OrderedDictLogger
-from archai.discrete_search.api.search_results import SearchResults
+from archai.discrete_search.api.search_results import DiscreteSearchResults
 from archai.discrete_search.api.search_space import EvolutionarySearchSpace
-from archai.discrete_search.api.searcher import Searcher
 
 logger = OrderedDictLogger(source=__name__)
 
@@ -86,7 +86,7 @@ class EvolutionParetoSearch(Searcher):
         self.num_crossovers = num_crossovers
 
         # Utils
-        self.search_state = SearchResults(search_space, self.so)
+        self.search_state = DiscreteSearchResults(search_space, self.so)
         self.seed = seed
         self.rng = random.Random(seed)
         self.seen_archs = set()
@@ -168,7 +168,7 @@ class EvolutionParetoSearch(Searcher):
         return current_pop[: self.max_unseen_population]
 
     @overrides
-    def search(self) -> SearchResults:
+    def search(self) -> DiscreteSearchResults:
         # sample the initial population
         self.iter_num = 0
 

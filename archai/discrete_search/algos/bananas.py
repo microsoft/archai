@@ -10,14 +10,14 @@ from overrides import overrides
 from archai.api.archai_model import ArchaiModel
 from archai.api.dataset_provider import DatasetProvider
 from archai.api.search_objectives import SearchObjectives
+from archai.api.searcher import Searcher
 from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.discrete_search.api.predictor import MeanVar, Predictor
-from archai.discrete_search.api.search_results import SearchResults
+from archai.discrete_search.api.search_results import DiscreteSearchResults
 from archai.discrete_search.api.search_space import (
     BayesOptSearchSpace,
     EvolutionarySearchSpace,
 )
-from archai.discrete_search.api.searcher import Searcher
 from archai.discrete_search.predictors.dnn_ensemble import PredictiveDNNEnsemble
 from archai.discrete_search.utils.multi_objective import get_non_dominated_sorting
 
@@ -106,7 +106,7 @@ class MoBananasSearch(Searcher):
         self.seed = seed
         self.rng = np.random.RandomState(self.seed)
         self.surrogate_dataset = []
-        self.search_state = SearchResults(search_space, search_objectives)
+        self.search_state = DiscreteSearchResults(search_space, search_objectives)
 
     def get_surrogate_iter_dataset(self, all_pop: List[ArchaiModel]):
         encoded_archs = np.vstack([self.search_space.encode(m) for m in all_pop])
