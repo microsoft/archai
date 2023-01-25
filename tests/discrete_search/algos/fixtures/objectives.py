@@ -1,10 +1,12 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 
 from random import Random
 
-from archai.discrete_search import SearchObjectives
-from archai.discrete_search.evaluators.functional import EvaluationFunction
-
 import pytest
+
+from archai.api.search_objectives import SearchObjectives
+from archai.discrete_search.evaluators.functional import EvaluationFunction
 
 
 @pytest.fixture
@@ -18,9 +20,9 @@ def search_objectives():
     r = EvaluationFunction(lambda m, d, b: rng3.random())
 
     so = SearchObjectives()
-    so.add_objective('Random1', o1, higher_is_better=False, compute_intensive=False, constraint=(0.0, 0.4))
-    so.add_objective('Random2', o2, higher_is_better=True)
+    so.add_objective("Random1", o1, higher_is_better=False, compute_intensive=False, constraint=(0.0, 0.4))
+    so.add_objective("Random2", o2, higher_is_better=True)
 
-    so.add_constraint('Random3 constraint', r, constraint=(0.0, 0.6))
+    so.add_constraint("Random3 constraint", r, constraint=(0.0, 0.6))
 
     return so

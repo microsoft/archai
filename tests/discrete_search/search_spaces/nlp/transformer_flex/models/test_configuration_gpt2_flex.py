@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.nlp.search_spaces.transformer_flex.models.gpt2_flex.configuration_gpt2_flex import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.configuration_gpt2_flex import (
     GPT2FlexConfig,
 )
 

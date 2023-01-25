@@ -5,7 +5,7 @@ import pytest
 import torch
 from transformers import PretrainedConfig
 
-from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig, OnnxConfigWithPast
+from archai.onnx.config_utils.onnx_config_base import OnnxConfig, OnnxConfigWithPast
 
 
 @pytest.fixture

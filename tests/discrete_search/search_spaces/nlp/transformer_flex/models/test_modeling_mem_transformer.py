@@ -4,15 +4,15 @@
 import pytest
 import torch
 
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.configuration_mem_transformer import (
     MemTransformerConfig,
 )
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.modeling_mem_transformer import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.mem_transformer_utils.projected_adaptive_log_softmax import (
+    ProjectedAdaptiveLogSoftmax,
+)
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.modeling_mem_transformer import (
     MemTransformerLMHeadModel,
     MemTransformerModel,
-)
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.utils.projected_adaptive_log_softmax import (
-    ProjectedAdaptiveLogSoftmax,
 )
 
 

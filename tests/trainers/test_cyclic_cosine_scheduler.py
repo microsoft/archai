@@ -5,7 +5,7 @@ import pytest
 import torch
 from torch.optim import SGD
 
-from archai.nlp.trainers.nvidia.cyclic_cosine_scheduler import CyclicCosineDecayLR
+from archai.trainers.cyclic_cosine_scheduler import CyclicCosineDecayLR
 
 INITIAL_LR = 1.0
 

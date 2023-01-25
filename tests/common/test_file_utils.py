@@ -7,7 +7,7 @@ import tempfile
 
 import torch
 
-from archai.nlp.file_utils import (
+from archai.common.file_utils import (
     calculate_onnx_model_size,
     calculate_torch_model_size,
     check_available_checkpoint,

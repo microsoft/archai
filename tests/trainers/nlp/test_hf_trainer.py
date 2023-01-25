@@ -7,7 +7,7 @@ import tempfile
 import torch
 from transformers import TrainerState, TrainingArguments
 
-from archai.nlp.trainers.hf.trainer import HfTrainer
+from archai.trainers.nlp.hf_trainer import HfTrainer
 
 
 def test_hf_trainer_rotate_checkpoints():

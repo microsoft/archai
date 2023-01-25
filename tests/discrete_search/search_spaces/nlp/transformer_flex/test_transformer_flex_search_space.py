@@ -10,7 +10,7 @@ from archai.discrete_search.api.search_space import (
     BayesOptSearchSpace,
     EvolutionarySearchSpace,
 )
-from archai.nlp.search_spaces.transformer_flex.search_space import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import (
     TransformerFlexSearchSpace,
 )
 

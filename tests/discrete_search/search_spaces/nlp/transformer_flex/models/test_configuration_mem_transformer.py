@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.nlp.search_spaces.transformer_flex.models.mem_transformer.configuration_mem_transformer import (
+from archai.discrete_search.search_spaces.nlp.transformer_flex.models.configuration_mem_transformer import (
     MemTransformerConfig,
 )
 

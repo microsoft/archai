@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.nlp.trainers.hf.training_args import DistillerTrainingArguments
+from archai.trainers.nlp.hf_training_args import DistillerTrainingArguments
 
 
 def test_distiller_training_arguments():

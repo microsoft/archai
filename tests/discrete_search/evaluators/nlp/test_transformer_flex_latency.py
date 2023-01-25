@@ -3,8 +3,10 @@
 
 import pytest
 
-from archai.nlp.objectives.transformer_flex_latency import TransformerFlexOnnxLatency
-from archai.nlp.search_spaces.transformer_flex.search_space import (
+from archai.discrete_search.evaluators.nlp.transformer_flex_latency import (
+    TransformerFlexOnnxLatency,
+)
+from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import (
     TransformerFlexSearchSpace,
 )
 

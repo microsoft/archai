@@ -3,7 +3,7 @@
 
 import os
 
-from archai.nlp.trainers.nvidia.training_args import NvidiaTrainingArguments
+from archai.trainers.nlp.nvidia_training_args import NvidiaTrainingArguments
 
 
 def test_nvidia_training_arguments():
@@ -18,11 +18,11 @@ def test_nvidia_training_arguments():
     assert args.do_eval is True
     assert args.eval_steps == 100
     assert args.save_all_checkpoints is False
-    assert args.dataset == "wt103"
+    assert args.dataset_name == "wt103"
     assert os.path.basename(os.path.normpath(args.dataset_dir)) == "wikitext-103"
     assert os.path.basename(os.path.normpath(args.dataset_cache_dir)) == "cache"
     assert args.dataset_refresh_cache is False
-    assert args.vocab == "gpt2"
+    assert args.vocab_type == "gpt2"
     assert args.vocab_size == 10000
     assert args.iterator_roll is True
     assert args.global_batch_size == 256

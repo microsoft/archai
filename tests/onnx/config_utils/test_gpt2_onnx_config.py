@@ -5,10 +5,7 @@ import pytest
 import torch
 from transformers import PretrainedConfig
 
-from archai.nlp.onnx.config_utils.gpt2_onnx_config import (
-    GPT2FlexOnnxConfig,
-    GPT2OnnxConfig,
-)
+from archai.onnx.config_utils.gpt2_onnx_config import GPT2FlexOnnxConfig, GPT2OnnxConfig
 
 
 @pytest.fixture

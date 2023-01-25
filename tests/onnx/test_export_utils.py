@@ -7,10 +7,10 @@ import types
 import torch
 from transformers import GPT2Config, GPT2LMHeadModel
 
-from archai.nlp.file_utils import calculate_onnx_model_size
-from archai.nlp.onnx.export import export_to_onnx
-from archai.nlp.onnx.export_utils import prepare_model_for_onnx, weight_sharing
-from archai.nlp.onnx.onnx_forward import gpt2_onnx_forward
+from archai.common.file_utils import calculate_onnx_model_size
+from archai.onnx.export import export_to_onnx
+from archai.onnx.export_utils import prepare_model_for_onnx, weight_sharing
+from archai.onnx.onnx_forward import gpt2_onnx_forward
 
 
 def test_prepare_model_for_onnx():

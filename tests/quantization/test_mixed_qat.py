@@ -5,7 +5,7 @@ import pytest
 import torch
 from transformers import GPT2Config, GPT2LMHeadModel
 
-from archai.nlp.quantization.mixed_qat import MixedQAT
+from archai.quantization.mixed_qat import MixedQAT
 
 
 @pytest.fixture

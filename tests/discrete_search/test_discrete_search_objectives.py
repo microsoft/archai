@@ -1,14 +1,17 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import random
 from typing import Tuple
 
 import pytest
 import torch
 
-from archai.discrete_search.api.search_objectives import SearchObjectives
+from archai.api.search_objectives import SearchObjectives
 from archai.discrete_search.evaluators.functional import EvaluationFunction
 from archai.discrete_search.evaluators.onnx_model import AvgOnnxLatency
 from archai.discrete_search.evaluators.pt_profiler import TorchFlops, TorchNumParameters
-from archai.discrete_search.search_spaces.segmentation_dag import (
+from archai.discrete_search.search_spaces.segmentation_dag.search_space import (
     SegmentationDagSearchSpace,
 )
 

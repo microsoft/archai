@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 from transformers import TrainerControl, TrainerState, TrainingArguments
 
-from archai.nlp.trainers.hf.callbacks import (
+from archai.trainers.nlp.hf_callbacks import (
     BPCTrainerCallback,
     PerplexityTrainerCallback,
 )

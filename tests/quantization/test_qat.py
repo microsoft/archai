@@ -6,8 +6,8 @@ import copy
 import pytest
 import torch
 
-from archai.nlp.quantization.modules import FakeDynamicQuantLinear
-from archai.nlp.quantization.qat import (
+from archai.quantization.modules import FakeDynamicQuantLinear
+from archai.quantization.qat import (
     DYNAMIC_QAT_MODULE_MAP,
     ONNX_DYNAMIC_QAT_MODULE_MAP,
     float_to_qat_modules,

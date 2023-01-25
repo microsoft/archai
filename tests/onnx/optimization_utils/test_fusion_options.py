@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.nlp.onnx.optimization_utils.fusion_options import (
+from archai.onnx.optimization_utils.fusion_options import (
     AttentionMaskFormat,
     FusionOptions,
 )

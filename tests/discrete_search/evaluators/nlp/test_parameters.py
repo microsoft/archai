@@ -5,8 +5,11 @@ import pytest
 from torch import nn
 from torch.nn import functional as F
 
-from archai.discrete_search import ArchaiModel
-from archai.nlp.objectives.parameters import NonEmbeddingParamsProxy, TotalParamsProxy
+from archai.api.archai_model import ArchaiModel
+from archai.discrete_search.evaluators.nlp.parameters import (
+    NonEmbeddingParamsProxy,
+    TotalParamsProxy,
+)
 
 
 @pytest.fixture

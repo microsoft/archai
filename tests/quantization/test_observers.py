@@ -4,7 +4,7 @@
 import pytest
 import torch
 
-from archai.nlp.quantization.observers import OnnxDynamicObserver
+from archai.quantization.observers import OnnxDynamicObserver
 
 
 @pytest.fixture

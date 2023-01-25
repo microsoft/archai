@@ -4,13 +4,13 @@
 import pytest
 from overrides import overrides
 
-from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import SpecialTokenEnum
-from archai.nlp.datasets.nvidia.tokenizer_utils.vocab_base import VocabBase
+from archai.datasets.nlp.tokenizer_utils.token_config import SpecialTokenEnum
+from archai.datasets.nlp.tokenizer_utils.tokenizer_base import TokenizerBase
 
 
 @pytest.fixture
-def vocab_base():
-    class Vocab(VocabBase):
+def tokenizer_base():
+    class Tokenizer(TokenizerBase):
         def __init__(self):
             self.is_trained_value = False
 
@@ -57,42 +57,42 @@ def vocab_base():
         def id_to_token(self, id):
             return "token"
 
-    return Vocab()
+    return Tokenizer()
 
 
-def test_vocab_base_len(vocab_base):
-    assert len(vocab_base) == 100
+def test_tokenizer_base_len(tokenizer_base):
+    assert len(tokenizer_base) == 100
 
 
-def test_vocab_base_train(vocab_base):
-    vocab_base.train(["file1", "file2"])
-    assert vocab_base.is_trained() is True
+def test_tokenizer_base_train(tokenizer_base):
+    tokenizer_base.train(["file1", "file2"])
+    assert tokenizer_base.is_trained() is True
 
 
-def test_vocab_base_load(vocab_base):
-    vocab_base.load()
-    assert vocab_base.is_trained() is True
+def test_tokenizer_base_load(tokenizer_base):
+    tokenizer_base.load()
+    assert tokenizer_base.is_trained() is True
 
 
-def test_vocab_base_encode_text(vocab_base):
-    assert vocab_base.encode_text("test") == [1, 2, 3]
+def test_tokenizer_base_encode_text(tokenizer_base):
+    assert tokenizer_base.encode_text("test") == [1, 2, 3]
 
 
-def test_vocab_base_decode_text(vocab_base):
-    assert vocab_base.decode_text([1, 2, 3]) == "decoded"
+def test_tokenizer_base_decode_text(tokenizer_base):
+    assert tokenizer_base.decode_text([1, 2, 3]) == "decoded"
 
 
-def test_vocab_base_special_token_id(vocab_base):
-    assert vocab_base.special_token_id(SpecialTokenEnum.BOS) == 1
-    assert vocab_base.special_token_id(SpecialTokenEnum.EOS) == 2
-    assert vocab_base.special_token_id(SpecialTokenEnum.UNK) == 3
-    assert vocab_base.special_token_id(SpecialTokenEnum.PAD) == 4
-    assert vocab_base.special_token_id("invalid") is None
+def test_tokenizer_base_special_token_id(tokenizer_base):
+    assert tokenizer_base.special_token_id(SpecialTokenEnum.BOS) == 1
+    assert tokenizer_base.special_token_id(SpecialTokenEnum.EOS) == 2
+    assert tokenizer_base.special_token_id(SpecialTokenEnum.UNK) == 3
+    assert tokenizer_base.special_token_id(SpecialTokenEnum.PAD) == 4
+    assert tokenizer_base.special_token_id("invalid") is None
 
 
-def test_vocab_base_token_to_id(vocab_base):
-    assert vocab_base.token_to_id("test") == 5
+def test_tokenizer_base_token_to_id(tokenizer_base):
+    assert tokenizer_base.token_to_id("test") == 5
 
 
-def test_vocab_base_id_to_token(vocab_base):
-    assert vocab_base.id_to_token(5) == "token"
+def test_tokenizer_base_id_to_token(tokenizer_base):
+    assert tokenizer_base.id_to_token(5) == "token"

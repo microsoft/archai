@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import pytest
 import torch
 
@@ -8,7 +11,7 @@ from archai.discrete_search.evaluators.pt_profiler import (
     TorchMacs,
     TorchNumParameters,
 )
-from archai.discrete_search.search_spaces.segmentation_dag import (
+from archai.discrete_search.search_spaces.segmentation_dag.search_space import (
     SegmentationDagSearchSpace,
 )
 

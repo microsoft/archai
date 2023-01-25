@@ -7,9 +7,9 @@ import pytest
 from onnxruntime import InferenceSession
 from transformers import GPT2Config, GPT2LMHeadModel
 
-from archai.nlp.onnx.export import export_to_onnx
-from archai.nlp.onnx.onnx_loader import load_from_onnx
-from archai.nlp.onnx.optimization import optimize_onnx
+from archai.onnx.export import export_to_onnx
+from archai.onnx.onnx_loader import load_from_onnx
+from archai.onnx.optimization import optimize_onnx
 
 
 @pytest.fixture

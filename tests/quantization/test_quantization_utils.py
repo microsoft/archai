@@ -3,7 +3,7 @@
 
 import pytest
 
-from archai.nlp.quantization.quantization_utils import rgetattr, rsetattr
+from archai.quantization.quantization_utils import rgetattr, rsetattr
 
 
 @pytest.fixture

@@ -4,7 +4,7 @@
 import pytest
 import torch
 
-from archai.nlp.trainers.nvidia.optimizers import JITLamb, Lamb
+from archai.trainers.lamb_optimizer import JITLamb, Lamb
 
 
 def test_lamb_init():

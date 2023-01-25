@@ -3,7 +3,7 @@
 
 import pytest
 
-from archai.nlp.datasets.nvidia.tokenizer_utils.token_config import (
+from archai.datasets.nlp.tokenizer_utils.token_config import (
     SpecialTokenEnum,
     TokenConfig,
 )

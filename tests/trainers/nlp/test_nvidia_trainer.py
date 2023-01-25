@@ -7,7 +7,7 @@ import tempfile
 import torch
 from transformers import GPT2Config, GPT2LMHeadModel
 
-from archai.nlp.trainers.nvidia.trainer import save_checkpoint
+from archai.trainers.nlp.nvidia_trainer import save_checkpoint
 
 
 def test_save_checkpoint():

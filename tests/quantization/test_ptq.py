@@ -7,10 +7,10 @@ import pytest
 import torch
 from transformers import GPT2Config, GPT2LMHeadModel
 
-from archai.nlp.file_utils import create_file_name_identifier
-from archai.nlp.onnx.export import export_to_onnx
-from archai.nlp.onnx.optimization import optimize_onnx
-from archai.nlp.quantization.ptq import (
+from archai.common.file_utils import create_file_name_identifier
+from archai.onnx.export import export_to_onnx
+from archai.onnx.optimization import optimize_onnx
+from archai.quantization.ptq import (
     dynamic_quantization_onnx,
     dynamic_quantization_torch,
 )

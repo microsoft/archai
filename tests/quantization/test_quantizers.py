@@ -3,7 +3,7 @@
 
 import torch
 
-from archai.nlp.quantization.quantizers import FakeDynamicQuant
+from archai.quantization.quantizers import FakeDynamicQuant
 
 
 def test_fake_dynamic_quant():

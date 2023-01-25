@@ -5,8 +5,8 @@ import os
 
 from transformers import GPT2Config, GPT2LMHeadModel
 
-from archai.nlp.onnx.config_utils.onnx_config_base import OnnxConfig
-from archai.nlp.onnx.export import export_to_onnx
+from archai.onnx.config_utils.onnx_config_base import OnnxConfig
+from archai.onnx.export import export_to_onnx
 
 
 def test_export_to_onnx():
