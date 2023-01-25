@@ -29,7 +29,7 @@ class RayParallelEvaluator(AsyncModelEvaluator):
     def __init__(
         self, obj: ModelEvaluator, timeout: Optional[float] = None, force_stop: Optional[bool] = False, **ray_kwargs
     ) -> None:
-        """Initializes the evaluator.
+        """Initialize the evaluator.
 
         Args:
             obj: A `ModelEvaluator` object.

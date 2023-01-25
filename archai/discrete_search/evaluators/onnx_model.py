@@ -15,7 +15,7 @@ from archai.common.timing import MeasureBlockTime
 
 
 class AvgOnnxLatency(ModelEvaluator):
-    """Evaluates the average ONNX Latency (in seconds) of an architecture.
+    """Evaluate the average ONNX Latency (in seconds) of an architecture.
 
     The latency is measured by running the model on random inputs and averaging the latency over
     `num_trials` trials.

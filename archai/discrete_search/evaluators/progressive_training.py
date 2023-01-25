@@ -27,7 +27,7 @@ class ProgressiveTraining(ModelEvaluator):
     """Progressive training evaluator."""
 
     def __init__(self, search_space: DiscreteSearchSpace, training_fn: Callable) -> None:
-        """Initializes the evaluator.
+        """Initialize the evaluator.
 
         Args:
             search_space: Search space.
@@ -64,7 +64,7 @@ class RayProgressiveTraining(AsyncModelEvaluator):
         force_stop: Optional[bool] = False,
         **ray_kwargs
     ) -> None:
-        """Initializes the evaluator.
+        """Initialize the evaluator.
 
         Args:
             search_space: Search space.

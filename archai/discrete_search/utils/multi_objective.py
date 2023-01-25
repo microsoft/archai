@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import numpy as np
 
@@ -9,69 +9,89 @@ from archai.api.archai_model import ArchaiModel
 from archai.api.search_objectives import SearchObjectives
 
 
-def get_pareto_frontier(models: List[ArchaiModel], 
-                        evaluation_results: Dict[str, np.ndarray],
-                        objectives: SearchObjectives) -> Dict:
+def get_pareto_frontier(
+    models: List[ArchaiModel], evaluation_results: Dict[str, np.ndarray], objectives: SearchObjectives
+) -> Dict[str, Any]:
+    """Get the pareto frontier of the given models and evaluation results.
+
+    Args:
+        models: List of models.
+        evaluation_results: Dictionary of evaluation results.
+        objectives: Search objectives.
+
+    Returns:
+        Dictionary with models, evaluation results and whether they are pareto optimal.
+
+    """
+
     assert all(obj_name in objectives.objs for obj_name in evaluation_results)
     assert all(len(r) == len(models) for r in evaluation_results.values())
 
-    # Inverts maximization objectives 
+    # Inverts maximization objectives
     inverted_results = {
-        obj_name: (-obj_r if objectives.objs[obj_name]['higher_is_better'] else obj_r)
+        obj_name: (-obj_r if objectives.objs[obj_name]["higher_is_better"] else obj_r)
         for obj_name, obj_r in evaluation_results.items()
     }
 
     # Converts results to an array of shape (len(models), len(objectives))
     results_array = np.vstack(list(inverted_results.values())).T
 
-    pareto_points = np.array(
-        _find_pareto_frontier_points(results_array)
-    )
+    pareto_points = np.array(_find_pareto_frontier_points(results_array))
 
     return {
-        'models': [models[idx] for idx in pareto_points],
-        'evaluation_results': {
-            obj_name: obj_results[pareto_points]
-            for obj_name, obj_results in evaluation_results.items()
+        "models": [models[idx] for idx in pareto_points],
+        "evaluation_results": {
+            obj_name: obj_results[pareto_points] for obj_name, obj_results in evaluation_results.items()
         },
-        'indices': pareto_points
+        "indices": pareto_points,
     }
 
 
-def get_non_dominated_sorting(models: List[ArchaiModel],
-                              evaluation_results: Dict[str, np.ndarray],
-                              objectives: SearchObjectives) -> List[Dict]:
+def get_non_dominated_sorting(
+    models: List[ArchaiModel], evaluation_results: Dict[str, np.ndarray], objectives: SearchObjectives
+) -> List[Dict[str, Any]]:
+    """Get the non-dominated sorting frontier of the given models and evaluation results.
+
+    Args:
+        models: List of models.
+        evaluation_results: Dictionary of evaluation results.
+        objectives: Search objectives.
+
+    Returns:
+        Dictionary with models, evaluation results and whether they are pareto optimal.
+
+    """
+
     assert all(obj_name in objectives.objs for obj_name in evaluation_results)
     assert all(len(r) == len(models) for r in evaluation_results.values())
 
-    # Inverts maximization objectives 
+    # Inverts maximization objectives
     inverted_results = {
-        obj_name: (-obj_r if objectives.objs[obj_name]['higher_is_better'] else obj_r)
+        obj_name: (-obj_r if objectives.objs[obj_name]["higher_is_better"] else obj_r)
         for obj_name, obj_r in evaluation_results.items()
     }
 
     # Converts results to an array of shape (len(models), len(objectives))
     results_array = np.vstack(list(inverted_results.values())).T
 
-    frontiers = [
-        np.array(frontier) 
-        for frontier in _find_non_dominated_sorting(results_array)
-    ]
+    frontiers = [np.array(frontier) for frontier in _find_non_dominated_sorting(results_array)]
 
-    return [{
-        'models': [models[idx] for idx in frontier],
-        'evaluation_results': {
-            obj_name: obj_results[frontier]
-            for obj_name, obj_results in evaluation_results.items()
-        },
-        'indices': frontier
-    } for frontier in frontiers]
+    return [
+        {
+            "models": [models[idx] for idx in frontier],
+            "evaluation_results": {
+                obj_name: obj_results[frontier] for obj_name, obj_results in evaluation_results.items()
+            },
+            "indices": frontier,
+        }
+        for frontier in frontiers
+    ]
 
 
 def _find_pareto_frontier_points(all_points: np.ndarray) -> List[int]:
     """Takes in a list of n-dimensional points, one per row, returns the list of row indices
-        which are Pareto-frontier points.
-        
+    which are Pareto-frontier points.
+
     Assumes that lower values on every dimension are better.
 
     Args:
@@ -79,6 +99,7 @@ def _find_pareto_frontier_points(all_points: np.ndarray) -> List[int]:
 
     Returns:
         List of Pareto-frontier indexes.
+
     """
 
     # For each point see if there exists  any other point which dominates it on all dimensions
@@ -95,14 +116,14 @@ def _find_pareto_frontier_points(all_points: np.ndarray) -> List[int]:
     _, unique_indices = np.unique(all_points, axis=0, return_index=True)
 
     for i in unique_indices:
-        this_point = all_points[i,:]
+        this_point = all_points[i, :]
         is_pareto = True
 
         for j in unique_indices:
             if j == i:
                 continue
 
-            other_point = all_points[j,:]
+            other_point = all_points[j, :]
             diff = this_point - other_point
 
             if sum(diff >= 0) == dim:
@@ -110,7 +131,7 @@ def _find_pareto_frontier_points(all_points: np.ndarray) -> List[int]:
                 # so we have found at least one dominating point
                 is_pareto = False
                 break
-                
+
         if is_pareto:
             pareto_inds.append(i)
 
@@ -121,19 +142,19 @@ def _find_non_dominated_sorting(all_points: np.ndarray) -> List[List[int]]:
     """Finds non-dominated sorting frontiers from a matrix (#points, #objectives).
 
     Args:
-        all_points (np.ndarray): N-dimensional points.
+        all_points: N-dimensional points.
 
     Returns:
-        List[List[int]]: List of frontier indices
-    
+        List of frontier indices.
+
     References:
-        Implementation adapted from:
-            https://github.com/anyoptimization/pymoo/blob/main/pymoo/util/nds/efficient_non_dominated_sort.py
-    
+        Adapted from: https://github.com/anyoptimization/pymoo/blob/main/pymoo/util/nds/efficient_non_dominated_sort.py
+
         Algorithm:
             X. Zhang, Y. Tian, R. Cheng, and Y. Jin,
             An efficient approach to nondominated sorting for evolutionary multiobjective optimization,
             IEEE Transactions on Evolutionary Computation, 2015, 19(2): 201-213.
+
     """
 
     lex_sorting = np.lexsort(all_points.T[::-1])
@@ -142,8 +163,8 @@ def _find_non_dominated_sorting(all_points: np.ndarray) -> List[List[int]]:
     fronts = []
 
     for idx in range(all_points.shape[0]):
-        front_rank = _find_front_rank(all_points, idx, fronts)        
-        
+        front_rank = _find_front_rank(all_points, idx, fronts)
+
         if front_rank >= len(fronts):
             fronts.append([])
 
@@ -160,17 +181,18 @@ def _find_front_rank(all_points: np.ndarray, idx: int, fronts: List[List[int]]) 
     """Finds the front rank for all_points[idx] given `fronts`.
 
     Args:
-        all_points (np.ndarray): N-dimensional points.
-        idx (int): Point index.
-        fronts (List[List[int]]): Current NDS fronts
+        all_points: N-dimensional points.
+        idx: Point index.
+        fronts: Current NDS fronts.
 
     Returns:
-        int: Front rank for `all_points[idx]`
-    
+        Front rank for `all_points[idx]`.
+
     Reference:
         Adapted from https://github.com/anyoptimization/pymoo/blob/main/pymoo/util/nds/efficient_non_dominated_sort.py
+
     """
-    
+
     def dominates(x, y):
         for i in range(len(x)):
             if y[i] < x[i]:

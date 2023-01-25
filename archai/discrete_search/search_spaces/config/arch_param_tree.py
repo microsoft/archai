@@ -6,30 +6,53 @@ from collections import OrderedDict
 from copy import deepcopy
 from functools import reduce
 from random import Random
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
-from archai.discrete_search.search_spaces.config import utils
 from archai.discrete_search.search_spaces.config.arch_config import (
     ArchConfig,
     build_arch_config,
 )
 from archai.discrete_search.search_spaces.config.discrete_choice import DiscreteChoice
+from archai.discrete_search.search_spaces.config.utils import (
+    flatten_dict,
+    replace_ptree_choices,
+)
 
 
-class ArchParamTree(object):
-    def __init__(self, config_tree: Dict[str, Any]):
+class ArchParamTree:
+    """Tree of architecture parameters."""
+
+    def __init__(self, config_tree: Dict[str, Any]) -> None:
+        """Initializes the class.
+
+        Args:
+            config_tree: Tree of architecture parameters.
+
+        """
+
         self.config_tree = deepcopy(config_tree)
         self.params, self.constants = self._init_tree(config_tree)
 
     @property
-    def num_archs(self):
-        """Total number of architectures"""
+    def num_archs(self) -> int:
+        """Returns the number of architectures in the search space."""
+
         param_dict = self.to_dict(flatten=True, deduplicate_params=True, remove_constants=True)
         num_options = [float(len(p.choices)) for p in param_dict.values()]
 
         return reduce(operator.mul, num_options, 1)
 
     def _init_tree(self, config_tree: Dict[str, Any]) -> Tuple[OrderedDict, OrderedDict]:
+        """Initializes the tree.
+
+        Args:
+            config_tree: Tree of architecture parameters.
+
+        Returns:
+            Tuple of architecture parameters and constants.
+
+        """
+
         params, constants = OrderedDict(), OrderedDict()
 
         for param_name, param in config_tree.items():
@@ -43,7 +66,7 @@ class ArchParamTree(object):
         return params, constants
 
     def _to_dict(
-        self, prefix: str, flatten: bool, dedup_param_ids: Optional[set] = None, remove_constants: bool = True
+        self, prefix: str, flatten: bool, dedup_param_ids: Optional[set] = None, remove_constants: Optional[bool] = True
     ) -> OrderedDict:
         prefix = f"{prefix}." if prefix else prefix
         output_dict = OrderedDict()
@@ -80,63 +103,74 @@ class ArchParamTree(object):
         return output_dict
 
     def to_dict(
-        self, flatten: bool = False, deduplicate_params: bool = False, remove_constants: bool = False
+        self,
+        flatten: Optional[bool] = False,
+        deduplicate_params: Optional[bool] = False,
+        remove_constants: Optional[bool] = False,
     ) -> OrderedDict:
-        """Converts the ArchParamTree to an ordered dictionary.
+        """Converts the `ArchParamTree` to an ordered dictionary.
 
         Args:
-            flatten (bool, optional): If the output dictionary should
-                be flattened. Defaults to False.
-
-            deduplicate_params (bool, optional): Removes duplicate architecture
-                parameters. Defaults to False.
-
-            remove_constants (bool, optional): Removes attributes that are not
-                architecture params from the output dictionary. Defaults to False.
+            flatten: If the output dictionary should be flattened.
+            deduplicate_params: Removes duplicate architecture parameters.
+            remove_constants: Removes attributes that are not architecture params from
+                the output dictionary.
 
         Returns:
-            OrderedDict
+            Ordered dictionary of architecture parameters.
+
         """
+
         return self._to_dict("", flatten, set() if deduplicate_params else None, remove_constants)
 
     def sample_config(self, rng: Optional[Random] = None) -> ArchConfig:
-        """Samples an architecture config from the search param tree.
+        """Sample an architecture config from the search param tree.
 
         Args:
-            rng (Optional[Random], optional): Random number generator used during sampling.
-                If set to `None`, `random.Random()` is used. Defaults to None.
-
+            rng: Random number generator used during sampling. If set to `None`,
+                `random.Random()` is used.
 
         Returns:
-            ArchConfig: Sampled architecture config
+            Sampled architecture config.
+
         """
+
         rng = rng or Random()
-        choices_dict = utils.replace_ptree_choices(self.to_dict(), lambda x: rng.choice(x.choices))
+        choices_dict = replace_ptree_choices(self.to_dict(), lambda x: rng.choice(x.choices))
 
         return build_arch_config(choices_dict)
 
     def get_param_name_list(self) -> List[str]:
+        """Get list of parameter names in the search space.
+
+        Returns:
+            List of parameter names.
+
+        """
+
         param_dict = self.to_dict(flatten=True, deduplicate_params=True, remove_constants=True)
+
         return list(param_dict.keys())
 
-    def encode_config(self, config: ArchConfig, track_unused_params: bool = True) -> List[float]:
+    def encode_config(self, config: ArchConfig, track_unused_params: Optional[bool] = True) -> List[float]:
         """Encodes an `ArchConfig` object into a fixed-length vector of features.
+
         This method should be used after the model object is created.
 
         Args:
-            config (ArchConfig): Architecture configuration
-
-            track_unused_params (bool): If `track_unused_params=True`, parameters
-                not used during model creation (by calling `config.pick`)
-                will be represented as `float("NaN")`.
+            config: Architecture configuration.
+            track_unused_params: If `track_unused_params=True`, parameters not used during
+                model creation (by calling `config.pick`) will be represented as `float("NaN")`.
 
         Returns:
-            List[float]
+            List of features.
+
         """
+
         deduped_features = list(self.to_dict(flatten=True, deduplicate_params=True, remove_constants=True).keys())
 
-        flat_config = utils.flatten_dict(config._config_dict)
-        flat_used_params = utils.flatten_dict(config.get_used_params())
+        flat_config = flatten_dict(config._config_dict)
+        flat_used_params = flatten_dict(config.get_used_params())
 
         # Build feature array
         features = OrderedDict([(k, v) for k, v in flat_config.items() if k in deduped_features])

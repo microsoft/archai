@@ -46,6 +46,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
 
     The search space can be customized to include different values for hyperparameters,
     such as the number of layers, embedding dimensions, and number of attention heads.
+
     It also supports different Transformer variants, such as CodeGen, GPT-2, and Transformer-XL.
 
     """
@@ -101,11 +102,11 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         att_dropout_rate: Optional[float] = 0.0,
         random_seed: Optional[int] = 1,
     ) -> None:
-        """Initialize a `TransformerFlexSearchSpace` object.
+        """Initialize search space.
 
         Args:
-            arch_type: Type of Transformer architecture.
-                Must be one of `gpt2`, `gpt2-flex`, `mem-transformer`, `opt`, `transfo-xl`.
+            arch_type: Type of Transformer architecture. Must be one of `codegen`, `gpt2`,
+                `gpt2-flex`, `mem-transformer`, `opt` or `transfo-xl`.
             min_layers: Minimum number of layers in the model.
             max_layers: Maximum number of layers in the model.
             d_inner_options: List of options for the intermediate dimension (`d_inner`).

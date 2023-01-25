@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from random import Random
-from typing import List, Type
+from typing import List, Optional, Type
 
 import numpy as np
 import torch
@@ -22,16 +22,30 @@ from archai.discrete_search.search_spaces.config.arch_param_tree import ArchPara
 
 
 class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
+    """Search space for discrete search space with a configuration file."""
+
     def __init__(
         self,
         model_cls: Type[torch.nn.Module],
         arch_param_tree: ArchParamTree,
-        seed: int = 1,
-        mutation_prob: float = 0.3,
-        track_unused_params: bool = True,
-        unused_param_value: int = 0,
+        seed: Optional[int] = 1,
+        mutation_prob: Optional[float] = 0.3,
+        track_unused_params: Optional[bool] = True,
+        unused_param_value: Optional[int] = 0,
         **model_kwargs
-    ):
+    ) -> None:
+        """Initialize the search space.
+
+        Args:
+            model_cls: Model class.
+            arch_param_tree: Architecture parameter tree.
+            seed: Random seed.
+            mutation_prob: Mutation probability.
+            track_unused_params: Whether to track unused parameters.
+            unused_param_value: Value to use for unused parameters.
+
+        """
+
         self.model_cls = model_cls
         self.arch_param_tree = arch_param_tree
         self.mutation_prob = mutation_prob
@@ -42,6 +56,16 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.rng = Random(seed)
 
     def get_archid(self, arch_config: ArchConfig) -> str:
+        """Returns the architecture identifier for the given architecture configuration.
+
+        Args:
+            arch_config: Architecture configuration.
+
+        Returns:
+            Architecture identifier.
+
+        """
+
         e = self.arch_param_tree.encode_config(arch_config, track_unused_params=self.track_unused_params)
         return str(tuple(e))
 

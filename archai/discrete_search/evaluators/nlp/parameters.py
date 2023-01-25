@@ -15,7 +15,7 @@ class TotalParamsProxy(ModelEvaluator):
     """Total number of parameters."""
 
     def __init__(self, trainable_only: Optional[bool] = True) -> None:
-        """Initializes the evaluator.
+        """Initialize the evaluator.
 
         Args:
             trainable_only: Whether only trainable parameters should be counted.

@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from functools import partial
 from typing import Dict, List, Optional, Tuple
 
 import torch
@@ -92,7 +91,7 @@ class TorchMacs(ModelEvaluator):
         sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
         ignore_layers: Optional[List[str]] = None,
     ) -> None:
-        """Initializes the evaluator.
+        """Initialize the evaluator.
 
         Args:
             sample_args: `model.forward` arguments used for profilling.
@@ -129,7 +128,7 @@ class TorchLatency(ModelEvaluator):
         use_median: Optional[bool] = False,
         ignore_layers: Optional[List[str]] = None,
     ) -> None:
-        """Initializes the evaluator.
+        """Initialize the evaluator.
 
         Args:
             sample_args: `model.forward` arguments used for profilling.
@@ -177,7 +176,7 @@ class TorchCudaPeakMemory(ModelEvaluator):
         use_median: Optional[bool] = False,
         ignore_layers: Optional[List[str]] = None,
     ) -> None:
-        """Initializes the evaluator.
+        """Initialize the evaluator.
 
         Args:
             sample_args: `model.forward` arguments used for profilling.

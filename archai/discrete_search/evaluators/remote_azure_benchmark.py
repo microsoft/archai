@@ -91,7 +91,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
 
     @property
     def table_client(self) -> Any:
-        """Returns the table client."""
+        """Return the table client."""
 
         return self.table_service_client.create_table_if_not_exists(self.table_name)
 
@@ -104,7 +104,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         return True
 
     def upload_blob(self, src_path: str, dst_path: str) -> None:
-        """Uploads a file to Azure Blob storage.
+        """Upload a file to Azure Blob storage.
 
         Args:
             src_path: Path to the source file.
@@ -121,7 +121,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
             blob_client.upload_blob(data, overwrite=self.overwrite)
 
     def get_entity(self, rowkey_id: str) -> Dict[str, Any]:
-        """Returns the entity with the given `rowkey_id`.
+        """Return the entity with the given `rowkey_id`.
 
         Args:
             rowkey_id: Row key of the entity.
@@ -134,7 +134,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         return self.table_client.get_entity(partition_key=self.partition_key, row_key=rowkey_id)
 
     def update_entity(self, rowkey_id: str, entity_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """Updates the entity with the given `rowkey_id`.
+        """Update the entity with the given `rowkey_id`.
 
         Args:
             rowkey_id: Row key of the entity.
@@ -146,8 +146,8 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         """
 
         entity = {"PartitionKey": self.partition_key, "RowKey": rowkey_id}
-
         entity.update(entity_dict)
+
         return self.table_client.upsert_entity(entity, mode=UpdateMode.REPLACE)
 
     @overrides

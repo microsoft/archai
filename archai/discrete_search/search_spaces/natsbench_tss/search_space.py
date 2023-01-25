@@ -5,7 +5,7 @@ import random
 import re
 import warnings
 from pathlib import Path
-from typing import List
+from typing import Any, List, Optional
 
 import nats_bench
 import numpy as np
@@ -29,10 +29,20 @@ except ImportError:
 
 
 class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
-    # Natsbench TSS valid operations
+    """Search space for NATS-Bench-TSS."""
+
     OPS = ["none", "avg_pool_3x3", "nor_conv_1x1", "nor_conv_3x3", "skip_connect"]
 
-    def __init__(self, natsbench_location: str, base_dataset: str, seed: int = 1) -> None:
+    def __init__(self, natsbench_location: str, base_dataset: str, seed: Optional[int] = 1) -> None:
+        """Initializes the search space.
+
+        Args:
+            natsbench_location: Path to the NATS-Bench-TSS dataset.
+            base_dataset: Base dataset used for training the models.
+            seed: Random seed.
+
+        """
+
         self.natsbench_location = Path(natsbench_location)
         self.base_dataset = base_dataset
         assert base_dataset in [
@@ -51,17 +61,18 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.archid_pattern = re.compile("natsbench-tss-([0-9]+)")
 
     def _get_op_list(self, string: str) -> List[str]:
-        """Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py"""
+        """Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py."""
+
         # Given a string, get the list of operations
         tokens = string.split("|")
         ops = [t.split("~")[0] for i, t in enumerate(tokens) if i not in [0, 2, 5, 9]]
 
         return ops
 
-    def _get_string_from_ops(self, ops):
-        """Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py"""
-        # Given a list of operations, get the string
+    def _get_string_from_ops(self, ops: List[str]) -> str:
+        """Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py."""
 
+        # Given a list of operations, get the string
         strings = ["|"]
         nodes = [0, 0, 1, 0, 1, 2]
 
@@ -71,7 +82,17 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
                 strings.append("+|")
         return "".join(strings)
 
-    def model_from_natsbench_tss(self, natsbench_id: int):
+    def model_from_natsbench_tss(self, natsbench_id: int) -> Any:
+        """Get a model from NATS-Bench-TSS dataset.
+
+        Args:
+            natsbench_id: NATS-Bench-TSS identifier.
+
+        Returns:
+            Model from NATS-Bench-TSS dataset.
+
+        """
+
         config = self.api.get_net_config(natsbench_id, self.base_dataset)
         return get_cell_based_tiny_net(config)
 
@@ -121,7 +142,8 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
 
     @overrides
     def mutate(self, model: ArchaiModel) -> ArchaiModel:
-        """Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py"""
+        """Reused from https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py."""
+
         # First get the string representation of the current architecture
         natsbenchid = self.archid_pattern.match(model.archid)
 
@@ -159,7 +181,6 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
 
     @overrides
     def encode(self, arch: ArchaiModel) -> np.ndarray:
-        """Stacks one-hot encoding representations of each op"""
         enc_dict = {
             "none": [0, 0, 0, 0],
             "avg_pool_3x3": [1, 0, 0, 0],

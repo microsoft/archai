@@ -4,7 +4,7 @@
 import copy
 import sys
 from random import Random
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import tensorwatch as tw
@@ -23,30 +23,59 @@ logger = OrderedDictLogger(source=__name__)
 
 
 class SegmentationDagSearchSpace(EvolutionarySearchSpace):
+    """Search space for segmentation DAGs."""
+
     def __init__(
         self,
         nb_classes: int,
         img_size: Tuple[int, int],
-        min_mac: int = 0,
-        max_mac: int = sys.maxsize,
-        min_layers: int = 1,
-        max_layers: int = 12,
-        max_downsample_factor: int = 16,
-        skip_connections: bool = True,
-        max_skip_connection_length: int = 3,
-        max_scale_delta: int = 1,
-        max_post_upsample_layers: int = 3,
-        min_base_channels: int = 8,
-        max_base_channels: int = 48,
-        base_channels_binwidth: int = 8,
-        min_delta_channels: int = 8,
-        max_delta_channels: int = 48,
-        delta_channels_binwidth: int = 8,
-        downsample_prob_ratio: float = 1.5,
+        min_mac: Optional[int] = 0,
+        max_mac: Optional[int] = sys.maxsize,
+        min_layers: Optional[int] = 1,
+        max_layers: Optional[int] = 12,
+        max_downsample_factor: Optional[int] = 16,
+        skip_connections: Optional[bool] = True,
+        max_skip_connection_length: Optional[int] = 3,
+        max_scale_delta: Optional[int] = 1,
+        max_post_upsample_layers: Optional[int] = 3,
+        min_base_channels: Optional[int] = 8,
+        max_base_channels: Optional[int] = 48,
+        base_channels_binwidth: Optional[int] = 8,
+        min_delta_channels: Optional[int] = 8,
+        max_delta_channels: Optional[int] = 48,
+        delta_channels_binwidth: Optional[int] = 8,
+        downsample_prob_ratio: Optional[float] = 1.5,
         op_subset: Optional[str] = None,
-        mult_delta: bool = False,
-        seed: int = 1,
-    ):
+        mult_delta: Optional[bool] = False,
+        seed: Optional[int] = 1,
+    ) -> None:
+        """Initialize the search space.
+
+        Args:
+            nb_classes: Number of classes.
+            img_size: Image size.
+            min_mac: Minimum number of MACs.
+            max_mac: Maximum number of MACs.
+            min_layers: Minimum number of layers.
+            max_layers: Maximum number of layers.
+            max_downsample_factor: Maximum downsample factor.
+            skip_connections: Whether to use skip connections.
+            max_skip_connection_length: Maximum skip connection length.
+            max_scale_delta: Maximum scale delta.
+            max_post_upsample_layers: Maximum number of post upsample layers.
+            min_base_channels: Minimum number of base channels.
+            max_base_channels: Maximum number of base channels.
+            base_channels_binwidth: Base channels binwidth.
+            min_delta_channels: Minimum number of delta channels.
+            max_delta_channels: Maximum number of delta channels.
+            delta_channels_binwidth: Delta channels binwidth.
+            downsample_prob_ratio: Downsample probability ratio.
+            op_subset: Subset of operations to use.
+            mult_delta: Whether to multiply delta channels.
+            seed: Seed for random number generator.
+
+        """
+
         super().__init__()
 
         self.nb_classes = nb_classes
@@ -94,7 +123,16 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
         self.rng = Random(seed)
 
     def is_valid_model(self, model: torch.nn.Module) -> Tuple[bool, int]:
-        """Utility method that checks if a model is valid and falls inside of the specified MAdds range."""
+        """Check if a model is valid and falls inside of the specified MAdds range.
+
+        Args:
+            model: Model to check.
+
+        Returns:
+            Tuple of (is_valid, MAdds).
+
+        """
+
         is_valid = True
 
         try:
@@ -110,9 +148,20 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
         return is_valid, None if not is_valid else model_stats.MAdd
 
     def load_from_graph(
-        self, graph: List[Dict], channels_per_scale: Dict, post_upsample_layers: int = 1
+        self, graph: List[Dict[str, Any]], channels_per_scale: Dict[str, Any], post_upsample_layers: Optional[int] = 1
     ) -> ArchaiModel:
-        """Utility method to create a SegmentationDagModel from a DAG"""
+        """Create a SegmentationDagModel from a DAG.
+
+        Args:
+            graph: DAG graph.
+            channels_per_scale: Number of channels per scale.
+            post_upsample_layers: Number of post upsample layers.
+
+        Returns:
+            Archai-based model.
+
+        """
+
         model = SegmentationDagModel(
             graph, channels_per_scale, post_upsample_layers, img_size=self.img_size, nb_classes=self.nb_classes
         )
@@ -120,7 +169,17 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
         return ArchaiModel(arch=model, archid=model.to_hash(), metadata={"parent": None})
 
     def random_neighbor(self, param_values: List[int], current_value: int) -> int:
-        """Utility method to sample a random neighbor from an element of a list"""
+        """Sample a random neighbor from an element of a list.
+
+        Args:
+            param_values: List of values.
+            current_value: Current value.
+
+        Returns:
+            Random neighbor.
+
+        """
+
         param_values = sorted(copy.deepcopy(param_values))
         param2idx = {param: idx for idx, param in enumerate(param_values)}
 
@@ -135,9 +194,25 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
         return param_values[current_idx + offset]
 
     def rename_dag_node_list(
-        self, node_list: List[Dict], prefix: str = "", rename_input_output: bool = True, add_input_output: bool = False
-    ) -> List[Dict]:
-        """Utility method to rename a list of nodes from a dag"""
+        self,
+        node_list: List[Dict[str, Any]],
+        prefix: Optional[str] = "",
+        rename_input_output: Optional[bool] = True,
+        add_input_output: Optional[bool] = False,
+    ) -> List[Dict[str, Any]]:
+        """Rename a list of nodes from a DAG.
+
+        Args:
+            node_list: List of nodes.
+            prefix: Prefix to add to the name of each node.
+            rename_input_output: Whether to rename the input and output nodes.
+            add_input_output: Whether to add input and output nodes.
+
+        Returns:
+            Renamed list of nodes.
+
+        """
+
         node_list = copy.deepcopy(node_list)
         prefix = prefix + "_" if prefix else ""
 
@@ -262,7 +337,7 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
         return nas_model
 
     @overrides
-    def mutate(self, base_model: ArchaiModel, patience: int = 5) -> ArchaiModel:
+    def mutate(self, base_model: ArchaiModel, patience: Optional[int] = 5) -> ArchaiModel:
         parent_id = base_model.archid
         nb_tries = 0
 
@@ -328,7 +403,7 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
             return ArchaiModel(nbr_model, nbr_model.to_hash(), metadata={"parent": parent_id})
 
     @overrides
-    def crossover(self, model_list: List[ArchaiModel], patience: int = 30) -> Optional[ArchaiModel]:
+    def crossover(self, model_list: List[ArchaiModel], patience: Optional[int] = 30) -> Optional[ArchaiModel]:
         if len(model_list) < 2:
             return
 

@@ -16,7 +16,7 @@ from archai.discrete_search.search_spaces.natsbench_tss.search_space import (
 
 
 class NatsbenchMetric(ModelEvaluator):
-    """Evaluates a model using a metric from the NATS-Bench API."""
+    """Evaluate a model using a metric from the NATS-Bench API."""
 
     def __init__(
         self,

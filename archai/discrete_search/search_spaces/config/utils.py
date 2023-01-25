@@ -2,16 +2,25 @@
 # Licensed under the MIT license.
 
 from collections import OrderedDict
-from copy import deepcopy
-from typing import Any, Callable, Dict, Iterable, Type, Union
+from typing import Any, Callable, Dict, Union
 
 from archai.discrete_search.search_spaces.config.discrete_choice import DiscreteChoice
 
 
-def flatten_dict(odict: Dict) -> OrderedDict:
+def flatten_dict(odict: Dict[str, Any]) -> OrderedDict:
+    """Flattens a nested dictionary into a single level dictionary.
+
+    Args:
+        odict: Nested dictionary.
+
+    Returns:
+        Flattened dictionary.
+
+    """
+
     fdict = OrderedDict()
 
-    def _flatten(prefix, d):
+    def _flatten(prefix: str, d: Dict[str, Any]) -> Dict[str, Any]:
         prefix = prefix + "." if prefix else prefix
 
         if isinstance(d, OrderedDict):
@@ -24,10 +33,24 @@ def flatten_dict(odict: Dict) -> OrderedDict:
             return d
 
     _flatten("", odict)
+
     return fdict
 
 
-def replace_ptree_choices(config_tree: Union[Dict, DiscreteChoice], repl_fn: Callable[[DiscreteChoice], Any]):
+def replace_ptree_choices(
+    config_tree: Union[Dict, DiscreteChoice], repl_fn: Callable[[DiscreteChoice], Any]
+) -> OrderedDict:
+    """Replaces all DiscreteChoice nodes in a tree with the output of a function.
+
+    Args:
+        config_tree: Tree with DiscreteChoice nodes.
+        repl_fn: Function to replace DiscreteChoice nodes.
+
+    Returns:
+        Replaced tree.
+
+    """
+
     def _replace_tree_nodes(node, repl_fn, ref_map):
         if isinstance(node, dict):
             output_tree = OrderedDict()
@@ -50,7 +73,19 @@ def replace_ptree_choices(config_tree: Union[Dict, DiscreteChoice], repl_fn: Cal
 
 def replace_ptree_pair_choices(
     query_tree: Union[Dict, DiscreteChoice], aux_tree: Union[Dict, Any], repl_fn: Callable[[DiscreteChoice, Any], Any]
-):
+) -> OrderedDict:
+    """Replaces all DiscreteChoice nodes in a tree with the output of a function.
+
+    Args:
+        query_tree: Tree with DiscreteChoice nodes.
+        aux_tree: Auxiliary tree with DiscreteChoice nodes.
+        repl_fn: Function to replace DiscreteChoice nodes.
+
+    Returns:
+        Replaced tree.
+
+    """
+
     def _replace_tree_nodes(query_node, aux_node, repl_fn, ref_map):
         if isinstance(query_node, dict):
             output_tree = OrderedDict()

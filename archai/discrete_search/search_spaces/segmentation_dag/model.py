@@ -1,14 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from __future__ import annotations
+
 import json
 import math
-import random
 from collections import OrderedDict
 from copy import deepcopy
 from hashlib import sha1
 from pathlib import Path
-from typing import Dict, List, MutableMapping, Optional, Tuple, Union
+from typing import Any, Dict, List, MutableMapping, Optional, Tuple, Union
 
 import torch
 import yaml
@@ -18,36 +19,36 @@ from archai.discrete_search.search_spaces.segmentation_dag.ops import OPS, Block
 
 
 class SegmentationDagModel(torch.nn.Module):
+    """Model defined by a directed acyclic graph (DAG) of operations."""
+
     def __init__(
         self,
-        graph: List[Dict],
-        channels_per_scale: Dict,
-        post_upsample_layers: int = 1,
-        stem_stride: int = 2,
-        img_size: Tuple[int, int] = (256, 256),
-        nb_classes: int = 19,
-    ):
-        """Creates a SegmentationDagModel from a configuration
+        graph: List[Dict[str, Any]],
+        channels_per_scale: Dict[str, Any],
+        post_upsample_layers: Optional[int] = 1,
+        stem_stride: Optional[int] = 2,
+        img_size: Optional[Tuple[int, int]] = (256, 256),
+        nb_classes: Optional[int] = 19,
+    ) -> None:
+        """Initializes the model.
 
         Args:
-            graph (List[Dict]): List of dictionaries with the following keys:
-                * name (str): Name of the node
-                * op (str): Name of the operation used to process the node
-                * inputs (List[str]): List of input nodes
-                * scale (int): Scale of the node (higher means smaller resolutions)
-            channels_per_scale (Dict): Dictionary with the number of channels that should be
-                used for each scale value, e.g: {1: 32, 2: 64, 4: 128} or a dictionary containing
+            graph: List of dictionaries with the following keys:
+                * name: Name of the node.
+                * op: Name of the operation used to process the node.
+                * inputs: List of input nodes.
+                * scale: Scale of the node (higher means smaller resolutions).
+            channels_per_scale: Dictionary with the number of channels that should be used
+                for each scale value, e.g: {1: 32, 2: 64, 4: 128} or a dictionary containing
                 `base_channels`, `delta_channels` and optionally a `mult_delta` flag.
                 For instance, {'base_channels': 24, 'delta_channels': 2}, is equivalent to
                 {1: 24, 2: 26, 4: 28, 8: 30, 16: 32}, and {'base_channels': 24, 'delta_channels': 2,
                 mult_delta: True} is equivalent to {1: 24, 2: 48, 4: 96, 8: 192, 16: 384}.
-            post_upsample_layers (int): Number of post-upsample layers
-            stem_strid (int): Stride of the first convolution
-            img_size (Tuple[int, int]): Image size (width, height)
-            nb_classes (int): Number of classes for segmentation
+            post_upsample_layers: Number of post-upsample layers.
+            stem_strid: Stride of the first convolution.
+            img_size: Image size (width, height).
+            nb_classes: Number of classes for segmentation.
 
-        Returns:
-            SegmentationArchaiModel: A SegmentationArchaiModel instance
         """
 
         super().__init__()
@@ -88,8 +89,24 @@ class SegmentationDagModel(torch.nn.Module):
 
     @classmethod
     def _get_channels_per_scale(
-        cls, ch_per_scale: Dict, max_downsample_factor: int = 16, remove_spec: bool = False
-    ) -> Dict:
+        cls,
+        ch_per_scale: Dict[str, Any],
+        max_downsample_factor: Optional[int] = 16,
+        remove_spec: Optional[bool] = False,
+    ) -> Dict[str, Any]:
+        """Returns a dictionary with the number of channels for each scale.
+
+        Args:
+            ch_per_scale: Dictionary with the number of channels that should be used
+                for each scale value.
+            max_downsample_factor: Maximum downsample factor.
+            remove_spec: If True, removes the specification keys from the dictionary.
+
+        Returns:
+            Dictionary with the number of channels for each scale.
+
+        """
+
         ch_per_scale = deepcopy(ch_per_scale)
         scales = [1, 2, 4, 8, 16]
         scales = [s for s in scales if s <= max_downsample_factor]
@@ -124,8 +141,19 @@ class SegmentationDagModel(torch.nn.Module):
         return ch_per_scale
 
     def _get_edge_list(
-        self, graph: "OrderedDict[str, Dict]", channels_per_scale: Dict
+        self, graph: OrderedDict, channels_per_scale: Dict[str, Any]
     ) -> MutableMapping[Tuple[str, str], nn.Module]:
+        """Get an `OrderedDict` with the mapping "in_node-out_node": nn.Module.
+
+        Args:
+            graph: Graph with the nodes and edges.
+            channels_per_scale: Dictionary with the number of channels for each scale.
+
+        Returns:
+            `OrderedDict` with the mapping "in_node-out_node": nn.Module.
+
+        """
+
         assert "input" in graph
         assert "output" in graph
 
@@ -151,7 +179,13 @@ class SegmentationDagModel(torch.nn.Module):
         )
 
     def _validate_edges(self, edge_dict: MutableMapping[Tuple[str, str], nn.Module]) -> None:
-        """Checks if the edges are in topological order"""
+        """Checks if the edges are in topological order.
+
+        Args:
+            edge_dict: Dictionary with the mapping "in_node-out_node": nn.Module.
+
+        """
+
         visited_nodes = {"input"}
 
         for edge in edge_dict.keys():
@@ -174,7 +208,16 @@ class SegmentationDagModel(torch.nn.Module):
         return self.classifier(output)
 
     def validate_forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Checks if the constructed model is working as expected."""
+        """Checks if the constructed model is working as expected.
+
+        Args:
+            x: Input tensor.
+
+        Returns:
+            Output tensor.
+
+        """
+
         in_nodes = set()
         res_w, res_h = [d // self.stem_stride for d in self.img_size]
 
@@ -208,12 +251,12 @@ class SegmentationDagModel(torch.nn.Module):
 
     @classmethod
     def from_file(
-        cls, config_file: Union[str, Path], img_size: Tuple[int, int] = 256, nb_classes: int = 19
-    ) -> "SegmentationDagModel":
-        """Creates a SegmentationArchaiModel from a YAML config file
+        cls, config_file: Union[str, Path], img_size: Optional[Tuple[int, int]] = 256, nb_classes: Optional[int] = 19
+    ) -> SegmentationDagModel:
+        """Creates a SegmentationArchaiModel from a YAML config file.
 
         Args:
-            config_file (str): Path to the YAML config file, following the format:
+            config_file: Path to the YAML config file, following the format:
                 ```
                 post_upsample_layers: 2
                 channels_per_scale:
@@ -233,11 +276,14 @@ class SegmentationDagModel(torch.nn.Module):
                       op: conv3x3
                       inputs: [node0, node1]
                 ```
-            img_size (int or Tuple[int, int]): The size of the input image.
-            nb_classes (int): The number of classes in the dataset.
+            img_size: The size of the input image.
+            nb_classes: The number of classes in the dataset.
+
         Returns:
-            SegmentationArchaiModel: A SegmentationArchaiModel instance
+            A `SegmentationArchaiModel` instance.
+
         """
+
         config_file = Path(config_file)
         assert config_file.is_file()
 
@@ -250,7 +296,14 @@ class SegmentationDagModel(torch.nn.Module):
             nb_classes=nb_classes,
         )
 
-    def view(self):
+    def view(self) -> Any:
+        """Visualizes the architecture using graphviz.
+
+        Returns:
+            A graphviz object.
+
+        """
+
         import graphviz
 
         scales = []
@@ -279,7 +332,14 @@ class SegmentationDagModel(torch.nn.Module):
         # Shows the graph
         return dot
 
-    def to_config(self) -> Dict:
+    def to_config(self) -> Dict[str, Any]:
+        """Converts the model to a configuration dictionary.
+
+        Returns:
+            A configuration dictionary.
+
+        """
+
         ch_map = self.channels_per_scale
 
         if "base_channels" in ch_map:
@@ -296,6 +356,13 @@ class SegmentationDagModel(torch.nn.Module):
         }
 
     def to_file(self, path: str) -> None:
+        """Saves the model to a YAML config file.
+
+        Args:
+            path: Path to the YAML config file.
+
+        """
+
         content = self.to_config()
 
         with open(path, "w") as fp:
@@ -307,6 +374,14 @@ class SegmentationDagModel(torch.nn.Module):
         assert all(m.channels_per_scale[k] == v for k, v in content["channels_per_scale"].items())
 
     def to_hash(self) -> str:
+        """Generates a hash for the model.
+
+        Returns:
+            A hash string.
+
+        """
+
         config = self.to_config()
         arch_str = json.dumps(config, sort_keys=True, ensure_ascii=True)
+
         return sha1(arch_str.encode("ascii")).hexdigest() + f"_{self.img_size[0]}_{self.img_size[1]}"

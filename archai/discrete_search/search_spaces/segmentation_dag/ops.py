@@ -2,22 +2,37 @@
 # Licensed under the MIT license.
 
 from functools import partial
+from typing import Optional
 
 import torch
 from torch import nn
 
 
 class NormalConvBlock(nn.Module):
+    """Normal Convolutional Block with BatchNorm and ReLU."""
+
     def __init__(
         self,
         in_channels: int,
         out_channels: int,
-        kernel_size: int = 3,
-        stride: int = 1,
-        padding: int = 1,
-        bias: bool = True,
+        kernel_size: Optional[int] = 3,
+        stride: Optional[int] = 1,
+        padding: Optional[int] = 1,
+        bias: Optional[bool] = True,
         **kwargs
-    ):
+    ) -> None:
+        """Initialize the module.
+
+        Args:
+            in_channels: Number of input channels.
+            out_channels: Number of output channels.
+            kernel_size: Kernel size.
+            stride: Stride.
+            padding: Padding.
+            bias: Whether to use bias.
+
+        """
+
         super().__init__()
 
         self.conv = nn.Conv2d(
@@ -32,17 +47,33 @@ class NormalConvBlock(nn.Module):
 
 
 class SeparableConvBlock(nn.Module):
+    """Separable Convolutional Block with BatchNorm and ReLU."""
+
     def __init__(
         self,
         in_channels: int,
         out_channels: int,
-        kernel_size: int = 3,
-        stride: int = 1,
-        padding: int = 1,
-        expand_ratio: float = 1.0,
-        id_skip: bool = False,
-        bias: bool = True,
+        kernel_size: Optional[int] = 3,
+        stride: Optional[int] = 1,
+        padding: Optional[int] = 1,
+        expand_ratio: Optional[float] = 1.0,
+        id_skip: Optional[bool] = False,
+        bias: Optional[bool] = True,
     ):
+        """Initialize the module.
+
+        Args:
+            in_channels: Number of input channels.
+            out_channels: Number of output channels.
+            kernel_size: Kernel size.
+            stride: Stride.
+            padding: Padding.
+            expand_ratio: Expansion ratio.
+            id_skip: Whether to use skip connection.
+            bias: Whether to use bias.
+
+        """
+
         super().__init__()
 
         self.in_channels = in_channels
@@ -78,7 +109,7 @@ class SeparableConvBlock(nn.Module):
         self._bn2 = nn.BatchNorm2d(num_features=out_channels)
         self._act = nn.ReLU()
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Expansion and Depthwise Convolution
         out = x
 
@@ -108,8 +139,22 @@ OPS = {
 
 
 class Block(nn.Module):
-    def __init__(self, in_ch: int, out_ch: int, in_scale: int, out_scale: int, op_name: str):
+    """Block of operations."""
+
+    def __init__(self, in_ch: int, out_ch: int, in_scale: int, out_scale: int, op_name: str) -> None:
+        """Initialize the module.
+
+        Args:
+            in_ch: Number of input channels.
+            out_ch: Number of output channels.
+            in_scale: Input scale.
+            out_scale: Output scale.
+            op_name: Operation name.
+
+        """
+
         super().__init__()
+
         self.in_ch, self.out_ch = in_ch, out_ch
         self.in_scale, self.out_scale = in_scale, out_scale
         self.op_name = op_name

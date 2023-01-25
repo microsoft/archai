@@ -25,6 +25,16 @@ logger = OrderedDictLogger(source=__name__)
 
 
 class MoBananasSearch(Searcher):
+    """Multi-objective version of BANANAS algorithm.
+
+    It has been proposed in `Bag of Baselines for Multi-objective Joint Neural Architecture
+    Search and Hyperparameter Optimization`.
+
+    Reference:
+        https://arxiv.org/abs/2105.01015
+
+    """
+
     def __init__(
         self,
         search_space: BayesOptSearchSpace,
@@ -38,10 +48,8 @@ class MoBananasSearch(Searcher):
         mutations_per_parent: int = 5,
         num_candidates: int = 10,
         seed: int = 1,
-    ):
-        """Implementation of the multi-objective version of BANANAS algorithm described in
-        "Bag of Baselines for Multi-objective Joint Neural Architecture Search
-        and Hyperparameter Optimization" (https://arxiv.org/abs/2105.01015).
+    ) -> None:
+        """Initialize the multi-objective BANANAS.
 
         Args:
             search_space (BayesOptSearchSpace): Discrete search space compatible with
@@ -74,6 +82,7 @@ class MoBananasSearch(Searcher):
                 the next iteration. Defaults to 10.
 
             seed (int, optional): Random seed. Defaults to 1.
+
         """
 
         assert isinstance(search_space, BayesOptSearchSpace)
