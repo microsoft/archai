@@ -9,9 +9,9 @@ from archai.api.search_results import SearchResults
 
 
 class Searcher(EnforceOverrides):
-    """Abstract class for the searcher.
+    """Abstract class for searchers.
 
-    This class serves as a base for implementing the searcher, which searches for an
+    This class serves as a base for implementing searchers, which searches for an
     architecture given an algorithm. The class enforces implementation of a single
     method: `search`.
 

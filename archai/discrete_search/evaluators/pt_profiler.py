@@ -14,18 +14,19 @@ from archai.discrete_search.evaluators.pt_profiler_utils import profile
 
 
 class TorchNumParameters(ModelEvaluator):
+    """Total number of parameters."""
+
     def __init__(
         self, exclude_cls: Optional[List[torch.nn.Module]] = None, trainable_only: Optional[bool] = True
     ) -> None:
-        """Counts the total number of trainable parameters
+        """Initialize the evaluator.
 
         Args:
-            exclude_cls (Optional[List[torch.nn.Module]], optional): List of PyTorch module classes
-                to exclude from parameter counting. Defaults to None.
-
-            trainable_only (Optional[bool], optional): A flag indicating whether only trainable parameters
-                should be counted. Defaults to True.
+            exclude_cls: List of PyTorch module classes to exclude from parameter counting.
+            trainable_only: A flag indicating whether only trainable parameters
+                should be counted.
         """
+
         self.exclude_cls = exclude_cls
         self.trainable_only = trainable_only
 
@@ -49,24 +50,23 @@ class TorchNumParameters(ModelEvaluator):
 
 
 class TorchFlops(ModelEvaluator):
+    """Total number of FLOPs."""
+
     def __init__(
         self,
         sample_args: Optional[Tuple[torch.Tensor]] = None,
         sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
         ignore_layers: Optional[List[str]] = None,
-    ):
-        """Calculates FLOPs of a PyTorch model using a sample input.
+    ) -> None:
+        """Initialize the evaluator.
 
         Args:
-            sample_args (Optional[Tuple[torch.Tensor]], optional): `model.forward` arguments used
-                for profilling. Defaults to None.
+            sample_args: `model.forward` arguments used for profilling.
+            sample_kwargs: `model.forward` keyword arguments used for profilling.
+            ignore_layers: List of layer names that should be ignored during the stat calculation.
 
-            sample_kwargs (Optional[Dict[str, torch.Tensor]], optional): `model.forward` keyword
-                arguments used for profilling. Defaults to None.
-
-            ignore_layers (Optional[List[str]], optional): List of layer names that should be ignored during
-                the stat calculation. Defaults to None
         """
+
         self.sample_args = sample_args
         self.sample_kwargs = sample_kwargs
         self.ignore_layers = ignore_layers
@@ -84,24 +84,23 @@ class TorchFlops(ModelEvaluator):
 
 
 class TorchMacs(ModelEvaluator):
+    """Total number of MACs."""
+
     def __init__(
         self,
         sample_args: Optional[Tuple[torch.Tensor]] = None,
         sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
         ignore_layers: Optional[List[str]] = None,
-    ):
-        """Calculates MACs of a PyTorch model using a sample input.
+    ) -> None:
+        """Initializes the evaluator.
 
         Args:
-            sample_args (Optional[Tuple[torch.Tensor]], optional): `model.forward` arguments used
-                for profilling. Defaults to None.
+            sample_args: `model.forward` arguments used for profilling.
+            sample_kwargs: `model.forward` keyword arguments used for profilling.
+            ignore_layers: List of layer names that should be ignored during the stat calculation.
 
-            sample_kwargs (Optional[Dict[str, torch.Tensor]], optional): `model.forward` keyword
-                arguments used for profilling. Defaults to None.
-
-            ignore_layers (Optional[List[str]], optional): List of layer names that should be ignored during
-                the stat calculation. Defaults to None
         """
+
         self.sample_args = sample_args
         self.sample_kwargs = sample_kwargs
         self.ignore_layers = ignore_layers
@@ -119,6 +118,8 @@ class TorchMacs(ModelEvaluator):
 
 
 class TorchLatency(ModelEvaluator):
+    """Average/median latency (in seconds) of a PyTorch model using a sample input."""
+
     def __init__(
         self,
         sample_args: Optional[Tuple[torch.Tensor]] = None,
@@ -127,26 +128,19 @@ class TorchLatency(ModelEvaluator):
         num_samples: Optional[int] = 1,
         use_median: Optional[bool] = False,
         ignore_layers: Optional[List[str]] = None,
-    ):
-        """Calculates the average/median latency (in seconds) of a PyTorch model using a sample input.
+    ) -> None:
+        """Initializes the evaluator.
 
         Args:
-            sample_args (Optional[Tuple[torch.Tensor]], optional): `model.forward` arguments used
-                for profilling. Defaults to None.
+            sample_args: `model.forward` arguments used for profilling.
+            sample_kwargs: `model.forward` keyword arguments used for profilling.
+            num_warmups: Number of warmup runs before profilling.
+            num_samples: Number of runs after warmup.
+            use_median: Whether to use median instead of mean to average memory and latency.
+            ignore_layers: List of layer names that should be ignored during the stat calculation.
 
-            sample_kwargs (Optional[Dict[str, torch.Tensor]], optional): `model.forward` keyword
-                arguments used for profilling. Defaults to None.
-
-            num_warmups (int, optional): Number of warmup runs before profilling. Defaults to 1.
-
-            num_samples (int, optional): Number of runs after warmup. Defaults to 1
-
-            use_median (bool, optional): Whether to use median instead of mean to average memory and latency.
-                Defaults to False.
-
-            ignore_layers (Optional[List[str]], optional): List of layer names that should be ignored during
-                the stat calculation. Defaults to None
         """
+
         self.sample_args = sample_args
         self.sample_kwargs = sample_kwargs
         self.num_warmups = num_warmups
@@ -168,6 +162,12 @@ class TorchLatency(ModelEvaluator):
 
 
 class TorchCudaPeakMemory(ModelEvaluator):
+    """Average/median CUDA peak memory (in bytes) of a PyTorch model using a sample input.
+
+    All inputs passed must be on the same CUDA device as the model.
+
+    """
+
     def __init__(
         self,
         sample_args: Optional[Tuple[torch.Tensor]] = None,
@@ -176,27 +176,19 @@ class TorchCudaPeakMemory(ModelEvaluator):
         num_samples: Optional[int] = 1,
         use_median: Optional[bool] = False,
         ignore_layers: Optional[List[str]] = None,
-    ):
-        """Calculates the average/median CUDA peak memory (in bytes) of a PyTorch model using a sample input.
-        All inputs passed must be on the same CUDA device as the model.
+    ) -> None:
+        """Initializes the evaluator.
 
         Args:
-            sample_args (Optional[Tuple[torch.Tensor]], optional): `model.forward` arguments used
-                for profilling. Defaults to None.
+            sample_args: `model.forward` arguments used for profilling.
+            sample_kwargs: `model.forward` keyword arguments used for profilling.
+            num_warmups: Number of warmup runs before profilling.
+            num_samples: Number of runs after warmup.
+            use_median: Whether to use median instead of mean to average memory and latency.
+            ignore_layers: List of layer names that should be ignored during the stat calculation.
 
-            sample_kwargs (Optional[Dict[str, torch.Tensor]], optional): `model.forward` keyword
-                arguments used for profilling. Defaults to None.
-
-            num_warmups (int, optional): Number of warmup runs before profilling. Defaults to 1.
-
-            num_samples (int, optional): Number of runs after warmup. Defaults to 1
-
-            use_median (bool, optional): Whether to use median instead of mean to average memory and latency.
-                Defaults to False.
-
-            ignore_layers (Optional[List[str]], optional): List of layer names that should be ignored during
-                the stat calculation. Defaults to None
         """
+
         self.sample_args = sample_args
         self.sample_kwargs = sample_kwargs
         self.num_warmups = num_warmups

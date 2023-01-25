@@ -1,29 +1,40 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Callable, List, Dict, Optional, Union
 import tempfile
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import ray
 from overrides import overrides
 
 from archai.api.archai_model import ArchaiModel
-from archai.discrete_search.api.search_space import DiscreteSearchSpace
 from archai.api.dataset_provider import DatasetProvider
-from archai.api.model_evaluator import ModelEvaluator, AsyncModelEvaluator
+from archai.api.model_evaluator import AsyncModelEvaluator, ModelEvaluator
+from archai.discrete_search.api.search_space import DiscreteSearchSpace
 
 
-def ray_wrap_training_fn(training_fn):
-    def stateful_training_fn(arch, dataset, budget, training_state: Optional[Dict] = None):
+def ray_wrap_training_fn(training_fn) -> Callable:
+    def stateful_training_fn(
+        arch: ArchaiModel, dataset: DatasetProvider, budget: float, training_state: Optional[Dict[str, Any]] = None
+    ) -> Tuple[ArchaiModel, float, Dict[str, Any]]:
         metric_result, training_state = training_fn(arch, dataset, budget, training_state)
         return arch, metric_result, training_state
-    
+
     return stateful_training_fn
 
 
 class ProgressiveTraining(ModelEvaluator):
-    def __init__(self, search_space: DiscreteSearchSpace, 
-                 training_fn: Callable):
+    """Progressive training evaluator."""
+
+    def __init__(self, search_space: DiscreteSearchSpace, training_fn: Callable) -> None:
+        """Initializes the evaluator.
+
+        Args:
+            search_space: Search space.
+            training_fn: Training function.
+
+        """
+
         self.search_space = search_space
         self.training_fn = training_fn
 
@@ -31,30 +42,45 @@ class ProgressiveTraining(ModelEvaluator):
         self.training_states = {}
 
     @overrides
-    def evaluate(self, nas_model: ArchaiModel, dataset: DatasetProvider,
-                budget: Optional[float] = None) -> float:
+    def evaluate(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
         # Tries to retrieve previous training state
-        tr_state = self.training_states.get(nas_model.archid, None)
+        tr_state = self.training_states.get(arch.archid, None)
 
         # Computes metric and updates training state
-        metric_result, updated_tr_state = self.training_fn(nas_model, dataset, budget, tr_state)
-        self.training_states[nas_model.archid] = updated_tr_state
+        metric_result, updated_tr_state = self.training_fn(arch, dataset, budget, tr_state)
+        self.training_states[arch.archid] = updated_tr_state
 
         return metric_result
 
 
 class RayProgressiveTraining(AsyncModelEvaluator):
-    def __init__(self, search_space: DiscreteSearchSpace, 
-                 training_fn: Callable, timeout: Optional[float] = None,
-                 force_stop: bool = False, **ray_kwargs):
+    """Progressive training evaluator using Ray."""
+
+    def __init__(
+        self,
+        search_space: DiscreteSearchSpace,
+        training_fn: Callable,
+        timeout: Optional[float] = None,
+        force_stop: Optional[bool] = False,
+        **ray_kwargs
+    ) -> None:
+        """Initializes the evaluator.
+
+        Args:
+            search_space: Search space.
+            training_fn: Training function.
+            timeout: Timeout (seconds) for fetching results.
+            force_stop: If True, forces to stop all training jobs when fetching results.
+
+        """
 
         self.search_space = search_space
-        
+
         if ray_kwargs:
             self.compute_fn = ray.remote(**ray_kwargs)(ray_wrap_training_fn(training_fn))
         else:
             self.compute_fn = ray.remote(ray_wrap_training_fn(training_fn))
-        
+
         self.timeout = timeout
         self.force_stop = force_stop
 
@@ -64,20 +90,17 @@ class RayProgressiveTraining(AsyncModelEvaluator):
 
         # Ray training job object refs
         self.results_ref = []
-        
+
         # Training state buffer (e.g optimizer state) for each architecture id
         self.training_states = {}
 
     @overrides
-    def send(self, nas_model: ArchaiModel, dataset: DatasetProvider,
-             budget: Optional[float] = None) -> None:
+    def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
         # Stores original model reference
-        self.models.append(nas_model)
+        self.models.append(arch)
 
-        current_tr_state = self.training_states.get(nas_model.archid, None)
-        self.results_ref.append(self.compute_fn.remote(
-            nas_model, dataset, budget, current_tr_state
-        ))
+        current_tr_state = self.training_states.get(arch.archid, None)
+        self.results_ref.append(self.compute_fn.remote(arch, dataset, budget, current_tr_state))
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
@@ -89,14 +112,13 @@ class RayProgressiveTraining(AsyncModelEvaluator):
         else:
             # Maps each object from the object_refs list to its index
             ref2idx = {ref: i for i, ref in enumerate(self.results_ref)}
-            
+
             # Gets all results available within `self.timeout` seconds.
             complete_objs, incomplete_objs = ray.wait(
-                self.results_ref, timeout=self.timeout,
-                num_returns=len(self.results_ref)
+                self.results_ref, timeout=self.timeout, num_returns=len(self.results_ref)
             )
             partial_results = ray.get(complete_objs)
-            
+
             for ref, result in zip(complete_objs, partial_results):
                 results[ref2idx[ref]] = result
 
@@ -109,12 +131,12 @@ class RayProgressiveTraining(AsyncModelEvaluator):
         for job_id, job_results in enumerate(results):
             if job_results:
                 trained_model, job_metric, training_state = job_results
-                
+
                 # Syncs model weights
                 with tempfile.NamedTemporaryFile() as tmp:
                     self.search_space.save_model_weights(trained_model, tmp.name)
                     self.search_space.load_model_weights(self.models[job_id], tmp.name)
-                
+
                 # Syncs training state
                 self.training_states[trained_model.archid] = training_state
 
@@ -125,4 +147,3 @@ class RayProgressiveTraining(AsyncModelEvaluator):
         self.results_ref = []
 
         return metric_results
-

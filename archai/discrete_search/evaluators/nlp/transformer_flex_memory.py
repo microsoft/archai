@@ -20,6 +20,8 @@ from archai.onnx.optimization import optimize_onnx
 
 
 class TransformerFlexOnnxMemory(ModelEvaluator):
+    """Measures the memory usage of models from the Transformer-Flex search space."""
+
     def __init__(
         self,
         search_space: TransformerFlexSearchSpace,
@@ -28,7 +30,7 @@ class TransformerFlexOnnxMemory(ModelEvaluator):
         opset: Optional[int] = 11,
         only_ort: Optional[bool] = False,
     ) -> None:
-        """Initialize the `TransformerFlexOnnxMemory` instance.
+        """Initialize the evaluator.
 
         Args:
             search_space: The search space to use for loading the model.

@@ -25,6 +25,8 @@ from archai.onnx.optimization import optimize_onnx
 
 
 class TransformerFlexOnnxLatency(ModelEvaluator):
+    """Measures the average latency of models from the Transformer-Flex search space."""
+
     def __init__(
         self,
         search_space: TransformerFlexSearchSpace,
@@ -38,7 +40,7 @@ class TransformerFlexOnnxLatency(ModelEvaluator):
         opset: Optional[int] = 11,
         only_ort: Optional[bool] = False,
     ) -> None:
-        """Measures the average latency of models from the Transformer-Flex search space.
+        """Initialize the evaluator.
 
         Args:
             search_space: The search space to use for loading the model.
@@ -89,7 +91,7 @@ class TransformerFlexOnnxLatency(ModelEvaluator):
         return prepare_model_for_onnx(model, self.search_space.arch_type)
 
     def _benchmark_model(self, session: InferenceSession, model_config: OnnxConfig) -> float:
-        """Benchmarks a model using the given ONNX session and configuration.
+        """Benchmark a model using the given ONNX session and configuration.
 
         Args:
             session: The ONNX session to use for inference.

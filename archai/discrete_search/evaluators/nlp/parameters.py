@@ -12,13 +12,16 @@ from archai.api.model_evaluator import ModelEvaluator
 
 
 class TotalParamsProxy(ModelEvaluator):
+    """Total number of parameters."""
+
     def __init__(self, trainable_only: Optional[bool] = True) -> None:
-        """Counts the total number of trainable parameters
+        """Initializes the evaluator.
 
         Args:
-            trainable_only: A flag indicating whether only trainable parameters
-                should be counted. Defaults to True.
+            trainable_only: Whether only trainable parameters should be counted.
+
         """
+
         self.trainable_only = trainable_only
 
     @overrides
@@ -31,19 +34,22 @@ class TotalParamsProxy(ModelEvaluator):
 
 
 class NonEmbeddingParamsProxy(ModelEvaluator):
-    def __init__(self, exclude_cls: Optional[List[nn.Module]] = None, trainable_only: Optional[bool] = True) -> None:
-        """Total number of non-embedding parameters.
-            Used as a proxy for the perplexity of decoder-only transformer LMs.
+    """Total number of non-embedding parameters."""
 
-            From: "LiteTransformerSearch: Training-free Neural Architecture Search for
-                Efficient Language Models", Javaheripi et. al, 2022
+    def __init__(self, exclude_cls: Optional[List[nn.Module]] = None, trainable_only: Optional[bool] = True) -> None:
+        """Initialize the evaluator.
+
+        Used as a proxy for the perplexity of decoder-only transformer LMs.
 
         Args:
-            exclude_cls (Optional[List[nn.Module]], optional): List of PyTorch module classes
-                to exclude from parameter counting. If `None`, defaults to `[torch.nn.Embedding]`.
-                Defaults to None.
-            trainable_only (Optional[bool], optional): A flag indicating whether only trainable parameters
-                should be counted. Defaults to True.
+            exclude_cls: List of PyTorch module classes to exclude from parameter counting.
+                If `None`, defaults to `[torch.nn.Embedding]`.
+            trainable_only: Whether only trainable parameters should be counted.
+
+        Reference:
+            "LiteTransformerSearch: Training-free Neural Architecture Search for
+                Efficient Language Models", Javaheripi et. al, 2022
+
         """
 
         self.exclude_cls = [nn.Embedding] or exclude_cls

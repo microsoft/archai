@@ -8,7 +8,7 @@ from typing import List, Optional
 
 import torch
 
-from archai.discrete_search.evaluators.pt_profiler_utils.hooks import (
+from archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks import (
     FLOPS,
     MACS,
     disable_functional_hooks,
@@ -169,7 +169,7 @@ class ProfilerModel:
         """Gets the model's number of FLOPs.
 
         Returns:
-            (int): Number of floating point operations.
+            Number of floating point operations.
 
         """
 
@@ -185,7 +185,7 @@ class ProfilerModel:
         """Gets the model's number of MACs.
 
         Returns:
-            (int): Number of multiply-accumulate operations.
+            Number of multiply-accumulate operations.
 
         """
 
@@ -201,7 +201,7 @@ class ProfilerModel:
         """Gets the model's total number of parameters.
 
         Returns:
-            (int): Number of parameters.
+            Number of parameters.
 
         """
 
@@ -211,7 +211,7 @@ class ProfilerModel:
         """Gets the model's latency.
 
         Returns:
-            (float): Latency (seconds).
+            Latency (seconds).
 
         """
 
@@ -228,7 +228,7 @@ class ProfilerModel:
         """Gets the model's peak memory.
 
         Returns:
-            (float): Peak memory (bytes).
+            Peak memory (bytes).
 
         """
 

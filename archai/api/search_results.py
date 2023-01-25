@@ -8,9 +8,9 @@ from archai.api.search_space import SearchSpace
 
 
 class SearchResults(EnforceOverrides):
-    """Abstract class for the search results.
+    """Abstract class for search results.
 
-    This class serves as a base for implementing the search results, which consists
+    This class serves as a base for implementing search results, which consists
     in producing data frames and plots with information regarding the search.
 
     Note:
