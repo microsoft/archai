@@ -21,7 +21,7 @@ class OrderedDictLogger:
     """Log and save data in a hierarchical YAML structure."""
 
     def __init__(
-        self, source: Optional[str] = None, file_path: Optional[str] = "archai.log.yaml", delay: Optional[float] = 30.0
+        self, source: Optional[str] = None, file_path: Optional[str] = None, delay: Optional[float] = 60.0
     ) -> None:
         """Initialize the logger.
 
@@ -43,9 +43,10 @@ class OrderedDictLogger:
         self.paths = [[""]]
         self.stack = [OrderedDict()]
 
-        if os.path.exists(self.file_path):
-            backup_file_path = pathlib.Path(self.file_path)
-            backup_file_path.rename(backup_file_path.with_suffix(f".{str(int(time.time()))}.yaml"))
+        if self.file_path:
+            if os.path.exists(self.file_path):
+                backup_file_path = pathlib.Path(self.file_path)
+                backup_file_path.rename(backup_file_path.with_suffix(f".{str(int(time.time()))}.yaml"))
 
     def __enter__(self) -> OrderedDictLogger:
         return self
@@ -100,25 +101,23 @@ class OrderedDictLogger:
 
         return "/".join(itertools.chain.from_iterable(self.paths[1:]))
 
-    def save(self, file_path: Optional[str] = None) -> None:
+    def save(self) -> None:
         """Save the current log data to an output file.
 
-        Args:
-            file_path: File path to save the log data to. If `None`,
-                defaults to the file path provided during initialization.
+        This method only saves to a file if a valid `file_path` has been provided
+        in the constructor.
 
         """
 
-        file_path = file_path or self.file_path
-
-        with open(file_path, "w") as f:
-            yaml.dump(self.root_node, f)
+        if self.file_path:
+            with open(self.file_path, "w") as f:
+                yaml.dump(self.root_node, f)
 
     def load(self, file_path: str) -> None:
         """Load log data from an input file.
 
         Args:
-            file_path (str): File path to load data from.
+            file_path: File path to load data from.
 
         """
 
@@ -297,7 +296,7 @@ def get_global_logger() -> OrderedDictLogger:
     try:
         logger = OrderedDictLogger.get_global_instance()
     except:
-        OrderedDictLogger.set_global_instance(OrderedDictLogger())
+        OrderedDictLogger.set_global_instance(OrderedDictLogger(file_path="archai.log.yaml", delay=30.0))
         logger = OrderedDictLogger.get_global_instance()
 
     return logger
