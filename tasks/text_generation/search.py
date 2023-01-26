@@ -23,7 +23,7 @@ def parse_args() -> argparse.Namespace:
         "-mt",
         "--model_type",
         type=str,
-        choices=["gpt2", "gpt2-flex", "mem-transformer", "opt", "transfo-xl"],
+        choices=["codegen", "gpt2", "gpt2-flex", "mem-transformer", "opt", "transfo-xl"],
         default="gpt2",
         help="Type of model.",
     )
