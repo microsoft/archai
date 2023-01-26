@@ -17,7 +17,7 @@ from archai.trainers.nlp.hf_trainer import HfTrainer
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Trains a CodeGen using the Huggingface trainer.")
+    parser = argparse.ArgumentParser(description="Trains a CodeGen using the Hugging Face trainer.")
 
     parser.add_argument(
         "-dn",
