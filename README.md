@@ -37,13 +37,14 @@ To install Archai via PyPI, the following command can be executed:
 pip install archai
 ```
 
+**Archai requires Python 3.7+ and PyTorch 1.7.0+ to function properly.**
+
 For further information, please consult the [installation guide](https://microsoft.github.io/archai/getting_started/installation.html).
 
-**It is important to note that Archai requires Python 3.7+ and PyTorch 1.7.0+ to function properly.**
 
 ## Quickstart
 
-One can follow this quickstart example to apply Archai in Natural Language Processing. In such an example, we will use the `TransformerFlex` search space, which performs NAS through a set of configurations and finds the optimal Pareto-frontier according to a set of objectives.
+In this quickstart example, we will apply Archai in Natural Language Processing through the `TransformerFlex` search space, which performs NAS through a set of Transformers' configurations and finds the optimal Pareto-frontier according to a set of objectives.
 
 ```python
 from archai.discrete_search.evaluators.nlp.parameters import NonEmbeddingParamsProxy
@@ -84,7 +85,7 @@ This section is under development.
 
 ## Documentation
 
-Archai is a state-of-the-art NAS platform that employs advanced Machine Learning algorithms to perform a wide range of tasks. To demonstrate the capabilities of Archai, a series of documented examples are provided to showcase its functionality:
+To demonstrate the capabilities of Archai, a series of documented examples are provided to showcase its functionality:
 
 * [30-Minute Tutorial](https://microsoft.github.io/archai/basic_guide/tutorial.html);
 * [Notebooks](https://microsoft.github.io/archai/basic_guide/notebooks.html);
@@ -103,7 +104,7 @@ We welcome any questions, feedback, or suggestions you may have and look forward
 
 ### Team
 
-Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Mendes, [Piero Kauffmann](https://www.microsoft.com/en-us/research/people/pkauffmann/), and [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
+Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Mendes, [Piero Kauffmann](https://www.microsoft.com/en-us/research/people/pkauffmann/), Allie Del Giorno, Mojan Javaheripi and [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
 
 ### Contributions
 

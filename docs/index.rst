@@ -55,7 +55,6 @@ If you use Archai in a scientific publication, please consider citing it:
    Neural Architecture Search <advanced_guide/nas>
    Computer Vision <advanced_guide/cv>
    Natural Language Processing <advanced_guide/nlp>
-   Large-Scale Training <advanced_guide/large_scale_training>
    Cloud-Based Search <advanced_guide/cloud>
 
 .. toctree::
