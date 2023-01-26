@@ -1,3 +1,7 @@
+#!/bin/bash
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 pwd
 find . -name "*.py" -o -name "*.yaml" | tar -cf $1/code.tar -T -
 
