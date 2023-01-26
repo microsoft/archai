@@ -4,7 +4,7 @@
 </h1>
 
 <div align="center">
-   <b>Archai</b> accelerates your Neural Architecture Search (NAS) through <b>fast</b>, <b>reproducible</b> and <b>modular</b> research, allowing you to generate efficient deep networks for your applications.
+   <b>Archai</b> accelerates your Neural Architecture Search (NAS) through <b>fast</b>, <b>reproducible</b> and <b>modular</b> research, enabling the generation of efficient deep networks for various applications.
 </div>
 
 <br />
@@ -22,48 +22,75 @@
 <div align="center">
    <a href="#installation">Installation</a> •
    <a href="#quickstart">Quickstart</a> •
-   <a href="#examples">Examples</a> •
+   <a href="#tasks">Tasks</a> •
    <a href="#documentation">Documentation</a> •
    <a href="#support">Support</a>
 </div>
 
 ## Installation
 
-There are various methods to install Archai, but it is recommended to use it within a virtual environment, such as `conda` or `pyenv`. This ensures that the software runs in a consistent and isolated environment, and allows for easy management of installed packages and dependencies.
+Archai can be installed through various methods, however, it is recommended to utilize a virtual environment such as `conda` or `pyenv` for optimal results.
 
-PyPI provides a convenient way to install Python packages, as it allows users to easily search for and download packages, as well as automatically handle dependencies and other installation requirements. This is especially useful for larger Python projects that require multiple packages to be installed and managed.
-
-**Archai requires Python 3.7+ and PyTorch 1.7.0+.**
+To install Archai via PyPI, the following command can be executed:
 
 ```bash
 pip install archai
 ```
 
-Please refer to the [installation guide](https://microsoft.github.io/archai/getting_started/installation.html) for more information.
+For further information, please consult the [installation guide](https://microsoft.github.io/archai/getting_started/installation.html).
+
+**It is important to note that Archai requires Python 3.7+ and PyTorch 1.7.0+ to function properly.**
 
 ## Quickstart
 
-To run a specific NAS algorithm, specify it by the `--algos` switch:
+One can follow this quickstart example to apply Archai in Natural Language Processing. In such an example, we will use the `TransformerFlex` search space, which performs NAS through a set of configurations and finds the optimal Pareto-frontier according to a set of objectives.
 
-```terminal
-python scripts/main.py --algos darts --full
+```python
+from archai.discrete_search.evaluators.nlp.parameters import NonEmbeddingParamsProxy
+from archai.discrete_search.evaluators.nlp.transformer_flex_latency import TransformerFlexOnnxLatency
+from archai.discrete_search.evaluators.nlp.transformer_flex_memory import TransformerFlexOnnxMemory
+from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import TransformerFlexSearchSpace
+
+space = TransformerFlexSearchSpace("codegen")
+objectives = {
+   "non_embedding_params": NonEmbeddingParamsProxy(),
+   "onnx_latency": TransformerFlexOnnxLatency(space),
+   "onnx_memory": TransformerFlexOnnxMemory(space),
+}
 ```
 
-Please refer to [available algorithms](https://microsoft.github.io/archai/advanced_guide/nas/available_algorithms.html) for more information on available switches and algorithms.
+After we have initialized both space and objectives, we will import and use the `EvolutionParetoSearch` algorithm to conduct the search:
 
-## Examples
+```python
+from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
 
-Archai is a cutting-edge NAS platform that uses advanced Machine Learning algorithms to perform a wide range of tasks. In order to illustrate the capabilities of Archai, we will present a series of examples that showcase its ability:
+algo = EvolutionParetoSearch(
+   space,
+   objectives,
+   None,
+   "tmp",
+   num_iters=5,
+   init_num_models=10,
+   seed=1234,
+)
+algo.search()
+```
 
-* [Notebooks](https://microsoft.github.io/archai/basic_guide/notebooks.html);
-* [Scripts](https://microsoft.github.io/archai/basic_guide/examples_scripts.html);
-* [30-Minute Tutorial](https://microsoft.github.io/archai/basic_guide/tutorial.html);
-* [Petridish](https://microsoft.github.io/archai/advanced_guide/nas/petridish.html);
-* [Implementing DARTS](https://microsoft.github.io/archai/advanced_guide/nas/implementing_darts.html).
+The `search()` method is called to start the NAS process. The algorithm will iterate through different network architectures, evaluate their performance based on the defined objectives, and ultimately produce a frontier of Pareto-optimal results.
+
+## Tasks
+
+This section is under development.
 
 ## Documentation
 
-Please refer to the [documentation](https://microsoft.github.io/archai) for more information.
+Archai is a state-of-the-art NAS platform that employs advanced Machine Learning algorithms to perform a wide range of tasks. To demonstrate the capabilities of Archai, a series of documented examples are provided to showcase its functionality:
+
+* [30-Minute Tutorial](https://microsoft.github.io/archai/basic_guide/tutorial.html);
+* [Notebooks](https://microsoft.github.io/archai/basic_guide/notebooks.html);
+* [Scripts](https://microsoft.github.io/archai/basic_guide/scripts.html);
+
+For additional information, please refer to the [official documentation](https://microsoft.github.io/archai).
 
 ## Support
 
