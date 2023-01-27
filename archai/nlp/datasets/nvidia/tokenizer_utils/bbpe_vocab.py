@@ -6,7 +6,7 @@
 import json
 import os
 from collections import OrderedDict
-from typing import Counter, List, Optional
+from typing import Counter, List, Optional, Union
 
 from overrides import overrides
 from tokenizers import ByteLevelBPETokenizer
@@ -133,13 +133,17 @@ class BbpeVocab(VocabBase):
         logger.debug(f"Tokenizer file path: {self._tokenizer_filepath}")
 
     @overrides
-    def encode_text(self, text: str) -> List[int]:
-        text = self._preprocess_text(text)
+    def encode_text(self, text: Union[List, str]) -> List[int]:
+        
+        if isinstance(text, list):
+            text = [self._preprocess_text(sentence) for sentence in text]
+        else:
+            text = self._preprocess_text(text)
 
         # Always set add_special_tokens=False because Huggingface's implementation is buggy
         # Instead add bos and eos manually
         # https://github.com/huggingface/transformers/issues/3311
-        toks = self._tokenizer.encode(text, add_special_tokens=False)
+        toks = self._tokenizer(text, add_special_tokens=False)
 
         if self.encode_special_tokens:
             toks = self.bos_id + toks + self.eos_id
