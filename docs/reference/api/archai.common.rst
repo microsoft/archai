@@ -15,6 +15,13 @@ Configuration (Utilities)
    :members:
    :undoc-members:
 
+Deprecation (Utilities)
+-----------------------
+
+.. automodule:: archai.common.deprecation_utils
+   :members:
+   :undoc-members:
+
 Distributed (Utilities)
 -----------------------
 

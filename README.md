@@ -104,7 +104,7 @@ We welcome any questions, feedback, or suggestions you may have and look forward
 
 ### Team
 
-Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Mendes, [Piero Kauffmann](https://www.microsoft.com/en-us/research/people/pkauffmann/), Allie Del Giorno, Mojan Javaheripi and [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
+Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Mendes, [Piero Kauffmann](https://www.microsoft.com/en-us/research/people/pkauffmann), Allie Del Giorno, Mojan Javaheripi, and [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
 
 ### Contributions
 
