@@ -20,9 +20,9 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("-es", "--eval_steps", type=int, default=100, help="Number of steps between evaluations.")
 
-    parser.add_argument("-d", "--dataset", type=str, default="wt103", help="Name of the dataset.")
+    parser.add_argument("-dn", "--dataset_name", type=str, default="wt103", help="Name of the dataset.")
 
-    parser.add_argument("-v", "--vocab", type=str, default="gpt2", help="Name of the vocabulary/tokenizer.")
+    parser.add_argument("-vt", "--vocab_type", type=str, default="gpt2", help="Name of the vocabulary/tokenizer.")
 
     parser.add_argument("-vs", "--vocab_size", type=int, default=10000, help="Size of the vocabulary.")
 
@@ -54,8 +54,8 @@ if __name__ == "__main__":
         no_cuda=args.no_cuda,
         logging_steps=args.logging_steps,
         eval_steps=args.eval_steps,
-        dataset=args.dataset,
-        vocab=args.vocab,
+        dataset_name=args.dataset_name,
+        vocab_type=args.vocab_type,
         vocab_size=args.vocab_size,
         global_batch_size=args.global_batch_size,
         seq_len=args.seq_len,

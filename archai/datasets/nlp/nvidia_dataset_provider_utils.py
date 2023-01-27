@@ -59,7 +59,7 @@ class Corpus:
 
         # Corpus cache is created using dataset/vocab_type/vocab_size path
         self.corpus_cache_dir = get_full_path(
-            os.path.join(cache_dir, str(dataset_name), str(vocab_type), str(vocab_size)), create=True
+            os.path.join(cache_dir, str(dataset_name), str(vocab_type), str(vocab_size)), create_folder=True
         )
 
         # Encoded dataset (.npy files) cache paths

@@ -204,7 +204,7 @@ class WordTokenizer(TokenizerBase):
         self.sym2idx = OrderedDict()
 
     def _vocab_filepath(self) -> str:
-        vocab_dir = get_full_path(os.path.join(self.save_path), create=True)
+        vocab_dir = get_full_path(os.path.join(self.save_path), create_folder=True)
 
         return os.path.join(vocab_dir, "vocab.txt")
 

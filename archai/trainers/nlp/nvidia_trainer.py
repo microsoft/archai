@@ -192,14 +192,14 @@ class NvidiaTrainer(TrainerBase):
         else:
             raise RuntimeError(f"Split: {split} is not supported yet.")
 
-        if self.dataset_name in ["wt2", "wt103"] or self.dataset_name.startswith("olx_"):
+        if self.args.dataset_name in ["wt2", "wt103"] or self.args.dataset_name.startswith("olx_"):
             return LMOrderedIterator(
                 input_ids,
                 self.args.global_batch_size,
                 self.args.seq_len,
                 device=self.args.device,
             )
-        elif self.dataset_name == "lm1b":
+        elif self.args.dataset_name == "lm1b":
             return LMMultiFileIterator(
                 input_ids,
                 self.vocab,
@@ -208,7 +208,7 @@ class NvidiaTrainer(TrainerBase):
                 device=self.args.device,
             )
         else:
-            raise RuntimeError(f"Dataset: {self.dataset_name} is not supported yet.")
+            raise RuntimeError(f"Dataset: {self.args.dataset_name} is not supported yet.")
 
     def _create_optimizer(self) -> None:
         optimizer_name = self.args.optim.lower()

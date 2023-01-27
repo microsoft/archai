@@ -72,7 +72,7 @@ class BbpeTokenizer(TokenizerBase):
         )
 
         self._tokenizer = None
-        self._tokenizer_filepath = os.path.join(get_full_path(save_path, create=True), "bbpe_tokenizer.json")
+        self._tokenizer_filepath = os.path.join(get_full_path(save_path, create_folder=True), "bbpe_tokenizer.json")
 
         self.vocab_size = vocab_size
         self.sorted_vocab = sorted_vocab
