@@ -58,7 +58,7 @@ class EvolutionParetoSearch(Searcher):
                 If `None`, `init_num_models` random models are used.
             num_random_mix: Number of random models to mix with the population in each iteration.
             max_unseen_population: Maximum number of unseen models to evaluate in each iteration.
-            mutations_per_parent: Number of distincrt mutations generated for each Pareto frontier member.
+            mutations_per_parent: Number of distinct mutations generated for each Pareto frontier member.
             num_crossovers: Total number of crossovers generated per iteration.
             seed: Random seed.
 
