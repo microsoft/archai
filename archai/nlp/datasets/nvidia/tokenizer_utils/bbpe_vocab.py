@@ -134,7 +134,6 @@ class BbpeVocab(VocabBase):
 
     @overrides
     def encode_text(self, text: Union[List, str]) -> List[int]:
-        
         if isinstance(text, list):
             text = [self._preprocess_text(sentence) for sentence in text]
         else:
@@ -143,7 +142,6 @@ class BbpeVocab(VocabBase):
         # Always set add_special_tokens=False because Huggingface's implementation is buggy
         # Instead add bos and eos manually
         # https://github.com/huggingface/transformers/issues/3311
-        
         if isinstance(text, list):
             toks = self._tokenizer(text, add_special_tokens=False)
         else:
