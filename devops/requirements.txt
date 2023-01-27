@@ -4,7 +4,7 @@ matplotlib==3.3.4
 scikit-image==0.17.2
 pyyaml==6.0
 numpy
-onnx==1.11.0
+onnx==1.13.0
 onnxruntime
 onnx-simplifier
 scikit-learn
