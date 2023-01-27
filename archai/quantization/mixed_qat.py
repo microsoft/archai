@@ -49,9 +49,11 @@ class MixedQAT(torch.nn.Module):
         for param, qat_param in zip(self.model.parameters(), self.qat_model.parameters()):
             assert qat_param is param, "MixedQAT parameters are not fully shared."
 
-    def forward(self, *args, **kwargs) -> Tuple[torch.Tensor, ...]:
-        outputs = self.model(*args, **kwargs)
-        qat_outputs = self.qat_model(*args, **kwargs)
+    def forward(
+        self, input_ids: torch.LongTensor, labels: torch.LongTensor, *args, **kwargs
+    ) -> Tuple[torch.Tensor, ...]:
+        outputs = self.model(input_ids=input_ids, labels=labels, *args, **kwargs)
+        qat_outputs = self.qat_model(input_ids=input_ids, labels=labels, *args, **kwargs)
 
         # If training, returns the linear combination of losses
         if self.training:
