@@ -24,7 +24,7 @@ def parse_args() -> argparse.Namespace:
         "-mt",
         "--model_type",
         type=str,
-        choices=["codegen", "gpt2", "gpt2-flex", "mem-transformer", "opt", "transfo-xl"],
+        choices=["gpt2"],
         default="gpt2",
         help="Type of model.",
     )
@@ -95,7 +95,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    space = TransformerFlexSearchSpace(args.model_type)
+    space = TransformerFlexSearchSpace(args.model_type, vocab_size=50257, max_sequence_length=192)
 
     search_objectives = SearchObjectives()
     search_objectives.add_objective(
