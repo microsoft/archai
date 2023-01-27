@@ -34,6 +34,13 @@ Dataset Provider
    :members:
    :undoc-members:
 
+Distributed Stratified Sampler
+------------------------------
+
+.. automodule:: archai.supergraph.datasets.distributed_stratified_sampler
+   :members:
+   :undoc-members:
+
 Limit Dataset
 -------------
 

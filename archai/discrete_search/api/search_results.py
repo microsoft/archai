@@ -11,9 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from archai.api.archai_model import ArchaiModel
-from archai.api.search_objectives import SearchObjectives
-from archai.api.search_results import SearchResults
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_objectives import SearchObjectives
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
 from archai.discrete_search.utils.multi_objective import (
     _find_pareto_frontier_points,
@@ -21,11 +20,25 @@ from archai.discrete_search.utils.multi_objective import (
 )
 
 
-class DiscreteSearchResults(SearchResults):
-    """Discrete search results."""
+class SearchResults:
+    """Discrete search results.
+
+    This class implements search results, which consists in producing data frames
+    and plots with information regarding the search.
+
+    """
 
     def __init__(self, search_space: DiscreteSearchSpace, objectives: SearchObjectives) -> None:
-        super().__init__(search_space, objectives)
+        """Initialize the search results.
+
+        Args:
+            search_space: Search space.
+            objectives: Search objectives.
+
+        """
+
+        self.search_space = search_space
+        self.objectives = objectives
 
         self.iteration_num = 0
         self.init_time = time()

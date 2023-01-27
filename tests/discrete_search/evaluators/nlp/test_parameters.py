@@ -5,7 +5,7 @@ import pytest
 from torch import nn
 from torch.nn import functional as F
 
-from archai.api.archai_model import ArchaiModel
+from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.evaluators.nlp.parameters import (
     NonEmbeddingParamsProxy,
     TotalParamsProxy,

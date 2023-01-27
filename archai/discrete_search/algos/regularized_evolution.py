@@ -8,13 +8,13 @@ from typing import List, Optional
 from overrides import overrides
 from tqdm import tqdm
 
-from archai.api.archai_model import ArchaiModel
 from archai.api.dataset_provider import DatasetProvider
-from archai.api.search_objectives import SearchObjectives
-from archai.api.searcher import Searcher
 from archai.common.ordered_dict_logger import OrderedDictLogger
-from archai.discrete_search.api.search_results import DiscreteSearchResults
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_objectives import SearchObjectives
+from archai.discrete_search.api.search_results import SearchResults
 from archai.discrete_search.api.search_space import EvolutionarySearchSpace
+from archai.discrete_search.api.searcher import Searcher
 from archai.discrete_search.utils.multi_objective import get_pareto_frontier
 
 logger = OrderedDictLogger(source=__name__)
@@ -78,7 +78,7 @@ class RegularizedEvolutionSearch(Searcher):
         self.history_size = history_size
 
         # Utils
-        self.search_state = DiscreteSearchResults(search_space, self.so)
+        self.search_state = SearchResults(search_space, self.so)
         self.seed = seed
         self.rng = random.Random(seed)
         self.seen_archs = set()
@@ -146,7 +146,7 @@ class RegularizedEvolutionSearch(Searcher):
         return list(mutations.values())
 
     @overrides
-    def search(self) -> DiscreteSearchResults:
+    def search(self) -> SearchResults:
         self.iter_num = 0
 
         if self.initial_population_paths:

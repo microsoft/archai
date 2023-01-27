@@ -20,7 +20,10 @@ from torch.nn.parallel import DistributedDataParallel
 from archai.api.trainer_base import TrainerBase
 from archai.common.distributed_utils import all_reduce, sync_workers
 from archai.common.ordered_dict_logger import OrderedDictLogger
-from archai.datasets.nlp.nvidia_data_loader_provider import NvidiaDataLoaderProvider
+from archai.datasets.nlp.nvidia_data_loader_utils import (
+    LMMultiFileIterator,
+    LMOrderedIterator,
+)
 from archai.datasets.nlp.nvidia_dataset_provider import NvidiaDatasetProvider
 from archai.quantization.mixed_qat import MixedQAT
 from archai.quantization.qat import prepare_with_qat, qat_to_float_modules
@@ -135,7 +138,6 @@ class NvidiaTrainer(TrainerBase):
             vocab_size=self.args.vocab_size,
             refresh_cache=self.args.dataset_refresh_cache,
         )
-        self.data_loader_provider = NvidiaDataLoaderProvider(dataset_name=self.args.dataset_name)
 
         self.model.to(self.args.device)
 
@@ -190,12 +192,23 @@ class NvidiaTrainer(TrainerBase):
         else:
             raise RuntimeError(f"Split: {split} is not supported yet.")
 
-        return self.data_loader_provider.get_data_loader(
-            input_ids,
-            self.args.global_batch_size,
-            self.args.seq_len,
-            device=self.args.device,
-        )
+        if self.dataset_name in ["wt2", "wt103"] or self.dataset_name.startswith("olx_"):
+            return LMOrderedIterator(
+                input_ids,
+                self.args.global_batch_size,
+                self.args.seq_len,
+                device=self.args.device,
+            )
+        elif self.dataset_name == "lm1b":
+            return LMMultiFileIterator(
+                input_ids,
+                self.vocab,
+                self.args.global_batch_size,
+                self.args.seq_len,
+                device=self.args.device,
+            )
+        else:
+            raise RuntimeError(f"Dataset: {self.dataset_name} is not supported yet.")
 
     def _create_optimizer(self) -> None:
         optimizer_name = self.args.optim.lower()

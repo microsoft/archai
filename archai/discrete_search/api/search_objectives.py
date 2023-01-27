@@ -7,9 +7,12 @@ import numpy as np
 import yaml
 from tqdm import tqdm
 
-from archai.api.archai_model import ArchaiModel
 from archai.api.dataset_provider import DatasetProvider
-from archai.api.model_evaluator import AsyncModelEvaluator, ModelEvaluator
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.model_evaluator import (
+    AsyncModelEvaluator,
+    ModelEvaluator,
+)
 
 
 class SearchObjectives:

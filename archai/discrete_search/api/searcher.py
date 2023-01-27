@@ -5,7 +5,7 @@ from abc import abstractmethod
 
 from overrides import EnforceOverrides
 
-from archai.api.search_results import SearchResults
+from archai.discrete_search.api.search_results import SearchResults
 
 
 class Searcher(EnforceOverrides):

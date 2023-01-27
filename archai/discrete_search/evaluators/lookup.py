@@ -7,9 +7,9 @@ from typing import Any, Dict, Optional
 import nats_bench
 from overrides import overrides
 
-from archai.api.archai_model import ArchaiModel
 from archai.api.dataset_provider import DatasetProvider
-from archai.api.model_evaluator import ModelEvaluator
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.search_spaces.natsbench_tss.search_space import (
     NatsbenchTssSearchSpace,
 )

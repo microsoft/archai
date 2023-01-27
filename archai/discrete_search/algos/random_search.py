@@ -7,13 +7,13 @@ from typing import List, Optional
 
 from overrides import overrides
 
-from archai.api.archai_model import ArchaiModel
 from archai.api.dataset_provider import DatasetProvider
-from archai.api.search_objectives import SearchObjectives
-from archai.api.searcher import Searcher
 from archai.common.ordered_dict_logger import OrderedDictLogger
-from archai.discrete_search.api.search_results import DiscreteSearchResults
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_objectives import SearchObjectives
+from archai.discrete_search.api.search_results import SearchResults
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
+from archai.discrete_search.api.searcher import Searcher
 
 logger = OrderedDictLogger(source=__name__)
 
@@ -65,7 +65,7 @@ class RandomSearch(Searcher):
         self.samples_per_iter = samples_per_iter
 
         # Utils
-        self.search_state = DiscreteSearchResults(search_space, self.so)
+        self.search_state = SearchResults(search_space, self.so)
         self.seed = seed
         self.rng = random.Random(seed)
         self.seen_archs = set()
@@ -97,7 +97,7 @@ class RandomSearch(Searcher):
         return valid_sample[:num_models]
 
     @overrides
-    def search(self) -> DiscreteSearchResults:
+    def search(self) -> SearchResults:
         for i in range(self.num_iters):
             self.iter_num = i + 1
             logger.info(f"starting iter {i}")

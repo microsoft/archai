@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, Dataset, Sampler
 
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
-from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
+from archai.supergraph.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
 from archai.supergraph.datasets.augmentation import add_named_augs
 from archai.supergraph.datasets.dataset_provider import (
     DatasetProvider,

@@ -3,8 +3,8 @@
 
 import argparse
 
-from archai.api.search_objectives import SearchObjectives
 from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
+from archai.discrete_search.api.search_objectives import SearchObjectives
 from archai.discrete_search.evaluators.nlp.parameters import NonEmbeddingParamsProxy
 from archai.discrete_search.evaluators.nlp.transformer_flex_latency import (
     TransformerFlexOnnxLatency,

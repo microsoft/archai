@@ -15,9 +15,9 @@ from azure.data.tables import TableServiceClient, UpdateMode
 from azure.storage.blob import BlobServiceClient
 from overrides import overrides
 
-from archai.api.archai_model import ArchaiModel
 from archai.api.dataset_provider import DatasetProvider
-from archai.api.model_evaluator import AsyncModelEvaluator
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
 
 
 def _get_utc_date() -> str:

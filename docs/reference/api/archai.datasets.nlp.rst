@@ -26,17 +26,10 @@ Dataset Provider (Utilities)
 NVIDIA
 ------
 
-Data Loader Provider
-^^^^^^^^^^^^^^^^^^^^
+Data Loader (Utilities)
+^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: archai.datasets.nlp.nvidia_data_loader_provider
-   :members:
-   :undoc-members:
-
-Data Loader Provider (Utilities)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: archai.datasets.nlp.nvidia_data_loader_provider_utils
+.. automodule:: archai.datasets.nlp.nvidia_data_loader_utils
    :members:
    :undoc-members:
 

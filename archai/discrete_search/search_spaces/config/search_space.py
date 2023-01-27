@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from overrides import overrides
 
-from archai.api.archai_model import ArchaiModel
+from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_space import (
     BayesOptSearchSpace,
     EvolutionarySearchSpace,

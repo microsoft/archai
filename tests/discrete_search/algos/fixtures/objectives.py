@@ -5,7 +5,7 @@ from random import Random
 
 import pytest
 
-from archai.api.search_objectives import SearchObjectives
+from archai.discrete_search.api.search_objectives import SearchObjectives
 from archai.discrete_search.evaluators.functional import EvaluationFunction
 
 
