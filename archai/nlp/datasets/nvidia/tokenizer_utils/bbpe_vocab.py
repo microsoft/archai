@@ -143,7 +143,11 @@ class BbpeVocab(VocabBase):
         # Always set add_special_tokens=False because Huggingface's implementation is buggy
         # Instead add bos and eos manually
         # https://github.com/huggingface/transformers/issues/3311
-        toks = self._tokenizer(text, add_special_tokens=False)
+        
+        if isinstance(text, list):
+            toks = self._tokenizer(text, add_special_tokens=False)
+        else:
+            toks = self._tokenizer.encode(text, add_special_tokens=False)
 
         if self.encode_special_tokens:
             toks = self.bos_id + toks + self.eos_id
