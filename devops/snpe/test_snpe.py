@@ -60,6 +60,12 @@ def _get_input_layout(shape):
         raise Exception(f"Cannot figure out input layout from shape: {shape}")
 
 
+def add_snpe_env(command):
+    env = f"export PYTHONPATH={SNPE_ROOT}/lib/python && " + \
+          f"export PATH=$PATH:{SNPE_ROOT}/bin/x86_64-linux-clang && "
+    return env + command
+
+
 def onnx_to_dlc(model, model_dir):
     sess = InferenceSession(model, providers=['CPUExecutionProvider'])
     if len(sess._sess.inputs_meta) > 1:
@@ -94,7 +100,7 @@ def onnx_to_dlc(model, model_dir):
     print(command)
 
     shell = Shell()
-    rc = shell.run(os.getcwd(), command, True)
+    rc = shell.run(os.getcwd(), add_snpe_env(command), True)
     if 'Conversion completed successfully' not in rc:
         raise Exception(rc)
 
@@ -165,7 +171,7 @@ def quantize_model(model, model_dir):
     print(command)
     shell = Shell()
     try:
-        shell.run(os.getcwd(), command, True)
+        shell.run(os.getcwd(), add_snpe_env(command), True)
     except Exception as ex:
         error = None
         for line in str(ex):
