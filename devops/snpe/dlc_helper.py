@@ -6,7 +6,7 @@ import sys
 SCRIPT_DIR = os.path.dirname(__file__)
 sys.path += [os.path.join(SCRIPT_DIR, '..', 'util')]
 from shell import Shell
-
+from  test_snpe import add_snpe_env
 
 def view_model(dlc_file):
     """ Run the snpe-dlc-viewer and return the filename containing the html output """
@@ -15,7 +15,8 @@ def view_model(dlc_file):
     basename = os.path.splitext(filename)[0]
     html_file = os.path.join(dir, basename + ".html")
     shell = Shell()
-    shell.run(os.getcwd(), f"snpe-dlc-viewer -i {dlc_file} -s {html_file}", True)
+    command = f"snpe-dlc-viewer -i {dlc_file} -s {html_file}"
+    shell.run(os.getcwd(), add_snpe_env(command), True)
     return html_file
 
 
