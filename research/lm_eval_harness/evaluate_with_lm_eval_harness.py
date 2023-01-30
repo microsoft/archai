@@ -18,7 +18,7 @@ TASK_REGISTRY.update({"human_eval": HumanEval})
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Evaluates pre-trained models using lm-eval package.")
+    parser = argparse.ArgumentParser(description="Evaluates pre-trained models using `lm-eval`.")
 
     parser.add_argument("pre_trained_model_path", type=str, help="Path to the pre-trained model file.")
 
