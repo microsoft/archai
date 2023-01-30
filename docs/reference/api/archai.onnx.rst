@@ -28,8 +28,8 @@ Export
    :members:
    :undoc-members:
 
-Export Utilities
-----------------
+Export (Utilities)
+------------------
 
 .. automodule:: archai.onnx.export_utils
    :members:

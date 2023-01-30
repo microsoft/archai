@@ -44,23 +44,53 @@ For further information, please consult the [installation guide](https://microso
 
 ## Quickstart
 
-In this quickstart example, we will apply Archai in Natural Language Processing through the `TransformerFlex` search space, which performs NAS through a set of Transformers' configurations and finds the optimal Pareto-frontier according to a set of objectives.
+In this quickstart example, we will apply Archai in Natural Language Processing to find the optimal Pareto-frontier Transformers' configurations according to a set of objectives.
+
+### Creating the Search Space
+
+We start by importing the `TransformerFlexSearchSpace` class which represents the search space for the Transformer architecture:
 
 ```python
+from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import TransformerFlexSearchSpace
+
+space = TransformerFlexSearchSpace("gpt2")
+```
+
+### Defining Search Objectives
+
+Next, we define the objectives we want to optimize. In this example, we use `NonEmbeddingParamsProxy`, `TransformerFlexOnnxLatency`, and `TransformerFlexOnnxMemory` to define the objectives:
+
+```python
+from archai.discrete_search.api.search_objectives import SearchObjectives
 from archai.discrete_search.evaluators.nlp.parameters import NonEmbeddingParamsProxy
 from archai.discrete_search.evaluators.nlp.transformer_flex_latency import TransformerFlexOnnxLatency
 from archai.discrete_search.evaluators.nlp.transformer_flex_memory import TransformerFlexOnnxMemory
-from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import TransformerFlexSearchSpace
 
-space = TransformerFlexSearchSpace("codegen")
-objectives = {
-   "non_embedding_params": NonEmbeddingParamsProxy(),
-   "onnx_latency": TransformerFlexOnnxLatency(space),
-   "onnx_memory": TransformerFlexOnnxMemory(space),
-}
+search_objectives = SearchObjectives()
+search_objectives.add_objective(
+   "non_embedding_params",
+   NonEmbeddingParamsProxy(),
+   higher_is_better=True,
+   compute_intensive=False,
+   constraint=(1e6, 1e9),
+)
+search_objectives.add_objective(
+   "onnx_latency",
+   TransformerFlexOnnxLatency(space),
+   higher_is_better=False,
+   compute_intensive=False,
+)
+search_objectives.add_objective(
+   "onnx_memory",
+   TransformerFlexOnnxMemory(space),
+   higher_is_better=False,
+   compute_intensive=False,
+)
 ```
 
-After we have initialized both space and objectives, we will import and use the `EvolutionParetoSearch` algorithm to conduct the search:
+### Initializing the Algorithm
+
+We use the `EvolutionParetoSearch` algorithm to conduct the search:
 
 ```python
 from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
@@ -74,10 +104,17 @@ algo = EvolutionParetoSearch(
    init_num_models=10,
    seed=1234,
 )
+```
+
+### Performing the Search
+
+Finally, we call the `search()` method to start the NAS process:
+
+```python
 algo.search()
 ```
 
-The `search()` method is called to start the NAS process. The algorithm will iterate through different network architectures, evaluate their performance based on the defined objectives, and ultimately produce a frontier of Pareto-optimal results.
+The algorithm will iterate through different network architectures, evaluate their performance based on the defined objectives, and ultimately produce a frontier of Pareto-optimal results.
 
 ## Tasks
 

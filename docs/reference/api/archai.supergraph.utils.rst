@@ -8,6 +8,13 @@ APEX Utilities
    :members:
    :undoc-members:
 
+Atomic File Handler
+-------------------
+
+.. automodule:: archai.supergraph.utils.atomic_file_handler
+   :members:
+   :undoc-members:
+
 Augmented Searcher
 ------------------
 
@@ -36,6 +43,13 @@ Common
    :members:
    :undoc-members:
 
+Delimited Text
+--------------
+
+.. automodule:: archai.supergraph.utils.delimited_text
+   :members:
+   :undoc-members:
+
 Metrics
 -------
 
@@ -43,10 +57,24 @@ Metrics
    :members:
    :undoc-members:
 
-ML-Based Utilities
-------------------
+ML Performance (Utilities)
+--------------------------
+
+.. automodule:: archai.supergraph.utils.ml_perf_utils
+   :members:
+   :undoc-members:
+
+ML (Utilities)
+--------------
 
 .. automodule:: archai.supergraph.utils.ml_utils
+   :members:
+   :undoc-members:
+
+Model Summary
+-------------
+
+.. automodule:: archai.supergraph.utils.model_summary
    :members:
    :undoc-members:
 

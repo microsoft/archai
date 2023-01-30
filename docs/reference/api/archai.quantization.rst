@@ -48,8 +48,8 @@ Mixed-QAT
    :members:
    :undoc-members:
 
-Quantization Utilities
-----------------------
+Quantization (Utilities)
+------------------------
 
 .. automodule:: archai.quantization.quantization_utils
    :members:

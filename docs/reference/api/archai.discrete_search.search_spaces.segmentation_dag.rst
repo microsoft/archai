@@ -1,13 +1,6 @@
 Segmentation DAG
 ================
 
-Discrete Search Space Segmentation
-----------------------------------
-
-.. automodule:: archai.discrete_search.search_spaces.segmentation_dag.discrete_search_space_segmentation
-   :members:
-   :undoc-members:
-
 Model
 -----
 
