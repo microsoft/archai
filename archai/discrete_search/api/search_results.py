@@ -140,7 +140,7 @@ class SearchResults:
         state_df = pd.concat(
             [pd.DataFrame(it_results).assign(iteration_num=it) for it, it_results in enumerate(self.results)], axis=0
         ).reset_index(drop=True)
-        state_df["Search walltime (hours)"] = self.search_walltimes
+        state_df["search_walltime_hours"] = self.search_walltimes
 
         pareto_frontier = self.get_pareto_frontier()
 

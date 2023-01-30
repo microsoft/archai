@@ -95,7 +95,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    space = TransformerFlexSearchSpace(args.model_type, vocab_size=50257, max_sequence_length=192)
+    space = TransformerFlexSearchSpace(args.model_type, vocab_size=50257, max_sequence_length=1024)
 
     search_objectives = SearchObjectives()
     search_objectives.add_objective(
