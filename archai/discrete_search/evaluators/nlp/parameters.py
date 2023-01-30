@@ -11,28 +11,6 @@ from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
 
 
-class TotalParamsProxy(ModelEvaluator):
-    """Total number of parameters."""
-
-    def __init__(self, trainable_only: Optional[bool] = True) -> None:
-        """Initialize the evaluator.
-
-        Args:
-            trainable_only: Whether only trainable parameters should be counted.
-
-        """
-
-        self.trainable_only = trainable_only
-
-    @overrides
-    def evaluate(self, model: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
-        total_params = sum(
-            param.numel() for param in model.arch.parameters() if not self.trainable_only or param.requires_grad
-        )
-
-        return total_params
-
-
 class NonEmbeddingParamsProxy(ModelEvaluator):
     """Total number of non-embedding parameters."""
 

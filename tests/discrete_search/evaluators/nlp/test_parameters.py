@@ -6,9 +6,9 @@ from torch import nn
 from torch.nn import functional as F
 
 from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.evaluators.pt_profiler import TorchNumParameters
 from archai.discrete_search.evaluators.nlp.parameters import (
     NonEmbeddingParamsProxy,
-    TotalParamsProxy,
 )
 
 
@@ -37,12 +37,12 @@ def model():
 
 def test_total_params_proxy(model):
     # Assert that the number of trainable parameters is correct
-    proxy = TotalParamsProxy(trainable_only=True)
+    proxy = TorchNumParameters(trainable_only=True)
     num_params = proxy.evaluate(model, None)
     assert num_params == sum(param.numel() for param in model.arch.parameters() if param.requires_grad)
 
     # Assert that the number of all parameters is correct
-    proxy = TotalParamsProxy(trainable_only=False)
+    proxy = TorchNumParameters(trainable_only=False)
     num_params = proxy.evaluate(model, None)
     assert num_params == sum(param.numel() for param in model.arch.parameters())
 
