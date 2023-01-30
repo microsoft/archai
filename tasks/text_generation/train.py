@@ -12,6 +12,7 @@ from transformers import (
     TrainingArguments,
 )
 
+from archai.common.file_utils import check_available_checkpoint
 from archai.datasets.nlp.hf_dataset_provider import HfHubDatasetProvider
 from archai.datasets.nlp.hf_dataset_provider_utils import tokenize_contiguous_dataset
 from archai.trainers.nlp.hf_trainer import HfTrainer
@@ -21,6 +22,14 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Trains a Pareto architecture from Transformer-Flex.")
 
     parser.add_argument("pareto_config_path", type=str, help="Path to the Pareto architecture configuration file.")
+
+    parser.add_argument(
+        "-o",
+        "--output_dir",
+        type=str,
+        default="",
+        help="Defines an output folder for the saved outputs.",
+    )
 
     args = parser.parse_args()
 
@@ -55,11 +64,11 @@ if __name__ == "__main__":
     print(f"Total parameters: {sum(p.numel() for p in model.parameters())}")
 
     training_args = TrainingArguments(
-        "hf-gpt2",
+        args.output_dir,
         optim="adamw_torch",
         evaluation_strategy="no",
         logging_steps=10,
-        per_device_train_batch_size=32,
+        per_device_train_batch_size=64,
         learning_rate=6e-4,
         weight_decay=0.1,
         adam_beta1=0.9,
@@ -75,4 +84,7 @@ if __name__ == "__main__":
         train_dataset=encoded_train_dataset,
     )
 
-    trainer.train()
+    resume_from_checkpoint = check_available_checkpoint(args.output_dir)
+    trainer_output = trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+
+    trainer.save_metrics("train", trainer_output.metrics)
