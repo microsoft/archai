@@ -1,0 +1,10 @@
+{
+  "arch_type": "gpt2",
+  "d_inner": 768,
+  "d_model": 128,
+  "dropatt": 0.0,
+  "max_sequence_length": 1024,
+  "n_head": 4,
+  "n_layer": 4,
+  "vocab_size": 50257
+}
