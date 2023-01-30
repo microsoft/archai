@@ -95,7 +95,7 @@ def main():
     print("conf_data_filepath:", conf_data_filepath)
 
     conf = Config(
-        config_filepath=conf_data_filepath
+        file_path=conf_data_filepath
     )  # TODO: use common.create_config so env vars and pt stuff taken care of
     for dataset_key in ["dataset", "dataset_search", "dataset_eval"]:
         if dataset_key in conf:

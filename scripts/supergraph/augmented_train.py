@@ -1,7 +1,8 @@
 import json
 
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.utils.augmented_trainer import train_and_eval
-from archai.supergraph.utils.common import common_init, expdir_abspath, logger
+from archai.supergraph.utils.common import common_init, expdir_abspath
 
 logger = get_global_logger()
 

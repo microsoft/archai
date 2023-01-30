@@ -6,10 +6,9 @@ import pathlib
 import statistics
 from ast import literal_eval
 
-import delimited_text
 import scipy
 
-from archai.supergraph.utils import utils
+from archai.supergraph.utils import delimited_text, utils
 
 
 def main():
