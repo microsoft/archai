@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 # This script monitors an Azure blob store using connection string defined
-# in the environmentvariable "FaceSyntheticsModelStorageAccount".
+# in the environment variable "FaceSyntheticsModelStorageAccount".
 # When a file named "go" shows up in a folder containing a new model to test
 # it downloads the model, runs the F1 score check with 10,000 images
 # and the snpe_bench benchmark and posts the 2 results .csv files
@@ -504,8 +504,8 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only,
     log(f"### Saving {prop} score of {f1score}")
     entity[prop] = f1score
     merge_status_entity(entity)
-    upload_blob(name, test_results, f"test_results_{prop}.png")
-    upload_blob(name, chart, f"pr_curve_{prop}.csv")
+    upload_blob(name, test_results, f"test_results_{prop}.csv")
+    upload_blob(name, chart, f"pr_curve_{prop}.png")
 
     if 'f1_1k' in entity and 'f1_10k' in entity and 'f1_1k_f' in entity and 'f1_onnx' in entity:
         entity['status'] = 'complete'
