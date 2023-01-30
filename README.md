@@ -118,17 +118,13 @@ The algorithm will iterate through different network architectures, evaluate the
 
 ## Tasks
 
-This section is under development.
+To demonstrate and showcase the capabilities/functionalities of Archai, a set of end-to-end tasks are provided:
+
+* [Text Generation](https://github.com/microsoft/archai/blob/main/tasks/text_generation).
 
 ## Documentation
 
-To demonstrate the capabilities of Archai, a series of documented examples are provided to showcase its functionality:
-
-* [30-Minute Tutorial](https://microsoft.github.io/archai/basic_guide/tutorial.html);
-* [Notebooks](https://microsoft.github.io/archai/basic_guide/notebooks.html);
-* [Scripts](https://microsoft.github.io/archai/basic_guide/scripts.html);
-
-For additional information, please refer to the [official documentation](https://microsoft.github.io/archai).
+The [official documentation](https://microsoft.github.io/archai) also provides a [30-minute tutorial](https://microsoft.github.io/archai/basic_guide/tutorial.html) and a series of [notebooks](https://microsoft.github.io/archai/basic_guide/notebooks.html).
 
 ## Support
 
