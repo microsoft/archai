@@ -12,7 +12,6 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "Archai"
 author = "Microsoft"
 copyright = f"{date.today().year}"
-version = "v1.0.0"
 
 # General configuration
 extensions = [
