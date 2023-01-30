@@ -219,7 +219,7 @@ class BbpeTokenizer(TokenizerBase):
         return text
 
     def _count_token_freq(self, filepaths: List[str]) -> Counter:
-        logger.info("Counting token frequencies...")
+        logger.info("Counting token frequencies ...")
 
         tokens_counter = Counter()
         tokens_counter.update(list(range(len(self._tokenizer))))

@@ -184,7 +184,7 @@ class Corpus:
         """Train the vocabulary/tokenizer and encodes the corpus."""
 
         logger.info(
-            f"Training corpus: dataset = {self.dataset_name} | vocab_type = {self.vocab_type} | vocab_size = {self.vocab_size}"
+            f"Corpus: dataset = {self.dataset_name} | vocab_type = {self.vocab_type} | vocab_size = {self.vocab_size}"
         )
 
         self._create_train_vocab()
@@ -214,7 +214,7 @@ class Corpus:
 
         # If .npy files exists, corpus cache is available
         if not self.refresh_cache and cache_exists and self.vocab is not None and self.vocab.is_trained():
-            logger.info(f"Loading cache from: {self.train_cache_filepath} ...")
+            logger.info(f"Loading cache from: {self.train_cache_filepath}")
 
             self.vocab.load()
 

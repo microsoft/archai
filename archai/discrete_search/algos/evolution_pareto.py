@@ -220,10 +220,10 @@ class EvolutionParetoSearch(Searcher):
         self.iter_num = 0
 
         if self.initial_population_paths:
-            logger.info(f"Loading initial population from {len(self.initial_population_paths)} architectures")
+            logger.info(f"Loading initial population from {len(self.initial_population_paths)} architectures ...")
             unseen_pop = [self.search_space.load_arch(path) for path in self.initial_population_paths]
         else:
-            logger.info(f"Using {self.init_num_models} random architectures as the initial population")
+            logger.info(f"Using {self.init_num_models} random architectures as the initial population ...")
             unseen_pop = self.sample_models(self.init_num_models)
 
         self.all_pop = unseen_pop
@@ -231,13 +231,11 @@ class EvolutionParetoSearch(Searcher):
         for i in range(self.num_iters):
             self.iter_num = i + 1
 
-            logger.info(f"starting iter {i}")
+            logger.info(f"Iteration {i+1}/{self.num_iters}")
             self.on_search_iteration_start(unseen_pop)
 
             # Calculates objectives
-            logger.info(
-                f"iter {i}: calculating search objectives {list(self.so.objs.keys())} for" f" {len(unseen_pop)} models"
-            )
+            logger.info(f"Calculating search objectives {list(self.so.objs.keys())} for {len(unseen_pop)} models ...")
 
             results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
             self.search_state.add_iteration_results(
@@ -254,9 +252,9 @@ class EvolutionParetoSearch(Searcher):
             self.seen_archs.update([m.archid for m in unseen_pop])
 
             # update the pareto frontier
-            logger.info(f"iter {i}: updating Pareto Frontier")
+            logger.info("Updating Pareto frontier ...")
             pareto = self.search_state.get_pareto_frontier()["models"]
-            logger.info(f"iter {i}: found {len(pareto)} members")
+            logger.info(f"Found {len(pareto)} members.")
 
             # Saves search iteration results
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
@@ -264,19 +262,19 @@ class EvolutionParetoSearch(Searcher):
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
 
             parents = pareto
-            logger.info(f"iter {i}: chose {len(parents)} parents")
+            logger.info(f"Choosing {len(parents)} parents ...")
 
             # mutate random 'k' subsets of the parents
             # while ensuring the mutations fall within
             # desired constraint limits
             mutated = self.mutate_parents(parents, self.mutations_per_parent)
-            logger.info(f"iter {i}: mutation yielded {len(mutated)} new models")
+            logger.info(f"Mutation: {len(mutated)} new models.")
 
             # crossover random 'k' subsets of the parents
             # while ensuring the mutations fall within
             # desired constraint limits
             crossovered = self.crossover_parents(parents, self.num_crossovers)
-            logger.info(f"iter {i}: crossover yielded {len(crossovered)} new models")
+            logger.info(f"Crossover: {len(crossovered)} new models.")
 
             # sample some random samples to add to the parent mix
             # to mitigage local minima
@@ -284,11 +282,9 @@ class EvolutionParetoSearch(Searcher):
             unseen_pop = crossovered + mutated + rand_mix
 
             # shuffle before we pick a smaller population for the next stage
-            logger.info(f"iter {i}: total unseen population {len(unseen_pop)}")
+            logger.info(f"Total unseen population: {len(unseen_pop)}.")
             unseen_pop = self.select_next_population(unseen_pop)
-            logger.info(
-                f"iter {i}: total unseen population after `max_unseen_population`" f" restriction {len(unseen_pop)}"
-            )
+            logger.info(f"Total unseen population after `max_unseen_population` restriction: {len(unseen_pop)}.")
 
             # update the set of architectures ever visited
             self.all_pop.extend(unseen_pop)

@@ -243,10 +243,10 @@ class MoBananasSearch(Searcher):
         unseen_pop = self.sample_models(self.init_num_models)
 
         for i in range(self.num_iters):
-            logger.info(f"Starting iteration {i}")
+            logger.info(f"Iteration {i+1}/{self.num_iters}")
             all_pop.extend(unseen_pop)
 
-            logger.info(f"Evaluating objectives for {len(unseen_pop)} architectures")
+            logger.info(f"Evaluating objectives for {len(unseen_pop)} architectures ...")
             iter_results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
 
             self.seen_archs.update([m.archid for m in unseen_pop])
@@ -260,7 +260,7 @@ class MoBananasSearch(Searcher):
             self.search_state.add_iteration_results(unseen_pop, iter_results, extra_model_data)
 
             # Updates surrogate
-            logger.info("Updating surrogate model...")
+            logger.info("Updating surrogate model ...")
             X, y = self.get_surrogate_iter_dataset(all_pop)
             self.surrogate_model.fit(X, y)
 
@@ -270,27 +270,27 @@ class MoBananasSearch(Searcher):
             parents = parents[: self.num_parents]
 
             # Mutates top models
-            logger.info(f"Generating mutations for {len(parents)} parent architectures...")
+            logger.info(f"Generating mutations for {len(parents)} parent architectures ...")
             mutated = self.mutate_parents(parents, self.mutations_per_parent)
             logger.info(f"Found {len(mutated)} new architectures satisfying constraints.")
 
             if not mutated:
-                logger.info("No new architectures found. Stopping search.")
+                logger.info("No new architectures found. Stopping search ...")
                 break
 
             # Predicts expensive objectives using surrogate model
             # and calculates cheap objectives for mutated architectures
-            logger.info(f"Predicting {list(self.so.exp_objs.keys())} for new architectures using surrogate model")
+            logger.info(f"Predicting {list(self.so.exp_objs.keys())} for new architectures using surrogate model ...")
             pred_expensive_objs = self.predict_expensive_objectives(mutated)
 
-            logger.info(f"Calculating cheap objectives {list(self.so.cheap_objs.keys())} for new architectures")
+            logger.info(f"Calculating cheap objectives {list(self.so.cheap_objs.keys())} for new architectures ...")
             cheap_objs = self.so.eval_cheap_objs(mutated, self.dataset_provider)
 
             # Selects `num_candidates`-archtiectures for next iteration using Thompson Sampling
             selected_indices = self.thompson_sampling(mutated, self.num_candidates, pred_expensive_objs, cheap_objs)
             unseen_pop = [mutated[i] for i in selected_indices]
 
-            logger.info(f"Best {self.num_candidates} candidate architectures were selected for the next iteration")
+            logger.info(f"Best {self.num_candidates} candidate architectures were selected for the next iteration.")
 
             # Save plots and reports
             self.search_state.save_all_2d_pareto_evolution_plots(self.output_dir)

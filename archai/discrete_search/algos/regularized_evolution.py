@@ -150,27 +150,24 @@ class RegularizedEvolutionSearch(Searcher):
         self.iter_num = 0
 
         if self.initial_population_paths:
-            logger.info(f"Loading initial population from {len(self.initial_population_paths)} architectures")
+            logger.info(f"Loading initial population from {len(self.initial_population_paths)} architectures ...")
             iter_members = [self.search_space.load_arch(path) for path in self.initial_population_paths]
         else:
-            logger.info(f"Using {self.init_num_models} random architectures as the initial population")
+            logger.info(f"Using {self.init_num_models} random architectures as the initial population ...")
             iter_members = self.sample_models(self.init_num_models)
 
         self.all_pop = iter_members
 
         for i in range(self.num_iters):
             self.iter_num = i + 1
-            logger.info(f"starting iter {i}")
+            logger.info(f"Iteration {i+1}/{self.num_iters}")
 
             if len(iter_members) == 0:
-                logger.info(f"iter {i}: no models to evaluate, stopping search.")
+                logger.info("No models to evaluate. Stopping search ...")
                 break
 
             # Calculates objectives
-            logger.info(
-                f"iter {i}: calculating search objectives {list(self.so.objs.keys())} for"
-                f" {len(iter_members)} models"
-            )
+            logger.info(f"Calculating search objectives {list(self.so.objs.keys())} for {len(iter_members)} models ...")
 
             results = self.so.eval_all_objs(iter_members, self.dataset_provider)
 
@@ -193,12 +190,10 @@ class RegularizedEvolutionSearch(Searcher):
             history_indices = list(range(max(0, len(self.all_pop) - self.history_size), len(self.all_pop)))
             sample_indices = self.rng.sample(history_indices, min(self.pareto_sample_size, self.history_size))
 
-            logger.info(
-                f"iter {i}: sampled {len(sample_indices)} models from the" f" history ({len(history_indices)} models)"
-            )
+            logger.info(f"Sampled {len(sample_indices)} models from the history ({len(history_indices)}) models.")
 
             # Gets the pareto frontier of the history sample
-            logger.info(f"iter {i}: calculating pareto frontier of the sample")
+            logger.info("Calculating Pareto frontier of the sample ...")
             pareto_sample = get_pareto_frontier(
                 [self.all_pop[sample_idx] for sample_idx in sample_indices],
                 {
@@ -207,13 +202,13 @@ class RegularizedEvolutionSearch(Searcher):
                 },
                 self.so,
             )
-            logger.info(f"iter {i}: found {len(pareto_sample)} pareto members from the sample")
+            logger.info(f"Found {len(pareto_sample)} pareto members from the sample.")
 
             # mutate random 'k' subsets of the parents
             # while ensuring the mutations fall within
             # desired constraint limits
             iter_members = self.mutate_parents(pareto_sample["models"], 1)
-            logger.info(f"iter {i}: mutation yielded {len(iter_members)} new models for the next iteration")
+            logger.info(f"Mutation: {len(iter_members)} new models.")
 
             # update the set of architectures ever visited
             self.all_pop.extend(iter_members)

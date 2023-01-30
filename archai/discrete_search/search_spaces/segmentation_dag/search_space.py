@@ -397,7 +397,7 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
             )
 
             if not self.is_valid_model(nbr_model)[0]:
-                logger.info(f"Neighbor generation {base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed")
+                logger.info(f"Neighbor generation {base_model.arch.to_hash()} -> {nbr_model.to_hash()} failed.")
                 continue
 
             return ArchaiModel(nbr_model, nbr_model.to_hash(), metadata={"parent": parent_id})
@@ -504,8 +504,8 @@ class SegmentationDagSearchSpace(EvolutionarySearchSpace):
 
                 except Exception as e:
                     logger.info(
-                        f"Crossover between {left_m.arch.to_hash()}, {right_m.arch.to_hash()} failed "
-                        f"(nb_tries = {nb_tries})"
+                        f"Crossover between {left_m.arch.to_hash()}, {right_m.arch.to_hash()} failed: "
+                        f"(nb_tries = {nb_tries})."
                     )
                     logger.info(str(e))
                     print(str(e))

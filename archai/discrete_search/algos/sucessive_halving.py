@@ -84,11 +84,9 @@ class SucessiveHalvingSearch(Searcher):
 
                 break
 
-            logger.info(
-                f"Starting iteration {i} with {len(selected_models)} architectures " f"and budget of {current_budget}."
-            )
+            logger.info(f"Iteration {i+1}/{self.num_iters}")
+            logger.info(f"Evaluating {len(selected_models)} models with budget {current_budget} ...")
 
-            logger.info(f"Evaluating {len(selected_models)} models with budget {current_budget}..")
             results = self.objectives.eval_all_objs(
                 selected_models,
                 self.dataset_provider,
@@ -110,7 +108,7 @@ class SucessiveHalvingSearch(Searcher):
             self.search_state.save_all_2d_pareto_evolution_plots(self.output_dir)
 
             # Keeps only the best `1/self.budget_multiplier` NDS frontiers
-            logger.info("Choosing models for the next iteration..")
+            logger.info("Choosing models for the next iteration ...")
             nds_frontiers = get_non_dominated_sorting(selected_models, results, self.objectives)
             nds_frontiers = nds_frontiers[: int(len(nds_frontiers) * 1 / self.budget_multiplier)]
 

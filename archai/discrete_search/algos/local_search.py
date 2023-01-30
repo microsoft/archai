@@ -137,26 +137,24 @@ class LocalSearch(Searcher):
         self.iter_num = 0
 
         if self.initial_population_paths:
-            logger.info(f"Loading initial population from {len(self.initial_population_paths)} architectures")
+            logger.info(f"Loading initial population from {len(self.initial_population_paths)} architectures ...")
             unseen_pop = [self.search_space.load_arch(path) for path in self.initial_population_paths]
         else:
-            logger.info(f"Using {self.init_num_models} random architectures as the initial population")
+            logger.info(f"Using {self.init_num_models} random architectures as the initial population ...")
             unseen_pop = self.sample_models(self.init_num_models)
 
         self.all_pop = unseen_pop
 
         for i in range(self.num_iters):
             self.iter_num = i + 1
-            logger.info(f"starting iter {i}")
+            logger.info(f"Iteration {i+1}/{self.num_iters}")
 
             if len(unseen_pop) == 0:
-                logger.info(f"iter {i}: no models to evaluate, stopping search.")
+                logger.info("No models to evaluate. Stopping search ...")
                 break
 
             # Calculates objectives
-            logger.info(
-                f"iter {i}: calculating search objectives {list(self.so.objs.keys())} for" f" {len(unseen_pop)} models"
-            )
+            logger.info(f"Calculating search objectives {list(self.so.objs.keys())} for {len(unseen_pop)} models ...")
 
             results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
             self.search_state.add_iteration_results(
@@ -172,9 +170,9 @@ class LocalSearch(Searcher):
             self.seen_archs.update([m.archid for m in unseen_pop])
 
             # update the pareto frontier
-            logger.info(f"iter {i}: updating Pareto Frontier")
+            logger.info("Updating Pareto frontier ...")
             pareto = self.search_state.get_pareto_frontier()["models"]
-            logger.info(f"iter {i}: found {len(pareto)} members")
+            logger.info(f"Found {len(pareto)} members.")
 
             # Saves search iteration results
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
@@ -185,7 +183,7 @@ class LocalSearch(Searcher):
             # while ensuring the mutations fall within
             # desired constraint limits
             unseen_pop = self.mutate_parents(pareto, self.mutations_per_parent)
-            logger.info(f"iter {i}: mutation yielded {len(unseen_pop)} new models")
+            logger.info(f"Mutation: {len(unseen_pop)} new models.")
 
             # update the set of architectures ever visited
             self.all_pop.extend(unseen_pop)

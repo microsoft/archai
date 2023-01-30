@@ -100,15 +100,13 @@ class RandomSearch(Searcher):
     def search(self) -> SearchResults:
         for i in range(self.num_iters):
             self.iter_num = i + 1
-            logger.info(f"starting iter {i}")
+            logger.info(f"Iteration {i+1}/{self.num_iters}")
 
-            logger.info(f"Sampling {self.samples_per_iter} random models")
+            logger.info(f"Sampling {self.samples_per_iter} random models ...")
             unseen_pop = self.sample_models(self.samples_per_iter)
 
             # Calculates objectives
-            logger.info(
-                f"iter {i}: calculating search objectives {list(self.so.objs.keys())} for" f" {len(unseen_pop)} models"
-            )
+            logger.info(f"Calculating search objectives {list(self.so.objs.keys())} for {len(unseen_pop)} models ...")
 
             results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
             self.search_state.add_iteration_results(unseen_pop, results)
@@ -117,9 +115,9 @@ class RandomSearch(Searcher):
             self.seen_archs.update([m.archid for m in unseen_pop])
 
             # update the pareto frontier
-            logger.info(f"iter {i}: updating Pareto Frontier")
+            logger.info("Updating Pareto frontier ...")
             pareto = self.search_state.get_pareto_frontier()["models"]
-            logger.info(f"iter {i}: found {len(pareto)} members")
+            logger.info(f"Found {len(pareto)} members.")
 
             # Saves search iteration results
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
