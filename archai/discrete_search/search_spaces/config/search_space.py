@@ -3,6 +3,7 @@
 
 from random import Random
 from typing import List, Optional, Type
+import hashlib
 
 import numpy as np
 import torch
@@ -11,39 +12,40 @@ from overrides import overrides
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_space import (
     BayesOptSearchSpace,
-    EvolutionarySearchSpace,
+    EvolutionarySearchSpace
 )
 from archai.discrete_search.search_spaces.config import utils
 from archai.discrete_search.search_spaces.config.arch_config import (
     ArchConfig,
-    build_arch_config,
+    build_arch_config
 )
 from archai.discrete_search.search_spaces.config.arch_param_tree import ArchParamTree
 
 
 class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
-    """Search space for discrete search space with a configuration file."""
-
     def __init__(
         self,
         model_cls: Type[torch.nn.Module],
         arch_param_tree: ArchParamTree,
-        seed: Optional[int] = 1,
-        mutation_prob: Optional[float] = 0.3,
-        track_unused_params: Optional[bool] = True,
-        unused_param_value: Optional[int] = 0,
+        seed: Optional[int] = None,
+        mutation_prob: float = 0.3,
+        track_unused_params: bool = True,
+        unused_param_value: float = float('NaN'),
+        hash_archid: bool = True,
         **model_kwargs
     ) -> None:
-        """Initialize the search space.
+        """Config-based Discrete Search Space.
 
         Args:
-            model_cls: Model class.
-            arch_param_tree: Architecture parameter tree.
-            seed: Random seed.
-            mutation_prob: Mutation probability.
-            track_unused_params: Whether to track unused parameters.
-            unused_param_value: Value to use for unused parameters.
-
+            model_cls (Type[torch.nn.Module]): Model class. This class expects that the first argument
+                from `model_cls` constructor an `ArchConfig` object.
+            arch_param_tree (ArchParamTree): Architecture parameter tree.
+            seed (int, optional): Random seed used for sampling, mutations and crossovers. Defaults to None.
+            mutation_prob (float, optional): Probability of mutating a parameter. Defaults to 0.3.
+            track_unused_params (bool, optional): Whether to track unused parameters. Defaults to True.
+            unused_param_value (int, optional): Value to use for unused parameters. Defaults to `float('NaN')`.
+            hash_archid (bool, optional): Weather to hash architecture identifiers. Defaults to True.
+            **model_kwargs: Additional arguments to pass to `model_cls` constructor.
         """
 
         self.model_cls = model_cls
@@ -52,6 +54,7 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.track_unused_params = track_unused_params
         self.unused_param_value = unused_param_value
         self.model_kwargs = model_kwargs
+        self.hash_archid = hash_archid
 
         self.rng = Random(seed)
 
@@ -66,8 +69,13 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
 
         """
 
-        e = self.arch_param_tree.encode_config(arch_config, track_unused_params=self.track_unused_params)
-        return str(tuple(e))
+        archid = self.arch_param_tree.encode_config(arch_config, track_unused_params=self.track_unused_params)
+        archid = str(tuple(archid))
+
+        if self.hash_archid:
+            archid = hashlib.sha1(archid.encode('utf-8')).hexdigest()
+
+        return archid
 
     @overrides
     def save_arch(self, model: ArchaiModel, path: str) -> None:
