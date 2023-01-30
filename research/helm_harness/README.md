@@ -1,3 +1,0 @@
-# HELM-Harness
-
-## Installation
