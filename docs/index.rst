@@ -1,7 +1,7 @@
 Archai Documentation
 ====================
 
-**Archai** Archai is a Neural Architecture Search (NAS) framework built upon PyTorch. It provides a comprehensive solution for automating the process of finding the optimal architecture for deep learning models, making it easier for researchers and practitioners to achieve state-of-the-art results. First launched as an open-source project in 2020, Archai has made impactful progress by forming a positive feedback loop between the engineering and research aspects.
+**Archai** is a Neural Architecture Search (NAS) framework built upon PyTorch. It provides a comprehensive solution for automating the process of finding the optimal architecture for deep learning models, making it easier for researchers and practitioners to achieve state-of-the-art results. First launched as an open-source project in 2020, Archai has made impactful progress by forming a positive feedback loop between the engineering and research aspects.
 
 It has innovated on both search algorithms and search spaces, explored ideas on zero-cost proxies of architecture accuracy and in very recent work explored novel more efficient alternatives to the ubiquitious attention operator which is now informing next-generation search-space design. Additionally, it offers the following advantages:
 
@@ -35,16 +35,9 @@ If you use Archai in a scientific publication, please consider citing it:
    :caption: Getting Started
 
    Installation <getting_started/installation>
-   Quick Start <getting_started/quick_start>
    Package Structure <getting_started/package_structure>
-
-.. toctree::
-   :hidden:
-   :maxdepth: 2
-   :caption: Basic Guide
-
-   30-Minute Tutorial <basic_guide/tutorial>
-   Notebooks <basic_guide/notebooks>
+   Quick Start <getting_started/quick_start>
+   Notebooks <getting_started/notebooks>
 
 .. toctree::
    :hidden:
