@@ -124,7 +124,7 @@ To demonstrate and showcase the capabilities/functionalities of Archai, a set of
 
 ## Documentation
 
-The [official documentation](https://microsoft.github.io/archai) also provides a series of [notebooks](https://microsoft.github.io/archai/basic_guide/notebooks.html).
+The [official documentation](https://microsoft.github.io/archai) also provides a series of [notebooks](https://microsoft.github.io/archai/getting_started/notebooks.html).
 
 ## Support
 
