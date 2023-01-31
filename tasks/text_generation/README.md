@@ -6,7 +6,7 @@ At Archai, we understand the significance of finding the optimal neural architec
 
 We utilized GPT-2 as our base model and applied LTS on top of it to find the best performing architectures given a set of constraints. The following table showcases the results of our search:
 
-| Hash | Non-Embedding Parameters (M) | Latency (s) | Memory (MB) |
+| Model | Non-Embedding Parameters (M) | Latency (s) | Memory (MB) |
 | - | - | - | - |
 [gpt2_a9e3147996070fda25af4b39ed95b6a18d6d0402](https://github.com/microsoft/archai) | 1.06 | 0.008 | 29.06
 [gpt2_80fabe4acddff0dc796e287588e40d86e79df4b2](https://github.com/microsoft/archai) | 2.08 | 0.013 | 45.46

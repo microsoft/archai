@@ -63,6 +63,7 @@ html_theme_options = {
 # Autodoc
 autodoc_default_options = {"exclude-members": "__weakref__"}
 autodoc_member_order = "bysource"
+autodoc_mock_imports = ["xautodl", "ray.tune"]
 
 # Disables `nbsphinx` require.js to avoid
 # conflicts with `sphinxcontrib.mermaid`

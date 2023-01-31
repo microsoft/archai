@@ -4,20 +4,20 @@ Natural Language Processing
 Parameters
 ----------
 
-.. automodule:: archai.discrete_search.evalutors.nlp.parameters
+.. automodule:: archai.discrete_search.evaluators.nlp.parameters
    :members:
    :undoc-members:
 
 Transformer-Flex Latency
 ------------------------
 
-.. automodule:: archai.discrete_search.evalutors.nlp.transformer_flex_latency
+.. automodule:: archai.discrete_search.evaluators.nlp.transformer_flex_latency
    :members:
    :undoc-members:
 
 Transformer-Flex Memory
 -----------------------
 
-.. automodule:: archai.discrete_search.evalutors.nlp.transformer_flex_memory
+.. automodule:: archai.discrete_search.evaluators.nlp.transformer_flex_memory
    :members:
    :undoc-members:

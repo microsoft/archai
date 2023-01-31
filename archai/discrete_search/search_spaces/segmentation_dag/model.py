@@ -226,25 +226,23 @@ class SegmentationDagModel(torch.nn.Module):
 
         Args:
             config_file: Path to the YAML config file, following the format:
-                ```
-                post_upsample_layers: 2
-                channels_per_scale:
-                    1: 32
-                    2: 64
-                architecture:
-                    - name: input
-                      scale: 1
-                      op: conv3x3
-                      inputs: null
-                    - name: node0
-                      scale: 2
-                      op: conv5x5
-                      inputs: [input]
-                    - name: output
-                      scale: 4
-                      op: conv3x3
-                      inputs: [node0, node1]
-                ```
+                >>> post_upsample_layers: 2
+                >>> channels_per_scale:
+                >>>     1: 32
+                >>>     2: 64
+                >>> architecture:
+                >>>     - name: input
+                >>>       scale: 1
+                >>>       op: conv3x3
+                >>>       inputs: null
+                >>>     - name: node0
+                >>>       scale: 2
+                >>>       op: conv5x5
+                >>>       inputs: [input]
+                >>>     - name: output
+                >>>       scale: 4
+                >>>       op: conv3x3
+                >>>       inputs: [node0, node1]
             img_size: The size of the input image.
             nb_classes: The number of classes in the dataset.
 

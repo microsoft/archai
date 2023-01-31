@@ -8,6 +8,7 @@ from torch import nn
 from torch.nn.parallel.data_parallel import DataParallel
 from tqdm import tqdm
 
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.datasets.data import get_dataloaders
 from archai.supergraph.models import get_model, num_class
 from archai.supergraph.utils import ml_utils, utils
