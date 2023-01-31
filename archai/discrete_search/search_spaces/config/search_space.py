@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from random import Random
-from typing import List, Optional, Type
+from typing import List, Optional, Type, Dict, Any, Union, Callable]
 import hashlib
 
 import numpy as np
@@ -26,26 +26,31 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
     def __init__(
         self,
         model_cls: Type[torch.nn.Module],
-        arch_param_tree: ArchParamTree,
+        arch_param_tree: Union[ArchParamTree, Callable[..., ArchParamTree]],
         seed: Optional[int] = None,
         mutation_prob: float = 0.3,
         track_unused_params: bool = True,
         unused_param_value: float = float('NaN'),
         hash_archid: bool = True,
-        **model_kwargs
+        model_kwargs: Optional[Dict[str, Any]] = None,
+        builder_kwargs: Optional[Dict[str, Any]] = None
     ) -> None:
         """Config-based Discrete Search Space.
 
         Args:
             model_cls (Type[torch.nn.Module]): Model class. This class expects that the first argument
                 from `model_cls` constructor an `ArchConfig` object.
-            arch_param_tree (ArchParamTree): Architecture parameter tree.
+
+            arch_param_tree (Union[ArchParamTree, Callable[..., ArchParamTree]]): `ArchParamTree` object
+                or a builder function that returns an `ArchParamTree` object.
+
             seed (int, optional): Random seed used for sampling, mutations and crossovers. Defaults to None.
             mutation_prob (float, optional): Probability of mutating a parameter. Defaults to 0.3.
             track_unused_params (bool, optional): Whether to track unused parameters. Defaults to True.
             unused_param_value (int, optional): Value to use for unused parameters. Defaults to `float('NaN')`.
             hash_archid (bool, optional): Weather to hash architecture identifiers. Defaults to True.
-            **model_kwargs: Additional arguments to pass to `model_cls` constructor.
+            model_kwargs: Additional arguments to pass to `model_cls` constructor.
+            builder_kwargs: Arguments to pass to `arch_param_tree` if a builder function is passed.
         """
 
         self.model_cls = model_cls
@@ -54,7 +59,11 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.track_unused_params = track_unused_params
         self.unused_param_value = unused_param_value
         self.model_kwargs = model_kwargs
+        self.builder_kwargs = builder_kwargs
         self.hash_archid = hash_archid
+
+        if callable(self.arch_param_tree):
+            self.arch_param_tree = self.arch_param_tree(**self.builder_kwargs)
 
         self.rng = Random(seed)
 
