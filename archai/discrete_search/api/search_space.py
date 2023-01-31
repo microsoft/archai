@@ -3,110 +3,178 @@
 
 from abc import abstractmethod
 from typing import List
-from overrides.enforce import EnforceOverrides
 
 import numpy as np
+from overrides import EnforceOverrides
+
 from archai.discrete_search.api.archai_model import ArchaiModel
 
 
 class DiscreteSearchSpace(EnforceOverrides):
-    """Abstract base class for Discrete Search Spaces. Search spaces
-    represent all considered architectures of a given task.
+    """Abstract class for discrete search spaces.
 
-    Subclasses of this base class should implement `random_sample`,
-    `save_arch`, `load_arch`, `save_model_weights` and `load_model_weights`.
-    """    
+    This class serves as a base for implementing search spaces. The class enforces
+    implementation of five methods: `save_arch`, `load_arch`, `save_model_weights`,
+    `load_model_weights` and `random_sample`.
+
+    Note:
+        This class is inherited from `EnforceOverrides` and any overridden methods in the
+        subclass should be decorated with `@overrides` to ensure they are properly overridden.
+
+    Examples:
+        >>> class MyDiscreteSearchSpace(DiscreteSearchSpace):
+        >>>     def __init__(self) -> None:
+        >>>         super().__init__()
+        >>>
+        >>>     @overrides
+        >>>     def save_arch(self, arch, file_path) -> None:
+        >>>         torch.save(arch, file_path)
+        >>>
+        >>>     @overrides
+        >>>     def load_arch(self, file_path) -> ArchaiModel:
+        >>>         return torch.load(file_path)
+        >>>
+        >>>     @overrides
+        >>>     def save_model_weights(self, model, file_path) -> None:
+        >>>         torch.save(model.state_dict(), file_path)
+        >>>
+        >>>     @overrides
+        >>>     def load_model_weights(self, model, file_path) -> None:
+        >>>         model.load_state_dict(torch.load(file_path))
+        >>>
+        >>>     @overrides
+        >>>     def random_sample(self, config) -> ArchaiModel:
+        >>>         return ArchaiModel(config)
+
+    """
+
+    @abstractmethod
+    def save_arch(self, model: ArchaiModel, file_path: str) -> None:
+        """Save an architecture to a file without saving the weights.
+
+        Args:
+            model: Model's architecture to save.
+            file_path: File path to save the architecture.
+
+        """
+
+        pass
+
+    @abstractmethod
+    def load_arch(self, file_path: str) -> ArchaiModel:
+        """Load from a file an architecture that was saved using `SearchSpace.save_arch()`.
+
+        Args:
+            file_path: File path to load the architecture.
+
+        Returns:
+            Loaded model.
+
+        """
+
+        pass
+
+    @abstractmethod
+    def save_model_weights(self, model: ArchaiModel, file_path: str) -> None:
+        """Save the weights of a model.
+
+        Args:
+            model: Model to save the weights.
+            file_path: File path to save the weights.
+
+        """
+
+        pass
+
+    @abstractmethod
+    def load_model_weights(self, model: ArchaiModel, file_path: str) -> None:
+        """Load the weights (created with `SearchSpace.save_model_weights()`) into a model
+        of the same architecture.
+
+        Args:
+            model: Model to load the weights.
+            file_path: File path to load the weights.
+
+        """
+
+        pass
 
     @abstractmethod
     def random_sample(self) -> ArchaiModel:
-        """Randomly samples an architecture from the search spaces.
+        """Randomly sample an architecture from the search spaces.
 
         Returns:
-            ArchaiModel: Sampled architecture
-        """        
+            Sampled architecture.
 
-    @abstractmethod
-    def save_arch(self, model: ArchaiModel, path: str) -> None:
-        """Saves an the architecture of `model` into a file without saving
-        model weights.
-
-        Args:
-            model (ArchaiModel): Sampled model from the search space
-            path (str): Filepath
         """
 
-    @abstractmethod
-    def load_arch(self, path: str) -> ArchaiModel:
-        """Loads an architecture saved using `DiscreteSearchSpace.save_arch` from a file.
-
-        Args:
-            path (str): Architecture file path
-
-        Returns:
-            ArchaiModel: Loaded model
-        """        
-
-    @abstractmethod
-    def save_model_weights(self, model: ArchaiModel, path: str) -> None:
-        """Saves weights of a model from the search space.
-
-        Args:
-            model (ArchaiModel): Model
-            path (str): Model weights file path
-        """        
-
-    @abstractmethod
-    def load_model_weights(self, model: ArchaiModel, path: str) -> None:
-        """Loads a weight file (create using `DiscreteSearchSpace.save_model_weights`)
-        into a model of the same architecture.
-        
-        Args:
-            model (ArchaiModel): Target model
-            path (str): Model weights file path.
-        """
+        pass
 
 
 class EvolutionarySearchSpace(DiscreteSearchSpace, EnforceOverrides):
-    """Abstract base class for evolutionary algo-compatible discrete search spaces.
-       Subclasses are expected to implement `mutate` and `crossover` methods.
-    """    
+    """Abstract class for discrete search spaces compatible with evolutionary algorithms.
+
+    The class enforces implementation of two methods: `mutate` and `crossover`.
+
+    Note:
+        This class is inherited from `EnforceOverrides` and any overridden methods in the
+        subclass should be decorated with `@overrides` to ensure they are properly overridden.
+
+    """
 
     @abstractmethod
     def mutate(self, arch: ArchaiModel) -> ArchaiModel:
-        """Mutates an architecture from the search space. This method should not alter
-          the base model architecture directly, only generate a new one.
+        """Mutate an architecture from the search space.
+
+        This method should not alter the base model architecture directly,
+        only generate a new one.
 
         Args:
-            arch (ArchaiModel): Base model
+            arch: Base model.
 
         Returns:
-            ArchaiModel: Mutated model
-        """        
+            Mutated model.
+
+        """
+
+        pass
 
     @abstractmethod
     def crossover(self, arch_list: List[ArchaiModel]) -> ArchaiModel:
-        """Combines a list of architectures into a new one.
+        """Combine a list of architectures into a new one.
 
         Args:
-            arch_list (List[ArchaiModel]): List of architectures
+            arch_list: List of architectures.
 
         Returns:
-            ArchaiModel: Resulting model
-        """        
+            Resulting model.
+
+        """
+
+        pass
 
 
 class BayesOptSearchSpace(DiscreteSearchSpace, EnforceOverrides):
-    """Abstract base class for discrete search spaces compatible with Bayesian Optimization algorithms.
-       Subclasses are expected to implement `encode`.
-    """    
-    
+    """Abstract class for discrete search spaces compatible with Bayesian Optimization algorithms.
+
+    The class enforces implementation of a single method: `encode`.
+
+    Note:
+        This class is inherited from `EnforceOverrides` and any overridden methods in the
+        subclass should be decorated with `@overrides` to ensure they are properly overridden.
+
+    """
+
     @abstractmethod
     def encode(self, arch: ArchaiModel) -> np.ndarray:
-        """Encodes an architecture into a fixed-length vector representation.
+        """Encode an architecture into a fixed-length vector representation.
 
         Args:
-            arch (ArchaiModel): Model from the search space
+            arch: Model from the search space.
 
         Returns:
-            np.ndarray: Fixed-length vector representation of `arch`
+            Fixed-length vector representation of `arch`.
+
         """
+
+        pass

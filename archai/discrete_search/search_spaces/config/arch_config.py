@@ -1,38 +1,48 @@
-from typing import Dict, Union, Any
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+from __future__ import annotations
+import json
+from warnings import warn
 from collections import OrderedDict
 from copy import deepcopy
 from pathlib import Path
-import json
+from typing import Any, Dict, Optional, Union
+
 import yaml
 
-def build_arch_config(config_dict: Dict) -> 'ArchConfig':
-    """Builds an `ArchConfig` object from a sampled config dictionary.
+
+def build_arch_config(config_dict: Dict[str, Any]) -> ArchConfig:
+    """Build an `ArchConfig` object from a sampled config dictionary.
 
     Args:
-        config_dict (Dict): Config dictionary
+        config_dict: Config dictionary
 
     Returns:
-        ArchConfig
-    """    
-    ARCH_CONFIGS = {
-        'default': ArchConfig,
-        'config_list': ArchConfigList
-    }
-    
-    config_type = config_dict.get('_config_type', 'default')
+        `ArchConfig` object.
+
+    """
+
+    ARCH_CONFIGS = {"default": ArchConfig, "config_list": ArchConfigList}
+
+    config_type = config_dict.get("_config_type", "default")
     return ARCH_CONFIGS[config_type](config_dict)
 
 
-class ArchConfig():
-    def __init__(self, config_dict: Dict[str, Union[dict, float, int, str]]):
-        """Stores architecture configs.
+class ArchConfig:
+    """Store architecture configs."""
+
+    def __init__(self, config_dict: Dict[str, Union[dict, float, int, str]]) -> None:
+        """Initialize the class.
 
         Args:
-            config_dict (Dict[str, Union[dict, float, int, str]]): Sampled configuration
-        """        
+            config_dict: Configuration dictionary.
+
+        """
+
         # Set that stores all parameters used to build the model instance
         self._used_params = set()
-        
+
         # Original config dictionary
         self._config_dict = deepcopy(config_dict)
 
@@ -44,28 +54,30 @@ class ArchConfig():
                 self.nodes[param_name] = build_arch_config(param)
             else:
                 self.nodes[param_name] = param
-    
+
     def __repr__(self) -> str:
         class ArchConfigJsonEncoder(json.JSONEncoder):
             def default(self, o):
                 if isinstance(o, ArchConfig):
                     return o.to_dict(remove_metadata_info=True)
-                
+
                 return super().default(o)
 
         cls_name = self.__class__.__name__
-        return f'{cls_name}({json.dumps(self, cls=ArchConfigJsonEncoder, indent=4)})'
+        return f"{cls_name}({json.dumps(self, cls=ArchConfigJsonEncoder, indent=4)})"
 
     def get_used_params(self) -> Dict[str, Union[Dict, bool]]:
-        """Gets the parameter usage tree. Terminal nodes with value `True`
-        represent architecture parameters that were used by calling 
-        `ArchConfig.pick(param_name)`.
+        """Get the parameter usage tree.
+
+        Terminal nodes with value `True` represent architecture parameters that were used
+        by calling `ArchConfig.pick(param_name)`.
 
         Returns:
-            Dict[str, bool]: Used parameters
+            Used parameters.
         """
+
         used_params = OrderedDict()
-        
+
         for param_name, param in self.nodes.items():
             used_params[param_name] = param_name in self._used_params
 
@@ -74,101 +86,129 @@ class ArchConfig():
 
         return used_params
 
-    def pick(self, param_name: str, record_usage: bool = True) -> Any:
-        """Picks an architecture parameter, possibly recording its usage.
+    def pick(self, param_name: str, record_usage: Optional[bool] = True) -> Any:
+        """Pick an architecture parameter, possibly recording its usage.
 
         Args:
-            param_name (str): Architecture parameter name
-            
-            record_usage (bool, optional): If this parameter should be recorded
-                as 'used' in `ArchConfig._used_params`. Defaults to True.
+            param_name: Architecture parameter name
+            record_usage: If this parameter should be recorded as 'used' in
+                `ArchConfig._used_params`.
 
         Returns:
-            Any: Parameter value
+            Parameter value.
+
         """
+
         param_value = self.nodes[param_name]
-        
+
         if record_usage:
             self._used_params.add(param_name)
 
         return param_value
-    
-    def to_dict(self, remove_metadata_info: bool = False) -> OrderedDict:
-        """Converts ArchConfig object to an ordered dictionary.
+
+    def to_dict(self, remove_metadata_info: Optional[bool] = False) -> OrderedDict:
+        """Convert `ArchConfig` object to an ordered dictionary.
 
         Args:
-            remove_metadata_info (bool, optional): If keys used to store
-            extra metadata should be removed. Defaults to False.
+            remove_metadata_info: If keys used to store extra metadata should be removed.
 
         Returns:
-            OrderedDict
-        """        
+            Ordered dictionary.
+
+        """
+
         return OrderedDict(
             (k, v.to_dict(remove_metadata_info)) if isinstance(v, ArchConfig) else (k, v)
             for k, v in self.nodes.items()
-            if not remove_metadata_info or not k.startswith('_')
+            if not remove_metadata_info or not k.startswith("_")
         )
 
     def to_file(self, path: str) -> None:
+        """Save `ArchConfig` object to a file.
+
+        Args:
+            path: Path to save the file to.
+
+        """
+
         path = Path(path)
 
         d = self.to_dict()
 
-        if path.suffix == '.json':
-            json.dump(d, open(path, 'w', encoding='utf-8'), indent=4)
-        elif path.suffix == '.yaml':
-            yaml.dump(d, open(path, 'w', encoding='utf-8'), default_flow_style=False, sort_keys=False)
+        if path.suffix == ".json":
+            json.dump(d, open(path, "w", encoding="utf-8"), indent=4)
+        elif path.suffix == ".yaml":
+            yaml.dump(d, open(path, "w", encoding="utf-8"), default_flow_style=False, sort_keys=False)
         else:
-            raise ValueError(f'Unsupported file extension {path.suffix}')
+            raise ValueError(f"Unsupported file extension {path.suffix}")
 
     @classmethod
-    def from_file(cls, path: str) -> 'ArchConfig':
+    def from_file(cls, path: str) -> ArchConfig:
+        """Load `ArchConfig` object from a file.
+
+        Args:
+            path: Path to load the file from.
+
+        Returns:
+            `ArchConfig` object.
+
+        """
+
         path = Path(path)
 
-        if path.suffix == '.json':
-            # For compatibility with older versions
-            d = json.load(open(path, 'r', encoding='utf-8'))
-        elif path.suffix == '.yaml':
-            d = yaml.load(open(path, 'r', encoding='utf-8'), Loader=yaml.Loader)
+        if path.suffix == ".yaml":
+            d = yaml.load(open(path, "r", encoding="utf-8"), Loader=yaml.Loader)
+        elif path.suffix == ".json":
+            d = json.load(open(path, "r", encoding="utf-8"))
+        else:
+            warn(f'File extension not found in {str(path)}, trying to load as json')
+            d = json.load(open(path, "r", encoding="utf-8"))
         
         return build_arch_config(d)
 
 
 class ArchConfigList(ArchConfig):
+    """Store a list of architecture configs."""
+
     def __init__(self, config: OrderedDict):
+        """Initialize the class.
+
+        Args:
+            config: Configuration dictionary.
+
+        """
+
         super().__init__(config)
 
-        assert '_configs' in config
-        assert '_repeat_times' in config
+        assert "_configs" in config
+        assert "_repeat_times" in config
 
-        self.max_size = config['_repeat_times']
-    
+        self.max_size = config["_repeat_times"]
+
     def __len__(self) -> int:
-        self._used_params.add('_repeat_times')
+        self._used_params.add("_repeat_times")
         return self.max_size
-    
+
     def __getitem__(self, idx: int) -> ArchConfig:
         if 0 <= idx < len(self):
-            self._used_params.add('_repeat_times')
-            return self.nodes['_configs'].pick(str(idx))
+            self._used_params.add("_repeat_times")
+            return self.nodes["_configs"].pick(str(idx))
         raise IndexError
 
     def __iter__(self):
         yield from [self[i] for i in range(len(self))]
 
-    def pick(self, param_name: str, record_usage: bool = True):
+    def pick(self, param_name: str, record_usage: Optional[bool] = True) -> None:
         raise ValueError(
-            'Attempted to use .pick in an ArchConfigList instance. '
-            'Select a config first using indexing (e.g `config_list[i]`).'
+            "Attempted to use .pick in an ArchConfigList instance. "
+            "Select a config first using indexing (e.g `config_list[i]`)."
         )
 
-    def to_dict(self, remove_metadata_info: bool = False):
+    def to_dict(self, remove_metadata_info: Optional[bool] = False) -> OrderedDict:
         if remove_metadata_info:
-            blocks = [
-                self.nodes['_configs'].pick(str(i), record_usage=False).to_dict()
+            return [
+                self.nodes["_configs"].pick(str(i), record_usage=False).to_dict(remove_metadata_info)
                 for i in range(self.max_size)
-            ]
+            ][:self.max_size]
 
-            return blocks
-        
         return super().to_dict(remove_metadata_info)

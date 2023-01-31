@@ -1,8 +1,11 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+import numpy as np
 import pytest
 from overrides import overrides
-import numpy as np
 
-from archai.discrete_search.api.predictor import Predictor, MeanVar
+from archai.discrete_search.api.predictor import MeanVar, Predictor
 
 
 @pytest.fixture
@@ -21,9 +24,6 @@ def surrogate_model(search_objectives):
         def predict(self, encoded_archs: np.ndarray) -> MeanVar:
             n = len(encoded_archs)
 
-            return MeanVar(
-                self.mean_rng.random(size=(n, self.n_objs)),
-                self.var_rng.random(size=(n, self.n_objs))
-            )
+            return MeanVar(self.mean_rng.random(size=(n, self.n_objs)), self.var_rng.random(size=(n, self.n_objs)))
 
     return DummyPredictor(len(search_objectives.exp_objs))

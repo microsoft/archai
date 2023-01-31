@@ -12,7 +12,6 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "Archai"
 author = "Microsoft"
 copyright = f"{date.today().year}"
-version = "v0.6.9"
 
 # General configuration
 extensions = [
@@ -64,6 +63,7 @@ html_theme_options = {
 # Autodoc
 autodoc_default_options = {"exclude-members": "__weakref__"}
 autodoc_member_order = "bysource"
+autodoc_mock_imports = ["xautodl", "ray.tune"]
 
 # Disables `nbsphinx` require.js to avoid
 # conflicts with `sphinxcontrib.mermaid`

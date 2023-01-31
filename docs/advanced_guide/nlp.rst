@@ -7,7 +7,7 @@ This page is under development.
    :hidden:
    :maxdepth: 2
 
-   Training <nlp/training>
-   Evaluation <nlp/evaluation>
+   Datasets <nlp/datasets>
+   Trainers <nlp/trainers>
    ONNX <nlp/onnx>
    Quantization <nlp/quantization>

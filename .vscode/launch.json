@@ -1,21 +1,18 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
             "name": "All-Toy-NoPareto",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal"
         },
         {
             "name": "All-Toy-Pareto",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--nas.search.pareto.enabled", "True",
                      "--nas.search.seed_train.trainer.epochs", "1",
@@ -25,7 +22,7 @@
             "name": "Darts-Full",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "darts"]
         },
@@ -33,7 +30,7 @@
             "name": "Darts-Search-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--no-eval", "--algos", "darts"]
         },
@@ -41,7 +38,7 @@
             "name": "Darts-Eval-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--no-search", "--algos", "darts", "--nas.eval.final_desc_filename", "models/darts/final_model_desc1.yaml"]
         },
@@ -49,7 +46,7 @@
             "name": "Darts-E2E-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "darts"]
         },
@@ -57,7 +54,7 @@
             "name": "Darts-Eval-ImageNet",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "darts", "--datasets", "imagenet", "--no-search", "--nas.eval.final_desc_filename", "models/darts/final_model_desc1.yaml"]
         },
@@ -65,7 +62,7 @@
             "name": "DiDarts-E2E-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "didarts"]
         },
@@ -73,7 +70,7 @@
             "name": "Darts-Food101-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "darts", "--datasets", "food101"]
         },
@@ -81,7 +78,7 @@
             "name": "Darts-ImageNet-Eval-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--no-search",  "--algos", "darts", "--datasets", "imagenet", "--nas.eval.final_desc_filename", "models/darts/final_model_desc1.yaml"]
         },
@@ -89,7 +86,7 @@
             "name": "Petridish-Full",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "petridish"]
         },
@@ -97,7 +94,7 @@
             "name": "Petridish-Eval-ImageNet",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "petridish", "--datasets", "imagenet", "--no-search", "--nas.eval.final_desc_foldername", "models/petridish/pt_sweep_seed_36_epochs_600_scale_2.0/model_desc_gallery"]
         },
@@ -105,7 +102,7 @@
             "name": "Petridish-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "petridish", "--nas.search.pareto.enabled", "True"]
         },
@@ -113,7 +110,7 @@
             "name": "Xnas-Full",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "xnas"]
         },
@@ -121,7 +118,7 @@
             "name": "Xnas-Search-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--no-eval", "--algos", "xnas"]
         },
@@ -129,7 +126,7 @@
             "name": "Xnas-E2E-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "xnas"]
         },
@@ -137,7 +134,7 @@
             "name": "Divnas-Full",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "divnas"]
         },
@@ -145,7 +142,7 @@
             "name": "Divnas-Search-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--no-eval", "--algos", "divnas"]
         },
@@ -153,7 +150,7 @@
             "name": "Divnas-Eval-Full",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--no-search", "--full", "--algos", "divnas", "--nas.eval.final_desc_filename", "models/final_model_desc.yaml"]
         },
@@ -161,7 +158,7 @@
             "name": "Divnas-E2E-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "divnas"]
         },
@@ -170,7 +167,7 @@
             "name": "Gs-Full",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "gs"]
         },
@@ -178,7 +175,7 @@
             "name": "Gs-Search-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--no-eval", "--algos", "gs"]
         },
@@ -186,7 +183,7 @@
             "name": "Gs-E2E-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "gs"]
         },
@@ -194,7 +191,7 @@
             "name": "Random-Full",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--full", "--algos", "random"]
         },
@@ -202,7 +199,7 @@
             "name": "Random-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "random"]
         },
@@ -210,7 +207,7 @@
             "name": "Resnet-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--no-search", "--algos", "manual", "--datasets", "imagenet"]
         },
@@ -218,23 +215,15 @@
             "name": "Resnet-Full",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--no-search", "--full", "--algos", "manual"]
-        },
-        {
-            "name": "AML-Darts-Full",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/tools/azure/aml_launch_main.py",
-            "console": "integratedTerminal",
-            "args": ["--aml_secrets_filepath", "/home/dedey/aml_secrets/aml_secrets_msrlabspvc1.yaml", "--algo", "darts", "--full"]
         },
         {
             "name": "Manual-E2E-Toy",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/main.py",
+            "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
             "args": ["--algos", "manual"]
         },
@@ -242,7 +231,7 @@
             "name": "TrainAug resnet50 cocob cifar10",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/auto_aug/aug_train.py",
+            "program": "${cwd}/scripts/supergraph/augmented_train.py",
             "console": "integratedTerminal",
             "args": ["--config", "confs/aug_cifar.yaml;confs/aug_cifar_cocob_resnet50.yaml",
                     "--aug", "fa_reduced_cifar10"
@@ -252,7 +241,7 @@
             "name": "TrainAug resnet50 sgd cifar10",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/auto_aug/aug_train.py",
+            "program": "${cwd}/scripts/supergraph/augmented_train.py",
             "console": "integratedTerminal",
             "args": ["--config", "confs/aug_cifar.yaml;confs/aug_cifar_sgd_resnet50.yaml",
                     "--aug", "fa_reduced_cifar10"
@@ -262,110 +251,10 @@
             "name": "Exprep",
             "type": "python",
             "request": "launch",
-            "program": "${cwd}/scripts/reports/exprep.py",
+            "program": "${cwd}/scripts/supergraph/reports/exprep.py",
             "console": "integratedTerminal",
             "args": ["--results-dir", "C:\\Users\\dedey\\Documents\\archaiphilly\\phillytools\\bilevel_default_20200521",
             "--out-dir", "C:\\Users\\dedey\\archai_experiment_reports", "--collate"]
-        },
-        {
-            "name": "Train Transformer XL",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/archai/nlp/nvidia_transformer_xl/train.py",
-            "console": "integratedTerminal",
-            "args": ["--config", "dgx1_1gpu_fp32", "--config_file", "wt103_base.yaml", "--attn_type", "2", "--n_layer", "16", "--n_head", "8", "--d_model", "256", "--d_head", "32", "--d_inner", "768", "--log_interval", "10"]
-        },
-        {
-            "name": "Train TransformerXL Distributed",
-            "type": "python",
-            "request": "launch",
-            "module": "torch.distributed.launch",
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "args": [
-                "--nproc_per_node=4",
-                "archai/nlp/nvidia_transformer_xl/train.py",
-                "--config",
-                "dgx1_4gpu_fp32",
-                "--config_file",
-                "wt103_base.yaml"
-            ],
-            "env": {
-                "NCCL_P2P_DISABLE": "1"
-            }
-        },
-        {
-            "name": "Search Autoregressive Memformer",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/archai/nlp/search.py",
-            "console": "integratedTerminal",
-            "args": ["--population_size", "10", 
-                    "--parent_size", "2", 
-                    "--mutation_size", "4", 
-                    "--crossover_size", "4",
-                    "--n_iter", "2",
-                    "--use_quantization",
-                    "--model_type", "mem_transformer",
-                    ]
-        },
-        {
-            "name": "Search Autoregressive HF GPT2/Flex",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/archai/nlp/search.py",
-            "console": "integratedTerminal",
-            "args": ["--population_size", "10", 
-                    "--parent_size", "2", 
-                    "--mutation_size", "4", 
-                    "--crossover_size", "4",
-                    "--n_iter", "2",
-                    "--use_quantization",
-                    "--model_type", "hf_gpt2_flex",
-                    "--latency_constraint_upper", "10.0",
-                    "--param_constraint_upper", "15000000",
-                    ]
-        },
-        {
-            "name": "Train GPT2 Flex Distributed WT103",
-            "type": "python",
-            "request": "launch",
-            "module": "torch.distributed.launch",
-            "console": "integratedTerminal",
-            "args": [
-                "--nproc_per_node=4",
-                "archai/nlp/train.py",
-                "--model_type", "hf_gpt2_flex",
-                "--config", "dgx1_4gpu_fp32",
-                "--config_file", "wt103_base.yaml",
-                "--n_layer", "3",
-                "--n_head", "8",
-                "--d_model", "512",
-                "--d_inner", "1112", "1062", "712",
-                "--vocab", "gpt2",
-                "--vocab_size", "10000",
-                "--max_step", "400",
-                "--dataset", "lm1b",
-                "--experiment_name", "j0"
-            ]
-        },
-        {
-            "name": "Analysis Arch Population",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/scripts/lts_analysis/analyze_arch_population.py",
-            "console": "integratedTerminal",
-            "args": ["--root_folder", "/home/dedey/archaiphilly/amlt/gpt2_flex_random_l5_u12_finedm", 
-                    "--out_dir", "/home/dedey/archai_experiment_reports",
-                    ]
-        },
-        {
-            "name": "Analysis Characterize Search Space",
-            "type": "python",
-            "request": "launch",
-            "program": "${cwd}/archai/nlp/nas/characterize_search_space.py",
-            "console": "integratedTerminal",
-            "args": []
         },
         {
             "name": "CurrentFile",

@@ -20,6 +20,7 @@ dependencies = [
     "nbval",
     "onnx>=1.10.2",
     "onnxruntime>=1.10.0",
+    "opencv-python",
     "overrides==3.1.0",
     "plotly",
     "psutil",
@@ -59,6 +60,7 @@ def filter_dependencies(*pkgs):
 extras_require = {}
 extras_require["cv"] = filter_dependencies(
     "gorilla",
+    "opencv-python",
     "scikit-learn",
     "torchvision",
 )
@@ -108,7 +110,7 @@ with open("README.md", "r", encoding="utf_8") as f:
 
 setup(
     name="archai",
-    version="0.7.0",
+    version="1.0.0",
     description="Platform for Neural Architecture Search",
     long_description=long_description,
     long_description_content_type="text/markdown",

@@ -3,38 +3,54 @@
 
 from abc import abstractmethod
 from typing import NamedTuple
-from overrides.enforce import EnforceOverrides
 
 import numpy as np
+from overrides import EnforceOverrides
 
 
 class MeanVar(NamedTuple):
-    """Predictive mean and variance estimates from
-    a surrogate model (`Predictor`)."""    
+    """Predictive mean and variance estimates from a surrogate model (`Predictor`)."""
+
     mean: np.ndarray
     var: np.ndarray
 
 
 class Predictor(EnforceOverrides):
-    
+    """Abstract class for a predictor model.
+
+    This class can be used to predict the performance of a model given its architecture.
+    The class enforces implementation of two methods: `fit` and `predict`.
+
+    Note:
+        This class is inherited from `EnforceOverrides` and any overridden methods in the
+        subclass should be decorated with `@overrides` to ensure they are properly overridden.
+
+    """
+
     @abstractmethod
     def fit(self, encoded_archs: np.ndarray, y: np.ndarray) -> None:
-        """Fits a the predictor model using a an array of encoded architecture (N, #features)
-        and a possibly multidimensional array of targets y (N, #targets).
+        """Fit a predictor model using an array of encoded architectures (N, #features)
+        and a multi-dimensional array of targets (N, #targets).
 
         Args:
-            encoded_archs (np.ndarray): (N, #features) numpy array
-            y (np.ndarray): (N, #targets) numpy array
-        """        
+            encoded_archs: (N, #features) numpy array.
+            y: (N, #targets) numpy array.
+
+        """
+
+        pass
 
     @abstractmethod
     def predict(self, encoded_archs: np.ndarray) -> MeanVar:
-        """Predicts the performance of an array of architec encoded by 
-        by a subclass implementation of `BayesOptSearchSpaceBase.encode`
+        """Predict the performance of an array of architectures encoded by
+        by a subclass implementation of `BayesOptSearchSpaceBase.encode()`.
 
         Args:
-            encoded_archs (np.ndarray): Array of encoded architectyres
+            encoded_archs: Array of encoded architectures.
 
         Returns:
-            MeanVar: Named tuple with `mean` (N, #targets) and `var` (N, #targets) arrays.
+            Named tuple with `mean` (N, #targets) and `var` (N, #targets) arrays.
+
         """
+
+        pass

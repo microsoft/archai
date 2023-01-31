@@ -4,7 +4,7 @@
 </h1>
 
 <div align="center">
-   <b>Archai</b> accelerates your Neural Architecture Search (NAS) through <b>fast</b>, <b>reproducible</b> and <b>modular</b> research, allowing you to generate efficient deep networks for your applications.
+   <b>Archai</b> accelerates your Neural Architecture Search (NAS) through <b>fast</b>, <b>reproducible</b> and <b>modular</b> research, enabling the generation of efficient deep networks for various applications.
 </div>
 
 <br />
@@ -22,48 +22,109 @@
 <div align="center">
    <a href="#installation">Installation</a> •
    <a href="#quickstart">Quickstart</a> •
-   <a href="#examples">Examples</a> •
+   <a href="#tasks">Tasks</a> •
    <a href="#documentation">Documentation</a> •
    <a href="#support">Support</a>
 </div>
 
 ## Installation
 
-There are various methods to install Archai, but it is recommended to use it within a virtual environment, such as `conda` or `pyenv`. This ensures that the software runs in a consistent and isolated environment, and allows for easy management of installed packages and dependencies.
+Archai can be installed through various methods, however, it is recommended to utilize a virtual environment such as `conda` or `pyenv` for optimal results.
 
-PyPI provides a convenient way to install Python packages, as it allows users to easily search for and download packages, as well as automatically handle dependencies and other installation requirements. This is especially useful for larger Python projects that require multiple packages to be installed and managed.
-
-**Archai requires Python 3.7+ and PyTorch 1.7.0+.**
+To install Archai via PyPI, the following command can be executed:
 
 ```bash
 pip install archai
 ```
 
-Please refer to the [installation guide](https://microsoft.github.io/archai/getting_started/installation.html) for more information.
+**Archai requires Python 3.7+ and PyTorch 1.7.0+ to function properly.**
+
+For further information, please consult the [installation guide](https://microsoft.github.io/archai/getting_started/installation.html).
+
 
 ## Quickstart
 
-To run a specific NAS algorithm, specify it by the `--algos` switch:
+In this quickstart example, we will apply Archai in Natural Language Processing to find the optimal Pareto-frontier Transformers' configurations according to a set of objectives.
 
-```terminal
-python scripts/main.py --algos darts --full
+### Creating the Search Space
+
+We start by importing the `TransformerFlexSearchSpace` class which represents the search space for the Transformer architecture:
+
+```python
+from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import TransformerFlexSearchSpace
+
+space = TransformerFlexSearchSpace("gpt2")
 ```
 
-Please refer to [available algorithms](https://microsoft.github.io/archai/advanced_guide/nas/available_algorithms.html) for more information on available switches and algorithms.
+### Defining Search Objectives
 
-## Examples
+Next, we define the objectives we want to optimize. In this example, we use `NonEmbeddingParamsProxy`, `TransformerFlexOnnxLatency`, and `TransformerFlexOnnxMemory` to define the objectives:
 
-Archai is a cutting-edge NAS platform that uses advanced Machine Learning algorithms to perform a wide range of tasks. In order to illustrate the capabilities of Archai, we will present a series of examples that showcase its ability:
+```python
+from archai.discrete_search.api.search_objectives import SearchObjectives
+from archai.discrete_search.evaluators.nlp.parameters import NonEmbeddingParamsProxy
+from archai.discrete_search.evaluators.nlp.transformer_flex_latency import TransformerFlexOnnxLatency
+from archai.discrete_search.evaluators.nlp.transformer_flex_memory import TransformerFlexOnnxMemory
 
-* [Notebooks](https://microsoft.github.io/archai/basic_guide/notebooks.html);
-* [Scripts](https://microsoft.github.io/archai/basic_guide/examples_scripts.html);
-* [30-Minute Tutorial](https://microsoft.github.io/archai/basic_guide/tutorial.html);
-* [Petridish](https://microsoft.github.io/archai/advanced_guide/nas/petridish.html);
-* [Implementing DARTS](https://microsoft.github.io/archai/advanced_guide/nas/implementing_darts.html).
+search_objectives = SearchObjectives()
+search_objectives.add_objective(
+   "non_embedding_params",
+   NonEmbeddingParamsProxy(),
+   higher_is_better=True,
+   compute_intensive=False,
+   constraint=(1e6, 1e9),
+)
+search_objectives.add_objective(
+   "onnx_latency",
+   TransformerFlexOnnxLatency(space),
+   higher_is_better=False,
+   compute_intensive=False,
+)
+search_objectives.add_objective(
+   "onnx_memory",
+   TransformerFlexOnnxMemory(space),
+   higher_is_better=False,
+   compute_intensive=False,
+)
+```
+
+### Initializing the Algorithm
+
+We use the `EvolutionParetoSearch` algorithm to conduct the search:
+
+```python
+from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
+
+algo = EvolutionParetoSearch(
+   space,
+   objectives,
+   None,
+   "tmp",
+   num_iters=5,
+   init_num_models=10,
+   seed=1234,
+)
+```
+
+### Performing the Search
+
+Finally, we call the `search()` method to start the NAS process:
+
+```python
+algo.search()
+```
+
+The algorithm will iterate through different network architectures, evaluate their performance based on the defined objectives, and ultimately produce a frontier of Pareto-optimal results.
+
+## Tasks
+
+To demonstrate and showcase the capabilities/functionalities of Archai, a set of end-to-end tasks are provided:
+
+* [Text Generation](https://github.com/microsoft/archai/blob/main/tasks/text_generation).
 
 ## Documentation
 
-Please refer to the [documentation](https://microsoft.github.io/archai) for more information.
+The [official documentation](https://microsoft.github.io/archai) also provides a series of [notebooks](https://microsoft.github.io/archai/basic_guide/notebooks.html).
 
 ## Support
 
@@ -76,7 +137,7 @@ We welcome any questions, feedback, or suggestions you may have and look forward
 
 ### Team
 
-Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Mendes, [Piero Kauffmann](https://www.microsoft.com/en-us/research/people/pkauffmann/), and [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
+Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Mendes, [Piero Kauffmann](https://www.microsoft.com/en-us/research/people/pkauffmann), Allie Del Giorno, Mojan Javaheripi, and [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
 
 ### Contributions
 

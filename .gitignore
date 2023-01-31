@@ -7,6 +7,7 @@ amlt/
 !.vscode/*.json
 **/*.bin
 **/*.csv
+**/*.db
 **/*.json
 **/*.log*
 **/*.onnx
