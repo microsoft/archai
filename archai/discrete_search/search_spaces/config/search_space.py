@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from random import Random
-from typing import List, Optional, Type, Dict, Any, Union, Callable]
+from typing import List, Optional, Type, Dict, Any, Union, Callable
 import hashlib
 
 import numpy as np
