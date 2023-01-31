@@ -1,0 +1,1237 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>archai.supergraph.utils.utils &#8212; Archai</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/tabs.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../_static/logo.png" class="logo" alt="logo">
+      
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Getting Started
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../getting_started/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../getting_started/package_structure.html">
+   Package Structure
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../getting_started/quick_start.html">
+   Quick Start
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../getting_started/notebooks.html">
+   Notebooks
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../getting_started/notebooks/discrete_search.html">
+     Discrete Search
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/search_space.html">
+       Search Spaces
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/evaluators.html">
+       Evaluators
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/algos.html">
+       Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/config_search.html">
+       Configuration-based Search
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../getting_started/notebooks/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../getting_started/notebooks/cv.html">
+     Computer Vision
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../getting_started/notebooks/nlp.html">
+     Natural Language Processing
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Advanced Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../advanced_guide/nas.html">
+   Neural Architecture Search
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+  <label for="toctree-checkbox-3">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nas/discrete_search.html">
+     Discrete Search
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nas/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../advanced_guide/cv.html">
+   Computer Vision
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+  <label for="toctree-checkbox-4">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/cv/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/cv/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/cv/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/cv/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../advanced_guide/nlp.html">
+   Natural Language Processing
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nlp/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nlp/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nlp/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nlp/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../advanced_guide/cloud.html">
+   Cloud-Based Search
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+  <label for="toctree-checkbox-6">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/cloud/azure.html">
+     Azure
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contributing
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../contributing/first_contribution.html">
+   First Time Contributor
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../contributing/documentation.html">
+   Documentation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../contributing/unitary_tests.html">
+   Unitary Tests
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Support
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../support/faq.html">
+   Frequently Asked Questions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../support/contact.html">
+   Contact
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../support/copyright.html">
+   Copyright
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../reference/api.html">
+   API
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+  <label for="toctree-checkbox-7">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../reference/api/archai.api.html">
+     API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../reference/api/archai.common.html">
+     Common Packages
+    </a>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.datasets.html">
+     Datasets
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+    <label for="toctree-checkbox-8">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.datasets.cv.html">
+       Computer Vision
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.datasets.cv.transforms.html">
+         Transforms
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.datasets.nlp.html">
+       Natural Language Processing
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.datasets.nlp.tokenizer_utils.html">
+         Tokenization Utilities
+        </a>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.discrete_search.html">
+     Discrete Search
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+    <label for="toctree-checkbox-11">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.algos.html">
+       Search Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.api.html">
+       API
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.html">
+       Evaluators
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+      <label for="toctree-checkbox-12">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">
+         PyTorch Profiler (Utilities)
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.predictors.html">
+       Predictors
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.html">
+       Search Spaces
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+      <label for="toctree-checkbox-13">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.config.html">
+         Configuration-Based
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">
+         NATS-Bench
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">
+         Segmentation DAG
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.onnx.html">
+     ONNX
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+    <label for="toctree-checkbox-14">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.onnx.config_utils.html">
+       Configuration Utilities
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.onnx.optimization_utils.html">
+       Optimization Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.quantization.html">
+     Quantization
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+    <label for="toctree-checkbox-15">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.quantization.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.supergraph.html">
+     Supergraph
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+    <label for="toctree-checkbox-16">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.html">
+       Algorithms
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
+      <label for="toctree-checkbox-17">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.darts.html">
+         DARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.didarts.html">
+         DiDARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.divnas.html">
+         DivNAS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.gumbelsoftmax.html">
+         Gumbel-Softmax
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.manual.html">
+         Manual
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.nasbench101.html">
+         NasBench-101
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.petridish.html">
+         Petridish
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.random.html">
+         Random
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.xnas.html">
+         XNAS
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.supergraph.datasets.html">
+       Datasets
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
+      <label for="toctree-checkbox-18">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.datasets.providers.html">
+         Providers
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.supergraph.models.html">
+       Models
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+      <label for="toctree-checkbox-19">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.models.shakeshake.html">
+         ShakeShake
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.supergraph.nas.html">
+       Neural Architecture Search
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.supergraph.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.trainers.html">
+     Trainers
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+    <label for="toctree-checkbox-20">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.trainers.cv.html">
+       Computer Vision
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.trainers.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../reference/roadmap.html">
+   Roadmap
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../reference/changelog.html">
+   Changelog
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/microsoft/archai"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/supergraph/utils/utils.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for archai.supergraph.utils.utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">zip_longest</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">List</span><span class="p">,</span>
+    <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">MutableMapping</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Sized</span><span class="p">,</span>
+    <span class="n">Tuple</span><span class="p">,</span>
+    <span class="n">Type</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">unquote</span><span class="p">,</span> <span class="n">urlparse</span>
+<span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">url2pathname</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.backends.cudnn</span> <span class="k">as</span> <span class="nn">cudnn</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">torchvision.datasets</span> <span class="kn">import</span> <span class="n">utils</span> <span class="k">as</span> <span class="n">tvutils</span>
+
+
+<div class="viewcode-block" id="AverageMeter"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.AverageMeter">[docs]</a><span class="k">class</span> <span class="nc">AverageMeter</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AverageMeter.reset"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.AverageMeter.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sum</span> <span class="o">=</span> <span class="mf">0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last</span> <span class="o">=</span> <span class="mf">0.</span></div>
+
+<div class="viewcode-block" id="AverageMeter.update"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.AverageMeter.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sum</span> <span class="o">+=</span> <span class="n">val</span> <span class="o">*</span> <span class="n">n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cnt</span> <span class="o">+=</span> <span class="n">n</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cnt</span></div></div>
+
+<div class="viewcode-block" id="first_or_default"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.first_or_default">[docs]</a><span class="k">def</span> <span class="nf">first_or_default</span><span class="p">(</span><span class="n">it</span><span class="p">:</span><span class="n">Iterable</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">i</span>
+    <span class="k">return</span> <span class="n">default</span></div>
+
+<div class="viewcode-block" id="deep_update"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.deep_update">[docs]</a><span class="k">def</span> <span class="nf">deep_update</span><span class="p">(</span><span class="n">d</span><span class="p">:</span><span class="n">MutableMapping</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">map_type</span><span class="p">:</span><span class="n">Type</span><span class="p">[</span><span class="n">MutableMapping</span><span class="p">]</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>\
+        <span class="o">-&gt;</span><span class="n">MutableMapping</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">u</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">deep_update</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">map_type</span><span class="p">()),</span> <span class="n">v</span><span class="p">,</span> <span class="n">map_type</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="state_dict"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.state_dict">[docs]</a><span class="k">def</span> <span class="nf">state_dict</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Mapping</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">),</span> <span class="s1">&#39;val must be object with __dict__ otherwise it cannot be loaded back in load_state_dict&#39;</span>
+
+    <span class="c1"># Can&#39;t do below because val has state_dict() which calls utils.state_dict</span>
+    <span class="c1"># if has_method(val, &#39;state_dict&#39;):</span>
+    <span class="c1">#     d = val.state_dict()</span>
+    <span class="c1">#     assert isinstance(d, Mapping)</span>
+    <span class="c1">#     return d</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;yaml&#39;</span><span class="p">:</span> <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">val</span><span class="p">)}</span></div>
+
+<div class="viewcode-block" id="load_state_dict"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.load_state_dict">[docs]</a><span class="k">def</span> <span class="nf">load_state_dict</span><span class="p">(</span><span class="n">val</span><span class="p">:</span><span class="n">Any</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">:</span><span class="n">Mapping</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">),</span> <span class="s1">&#39;val must be object with __dict__&#39;</span>
+
+    <span class="c1"># Can&#39;t do below because val has state_dict() which calls utils.state_dict</span>
+    <span class="c1"># if has_method(val, &#39;load_state_dict&#39;):</span>
+    <span class="c1">#     return val.load_state_dict(state_dict)</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;yaml&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;state_dict must contain yaml key&#39;</span>
+
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">Loader</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="deep_comp"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.deep_comp">[docs]</a><span class="k">def</span> <span class="nf">deep_comp</span><span class="p">(</span><span class="n">o1</span><span class="p">:</span><span class="n">Any</span><span class="p">,</span> <span class="n">o2</span><span class="p">:</span><span class="n">Any</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+    <span class="c1"># NOTE: dict don&#39;t have __dict__</span>
+    <span class="n">o1d</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">o1</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">o2d</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">o2</span><span class="p">,</span> <span class="s1">&#39;__dict__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># if both are objects</span>
+    <span class="k">if</span> <span class="n">o1d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">o2d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># we will compare their dictionaries</span>
+        <span class="n">o1</span><span class="p">,</span> <span class="n">o2</span> <span class="o">=</span> <span class="n">o1</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="n">o2</span><span class="o">.</span><span class="vm">__dict__</span>
+
+    <span class="k">if</span> <span class="n">o1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">o2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># if both are dictionaries, we will compare each key</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o1</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">o2</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">()</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">o1</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">o2</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">o1</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">o2</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">deep_comp</span><span class="p">(</span><span class="n">o1</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">o2</span><span class="p">[</span><span class="n">k</span><span class="p">]):</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span> <span class="c1"># some key missing</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="c1"># mismatched object types or both are scalers, or one or both None</span>
+    <span class="k">return</span> <span class="n">o1</span> <span class="o">==</span> <span class="n">o2</span></div>
+
+<span class="c1"># We setup env variable if debugging mode is detected for vs_code_debugging.</span>
+<span class="c1"># The reason for this is that when Python multiprocessing is used, the new process</span>
+<span class="c1"># spawned do not inherit &#39;pydevd&#39; so those process do not get detected as in debugging mode</span>
+<span class="c1"># even though they are. So we set env var which does get inherited by sub processes.</span>
+<span class="k">if</span> <span class="s1">&#39;pydevd&#39;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;vs_code_debugging&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span>
+<div class="viewcode-block" id="is_debugging"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.is_debugging">[docs]</a><span class="k">def</span> <span class="nf">is_debugging</span><span class="p">()</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s1">&#39;vs_code_debugging&#39;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;vs_code_debugging&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;True&#39;</span></div>
+
+<div class="viewcode-block" id="full_path"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.full_path">[docs]</a><span class="k">def</span> <span class="nf">full_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">path</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">create</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+<div class="viewcode-block" id="zero_file"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.zero_file">[docs]</a><span class="k">def</span> <span class="nf">zero_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates or truncates existing file&quot;&quot;&quot;</span>
+    <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="write_string"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.write_string">[docs]</a><span class="k">def</span> <span class="nf">write_string</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
+<div class="viewcode-block" id="read_string"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.read_string">[docs]</a><span class="k">def</span> <span class="nf">read_string</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="fmt"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.fmt">[docs]</a><span class="k">def</span> <span class="nf">fmt</span><span class="p">(</span><span class="n">val</span><span class="p">:</span><span class="n">Any</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">val</span><span class="si">:</span><span class="s1">.4g</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="append_csv_file"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.append_csv_file">[docs]</a><span class="k">def</span> <span class="nf">append_csv_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">new_row</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">):</span>
+    <span class="n">fieldnames</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">dr</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">)</span>
+            <span class="n">fieldnames</span> <span class="o">=</span> <span class="n">dr</span><span class="o">.</span><span class="n">fieldnames</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">dr</span><span class="o">.</span><span class="n">reader</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">fieldnames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fieldnames</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">new_fieldnames</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">fn</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">fn</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">new_row</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fieldnames</span><span class="p">:</span>
+        <span class="n">new_fieldnames</span><span class="p">[</span><span class="n">fn</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">dr</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">new_fieldnames</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">)</span>
+        <span class="n">dr</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fieldnames</span><span class="p">,</span> <span class="n">row</span><span class="p">))</span>
+            <span class="n">dr</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">dr</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">OrderedDict</span><span class="p">(</span><span class="n">new_row</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="has_method"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.has_method">[docs]</a><span class="k">def</span> <span class="nf">has_method</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">callable</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="extract_tar"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.extract_tar">[docs]</a><span class="k">def</span> <span class="nf">extract_tar</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gzip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">tarfile</span>
+
+    <span class="k">if</span> <span class="n">dest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dest</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gzip</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gzip</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.gz&#39;</span><span class="p">)</span>
+
+    <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;r:gz&#39;</span> <span class="k">if</span> <span class="n">gzip</span> <span class="k">else</span> <span class="s1">&#39;r&#39;</span>
+    <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">tarfh</span><span class="p">:</span>
+        <span class="n">tarfh</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">dest</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">delete</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">src</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="download_and_extract_tar"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.download_and_extract_tar">[docs]</a><span class="k">def</span> <span class="nf">download_and_extract_tar</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">download_root</span><span class="p">,</span> <span class="n">extract_root</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">md5</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">download_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">download_root</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">extract_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">extract_root</span> <span class="o">=</span> <span class="n">download_root</span>
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tvutils</span><span class="o">.</span><span class="n">check_integrity</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">download_root</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">md5</span><span class="p">):</span>
+        <span class="n">tvutils</span><span class="o">.</span><span class="n">download_url</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">download_root</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span> <span class="n">md5</span><span class="o">=</span><span class="n">md5</span><span class="p">)</span>
+
+    <span class="n">extract_tar</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">download_root</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">extract_root</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="setup_cuda"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.setup_cuda">[docs]</a><span class="k">def</span> <span class="nf">setup_cuda</span><span class="p">(</span><span class="n">seed</span><span class="p">:</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">local_rank</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">seed</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="o">+</span> <span class="n">local_rank</span>
+    <span class="c1"># setup cuda</span>
+    <span class="n">cudnn</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+    <span class="c1">#torch.cuda.manual_seed_all(seed)</span>
+    <span class="n">cudnn</span><span class="o">.</span><span class="n">benchmark</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1"># set to false if deterministic</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">precision</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></div>
+    <span class="c1">#cudnn.deterministic = False</span>
+    <span class="c1"># torch.cuda.empty_cache()</span>
+    <span class="c1"># torch.cuda.synchronize()</span>
+
+<div class="viewcode-block" id="cuda_device_names"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.cuda_device_names">[docs]</a><span class="k">def</span> <span class="nf">cuda_device_names</span><span class="p">()</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">get_device_name</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">())])</span></div>
+
+<div class="viewcode-block" id="exec_shell_command"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.exec_shell_command">[docs]</a><span class="k">def</span> <span class="nf">exec_shell_command</span><span class="p">(</span><span class="n">command</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">print_command_start</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">print_command_end</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">subprocess</span><span class="o">.</span><span class="n">CompletedProcess</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">print_command_start</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s1">] Running: </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">print_command_end</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s1">] returncode=</span><span class="si">{</span><span class="n">ret</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s1"> Finished: </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="zip_eq"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.zip_eq">[docs]</a><span class="k">def</span> <span class="nf">zip_eq</span><span class="p">(</span><span class="o">*</span><span class="n">iterables</span><span class="p">):</span>
+    <span class="n">sentinel</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">combo</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">zip_longest</span><span class="p">(</span><span class="o">*</span><span class="n">iterables</span><span class="p">,</span> <span class="n">fillvalue</span><span class="o">=</span><span class="n">sentinel</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="kc">True</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">combo</span> <span class="k">if</span> <span class="n">sentinel</span> <span class="ow">is</span> <span class="n">c</span><span class="p">):</span>
+            <span class="n">shorter_its</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">combo</span><span class="p">)</span> <span class="k">if</span> <span class="n">sentinel</span> <span class="ow">is</span> <span class="n">c</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Iterator </span><span class="si">{</span><span class="n">shorter_its</span><span class="si">}</span><span class="s1"> have length </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s1"> which is shorter than others&#39;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">combo</span></div>
+
+<div class="viewcode-block" id="dir_downloads"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.dir_downloads">[docs]</a><span class="k">def</span> <span class="nf">dir_downloads</span><span class="p">()</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">full_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">(),</span> <span class="s2">&quot;Downloads&quot;</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="filepath_without_ext"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.filepath_without_ext">[docs]</a><span class="k">def</span> <span class="nf">filepath_without_ext</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns &#39;/a/b/c/d.e&#39; for &#39;/a/b/c/d.e.f&#39; &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="filepath_ext"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.filepath_ext">[docs]</a><span class="k">def</span> <span class="nf">filepath_ext</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns &#39;.f&#39; for &#39;/a/b/c/d.e.f&#39; &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span></div>
+
+<div class="viewcode-block" id="filepath_name_ext"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.filepath_name_ext">[docs]</a><span class="k">def</span> <span class="nf">filepath_name_ext</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns &#39;d.e.f&#39; for &#39;/a/b/c/d.e.f&#39; &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">name</span></div>
+
+<div class="viewcode-block" id="filepath_name_only"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.filepath_name_only">[docs]</a><span class="k">def</span> <span class="nf">filepath_name_only</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns &#39;d.e&#39; for &#39;/a/b/c/d.e.f&#39; &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span></div>
+
+<div class="viewcode-block" id="change_filepath_ext"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.change_filepath_ext">[docs]</a><span class="k">def</span> <span class="nf">change_filepath_ext</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">new_ext</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns &#39;/a/b/c/d.e.g&#39; for filepath=&#39;/a/b/c/d.e.f&#39;, new_ext=&#39;.g&#39; &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">new_ext</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="change_filepath_name"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.change_filepath_name">[docs]</a><span class="k">def</span> <span class="nf">change_filepath_name</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">new_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">new_ext</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns &#39;/a/b/c/h.f&#39; for filepath=&#39;/a/b/c/d.e.f&#39;, new_name=&#39;h&#39; &quot;&quot;&quot;</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">new_ext</span> <span class="ow">or</span> <span class="n">filepath_ext</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="n">new_name</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">ext</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="append_to_filename"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.append_to_filename">[docs]</a><span class="k">def</span> <span class="nf">append_to_filename</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">name_suffix</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">new_ext</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns &#39;/a/b/c/h.f&#39; for filepath=&#39;/a/b/c/d.e.f&#39;, new_name=&#39;h&#39; &quot;&quot;&quot;</span>
+    <span class="n">ext</span> <span class="o">=</span> <span class="n">new_ext</span> <span class="ow">or</span> <span class="n">filepath_ext</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">filepath_name_only</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="n">name</span><span class="o">+</span><span class="n">name_suffix</span><span class="p">)</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="n">ext</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="copy_file"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.copy_file">[docs]</a><span class="k">def</span> <span class="nf">copy_file</span><span class="p">(</span><span class="n">src_file</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">dest_dir_or_file</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">preserve_metadata</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_shutil</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">use_shutil</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">preserve_metadata</span>
+        <span class="k">return</span> <span class="n">copy_file_basic</span><span class="p">(</span><span class="n">src_file</span><span class="p">,</span> <span class="n">dest_dir_or_file</span><span class="p">)</span>
+
+    <span class="c1"># note that copy2 might fail on some Azure blobs if filesyste does not support OS level copystats</span>
+    <span class="c1"># so use preserve_metadata=True only if absolutely needed for maximum compatibility</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">copy_fn</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span> <span class="k">if</span> <span class="n">preserve_metadata</span> <span class="k">else</span> <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span>
+        <span class="k">return</span> <span class="n">copy_fn</span><span class="p">(</span><span class="n">src_file</span><span class="p">,</span> <span class="n">dest_dir_or_file</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">preserve_metadata</span> <span class="ow">or</span> <span class="n">ex</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="mi">38</span><span class="p">:</span> <span class="c1"># OSError: [Errno 38] Function not implemented</span>
+            <span class="k">raise</span>
+        <span class="k">return</span> <span class="n">copy_file_basic</span><span class="p">(</span><span class="n">src_file</span><span class="p">,</span> <span class="n">dest_dir_or_file</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="copy_file_basic"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.copy_file_basic">[docs]</a><span class="k">def</span> <span class="nf">copy_file_basic</span><span class="p">(</span><span class="n">src_file</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">dest_dir_or_file</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># try basic python functions</span>
+    <span class="c1"># first if dest is dir, get dest file name</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dest_dir_or_file</span><span class="p">):</span>
+        <span class="n">dest_dir_or_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dest_dir_or_file</span><span class="p">,</span> <span class="n">filepath_name_ext</span><span class="p">(</span><span class="n">src_file</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">src_file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">src</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">dest_dir_or_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dst</span><span class="p">:</span>
+        <span class="n">dst</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">dest_dir_or_file</span></div>
+
+<div class="viewcode-block" id="copy_dir"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.copy_dir">[docs]</a><span class="k">def</span> <span class="nf">copy_dir</span><span class="p">(</span><span class="n">src_dir</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">dest_dir</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">use_shutil</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">src_dir</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">use_shutil</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">src_dir</span><span class="p">,</span> <span class="n">dest_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">src_dir</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">copy_dir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">src_dir</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="n">use_shutil</span><span class="o">=</span><span class="n">use_shutil</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">copy_file</span><span class="p">(</span><span class="n">src_dir</span><span class="p">,</span> <span class="n">dest_dir</span><span class="p">,</span> <span class="n">use_shutil</span><span class="o">=</span><span class="n">use_shutil</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="s1">&#39;main_process_pid&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;main_process_pid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+<div class="viewcode-block" id="is_main_process"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.is_main_process">[docs]</a><span class="k">def</span> <span class="nf">is_main_process</span><span class="p">()</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns True if this process was started as main process instead of child process during multiprocessing&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">current_process</span><span class="p">()</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;MainProcess&#39;</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;main_process_pid&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span></div>
+<div class="viewcode-block" id="main_process_pid"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.main_process_pid">[docs]</a><span class="k">def</span> <span class="nf">main_process_pid</span><span class="p">()</span><span class="o">-&gt;</span><span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;main_process_pid&#39;</span><span class="p">])</span></div>
+<div class="viewcode-block" id="process_name"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.process_name">[docs]</a><span class="k">def</span> <span class="nf">process_name</span><span class="p">()</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">current_process</span><span class="p">()</span><span class="o">.</span><span class="n">name</span></div>
+
+<div class="viewcode-block" id="is_windows"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.is_windows">[docs]</a><span class="k">def</span> <span class="nf">is_windows</span><span class="p">()</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span><span class="o">==</span><span class="s1">&#39;Windows&#39;</span></div>
+
+<div class="viewcode-block" id="path2uri"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.path2uri">[docs]</a><span class="k">def</span> <span class="nf">path2uri</span><span class="p">(</span><span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">windows_non_standard</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="n">uri</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">full_path</span><span class="p">(</span><span class="n">path</span><span class="p">))</span><span class="o">.</span><span class="n">as_uri</span><span class="p">()</span>
+
+    <span class="c1"># there is lot of buggy regex based code out there which expects Windows file URIs as</span>
+    <span class="c1"># file://C/... instead of standard file:///C/...</span>
+    <span class="c1"># When passing file uri to such code, turn on windows_non_standard</span>
+    <span class="k">if</span> <span class="n">windows_non_standard</span> <span class="ow">and</span> <span class="n">is_windows</span><span class="p">():</span>
+        <span class="n">uri</span> <span class="o">=</span> <span class="n">uri</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;file:///&#39;</span><span class="p">,</span> <span class="s1">&#39;file://&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">uri</span></div>
+
+<div class="viewcode-block" id="uri2path"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.uri2path">[docs]</a><span class="k">def</span> <span class="nf">uri2path</span><span class="p">(</span><span class="n">file_uri</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">windows_non_standard</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># there is lot of buggy regex based code out there which expects Windows file URIs as</span>
+    <span class="c1"># file://C/... instead of standard file:///C/...</span>
+    <span class="c1"># When passing file uri to such code, turn on windows_non_standard</span>
+    <span class="k">if</span> <span class="n">windows_non_standard</span> <span class="ow">and</span> <span class="n">is_windows</span><span class="p">():</span>
+        <span class="n">file_uri</span> <span class="o">=</span> <span class="n">file_uri</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;file://&#39;</span><span class="p">,</span> <span class="s1">&#39;file:///&#39;</span><span class="p">)</span>
+
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">file_uri</span><span class="p">)</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}{0}{mnt}{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">,</span> <span class="n">mnt</span><span class="o">=</span><span class="n">parsed</span><span class="o">.</span><span class="n">netloc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">url2pathname</span><span class="p">(</span><span class="n">unquote</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">path</span><span class="p">)))</span>
+    <span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_ranks"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.get_ranks">[docs]</a><span class="k">def</span> <span class="nf">get_ranks</span><span class="p">(</span><span class="n">items</span><span class="p">:</span><span class="nb">list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span><span class="n">v</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="n">sorted_t</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">))),</span>
+                      <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">key</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                      <span class="n">reverse</span><span class="o">=</span><span class="n">reverse</span><span class="p">)</span>
+    <span class="n">sorted_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sorted_t</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">sorted_map</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">))]</span></div>
+
+<div class="viewcode-block" id="dedup_list"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.dedup_list">[docs]</a><span class="k">def</span> <span class="nf">dedup_list</span><span class="p">(</span><span class="n">l</span><span class="p">:</span><span class="n">List</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">List</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">OrderedDict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">l</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="delete_file"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.delete_file">[docs]</a><span class="k">def</span> <span class="nf">delete_file</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">filepath</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="save_as_yaml"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.save_as_yaml">[docs]</a><span class="k">def</span> <span class="nf">save_as_yaml</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="map_to_list"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.map_to_list">[docs]</a><span class="k">def</span> <span class="nf">map_to_list</span><span class="p">(</span><span class="n">variable</span><span class="p">:</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">,</span><span class="n">Sized</span><span class="p">],</span> <span class="n">size</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Sized</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">Sized</span><span class="p">):</span>
+        <span class="n">size_diff</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">size_diff</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">variable</span><span class="p">[:</span><span class="n">size</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">size_diff</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">variable</span>
+        <span class="k">elif</span> <span class="n">size_diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">variable</span> <span class="o">+</span> <span class="p">[</span><span class="n">variable</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">*</span> <span class="n">size_diff</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">*</span> <span class="n">size</span></div>
+
+<div class="viewcode-block" id="attr_to_dict"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.utils.attr_to_dict">[docs]</a><span class="k">def</span> <span class="nf">attr_to_dict</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span><span class="n">Any</span><span class="p">,</span> <span class="n">recursive</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">MAX_LIST_LEN</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">var_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="vm">__class__</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">var_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">obj</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">var_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="n">variables</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">))):</span>
+            <span class="n">variables</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">v</span><span class="p">[:</span><span class="n">MAX_LIST_LEN</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">v</span><span class="p">)),</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">))):</span>
+            <span class="n">variables</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)[:</span><span class="n">MAX_LIST_LEN</span><span class="p">]</span>
+
+        <span class="k">elif</span> <span class="n">recursive</span><span class="p">:</span>
+            <span class="n">settings_fn</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s1">&#39;settings&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">settings_fn</span><span class="p">):</span>
+                <span class="n">variables</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">settings_fn</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">variables</span></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Microsoft<br/>
+  
+      &copy; Copyright 2023.<br/>
+    Last updated on Jan 31, 2023.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

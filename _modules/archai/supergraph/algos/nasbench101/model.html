@@ -1,0 +1,1059 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>archai.supergraph.algos.nasbench101.model &#8212; Archai</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/tabs.js"></script>
+    <script src="../../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../../_static/logo.png" class="logo" alt="logo">
+      
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Getting Started
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../getting_started/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../getting_started/package_structure.html">
+   Package Structure
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../getting_started/quick_start.html">
+   Quick Start
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../getting_started/notebooks.html">
+   Notebooks
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search.html">
+     Discrete Search
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/search_space.html">
+       Search Spaces
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/evaluators.html">
+       Evaluators
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/algos.html">
+       Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/config_search.html">
+       Configuration-based Search
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../getting_started/notebooks/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../getting_started/notebooks/cv.html">
+     Computer Vision
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../getting_started/notebooks/nlp.html">
+     Natural Language Processing
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Advanced Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../advanced_guide/nas.html">
+   Neural Architecture Search
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+  <label for="toctree-checkbox-3">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nas/discrete_search.html">
+     Discrete Search
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nas/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../advanced_guide/cv.html">
+   Computer Vision
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+  <label for="toctree-checkbox-4">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/cv/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/cv/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/cv/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/cv/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../advanced_guide/nlp.html">
+   Natural Language Processing
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nlp/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nlp/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nlp/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nlp/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../advanced_guide/cloud.html">
+   Cloud-Based Search
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+  <label for="toctree-checkbox-6">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/cloud/azure.html">
+     Azure
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contributing
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../contributing/first_contribution.html">
+   First Time Contributor
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../contributing/documentation.html">
+   Documentation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../contributing/unitary_tests.html">
+   Unitary Tests
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Support
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../support/faq.html">
+   Frequently Asked Questions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../support/contact.html">
+   Contact
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../support/copyright.html">
+   Copyright
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../reference/api.html">
+   API
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+  <label for="toctree-checkbox-7">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../reference/api/archai.api.html">
+     API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../reference/api/archai.common.html">
+     Common Packages
+    </a>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.datasets.html">
+     Datasets
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+    <label for="toctree-checkbox-8">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.datasets.cv.html">
+       Computer Vision
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.datasets.cv.transforms.html">
+         Transforms
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.datasets.nlp.html">
+       Natural Language Processing
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.datasets.nlp.tokenizer_utils.html">
+         Tokenization Utilities
+        </a>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.html">
+     Discrete Search
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+    <label for="toctree-checkbox-11">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.algos.html">
+       Search Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.api.html">
+       API
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.html">
+       Evaluators
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+      <label for="toctree-checkbox-12">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">
+         PyTorch Profiler (Utilities)
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.predictors.html">
+       Predictors
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.html">
+       Search Spaces
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+      <label for="toctree-checkbox-13">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html">
+         Configuration-Based
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">
+         NATS-Bench
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">
+         Segmentation DAG
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.onnx.html">
+     ONNX
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+    <label for="toctree-checkbox-14">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.onnx.config_utils.html">
+       Configuration Utilities
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.onnx.optimization_utils.html">
+       Optimization Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.quantization.html">
+     Quantization
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+    <label for="toctree-checkbox-15">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.quantization.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.supergraph.html">
+     Supergraph
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+    <label for="toctree-checkbox-16">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.html">
+       Algorithms
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
+      <label for="toctree-checkbox-17">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.darts.html">
+         DARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.didarts.html">
+         DiDARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.divnas.html">
+         DivNAS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.gumbelsoftmax.html">
+         Gumbel-Softmax
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.manual.html">
+         Manual
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.nasbench101.html">
+         NasBench-101
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.petridish.html">
+         Petridish
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.random.html">
+         Random
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.xnas.html">
+         XNAS
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.supergraph.datasets.html">
+       Datasets
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
+      <label for="toctree-checkbox-18">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.datasets.providers.html">
+         Providers
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.supergraph.models.html">
+       Models
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+      <label for="toctree-checkbox-19">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.models.shakeshake.html">
+         ShakeShake
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.supergraph.nas.html">
+       Neural Architecture Search
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.supergraph.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.trainers.html">
+     Trainers
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+    <label for="toctree-checkbox-20">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.trainers.cv.html">
+       Computer Vision
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.trainers.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../reference/roadmap.html">
+   Roadmap
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../reference/changelog.html">
+   Changelog
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/microsoft/archai"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/supergraph/algos/nasbench101/model.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for archai.supergraph.algos.nasbench101.model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Builds the Pytorch computational graph.</span>
+
+<span class="sd">Tensors flowing into a single vertex are added together for all vertices</span>
+<span class="sd">except the output, which is concatenated instead. Tensors flowing out of input</span>
+<span class="sd">are always added.</span>
+
+<span class="sd">If interior edge channels don&#39;t match, drop the extra channels (channels are</span>
+<span class="sd">guaranteed non-decreasing). Tensors flowing out of the input as always</span>
+<span class="sd">projected instead.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<span class="kn">from</span> <span class="nn">archai.supergraph.algos.nasbench101.base_ops</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="Network"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.nasbench101.html#archai.supergraph.algos.nasbench101.model.Network">[docs]</a><span class="k">class</span> <span class="nc">Network</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">stem_out_channels</span><span class="p">,</span> <span class="n">num_stacks</span><span class="p">,</span> <span class="n">num_modules_per_stack</span><span class="p">,</span> <span class="n">num_labels</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Network</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;model matrix: </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">matrix</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;model ops: </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">ops</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">([])</span>
+
+        <span class="n">in_channels</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">out_channels</span> <span class="o">=</span> <span class="n">stem_out_channels</span> <span class="c1"># out channels for the model stem</span>
+
+        <span class="c1"># initial stem convolution</span>
+        <span class="n">stem_conv</span> <span class="o">=</span> <span class="n">ConvBnRelu</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stem_conv</span><span class="p">)</span>
+
+        <span class="n">in_channels</span> <span class="o">=</span> <span class="n">out_channels</span>
+        <span class="k">for</span> <span class="n">stack_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_stacks</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">stack_num</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># downsampling by maxpool doesn&#39;t change the channel</span>
+                <span class="n">downsample</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="n">kernel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">downsample</span><span class="p">)</span>
+
+                <span class="n">out_channels</span> <span class="o">*=</span> <span class="mi">2</span>
+
+            <span class="k">for</span> <span class="n">module_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_modules_per_stack</span><span class="p">):</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;stack=</span><span class="si">{</span><span class="n">stack_num</span><span class="si">}</span><span class="s1">, cell=</span><span class="si">{</span><span class="n">module_num</span><span class="si">}</span><span class="s1">, in_channels=</span><span class="si">{</span><span class="n">in_channels</span><span class="si">}</span><span class="s1">, out_channels=</span><span class="si">{</span><span class="n">out_channels</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">cell</span> <span class="o">=</span> <span class="n">Cell</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+                <span class="n">in_channels</span> <span class="o">=</span> <span class="n">out_channels</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">out_channels</span><span class="p">,</span> <span class="n">num_labels</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_weights</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Network.forward"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.nasbench101.html#archai.supergraph.algos.nasbench101.model.Network.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out</span></div>
+
+    <span class="k">def</span> <span class="nf">_initialize_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">):</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">m</span><span class="o">.</span><span class="n">out_channels</span>
+                <span class="n">m</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">n</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">m</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">):</span>
+                <span class="n">m</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">fill_</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">m</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">):</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">m</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+                <span class="n">m</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Cell"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.nasbench101.html#archai.supergraph.algos.nasbench101.model.Cell">[docs]</a><span class="k">class</span> <span class="nc">Cell</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Builds the model using the adjacency matrix and op labels specified. Channels</span>
+<span class="sd">    controls the module output channel count but the interior channels are</span>
+<span class="sd">    determined via equally splitting the channel count whenever there is a</span>
+<span class="sd">    concatenation of Tensors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Cell</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">spec</span> <span class="o">=</span> <span class="n">spec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">matrix</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># vertex_channels[i] = number of output channels of vertex i</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertex_channels</span> <span class="o">=</span> <span class="n">ComputeVertexChannels</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">matrix</span><span class="p">)</span>
+        <span class="c1">#self.vertex_channels = [in_channels] + [out_channels] * (self.num_vertices - 1)</span>
+
+        <span class="c1"># operation for each node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vertex_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">([</span><span class="kc">None</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">OP_MAP</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">ops</span><span class="p">[</span><span class="n">t</span><span class="p">]](</span><span class="bp">self</span><span class="o">.</span><span class="n">vertex_channels</span><span class="p">[</span><span class="n">t</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertex_channels</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vertex_op</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+
+        <span class="c1"># operation for input on each vertex</span>
+        <span class="c1"># if edge comes to vertex, we always apply 1x1 projection to equilize channels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_op</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">([</span><span class="kc">None</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_op</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Projection</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertex_channels</span><span class="p">[</span><span class="n">t</span><span class="p">]))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">input_op</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Cell.forward"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.nasbench101.html#archai.supergraph.algos.nasbench101.model.Cell.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">tensors</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+
+        <span class="n">out_concat</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span> <span class="c1"># except input</span>
+            <span class="c1"># gather input tensors for this vertex, excluding input</span>
+            <span class="n">fan_in</span> <span class="o">=</span> <span class="p">[</span><span class="n">Truncate</span><span class="p">(</span><span class="n">tensors</span><span class="p">[</span><span class="n">src</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertex_channels</span><span class="p">[</span><span class="n">t</span><span class="p">])</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">src</span><span class="p">,</span> <span class="n">t</span><span class="p">]]</span>
+
+            <span class="c1"># add input tensor but without truncation</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">t</span><span class="p">]:</span>
+                <span class="n">fan_in</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_op</span><span class="p">[</span><span class="n">t</span><span class="p">](</span><span class="n">x</span><span class="p">))</span>
+
+            <span class="c1"># First sum all input tensors</span>
+            <span class="c1">#vertex_input = torch.stack(fan_in, dim=0).sum(dim=0)</span>
+            <span class="n">vertex_input</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">fan_in</span><span class="p">)</span>
+
+            <span class="c1"># compute vertex ouput by applying vertex op</span>
+            <span class="c1">#vertex_input = sum(fan_in) / len(fan_in)</span>
+            <span class="n">vertex_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertex_op</span><span class="p">[</span><span class="n">t</span><span class="p">](</span><span class="n">vertex_input</span><span class="p">)</span>
+            <span class="n">tensors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vertex_output</span><span class="p">)</span>
+
+            <span class="c1"># if vertex is connected to output, add in outputs</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">out_concat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tensors</span><span class="p">[</span><span class="n">t</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">out_concat</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_op</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="n">tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_concat</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># perf optimization</span>
+                <span class="n">outputs</span> <span class="o">=</span> <span class="n">out_concat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">outputs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">out_concat</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># if nput is also connected to output than apply output vertex operation</span>
+            <span class="c1"># and then do sum with concatenated tensor</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">outputs</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_op</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="n">tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1">#if self.spec.matrix[0, self.num_vertices-1]:</span>
+            <span class="c1">#    out_concat.append(self.input_op[self.num_vertices-1](tensors[0]))</span>
+            <span class="c1">#outputs = sum(out_concat) / len(out_concat)</span>
+
+        <span class="k">return</span> <span class="n">outputs</span></div></div>
+
+<div class="viewcode-block" id="Projection"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.nasbench101.html#archai.supergraph.algos.nasbench101.model.Projection">[docs]</a><span class="k">def</span> <span class="nf">Projection</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;1x1 projection (as in ResNet) followed by batch normalization and ReLU.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ConvBnRelu</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Truncate"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.nasbench101.html#archai.supergraph.algos.nasbench101.model.Truncate">[docs]</a><span class="k">def</span> <span class="nf">Truncate</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Slice the inputs to channels if necessary.&quot;&quot;&quot;</span>
+    <span class="n">input_channels</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">size</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">input_channels</span> <span class="o">&lt;</span> <span class="n">channels</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;input channel &lt; output channels for truncate&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">input_channels</span> <span class="o">==</span> <span class="n">channels</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">inputs</span>   <span class="c1"># No truncation necessary</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Truncation should only be necessary when channel division leads to</span>
+        <span class="c1"># vertices with +1 channels. The input vertex should always be projected to</span>
+        <span class="c1"># the minimum channel count.</span>
+        <span class="k">assert</span> <span class="n">input_channels</span> <span class="o">-</span> <span class="n">channels</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">inputs</span><span class="p">[:,</span> <span class="p">:</span><span class="n">channels</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span></div>
+
+<div class="viewcode-block" id="ComputeVertexChannels"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.nasbench101.html#archai.supergraph.algos.nasbench101.model.ComputeVertexChannels">[docs]</a><span class="k">def</span> <span class="nf">ComputeVertexChannels</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the number of channels at every vertex.</span>
+
+<span class="sd">    Given the input channels and output channels, this calculates the number of</span>
+<span class="sd">    channels at each interior vertex. Interior vertices have the same number of</span>
+<span class="sd">    channels as the max of the channels of the vertices it feeds into. The output</span>
+<span class="sd">    channels are divided amongst the vertices that are directly connected to it.</span>
+<span class="sd">    When the division is not even, some vertices may receive an extra channel to</span>
+<span class="sd">    compensate.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list of channel counts, in order of the vertices.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_vertices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">matrix</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">vertex_channels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_vertices</span>
+    <span class="n">vertex_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">in_channels</span> <span class="c1"># first interior vertex only gets channel from input</span>
+    <span class="n">vertex_channels</span><span class="p">[</span><span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_channels</span> <span class="c1"># last vertex, i.e., output should have same channels as output</span>
+
+    <span class="k">if</span> <span class="n">num_vertices</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># Edge case where module only has input and output vertices</span>
+        <span class="k">return</span> <span class="n">vertex_channels</span>
+
+    <span class="c1"># Compute the in-degree ignoring input, axis 0 is the src vertex and axis 1 is</span>
+    <span class="c1"># the dst vertex. Summing over 0 gives the in-degree count of each vertex.</span>
+    <span class="n">in_degree</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">interior_channels</span> <span class="o">=</span> <span class="n">out_channels</span> <span class="o">//</span> <span class="n">in_degree</span><span class="p">[</span><span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">correction</span> <span class="o">=</span> <span class="n">out_channels</span> <span class="o">%</span> <span class="n">in_degree</span><span class="p">[</span><span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># Remainder to add</span>
+
+    <span class="c1"># Set channels of vertices that flow directly to output</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">matrix</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+          <span class="n">vertex_channels</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">interior_channels</span>
+          <span class="k">if</span> <span class="n">correction</span><span class="p">:</span>
+              <span class="n">vertex_channels</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+              <span class="n">correction</span> <span class="o">-=</span> <span class="mi">1</span>
+
+    <span class="c1"># Set channels for all other vertices to the max of the out edges, going</span>
+    <span class="c1"># backwards. (num_vertices - 2) index skipped because it only connects to</span>
+    <span class="c1"># output.</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">matrix</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">dst</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">matrix</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">dst</span><span class="p">]:</span>
+                    <span class="n">vertex_channels</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">vertex_channels</span><span class="p">[</span><span class="n">v</span><span class="p">],</span> <span class="n">vertex_channels</span><span class="p">[</span><span class="n">dst</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">vertex_channels</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="c1"># Sanity check, verify that channels never increase and final channels add up.</span>
+    <span class="n">final_fan_in</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">matrix</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+            <span class="n">final_fan_in</span> <span class="o">+=</span> <span class="n">vertex_channels</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">dst</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">matrix</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="n">dst</span><span class="p">]:</span>
+                <span class="k">assert</span> <span class="n">vertex_channels</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vertex_channels</span><span class="p">[</span><span class="n">dst</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">final_fan_in</span> <span class="o">==</span> <span class="n">out_channels</span> <span class="ow">or</span> <span class="n">num_vertices</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="c1"># num_vertices == 2 means only input/output nodes, so 0 fan-in</span>
+
+    <span class="k">return</span> <span class="n">vertex_channels</span></div>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Microsoft<br/>
+  
+      &copy; Copyright 2023.<br/>
+    Last updated on Jan 31, 2023.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

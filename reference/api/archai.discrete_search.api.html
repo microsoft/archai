@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Discrete Search API &#8212; Archai</title>
+    <title>API &#8212; Archai</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -39,8 +39,8 @@
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Datasets" href="archai.discrete_search.datasets.html" />
-    <link rel="prev" title="Search algorithms" href="archai.discrete_search.algos.html" />
+    <link rel="next" title="Evaluators" href="archai.discrete_search.evaluators.html" />
+    <link rel="prev" title="Search Algorithms" href="archai.discrete_search.algos.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -102,29 +102,17 @@
   </a>
  </li>
  <li class="toctree-l1">
-  <a class="reference internal" href="../../getting_started/quick_start.html">
-   Quick Start
-  </a>
- </li>
- <li class="toctree-l1">
   <a class="reference internal" href="../../getting_started/package_structure.html">
    Package Structure
   </a>
  </li>
-</ul>
-<p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
-  Basic Guide
- </span>
-</p>
-<ul class="nav bd-sidenav">
  <li class="toctree-l1">
-  <a class="reference internal" href="../../basic_guide/tutorial.html">
-   30-Minute Tutorial
+  <a class="reference internal" href="../../getting_started/quick_start.html">
+   Quick Start
   </a>
  </li>
  <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../basic_guide/notebooks.html">
+  <a class="reference internal" href="../../getting_started/notebooks.html">
    Notebooks
   </a>
   <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
@@ -134,7 +122,7 @@
   </label>
   <ul>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../../basic_guide/notebooks/discrete_search.html">
+    <a class="reference internal" href="../../getting_started/notebooks/discrete_search.html">
      Discrete Search
     </a>
     <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
@@ -144,38 +132,43 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../basic_guide/notebooks/discrete_search/search_space.html">
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/search_space.html">
        Search Spaces
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../basic_guide/notebooks/discrete_search/search_algos.html">
-       Search Algorithms
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/evaluators.html">
+       Evaluators
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../basic_guide/notebooks/discrete_search/config_search.html">
-       Config Search
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/algos.html">
+       Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/config_search.html">
+       Configuration-based Search
       </a>
      </li>
     </ul>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../basic_guide/notebooks/cv.html">
+    <a class="reference internal" href="../../getting_started/notebooks/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../getting_started/notebooks/cv.html">
      Computer Vision
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../basic_guide/notebooks/nlp.html">
+    <a class="reference internal" href="../../getting_started/notebooks/nlp.html">
      Natural Language Processing
     </a>
    </li>
   </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="../../basic_guide/examples_scripts.html">
-   Examples &amp; Scripts
-  </a>
  </li>
 </ul>
 <p aria-level="2" class="caption" role="heading">
@@ -195,30 +188,20 @@
   </label>
   <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/nas/available_algorithms.html">
-     Available Algorithms
+    <a class="reference internal" href="../../advanced_guide/nas/discrete_search.html">
+     Discrete Search
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/nas/petridish.html">
-     Petridish
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/nas/implementing_darts.html">
-     Implementing DARTS
+    <a class="reference internal" href="../../advanced_guide/nas/supergraph.html">
+     Supergraph
     </a>
    </li>
   </ul>
  </li>
- <li class="toctree-l1">
+ <li class="toctree-l1 has-children">
   <a class="reference internal" href="../../advanced_guide/cv.html">
    Computer Vision
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../advanced_guide/nlp.html">
-   Natural Language Processing
   </a>
   <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
   <label for="toctree-checkbox-4">
@@ -227,13 +210,45 @@
   </label>
   <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/nlp/training.html">
-     Training
+    <a class="reference internal" href="../../advanced_guide/cv/datasets.html">
+     Datasets
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/nlp/evaluation.html">
-     Evaluation
+    <a class="reference internal" href="../../advanced_guide/cv/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/cv/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/cv/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../advanced_guide/nlp.html">
+   Natural Language Processing
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/nlp/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/nlp/trainers.html">
+     Trainers
     </a>
    </li>
    <li class="toctree-l2">
@@ -249,30 +264,8 @@
   </ul>
  </li>
  <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../advanced_guide/large_scale_training.html">
-   Large-Scale Training
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-  <label for="toctree-checkbox-5">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/large_scale_training/deepspeed.html">
-     DeepSpeed
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/large_scale_training/fsdp.html">
-     Fully Shared Data Parallel (FSDP)
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../advanced_guide/devops.html">
-   DevOps
+  <a class="reference internal" href="../../advanced_guide/cloud.html">
+   Cloud-Based Search
   </a>
   <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
   <label for="toctree-checkbox-6">
@@ -281,7 +274,7 @@
   </label>
   <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/devops/azure.html">
+    <a class="reference internal" href="../../advanced_guide/cloud/azure.html">
      Azure
     </a>
    </li>
@@ -348,62 +341,10 @@
    </i>
   </label>
   <ul class="current">
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="archai.algos.html">
-     Algorithms
+   <li class="toctree-l2">
+    <a class="reference internal" href="archai.api.html">
+     API
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-    <label for="toctree-checkbox-8">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.darts.html">
-       DARTS
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.didarts.html">
-       DiDARTS
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.divnas.html">
-       DivNAS
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.gumbelsoftmax.html">
-       Gumbel-Softmax
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.manual.html">
-       Manual
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.nasbench101.html">
-       NasBench-101
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.petridish.html">
-       Petridish
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.random.html">
-       Random
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.xnas.html">
-       XNAS
-      </a>
-     </li>
-    </ul>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="archai.common.html">
@@ -411,18 +352,35 @@
     </a>
    </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="archai.cv.html">
-     Computer Vision
+    <a class="reference internal" href="archai.datasets.html">
+     Datasets
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
-    <label for="toctree-checkbox-9">
+    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+    <label for="toctree-checkbox-8">
      <i class="fas fa-chevron-down">
      </i>
     </label>
     <ul>
      <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.cv.datasets.html">
-       Datasets
+      <a class="reference internal" href="archai.datasets.cv.html">
+       Computer Vision
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.datasets.cv.transforms.html">
+         Transforms
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.datasets.nlp.html">
+       Natural Language Processing
       </a>
       <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
       <label for="toctree-checkbox-10">
@@ -431,30 +389,8 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="archai.cv.datasets.providers.html">
-         Providers
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.cv.datasets.transforms.html">
-         Transforms
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.cv.models.html">
-       Models
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-      <label for="toctree-checkbox-11">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.cv.models.shakeshake.html">
-         ShakeShake
+        <a class="reference internal" href="archai.datasets.nlp.tokenizer_utils.html">
+         Tokenization Utilities
         </a>
        </li>
       </ul>
@@ -465,143 +401,140 @@
     <a class="reference internal" href="archai.discrete_search.html">
      Discrete Search
     </a>
-    <input checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
-    <label for="toctree-checkbox-12">
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+    <label for="toctree-checkbox-11">
      <i class="fas fa-chevron-down">
      </i>
     </label>
     <ul class="current">
      <li class="toctree-l3">
       <a class="reference internal" href="archai.discrete_search.algos.html">
-       Search algorithms
+       Search Algorithms
       </a>
      </li>
      <li class="toctree-l3 current active">
       <a class="current reference internal" href="#">
-       Discrete Search API
+       API
       </a>
      </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.discrete_search.datasets.html">
-       Datasets
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.discrete_search.evaluators.html">
+       Evaluators
       </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.discrete_search.objectives.html">
-       Bultin search objectives
-      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+      <label for="toctree-checkbox-12">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">
+         PyTorch Profiler (Utilities)
+        </a>
+       </li>
+      </ul>
      </li>
      <li class="toctree-l3">
       <a class="reference internal" href="archai.discrete_search.predictors.html">
        Predictors
       </a>
      </li>
-     <li class="toctree-l3">
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="archai.discrete_search.search_spaces.html">
-       Bultin Discrete Search Spaces
+       Search Spaces
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+      <label for="toctree-checkbox-13">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.config.html">
+         Configuration-Based
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">
+         NATS-Bench
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">
+         Segmentation DAG
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.discrete_search.utils.html">
+       Utilities
       </a>
      </li>
     </ul>
    </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="archai.nas.html">
-     Neural Architecture Search
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.onnx.html">
+     ONNX
     </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+    <label for="toctree-checkbox-14">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.onnx.config_utils.html">
+       Configuration Utilities
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.onnx.optimization_utils.html">
+       Optimization Utilities
+      </a>
+     </li>
+    </ul>
    </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="archai.nlp.html">
-     Natural Language Processing
+    <a class="reference internal" href="archai.quantization.html">
+     Quantization
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
-    <label for="toctree-checkbox-13">
+    <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+    <label for="toctree-checkbox-15">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.quantization.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.supergraph.html">
+     Supergraph
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+    <label for="toctree-checkbox-16">
      <i class="fas fa-chevron-down">
      </i>
     </label>
     <ul>
      <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.nlp.datasets.html">
-       Datasets
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
-      <label for="toctree-checkbox-14">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.datasets.hf.html">
-         Hugging Face
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.datasets.nvidia.html">
-         NVIDIA
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.nlp.eval.html">
-       Evaluation
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
-      <label for="toctree-checkbox-15">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.eval.harness.html">
-         Harness
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.eval.profiler.html">
-         Profiler
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.eval.text_predict.html">
-         Text Predict
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.nlp.objectives.html">
-       Objectives
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.nlp.onnx.html">
-       ONNX
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
-      <label for="toctree-checkbox-16">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.onnx.config_utils.html">
-         Configuration Utilities
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.onnx.optimization_utils.html">
-         Optimization Utilities
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.nlp.quantization.html">
-       Quantization
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.nlp.search_spaces.html">
-       Search Spaces
+      <a class="reference internal" href="archai.supergraph.algos.html">
+       Algorithms
       </a>
       <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
       <label for="toctree-checkbox-17">
@@ -610,15 +543,55 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.search_spaces.transformer_flex.html">
-         Transformer-Flex
+        <a class="reference internal" href="archai.supergraph.algos.darts.html">
+         DARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.didarts.html">
+         DiDARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.divnas.html">
+         DivNAS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.gumbelsoftmax.html">
+         Gumbel-Softmax
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.manual.html">
+         Manual
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.nasbench101.html">
+         NasBench-101
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.petridish.html">
+         Petridish
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.random.html">
+         Random
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.xnas.html">
+         XNAS
         </a>
        </li>
       </ul>
      </li>
      <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.nlp.trainers.html">
-       Trainers
+      <a class="reference internal" href="archai.supergraph.datasets.html">
+       Datasets
       </a>
       <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
       <label for="toctree-checkbox-18">
@@ -627,16 +600,60 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.trainers.hf.html">
-         Hugging Face
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.trainers.nvidia.html">
-         NVIDIA
+        <a class="reference internal" href="archai.supergraph.datasets.providers.html">
+         Providers
         </a>
        </li>
       </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.supergraph.models.html">
+       Models
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+      <label for="toctree-checkbox-19">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.models.shakeshake.html">
+         ShakeShake
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.supergraph.nas.html">
+       Neural Architecture Search
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.supergraph.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.trainers.html">
+     Trainers
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+    <label for="toctree-checkbox-20">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.trainers.cv.html">
+       Computer Vision
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.trainers.nlp.html">
+       Natural Language Processing
+      </a>
      </li>
     </ul>
    </li>
@@ -788,22 +805,32 @@ title="Edit this page"
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.discrete_search.api.archai_model">
-   ArchaiModel
+   Archai-Based Model
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#objectives">
-   Objectives
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.search_space">
-   Search Spaces
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.model_evaluator">
+   Model Evaluator
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.discrete_search.api.predictor">
    Predictor
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.search_objectives">
+   Search Objectives
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.search_results">
+   Search Results
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.search_space">
+   Search Space
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -820,7 +847,7 @@ title="Edit this page"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Discrete Search API</h1>
+                <h1>API</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -832,22 +859,32 @@ title="Edit this page"
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.discrete_search.api.archai_model">
-   ArchaiModel
+   Archai-Based Model
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#objectives">
-   Objectives
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.search_space">
-   Search Spaces
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.model_evaluator">
+   Model Evaluator
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.discrete_search.api.predictor">
    Predictor
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.search_objectives">
+   Search Objectives
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.search_results">
+   Search Results
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.api.search_space">
+   Search Space
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -865,179 +902,133 @@ title="Edit this page"
                 
               <div>
                 
-  <section id="discrete-search-api">
-<h1>Discrete Search API<a class="headerlink" href="#discrete-search-api" title="Permalink to this headline">#</a></h1>
+  <section id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">#</a></h1>
 <section id="module-archai.discrete_search.api.archai_model">
-<span id="archaimodel"></span><h2>ArchaiModel<a class="headerlink" href="#module-archai.discrete_search.api.archai_model" title="Permalink to this headline">#</a></h2>
+<span id="archai-based-model"></span><h2>Archai-Based Model<a class="headerlink" href="#module-archai.discrete_search.api.archai_model" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.discrete_search.api.archai_model.ArchaiModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.archai_model.</span></span><span class="sig-name descname"><span class="pre">ArchaiModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/api/archai_model.html#ArchaiModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="Permalink to this definition">#</a></dt>
-<dd><p>Wraps a model object with an architecture id and optionally a metadata dictionary.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.archai_model.</span></span><span class="sig-name descname"><span class="pre">ArchaiModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/api/archai_model.html#ArchaiModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="Permalink to this definition">#</a></dt>
+<dd><p>Model wrapper with an architecture identifier and an optional metadata dictionary.</p>
+</dd></dl>
+
+</section>
+<section id="module-archai.discrete_search.api.model_evaluator">
+<span id="model-evaluator"></span><h2>Model Evaluator<a class="headerlink" href="#module-archai.discrete_search.api.model_evaluator" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.api.model_evaluator.ModelEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.model_evaluator.</span></span><span class="sig-name descname"><span class="pre">ModelEvaluator</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/model_evaluator.html#ModelEvaluator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.model_evaluator.ModelEvaluator" title="Permalink to this definition">#</a></dt>
+<dd><p>Abstract class for synchronous model evaluators.</p>
+<p>Evaluators are general-use classes used to evaluate architectures in
+given criteria (task performance, speed, size, etc.).</p>
+<p>Subclasses of <cite>ModelEvaluator</cite> are expected to implement <cite>ModelEvaluator.evaluate</cite>.</p>
+<p>Synchronous evaluators are computed by search algorithms sequentially.
+For parallel / async. execution, please refer to <cite>archai.api.AsyncModelEvaluator</cite>.</p>
+<p>For a list of bult-in evaluators, please check <cite>archai.discrete_search.evaluators</cite>.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyValTaskAccuracy</span><span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">_</span><span class="p">,</span> <span class="n">val_data</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_train_val_datasets</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">val_dl</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">val_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">val_dl</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">val_dl</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="n">preds</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">NumberOfModules</span><span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">modules</span><span class="p">()))</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.model_evaluator.ModelEvaluator.evaluate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/model_evaluator.html#ModelEvaluator.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.model_evaluator.ModelEvaluator.evaluate" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate an <cite>ArchaiModel</cite> instance, optionally using a <cite>DatasetProvider</cite> and budget value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>arch</strong> (<em>Any</em>) – Model object (e.g torch.nn.Module)</p></li>
-<li><p><strong>archid</strong> (<em>str</em>) – <strong>Architecture</strong> string identifier of <cite>arch</cite> object. Will be used to deduplicate
-models of the same architecture, so architecture hashes are prefered. <cite>archid</cite> should only
-identify neural network architectures and not model weight information.</p></li>
-<li><p><strong>metadata</strong> (<em>Optional</em><em>[</em><em>Dict</em><em>]</em><em>, </em><em>optional</em>) – Optional model metadata dictionary. Defaults to None.</p></li>
+<li><p><strong>arch</strong> – Model to be evaluated.</p></li>
+<li><p><strong>dataset</strong> – A dataset provider object.</p></li>
+<li><p><strong>budget</strong> – A budget multiplier value, used by search algorithms like <cite>SucessiveHalving</cite>
+to specify how much compute should be spent in this evaluation. In order to use
+this type of search algorithm, the implementation of <cite>evaluate()</cite> must use the
+passed <cite>budget</cite> value accordingly.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluation result.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.api.model_evaluator.AsyncModelEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.model_evaluator.</span></span><span class="sig-name descname"><span class="pre">AsyncModelEvaluator</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/model_evaluator.html#AsyncModelEvaluator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.model_evaluator.AsyncModelEvaluator" title="Permalink to this definition">#</a></dt>
+<dd><p>Abstract class for asynchronous model evaluators.</p>
+<p>Evaluators are general-use classes used to evaluate architectures in given criteria
+(task performance, speed, size, etc.).</p>
+<p>Unlike <cite>archai.api.ModelEvaluator</cite>, <cite>AsyncModelEvaluator</cite> evaluates models in asynchronous
+fashion, by sending evaluation jobs to a queue and fetching the results later.</p>
+<p>Subclasses of <cite>AsyncModelEvaluator</cite> are expected to implement
+<cite>AsyncModelEvaluator.send(arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float])</cite>
+and <cite>AsyncModelEvaluator.fetch_all()</cite>.</p>
+<p><cite>AsyncModelEvaluator.send</cite> is a non-blocking call that schedules an evaluation job for a
+given (model, dataset, budget) triplet. <cite>AsyncModelEvaluator.fetch_all</cite> is a blocking call
+that waits and gathers the results from current evaluation jobs and cleans the job queue.</p>
+<p>For a list of bult-in evaluators, please check <cite>archai.discrete_search.evaluators</cite>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">my_obj</span> <span class="o">=</span> <span class="n">MyAsyncObj</span><span class="p">()</span>  <span class="c1"># My AsyncModelEvaluator subclass</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Non blocking calls</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_obj</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">model_1</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_obj</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">model_2</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_obj</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">model_3</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Blocking call</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eval_results</span> <span class="o">=</span> <span class="n">my_obj</span><span class="o">.</span><span class="n">fetch_all</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">eval_resuls</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Job queue is reset after `fetch_call` method</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_obj</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">model_4</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">my_obj</span><span class="o">.</span><span class="n">fetch_all</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.model_evaluator.AsyncModelEvaluator.send">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/model_evaluator.html#AsyncModelEvaluator.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.model_evaluator.AsyncModelEvaluator.send" title="Permalink to this definition">#</a></dt>
+<dd><p>Send an evaluation job for a given (model, dataset, budget) triplet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arch</strong> – Model to be evaluated.</p></li>
+<li><p><strong>dataset</strong> – A dataset provider object.</p></li>
+<li><p><strong>budget</strong> – A budget multiplier value, used by search algorithms like <cite>SucessiveHalving</cite>
+to specify how much compute should be spent in this evaluation. In order to use
+this type of search algorithm, the implementation of <cite>send()</cite> must use the passed
+<cite>budget</cite> value accordingly.</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
-<section id="objectives">
-<h2>Objectives<a class="headerlink" href="#objectives" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="module-archai.discrete_search.api.search_space">
-<span id="search-spaces"></span><h2>Search Spaces<a class="headerlink" href="#module-archai.discrete_search.api.search_space" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.search_space.</span></span><span class="sig-name descname"><span class="pre">DiscreteSearchSpace</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace" title="Permalink to this definition">#</a></dt>
-<dd><p>Abstract base class for Discrete Search Spaces. Search spaces
-represent all considered architectures of a given task.</p>
-<p>Subclasses of this base class should implement <cite>random_sample</cite>,
-<cite>save_arch</cite>, <cite>load_arch</cite>, <cite>save_model_weights</cite> and <cite>load_model_weights</cite>.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace.random_sample">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random_sample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace.random_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace.random_sample" title="Permalink to this definition">#</a></dt>
-<dd><p>Randomly samples an architecture from the search spaces.</p>
+<dt class="sig sig-object py" id="archai.discrete_search.api.model_evaluator.AsyncModelEvaluator.fetch_all">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fetch_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/model_evaluator.html#AsyncModelEvaluator.fetch_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.model_evaluator.AsyncModelEvaluator.fetch_all" title="Permalink to this definition">#</a></dt>
+<dd><p>Fetch all evaluation results from the job queue.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Sampled architecture</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel">ArchaiModel</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace.save_arch">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_arch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace.save_arch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace.save_arch" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves an the architecture of <cite>model</cite> into a file without saving
-model weights.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Sampled model from the search space</p></li>
-<li><p><strong>path</strong> (<em>str</em>) – Filepath</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace.load_arch">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_arch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace.load_arch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace.load_arch" title="Permalink to this definition">#</a></dt>
-<dd><p>Loads an architecture saved using <cite>DiscreteSearchSpace.save_arch</cite> from a file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Architecture file path</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Loaded model</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel">ArchaiModel</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace.save_model_weights">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_model_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace.save_model_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace.save_model_weights" title="Permalink to this definition">#</a></dt>
-<dd><p>Saves weights of a model from the search space.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Model</p></li>
-<li><p><strong>path</strong> (<em>str</em>) – Model weights file path</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace.load_model_weights">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_model_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace.load_model_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace.load_model_weights" title="Permalink to this definition">#</a></dt>
-<dd><p>Loads a weight file (create using <cite>DiscreteSearchSpace.save_model_weights</cite>)
-into a model of the same architecture.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Target model</p></li>
-<li><p><strong>path</strong> (<em>str</em>) – Model weights file path.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.EvolutionarySearchSpace">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.search_space.</span></span><span class="sig-name descname"><span class="pre">EvolutionarySearchSpace</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#EvolutionarySearchSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.EvolutionarySearchSpace" title="Permalink to this definition">#</a></dt>
-<dd><p>Abstract base class for evolutionary algo-compatible discrete search spaces.
-Subclasses are expected to implement <cite>mutate</cite> and <cite>crossover</cite> methods.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.EvolutionarySearchSpace.mutate">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mutate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#EvolutionarySearchSpace.mutate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.EvolutionarySearchSpace.mutate" title="Permalink to this definition">#</a></dt>
-<dd><dl class="simple">
-<dt>Mutates an architecture from the search space. This method should not alter</dt><dd><p>the base model architecture directly, only generate a new one.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>arch</strong> (<a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Base model</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Mutated model</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel">ArchaiModel</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.EvolutionarySearchSpace.crossover">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#EvolutionarySearchSpace.crossover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.EvolutionarySearchSpace.crossover" title="Permalink to this definition">#</a></dt>
-<dd><p>Combines a list of architectures into a new one.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>arch_list</strong> (<em>List</em><em>[</em><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a><em>]</em>) – List of architectures</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Resulting model</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel">ArchaiModel</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.BayesOptSearchSpace">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.search_space.</span></span><span class="sig-name descname"><span class="pre">BayesOptSearchSpace</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#BayesOptSearchSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.BayesOptSearchSpace" title="Permalink to this definition">#</a></dt>
-<dd><p>Abstract base class for discrete search spaces compatible with Bayesian Optimization algorithms.
-Subclasses are expected to implement <cite>encode</cite>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.BayesOptSearchSpace.encode">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#BayesOptSearchSpace.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.BayesOptSearchSpace.encode" title="Permalink to this definition">#</a></dt>
-<dd><p>Encodes an architecture into a fixed-length vector representation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>arch</strong> (<a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><em>ArchaiModel</em></a>) – Model from the search space</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Fixed-length vector representation of <cite>arch</cite></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>np.ndarray</p>
+<dd class="field-odd"><p>List of evaluation results. Each result is a <cite>float</cite> or <cite>None</cite> if evaluation job failed.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1050,8 +1041,7 @@ Subclasses are expected to implement <cite>encode</cite>.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.discrete_search.api.predictor.MeanVar">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.predictor.</span></span><span class="sig-name descname"><span class="pre">MeanVar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/api/predictor.html#MeanVar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.predictor.MeanVar" title="Permalink to this definition">#</a></dt>
-<dd><p>Predictive mean and variance estimates from
-a surrogate model (<cite>Predictor</cite>).</p>
+<dd><p>Predictive mean and variance estimates from a surrogate model (<cite>Predictor</cite>).</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.discrete_search.api.predictor.MeanVar.mean">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mean</span></span><a class="headerlink" href="#archai.discrete_search.api.predictor.MeanVar.mean" title="Permalink to this definition">#</a></dt>
@@ -1069,16 +1059,24 @@ a surrogate model (<cite>Predictor</cite>).</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.discrete_search.api.predictor.Predictor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.predictor.</span></span><span class="sig-name descname"><span class="pre">Predictor</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/predictor.html#Predictor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.predictor.Predictor" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
+<dd><p>Abstract class for a predictor model.</p>
+<p>This class can be used to predict the performance of a model given its architecture.
+The class enforces implementation of two methods: <cite>fit</cite> and <cite>predict</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This class is inherited from <cite>EnforceOverrides</cite> and any overridden methods in the
+subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are properly overridden.</p>
+</div>
+<dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.api.predictor.Predictor.fit">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_archs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/predictor.html#Predictor.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.predictor.Predictor.fit" title="Permalink to this definition">#</a></dt>
-<dd><p>Fits a the predictor model using a an array of encoded architecture (N, #features)
-and a possibly multidimensional array of targets y (N, #targets).</p>
+<dd><p>Fit a predictor model using an array of encoded architectures (N, #features)
+and a multi-dimensional array of targets (N, #targets).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>encoded_archs</strong> (<em>np.ndarray</em>) – (N, #features) numpy array</p></li>
-<li><p><strong>y</strong> (<em>np.ndarray</em>) – (N, #targets) numpy array</p></li>
+<li><p><strong>encoded_archs</strong> – (N, #features) numpy array.</p></li>
+<li><p><strong>y</strong> – (N, #targets) numpy array.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1087,17 +1085,501 @@ and a possibly multidimensional array of targets y (N, #targets).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.api.predictor.Predictor.predict">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoded_archs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.predictor.MeanVar" title="archai.discrete_search.api.predictor.MeanVar"><span class="pre">archai.discrete_search.api.predictor.MeanVar</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/predictor.html#Predictor.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.predictor.Predictor.predict" title="Permalink to this definition">#</a></dt>
-<dd><p>Predicts the performance of an array of architec encoded by
-by a subclass implementation of <cite>BayesOptSearchSpaceBase.encode</cite></p>
+<dd><p>Predict the performance of an array of architectures encoded by
+by a subclass implementation of <cite>BayesOptSearchSpaceBase.encode()</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>encoded_archs</strong> (<em>np.ndarray</em>) – Array of encoded architectyres</p>
+<dd class="field-odd"><p><strong>encoded_archs</strong> – Array of encoded architectures.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Named tuple with <cite>mean</cite> (N, #targets) and <cite>var</cite> (N, #targets) arrays.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="#archai.discrete_search.api.predictor.MeanVar" title="archai.discrete_search.api.predictor.MeanVar">MeanVar</a></p>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-archai.discrete_search.api.search_objectives">
+<span id="search-objectives"></span><h2>Search Objectives<a class="headerlink" href="#module-archai.discrete_search.api.search_objectives" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.search_objectives.</span></span><span class="sig-name descname"><span class="pre">SearchObjectives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_objective_evaluation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_objectives.html#SearchObjectives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives" title="Permalink to this definition">#</a></dt>
+<dd><p>Search objectives and constraints.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.objs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">objs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.objs" title="Permalink to this definition">#</a></dt>
+<dd><p>Return a dictionary of all objectives.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.objs_and_constraints">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">objs_and_constraints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.objs_and_constraints" title="Permalink to this definition">#</a></dt>
+<dd><p>Return a dictionary of all objectives and constraints.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.add_objective">
+<span class="sig-name descname"><span class="pre">add_objective</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_evaluator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.discrete_search.api.model_evaluator.ModelEvaluator" title="archai.discrete_search.api.model_evaluator.ModelEvaluator"><span class="pre">archai.discrete_search.api.model_evaluator.ModelEvaluator</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#archai.discrete_search.api.model_evaluator.AsyncModelEvaluator" title="archai.discrete_search.api.model_evaluator.AsyncModelEvaluator"><span class="pre">archai.discrete_search.api.model_evaluator.AsyncModelEvaluator</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">higher_is_better</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute_intensive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_objectives.html#SearchObjectives.add_objective"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.add_objective" title="Permalink to this definition">#</a></dt>
+<dd><p>Add an objective function to the <cite>SearchObjectives</cite> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The name of the objective.</p></li>
+<li><p><strong>model_evaluator</strong> – The model evaluator responsible for evaluating the objective.</p></li>
+<li><p><strong>higher_is_better</strong> – Whether the objective should be maximized (<cite>True</cite>) or minimized (<cite>False</cite>).</p></li>
+<li><p><strong>compute_intensive</strong> – If <cite>True</cite>, the objective is considered computationally expensive
+and will be estimated using surrogate models when possible.</p></li>
+<li><p><strong>constraint</strong> – Objective constraint used to filter out candidate architectures.
+Expects <cite>(lower_bound, upper_bound)</cite> tuple. Can only be set if
+<cite>compute_intensive</cite> is set to <cite>False</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.add_constraint">
+<span class="sig-name descname"><span class="pre">add_constraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_evaluator</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.discrete_search.api.model_evaluator.ModelEvaluator" title="archai.discrete_search.api.model_evaluator.ModelEvaluator"><span class="pre">archai.discrete_search.api.model_evaluator.ModelEvaluator</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#archai.discrete_search.api.model_evaluator.AsyncModelEvaluator" title="archai.discrete_search.api.model_evaluator.AsyncModelEvaluator"><span class="pre">archai.discrete_search.api.model_evaluator.AsyncModelEvaluator</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_objectives.html#SearchObjectives.add_constraint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.add_constraint" title="Permalink to this definition">#</a></dt>
+<dd><p>Add a search constraint to the <cite>SearchObjectives</cite> object.</p>
+<p>Constraints are typically evaluated multiple times by search algorithms to validate
+candidate architectures and should not be computationally expensive to evaluate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – The name of the constraint.</p></li>
+<li><p><strong>model_evaluator</strong> – The model evaluator responsible for evaluating the constraint.</p></li>
+<li><p><strong>constraint</strong> – The valid range of the constraint. Expects a <cite>(lower_bound, upper_bound)</cite>
+tuple.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.validate_constraints">
+<span class="sig-name descname"><span class="pre">validate_constraints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_providers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_objectives.html#SearchObjectives.validate_constraints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.validate_constraints" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate constraints for a list of models and returns the indices of models that
+satisfy all constraints.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models</strong> – List of models to evaluate.</p></li>
+<li><p><strong>dataset_providers</strong> – Dataset provider or list of dataset providers.</p></li>
+<li><p><strong>progress_bar</strong> – Whether to show progress bar.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluation results and indices of models that satisfy all constraints.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.is_model_valid">
+<span class="sig-name descname"><span class="pre">is_model_valid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_objectives.html#SearchObjectives.is_model_valid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.is_model_valid" title="Permalink to this definition">#</a></dt>
+<dd><p>Check if a model satisfies all constraints.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – Model to check.</p></li>
+<li><p><strong>dataset_provider</strong> – Dataset provider.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>True</cite> if model is valid, <cite>False</cite> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.eval_cheap_objs">
+<span class="sig-name descname"><span class="pre">eval_cheap_objs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_providers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budgets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_objectives.html#SearchObjectives.eval_cheap_objs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.eval_cheap_objs" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate all cheap objectives for a list of models and dataset provider(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models</strong> – List of models to evaluate.</p></li>
+<li><p><strong>dataset_providers</strong> – Dataset provider or list of dataset providers.</p></li>
+<li><p><strong>budgets</strong> – Budgets for each objective.</p></li>
+<li><p><strong>progress_bar</strong> – Whether to show progress bar.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary with evaluation results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.eval_expensive_objs">
+<span class="sig-name descname"><span class="pre">eval_expensive_objs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_providers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budgets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_objectives.html#SearchObjectives.eval_expensive_objs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.eval_expensive_objs" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate all expensive objective functions for a list of models and
+dataset provider(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models</strong> – List of models to evaluate.</p></li>
+<li><p><strong>dataset_providers</strong> – Dataset provider or list of dataset providers.</p></li>
+<li><p><strong>budgets</strong> – Budgets for each objective.</p></li>
+<li><p><strong>progress_bar</strong> – Whether to show progress bar. Defaults to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary with evaluation results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.eval_all_objs">
+<span class="sig-name descname"><span class="pre">eval_all_objs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_providers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budgets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_objectives.html#SearchObjectives.eval_all_objs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.eval_all_objs" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate all objective functions for a list of models and dataset provider(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models</strong> – List of models to evaluate.</p></li>
+<li><p><strong>dataset_providers</strong> – Dataset provider or list of dataset providers.</p></li>
+<li><p><strong>budgets</strong> – Budgets for each objective.</p></li>
+<li><p><strong>progress_bar</strong> – Whether to show progress bar.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary with evaluation results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.save_cache">
+<span class="sig-name descname"><span class="pre">save_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_objectives.html#SearchObjectives.save_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.save_cache" title="Permalink to this definition">#</a></dt>
+<dd><p>Save the state of the <cite>SearchObjectives</cite> object to a YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> – Path to save YAML file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_objectives.SearchObjectives.load_cache">
+<span class="sig-name descname"><span class="pre">load_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_objectives.html#SearchObjectives.load_cache"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_objectives.SearchObjectives.load_cache" title="Permalink to this definition">#</a></dt>
+<dd><p>Load the state of the <cite>SearchObjectives</cite> object from a YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> – Path to YAML file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-archai.discrete_search.api.search_results">
+<span id="search-results"></span><h2>Search Results<a class="headerlink" href="#module-archai.discrete_search.api.search_results" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_results.SearchResults">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.search_results.</span></span><span class="sig-name descname"><span class="pre">SearchResults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace" title="archai.discrete_search.api.search_space.DiscreteSearchSpace"><span class="pre">archai.discrete_search.api.search_space.DiscreteSearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.search_objectives.SearchObjectives" title="archai.discrete_search.api.search_objectives.SearchObjectives"><span class="pre">archai.discrete_search.api.search_objectives.SearchObjectives</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_results.html#SearchResults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_results.SearchResults" title="Permalink to this definition">#</a></dt>
+<dd><p>Discrete search results.</p>
+<p>This class implements search results, which consists in producing data frames
+and plots with information regarding the search.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_results.SearchResults.all_evaluated_objs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">all_evaluated_objs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.array</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.discrete_search.api.search_results.SearchResults.all_evaluated_objs" title="Permalink to this definition">#</a></dt>
+<dd><p>Return all evaluated objectives.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_results.SearchResults.add_iteration_results">
+<span class="sig-name descname"><span class="pre">add_iteration_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_model_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_results.html#SearchResults.add_iteration_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_results.SearchResults.add_iteration_results" title="Permalink to this definition">#</a></dt>
+<dd><p>Store results of the current search iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models</strong> – Models evaluated in the search iteration.</p></li>
+<li><p><strong>evaluation_results</strong> – Evaluation results from <cite>SearchObjectives.eval_all_objs()</cite>.</p></li>
+<li><p><strong>extra_model_data</strong> – Additional model information to be stored in the search state
+file. Must be a list of the same size as <cite>models</cite> and csv-serializable.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_results.SearchResults.get_pareto_frontier">
+<span class="sig-name descname"><span class="pre">get_pareto_frontier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_results.html#SearchResults.get_pareto_frontier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_results.SearchResults.get_pareto_frontier" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the pareto-frontier using the search results from iterations <cite>start_iteration</cite>
+to <cite>end_iteration</cite>. If <cite>end_iteration=None</cite>, uses the last iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_iteration</strong> – Start search iteration.</p></li>
+<li><p><strong>end_iteration</strong> – End search iteration. If <cite>None</cite>, uses the last iteration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>Dictionary containing ‘models’, ‘evaluation_results’, ‘indices’ and</dt><dd><p>’iteration_nums’ for all pareto-frontier members.</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_results.SearchResults.get_search_state_df">
+<span class="sig-name descname"><span class="pre">get_search_state_df</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.core.frame.DataFrame</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_results.html#SearchResults.get_search_state_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_results.SearchResults.get_search_state_df" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the search state data frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Search state data frame.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_results.SearchResults.save_search_state">
+<span class="sig-name descname"><span class="pre">save_search_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_results.html#SearchResults.save_search_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_results.SearchResults.save_search_state" title="Permalink to this definition">#</a></dt>
+<dd><p>Save the search state to a .csv file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> – File path to save the search state.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_results.SearchResults.save_pareto_frontier_models">
+<span class="sig-name descname"><span class="pre">save_pareto_frontier_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_results.html#SearchResults.save_pareto_frontier_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_results.SearchResults.save_pareto_frontier_models" title="Permalink to this definition">#</a></dt>
+<dd><p>Save the pareto-frontier models to a directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>directory</strong> – Directory to save the models.</p></li>
+<li><p><strong>save_weights</strong> – If <cite>True</cite>, saves the model weights. Otherwise, only saves the architecture.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_results.SearchResults.plot_2d_pareto_evolution">
+<span class="sig-name descname"><span class="pre">plot_2d_pareto_evolution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objective_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">5)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">matplotlib.figure.Figure</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_results.html#SearchResults.plot_2d_pareto_evolution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_results.SearchResults.plot_2d_pareto_evolution" title="Permalink to this definition">#</a></dt>
+<dd><p>Plot the evolution of the pareto-frontier in 2D.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>objective_names</strong> – Names of the objectives to plot.</p></li>
+<li><p><strong>figsize</strong> – Figure size.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>2D pareto-frontier evolution figure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_results.SearchResults.save_2d_pareto_evolution_plot">
+<span class="sig-name descname"><span class="pre">save_2d_pareto_evolution_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objective_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_results.html#SearchResults.save_2d_pareto_evolution_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_results.SearchResults.save_2d_pareto_evolution_plot" title="Permalink to this definition">#</a></dt>
+<dd><p>Save the evolution of the pareto-frontier in 2D.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>objective_names</strong> – Names of the objectives to plot.</p></li>
+<li><p><strong>file_path</strong> – Path to save the plot.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_results.SearchResults.save_all_2d_pareto_evolution_plots">
+<span class="sig-name descname"><span class="pre">save_all_2d_pareto_evolution_plots</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pathlib.Path</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_results.html#SearchResults.save_all_2d_pareto_evolution_plots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_results.SearchResults.save_all_2d_pareto_evolution_plots" title="Permalink to this definition">#</a></dt>
+<dd><p>Save all the 2D pareto-frontier evolution plots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>directory</strong> – Directory to save the plots.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-archai.discrete_search.api.search_space">
+<span id="search-space"></span><h2>Search Space<a class="headerlink" href="#module-archai.discrete_search.api.search_space" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.search_space.</span></span><span class="sig-name descname"><span class="pre">DiscreteSearchSpace</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace" title="Permalink to this definition">#</a></dt>
+<dd><p>Abstract class for discrete search spaces.</p>
+<p>This class serves as a base for implementing search spaces. The class enforces
+implementation of five methods: <cite>save_arch</cite>, <cite>load_arch</cite>, <cite>save_model_weights</cite>,
+<cite>load_model_weights</cite> and <cite>random_sample</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This class is inherited from <cite>EnforceOverrides</cite> and any overridden methods in the
+subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are properly overridden.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyDiscreteSearchSpace</span><span class="p">(</span><span class="n">DiscreteSearchSpace</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">save_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">arch</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">load_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArchaiModel</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">save_model_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">file_path</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">load_model_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">random_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArchaiModel</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">ArchaiModel</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace.save_arch">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_arch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace.save_arch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace.save_arch" title="Permalink to this definition">#</a></dt>
+<dd><p>Save an architecture to a file without saving the weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – Model’s architecture to save.</p></li>
+<li><p><strong>file_path</strong> – File path to save the architecture.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace.load_arch">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_arch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace.load_arch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace.load_arch" title="Permalink to this definition">#</a></dt>
+<dd><p>Load from a file an architecture that was saved using <cite>SearchSpace.save_arch()</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> – File path to load the architecture.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Loaded model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace.save_model_weights">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_model_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace.save_model_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace.save_model_weights" title="Permalink to this definition">#</a></dt>
+<dd><p>Save the weights of a model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – Model to save the weights.</p></li>
+<li><p><strong>file_path</strong> – File path to save the weights.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace.load_model_weights">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_model_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace.load_model_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace.load_model_weights" title="Permalink to this definition">#</a></dt>
+<dd><p>Load the weights (created with <cite>SearchSpace.save_model_weights()</cite>) into a model
+of the same architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – Model to load the weights.</p></li>
+<li><p><strong>file_path</strong> – File path to load the weights.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.DiscreteSearchSpace.random_sample">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random_sample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#DiscreteSearchSpace.random_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.DiscreteSearchSpace.random_sample" title="Permalink to this definition">#</a></dt>
+<dd><p>Randomly sample an architecture from the search spaces.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Sampled architecture.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.EvolutionarySearchSpace">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.search_space.</span></span><span class="sig-name descname"><span class="pre">EvolutionarySearchSpace</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#EvolutionarySearchSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.EvolutionarySearchSpace" title="Permalink to this definition">#</a></dt>
+<dd><p>Abstract class for discrete search spaces compatible with evolutionary algorithms.</p>
+<p>The class enforces implementation of two methods: <cite>mutate</cite> and <cite>crossover</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This class is inherited from <cite>EnforceOverrides</cite> and any overridden methods in the
+subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are properly overridden.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.EvolutionarySearchSpace.mutate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mutate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#EvolutionarySearchSpace.mutate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.EvolutionarySearchSpace.mutate" title="Permalink to this definition">#</a></dt>
+<dd><p>Mutate an architecture from the search space.</p>
+<p>This method should not alter the base model architecture directly,
+only generate a new one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arch</strong> – Base model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Mutated model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.EvolutionarySearchSpace.crossover">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#EvolutionarySearchSpace.crossover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.EvolutionarySearchSpace.crossover" title="Permalink to this definition">#</a></dt>
+<dd><p>Combine a list of architectures into a new one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arch_list</strong> – List of architectures.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Resulting model.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.BayesOptSearchSpace">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.search_space.</span></span><span class="sig-name descname"><span class="pre">BayesOptSearchSpace</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#BayesOptSearchSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.BayesOptSearchSpace" title="Permalink to this definition">#</a></dt>
+<dd><p>Abstract class for discrete search spaces compatible with Bayesian Optimization algorithms.</p>
+<p>The class enforces implementation of a single method: <cite>encode</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This class is inherited from <cite>EnforceOverrides</cite> and any overridden methods in the
+subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are properly overridden.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.search_space.BayesOptSearchSpace.encode">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/search_space.html#BayesOptSearchSpace.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.search_space.BayesOptSearchSpace.encode" title="Permalink to this definition">#</a></dt>
+<dd><p>Encode an architecture into a fixed-length vector representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arch</strong> – Model from the search space.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Fixed-length vector representation of <cite>arch</cite>.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1110,10 +1592,36 @@ by a subclass implementation of <cite>BayesOptSearchSpaceBase.encode</cite></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.discrete_search.api.searcher.Searcher">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.api.searcher.</span></span><span class="sig-name descname"><span class="pre">Searcher</span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/searcher.html#Searcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.searcher.Searcher" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
+<dd><p>Abstract class for searchers.</p>
+<p>This class serves as a base for implementing searchers, which searches for an
+architecture given an algorithm. The class enforces implementation of a single
+method: <cite>search</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This class is inherited from <cite>EnforceOverrides</cite> and any overridden methods in the
+subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are properly overridden.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MySearcher</span><span class="p">(</span><span class="n">Searcher</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchResults</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="c1"># Code used to search for the best architecture</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">SearchResults</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.api.searcher.Searcher.search">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">archai.discrete_search.api.search_results.SearchResults</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/searcher.html#Searcher.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.searcher.Searcher.search" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.discrete_search.api.search_results.SearchResults" title="archai.discrete_search.api.search_results.SearchResults"><span class="pre">archai.discrete_search.api.search_results.SearchResults</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/api/searcher.html#Searcher.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.searcher.Searcher.search" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for the best architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Search results.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -1132,13 +1640,13 @@ by a subclass implementation of <cite>BayesOptSearchSpaceBase.encode</cite></p>
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Search algorithms</p>
+            <p class="prev-next-title">Search Algorithms</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="archai.discrete_search.datasets.html" title="next page">
+    <a class='right-next' id="next-link" href="archai.discrete_search.evaluators.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Datasets</p>
+        <p class="prev-next-title">Evaluators</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
@@ -1152,7 +1660,7 @@ by a subclass implementation of <cite>BayesOptSearchSpaceBase.encode</cite></p>
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 13, 2023.<br/>
+    Last updated on Jan 31, 2023.<br/>
 </p>
         </footer>
     </div>

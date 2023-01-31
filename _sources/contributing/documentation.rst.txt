@@ -7,7 +7,7 @@ The Archai project welcomes contributions through the implementation of document
 
 #. Check out the Archai codebase and create a new branch for your changes. This will allow for easy submission of your code as a pull request upon completion.
 
-#. Create an ``.rst`` file in the :github:`docs`. For example, if writing an API documentation for the :github:`archai/nlp/trainers/hf/training_args.py` file, the corresponding path would be :github:`docs/reference/api/archai.nlp.trainers.hf.rst`.
+#. Create an ``.rst`` file in the :github:`docs`. For example, if writing an API documentation for the :github:`archai/trainers/nlp/hf_training_args.py` file, the corresponding path would be :github:`docs/reference/api/archai.trainers.nlp.rst`.
 
 #. Check the pre-defined format and include the corresponding section:
 
@@ -16,7 +16,7 @@ The Archai project welcomes contributions through the implementation of document
         Training Arguments
         ------------------
 
-        .. automodule:: archai.nlp.trainers.hf.training_args
+        .. automodule:: archai.trainers.nlp.hf_training_args
         :members:
         :undoc-members:
 

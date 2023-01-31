@@ -7,7 +7,7 @@ The Archai project welcomes contributions through the implementation of unitary 
 
 #. Check out the Archai codebase and create a new branch for your changes. This will allow for easy submission of your code as a pull request upon completion.
 
-#. Create a ``.py`` test file in the :github:`tests` directory. For example, if writing a unitary test for the :github:`archai/nlp/trainers/hf/training_args.py` file, the corresponding path would be :github:`tests/nlp/trainers/hf/test_hf_training_args.py`.
+#. Create a ``.py`` test file in the :github:`tests` directory. For example, if writing a unitary test for the :github:`archai/trainers/nlp/hf_training_args.py` file, the corresponding path would be :github:`tests/trainers/nlp/test_hf_training_args.py`.
 
 #. Write test functions inside the created file. These functions should be named using the pattern: ``test_<name of function being tested>``.
 
@@ -15,7 +15,7 @@ The Archai project welcomes contributions through the implementation of unitary 
 
     .. code-block:: python
 
-        from archai.nlp.trainers.hf.training_args import DistillerTrainingArguments
+        from archai.trainers.nlp.hf_training_args import DistillerTrainingArguments
 
         def test_distiller_training_arguments():
             args = DistillerTrainingArguments("tmp")
@@ -28,6 +28,6 @@ The Archai project welcomes contributions through the implementation of unitary 
 
 #. Run your tests using the ``pytest`` command. This will automatically discover and execute all test functions in the tests directory.
 
-#. To run a specific test file, use the ``pytest`` command followed by the path to the desired file. For example: ``pytest tests/eval/profiler/test_profiler_utils.py``.
+#. To run a specific test file, use the ``pytest`` command followed by the path to the desired file. For example: ``pytest tests/trainers/nlp/test_hf_training_args.py``.
 
 After writing and running your tests, you may submit your code as a pull request to the main project repository. Please include a description of the changes made and any relevant issue references.

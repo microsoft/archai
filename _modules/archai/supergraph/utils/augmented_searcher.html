@@ -1,0 +1,1227 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>archai.supergraph.utils.augmented_searcher &#8212; Archai</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/tabs.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../_static/logo.png" class="logo" alt="logo">
+      
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Getting Started
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../getting_started/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../getting_started/package_structure.html">
+   Package Structure
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../getting_started/quick_start.html">
+   Quick Start
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../getting_started/notebooks.html">
+   Notebooks
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../getting_started/notebooks/discrete_search.html">
+     Discrete Search
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/search_space.html">
+       Search Spaces
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/evaluators.html">
+       Evaluators
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/algos.html">
+       Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/config_search.html">
+       Configuration-based Search
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../getting_started/notebooks/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../getting_started/notebooks/cv.html">
+     Computer Vision
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../getting_started/notebooks/nlp.html">
+     Natural Language Processing
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Advanced Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../advanced_guide/nas.html">
+   Neural Architecture Search
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+  <label for="toctree-checkbox-3">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nas/discrete_search.html">
+     Discrete Search
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nas/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../advanced_guide/cv.html">
+   Computer Vision
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+  <label for="toctree-checkbox-4">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/cv/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/cv/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/cv/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/cv/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../advanced_guide/nlp.html">
+   Natural Language Processing
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nlp/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nlp/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nlp/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/nlp/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../advanced_guide/cloud.html">
+   Cloud-Based Search
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+  <label for="toctree-checkbox-6">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../advanced_guide/cloud/azure.html">
+     Azure
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contributing
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../contributing/first_contribution.html">
+   First Time Contributor
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../contributing/documentation.html">
+   Documentation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../contributing/unitary_tests.html">
+   Unitary Tests
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Support
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../support/faq.html">
+   Frequently Asked Questions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../support/contact.html">
+   Contact
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../support/copyright.html">
+   Copyright
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../reference/api.html">
+   API
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+  <label for="toctree-checkbox-7">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../reference/api/archai.api.html">
+     API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../reference/api/archai.common.html">
+     Common Packages
+    </a>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.datasets.html">
+     Datasets
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+    <label for="toctree-checkbox-8">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.datasets.cv.html">
+       Computer Vision
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.datasets.cv.transforms.html">
+         Transforms
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.datasets.nlp.html">
+       Natural Language Processing
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.datasets.nlp.tokenizer_utils.html">
+         Tokenization Utilities
+        </a>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.discrete_search.html">
+     Discrete Search
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+    <label for="toctree-checkbox-11">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.algos.html">
+       Search Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.api.html">
+       API
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.html">
+       Evaluators
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+      <label for="toctree-checkbox-12">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">
+         PyTorch Profiler (Utilities)
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.predictors.html">
+       Predictors
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.html">
+       Search Spaces
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+      <label for="toctree-checkbox-13">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.config.html">
+         Configuration-Based
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">
+         NATS-Bench
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">
+         Segmentation DAG
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.discrete_search.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.onnx.html">
+     ONNX
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+    <label for="toctree-checkbox-14">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.onnx.config_utils.html">
+       Configuration Utilities
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.onnx.optimization_utils.html">
+       Optimization Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.quantization.html">
+     Quantization
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+    <label for="toctree-checkbox-15">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.quantization.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.supergraph.html">
+     Supergraph
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+    <label for="toctree-checkbox-16">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.html">
+       Algorithms
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
+      <label for="toctree-checkbox-17">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.darts.html">
+         DARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.didarts.html">
+         DiDARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.divnas.html">
+         DivNAS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.gumbelsoftmax.html">
+         Gumbel-Softmax
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.manual.html">
+         Manual
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.nasbench101.html">
+         NasBench-101
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.petridish.html">
+         Petridish
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.random.html">
+         Random
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.xnas.html">
+         XNAS
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.supergraph.datasets.html">
+       Datasets
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
+      <label for="toctree-checkbox-18">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.datasets.providers.html">
+         Providers
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../reference/api/archai.supergraph.models.html">
+       Models
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+      <label for="toctree-checkbox-19">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../reference/api/archai.supergraph.models.shakeshake.html">
+         ShakeShake
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.supergraph.nas.html">
+       Neural Architecture Search
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.supergraph.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../reference/api/archai.trainers.html">
+     Trainers
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+    <label for="toctree-checkbox-20">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.trainers.cv.html">
+       Computer Vision
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../reference/api/archai.trainers.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../reference/roadmap.html">
+   Roadmap
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../reference/changelog.html">
+   Changelog
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/microsoft/archai"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/supergraph/utils/augmented_searcher.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for archai.supergraph.utils.augmented_searcher</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">gorilla</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">ray</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">hyperopt</span> <span class="kn">import</span> <span class="n">hp</span>
+<span class="kn">from</span> <span class="nn">ray.tune</span> <span class="kn">import</span> <span class="n">register_trainable</span><span class="p">,</span> <span class="n">run_experiments</span>
+<span class="kn">from</span> <span class="nn">ray.tune.suggest</span> <span class="kn">import</span> <span class="n">HyperOptSearch</span>
+<span class="kn">from</span> <span class="nn">ray.tune.trial</span> <span class="kn">import</span> <span class="n">Trial</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">archai.common.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">archai.common.ordered_dict_logger</span> <span class="kn">import</span> <span class="n">get_global_logger</span>
+<span class="kn">from</span> <span class="nn">archai.supergraph.datasets.augmentation</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">augment_list</span><span class="p">,</span>
+    <span class="n">policy_decoder</span><span class="p">,</span>
+    <span class="n">remove_deplicates</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">archai.supergraph.datasets.data</span> <span class="kn">import</span> <span class="n">get_dataloaders</span>
+<span class="kn">from</span> <span class="nn">archai.supergraph.models</span> <span class="kn">import</span> <span class="n">get_model</span><span class="p">,</span> <span class="n">num_class</span>
+<span class="kn">from</span> <span class="nn">archai.supergraph.utils.augmented_trainer</span> <span class="kn">import</span> <span class="n">train_and_eval</span>
+<span class="kn">from</span> <span class="nn">archai.supergraph.utils.common</span> <span class="kn">import</span> <span class="n">expdir_abspath</span>
+<span class="kn">from</span> <span class="nn">archai.supergraph.utils.metrics</span> <span class="kn">import</span> <span class="n">Accumulator</span>
+<span class="kn">from</span> <span class="nn">archai.supergraph.utils.stopwatch</span> <span class="kn">import</span> <span class="n">StopWatch</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_global_logger</span><span class="p">()</span>
+
+
+<span class="c1"># this method is overriden version of ray.tune.trial_runner.TrialRunner.step using monkey patching</span>
+<span class="k">def</span> <span class="nf">_step_w_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">original</span> <span class="o">=</span> <span class="n">gorilla</span><span class="o">.</span><span class="n">get_original_attribute</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">tune</span><span class="o">.</span><span class="n">trial_runner</span><span class="o">.</span><span class="n">TrialRunner</span><span class="p">,</span> <span class="s2">&quot;step&quot;</span><span class="p">)</span>
+
+    <span class="c1"># collect counts by status for all trials</span>
+    <span class="n">cnts</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Trial</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span> <span class="n">Trial</span><span class="o">.</span><span class="n">TERMINATED</span><span class="p">,</span> <span class="n">Trial</span><span class="o">.</span><span class="n">PENDING</span><span class="p">,</span> <span class="n">Trial</span><span class="o">.</span><span class="n">PAUSED</span><span class="p">,</span> <span class="n">Trial</span><span class="o">.</span><span class="n">ERROR</span><span class="p">]:</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">status</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trials</span><span class="p">)))</span>
+        <span class="n">cnts</span><span class="p">[</span><span class="n">status</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnt</span>
+
+    <span class="c1"># get the best top1 accuracy from all finished trials so far</span>
+    <span class="n">best_top1_acc</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">Trial</span><span class="o">.</span><span class="n">TERMINATED</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trials</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">trial</span><span class="o">.</span><span class="n">last_result</span><span class="p">:</span>  <span class="c1"># TODO: why would this happen?</span>
+            <span class="k">continue</span>
+        <span class="n">best_top1_acc</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">best_top1_acc</span><span class="p">,</span> <span class="n">trial</span><span class="o">.</span><span class="n">last_result</span><span class="p">[</span><span class="s2">&quot;top1_valid&quot;</span><span class="p">])</span>
+
+    <span class="c1"># display best accuracy from all finished trial</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;iter&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iteration</span><span class="p">,</span> <span class="s2">&quot;top1_acc=</span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">best_top1_acc</span><span class="p">,</span> <span class="n">cnts</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># call original step method</span>
+    <span class="k">return</span> <span class="n">original</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+
+<span class="c1"># override ray.tune.trial_runner.TrialRunner.step method so we can print best accuracy at each step</span>
+<span class="n">patch</span> <span class="o">=</span> <span class="n">gorilla</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">tune</span><span class="o">.</span><span class="n">trial_runner</span><span class="o">.</span><span class="n">TrialRunner</span><span class="p">,</span> <span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="n">_step_w_log</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">gorilla</span><span class="o">.</span><span class="n">Settings</span><span class="p">(</span><span class="n">allow_hit</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="n">gorilla</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
+
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">(),</span> <span class="n">max_calls</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_train_model</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">dataroot</span><span class="p">,</span> <span class="n">augment</span><span class="p">,</span> <span class="n">val_ratio</span><span class="p">,</span> <span class="n">val_fold</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">only_eval</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">Config</span><span class="o">.</span><span class="n">set_inst</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;loader&quot;</span><span class="p">][</span><span class="s2">&quot;aug&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">augment</span>
+    <span class="n">model_type</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;model&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">train_and_eval</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">val_ratio</span><span class="o">=</span><span class="n">val_ratio</span><span class="p">,</span> <span class="n">val_fold</span><span class="o">=</span><span class="n">val_fold</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="n">save_path</span><span class="p">,</span> <span class="n">only_eval</span><span class="o">=</span><span class="n">only_eval</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model_type</span><span class="p">,</span> <span class="n">val_fold</span><span class="p">,</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">_get_model_filepath</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">.model&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">expdir_abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_train_no_aug</span><span class="p">(</span><span class="n">conf</span><span class="p">):</span>
+    <span class="n">sw</span> <span class="o">=</span> <span class="n">StopWatch</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+    <span class="c1"># region conf vars</span>
+    <span class="n">conf_dataset</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+    <span class="n">dataroot</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;dataroot&quot;</span><span class="p">]</span>
+    <span class="n">conf_loader</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;loader&quot;</span><span class="p">]</span>
+    <span class="n">conf_model</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>
+    <span class="n">model_type</span> <span class="o">=</span> <span class="n">conf_model</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+    <span class="n">ds_name</span> <span class="o">=</span> <span class="n">conf_dataset</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+    <span class="n">aug</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;aug&quot;</span><span class="p">]</span>
+    <span class="n">val_ratio</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;val_ratio&quot;</span><span class="p">]</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;epochs&quot;</span><span class="p">]</span>
+    <span class="n">cv_num</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;cv_num&quot;</span><span class="p">]</span>
+    <span class="c1"># endregion</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;----- Train without Augmentations cv=</span><span class="si">%d</span><span class="s2"> ratio(test)=</span><span class="si">%.1f</span><span class="s2"> -----&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cv_num</span><span class="p">,</span> <span class="n">val_ratio</span><span class="p">))</span>
+    <span class="n">sw</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="s2">&quot;train_no_aug&quot;</span><span class="p">)</span>
+
+    <span class="c1"># for each fold, we will save model</span>
+    <span class="n">save_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_model_filepath</span><span class="p">(</span><span class="n">ds_name</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span> <span class="s2">&quot;ratio</span><span class="si">%.1f</span><span class="s2">_fold</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val_ratio</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cv_num</span><span class="p">)]</span>
+
+    <span class="c1"># Train model for each fold, save model in specified path, put result</span>
+    <span class="c1"># in reqs list. These models are trained with aug specified in config.</span>
+    <span class="c1"># TODO: configuration will be changed (&#39;aug&#39; key),</span>
+    <span class="c1">#   but do we really need deepcopy everywhere?</span>
+    <span class="n">reqs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># TODO: eliminate need for deep copy as only aug key is changed</span>
+        <span class="n">_train_model</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span>
+            <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">conf</span><span class="p">)),</span> <span class="n">dataroot</span><span class="p">,</span> <span class="n">aug</span><span class="p">,</span> <span class="n">val_ratio</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="n">save_paths</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">only_eval</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cv_num</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="c1"># we now probe saved models for each fold to check the epoch number</span>
+    <span class="c1"># they are on. When every fold crosses an epoch number, we update</span>
+    <span class="c1"># the progress.</span>
+    <span class="n">tqdm_epoch</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">))</span>
+    <span class="n">is_done</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">tqdm_epoch</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">epochs_per_cv</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">cv_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cv_num</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">save_paths</span><span class="p">[</span><span class="n">cv_idx</span><span class="p">]):</span>
+                        <span class="n">latest_ckpt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">save_paths</span><span class="p">[</span><span class="n">cv_idx</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="s2">&quot;epoch&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">latest_ckpt</span><span class="p">:</span>
+                            <span class="n">epochs_per_cv</span><span class="p">[</span><span class="s2">&quot;cv</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cv_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">epochs</span>
+                            <span class="k">continue</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">epochs_per_cv</span><span class="p">[</span><span class="s2">&quot;cv</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cv_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">latest_ckpt</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">continue</span>
+            <span class="n">tqdm_epoch</span><span class="o">.</span><span class="n">set_postfix</span><span class="p">(</span><span class="n">epochs_per_cv</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">epochs_per_cv</span><span class="p">)</span> <span class="o">==</span> <span class="n">cv_num</span> <span class="ow">and</span> <span class="nb">min</span><span class="p">(</span><span class="n">epochs_per_cv</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">epochs</span><span class="p">:</span>
+                <span class="n">is_done</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">epochs_per_cv</span><span class="p">)</span> <span class="o">==</span> <span class="n">cv_num</span> <span class="ow">and</span> <span class="nb">min</span><span class="p">(</span><span class="n">epochs_per_cv</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">epoch</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_done</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;getting results...&quot;</span><span class="p">)</span>
+    <span class="n">pretrain_results</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">reqs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">r_model</span><span class="p">,</span> <span class="n">r_cv</span><span class="p">,</span> <span class="n">r_dict</span> <span class="ow">in</span> <span class="n">pretrain_results</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;model=</span><span class="si">%s</span><span class="s2"> cv=</span><span class="si">%d</span><span class="s2"> top1_train=</span><span class="si">%.4f</span><span class="s2"> top1_valid=</span><span class="si">%.4f</span><span class="s2">&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="n">r_model</span><span class="p">,</span> <span class="n">r_cv</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">r_dict</span><span class="p">[</span><span class="s2">&quot;top1_train&quot;</span><span class="p">],</span> <span class="n">r_dict</span><span class="p">[</span><span class="s2">&quot;top1_valid&quot;</span><span class="p">])</span>
+        <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;processed in </span><span class="si">%.4f</span><span class="s2"> secs&quot;</span> <span class="o">%</span> <span class="n">sw</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="s2">&quot;train_no_aug&quot;</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="search"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.augmented_searcher.search">[docs]</a><span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="n">conf</span><span class="p">):</span>
+    <span class="n">sw</span> <span class="o">=</span> <span class="n">StopWatch</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+    <span class="c1"># region conf vars</span>
+    <span class="n">conf_dataset</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+    <span class="n">dataroot</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;dataroot&quot;</span><span class="p">]</span>
+    <span class="n">redis_ip</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;redis&quot;</span><span class="p">]</span>
+    <span class="n">conf_loader</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;loader&quot;</span><span class="p">]</span>
+    <span class="n">conf_model</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>
+    <span class="n">model_type</span> <span class="o">=</span> <span class="n">conf_model</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+    <span class="n">ds_name</span> <span class="o">=</span> <span class="n">conf_dataset</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+    <span class="n">aug</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;aug&quot;</span><span class="p">]</span>
+    <span class="n">val_ratio</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;val_ratio&quot;</span><span class="p">]</span>
+    <span class="n">epochs</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;epochs&quot;</span><span class="p">]</span>
+    <span class="n">val_fold</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;val_fold&quot;</span><span class="p">]</span>
+    <span class="n">cv_num</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;cv_num&quot;</span><span class="p">]</span>
+    <span class="n">num_policy</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;num_policy&quot;</span><span class="p">]</span>
+    <span class="n">num_op</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;num_op&quot;</span><span class="p">]</span>
+    <span class="n">num_search</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;num_search&quot;</span><span class="p">]</span>
+    <span class="n">num_result_per_cv</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;num_result_per_cv&quot;</span><span class="p">]</span>
+    <span class="n">smoke_test</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;smoke_test&quot;</span><span class="p">]</span>
+    <span class="n">resume</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;resume&quot;</span><span class="p">]</span>
+    <span class="c1"># endregion</span>
+
+    <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span>
+        <span class="n">redis_address</span><span class="o">=</span><span class="n">redis_ip</span><span class="p">,</span>
+        <span class="c1"># allocate all GPUs on local node if cluster is not specified</span>
+        <span class="n">num_gpus</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">redis_ip</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># first train with no aug</span>
+    <span class="n">_train_no_aug</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
+    <span class="c1"># get values from config</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">4</span> <span class="k">if</span> <span class="n">smoke_test</span> <span class="k">else</span> <span class="n">num_search</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;----- Search Test-Time Augmentation Policies -----&quot;</span><span class="p">)</span>
+    <span class="n">sw</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="s2">&quot;search&quot;</span><span class="p">)</span>
+
+    <span class="n">save_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_model_filepath</span><span class="p">(</span><span class="n">ds_name</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span> <span class="s2">&quot;ratio</span><span class="si">%.1f</span><span class="s2">_fold</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val_ratio</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cv_num</span><span class="p">)]</span>
+
+    <span class="n">copied_c</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">ops</span> <span class="o">=</span> <span class="n">augment_list</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">space</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_policy</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_op</span><span class="p">):</span>
+            <span class="n">space</span><span class="p">[</span><span class="s2">&quot;policy_</span><span class="si">%d</span><span class="s2">_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">hp</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="s2">&quot;policy_</span><span class="si">%d</span><span class="s2">_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">))))</span>
+            <span class="n">space</span><span class="p">[</span><span class="s2">&quot;prob_</span><span class="si">%d</span><span class="s2">_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">hp</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="s2">&quot;prob_</span><span class="si">%d</span><span class="s2">_ </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">space</span><span class="p">[</span><span class="s2">&quot;level_</span><span class="si">%d</span><span class="s2">_</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">hp</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="s2">&quot;level_</span><span class="si">%d</span><span class="s2">_ </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="n">final_policy_set</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">total_computation</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">reward_attr</span> <span class="o">=</span> <span class="s2">&quot;top1_valid&quot;</span>  <span class="c1"># top1_valid or minus_loss</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>  <span class="c1"># run multiple times.</span>
+        <span class="k">for</span> <span class="n">val_fold</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cv_num</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;search_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_fold</span><span class="si">%d</span><span class="s2">_ratio</span><span class="si">%.1f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ds_name</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span> <span class="n">val_fold</span><span class="p">,</span> <span class="n">val_ratio</span><span class="p">)</span>
+            <span class="c1"># logger.info(name)</span>
+            <span class="n">register_trainable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">augs</span><span class="p">,</span> <span class="n">rpt</span><span class="p">:</span> <span class="n">_eval_tta</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">copied_c</span><span class="p">),</span> <span class="n">augs</span><span class="p">,</span> <span class="n">rpt</span><span class="p">)))</span>
+            <span class="n">algo</span> <span class="o">=</span> <span class="n">HyperOptSearch</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="n">max_concurrent</span><span class="o">=</span><span class="mi">4</span> <span class="o">*</span> <span class="mi">20</span><span class="p">,</span> <span class="n">reward_attr</span><span class="o">=</span><span class="n">reward_attr</span><span class="p">)</span>
+
+            <span class="n">exp_config</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;run&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                    <span class="s2">&quot;num_samples&quot;</span><span class="p">:</span> <span class="n">num_samples</span><span class="p">,</span>
+                    <span class="s2">&quot;resources_per_trial&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;gpu&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+                    <span class="s2">&quot;stop&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;training_iteration&quot;</span><span class="p">:</span> <span class="n">num_policy</span><span class="p">},</span>
+                    <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;dataroot&quot;</span><span class="p">:</span> <span class="n">dataroot</span><span class="p">,</span>
+                        <span class="s2">&quot;save_path&quot;</span><span class="p">:</span> <span class="n">save_paths</span><span class="p">[</span><span class="n">val_fold</span><span class="p">],</span>
+                        <span class="s2">&quot;val_ratio&quot;</span><span class="p">:</span> <span class="n">val_ratio</span><span class="p">,</span>
+                        <span class="s2">&quot;val_fold&quot;</span><span class="p">:</span> <span class="n">val_fold</span><span class="p">,</span>
+                        <span class="s2">&quot;num_op&quot;</span><span class="p">:</span> <span class="n">num_op</span><span class="p">,</span>
+                        <span class="s2">&quot;num_policy&quot;</span><span class="p">:</span> <span class="n">num_policy</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">run_experiments</span><span class="p">(</span>
+                <span class="n">exp_config</span><span class="p">,</span>
+                <span class="n">search_alg</span><span class="o">=</span><span class="n">algo</span><span class="p">,</span>
+                <span class="n">scheduler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">queue_trials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">resume</span><span class="o">=</span><span class="n">resume</span><span class="p">,</span>
+                <span class="n">raise_on_failed_trial</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">last_result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">last_result</span><span class="p">[</span><span class="n">reward_attr</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># calculate computation usage</span>
+            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+                <span class="n">total_computation</span> <span class="o">+=</span> <span class="n">result</span><span class="o">.</span><span class="n">last_result</span><span class="p">[</span><span class="s2">&quot;elapsed_time&quot;</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[:</span><span class="n">num_result_per_cv</span><span class="p">]:</span>
+                <span class="n">final_policy</span> <span class="o">=</span> <span class="n">policy_decoder</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">num_policy</span><span class="p">,</span> <span class="n">num_op</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;loss=</span><span class="si">%.12f</span><span class="s2"> top1_valid=</span><span class="si">%.4f</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">last_result</span><span class="p">[</span><span class="s2">&quot;minus_loss&quot;</span><span class="p">],</span> <span class="n">result</span><span class="o">.</span><span class="n">last_result</span><span class="p">[</span><span class="s2">&quot;top1_valid&quot;</span><span class="p">],</span> <span class="n">final_policy</span><span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="n">final_policy</span> <span class="o">=</span> <span class="n">remove_deplicates</span><span class="p">(</span><span class="n">final_policy</span><span class="p">)</span>
+                <span class="n">final_policy_set</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">final_policy</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">final_policy_set</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;final_policy=</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">final_policy_set</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;processed in </span><span class="si">%.4f</span><span class="s2"> secs, gpu hours=</span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sw</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="s2">&quot;search&quot;</span><span class="p">),</span> <span class="n">total_computation</span> <span class="o">/</span> <span class="mf">3600.0</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;----- Train with Augmentations model=</span><span class="si">%s</span><span class="s2"> dataset=</span><span class="si">%s</span><span class="s2"> aug=</span><span class="si">%s</span><span class="s2"> ratio(test)=</span><span class="si">%.1f</span><span class="s2"> -----&quot;</span>
+        <span class="o">%</span> <span class="p">(</span><span class="n">model_type</span><span class="p">,</span> <span class="n">ds_name</span><span class="p">,</span> <span class="n">aug</span><span class="p">,</span> <span class="n">val_ratio</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">sw</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="s2">&quot;train_aug&quot;</span><span class="p">)</span>
+
+    <span class="n">num_experiments</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">default_path</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_get_model_filepath</span><span class="p">(</span><span class="n">ds_name</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span> <span class="s2">&quot;ratio</span><span class="si">%.1f</span><span class="s2">_default</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val_ratio</span><span class="p">,</span> <span class="n">_</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_experiments</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">augment_path</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_get_model_filepath</span><span class="p">(</span><span class="n">ds_name</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span> <span class="s2">&quot;ratio</span><span class="si">%.1f</span><span class="s2">_augment</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">val_ratio</span><span class="p">,</span> <span class="n">_</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_experiments</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">reqs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_train_model</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">copied_c</span><span class="p">),</span> <span class="n">dataroot</span><span class="p">,</span> <span class="n">aug</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="n">default_path</span><span class="p">[</span><span class="n">_</span><span class="p">],</span> <span class="n">only_eval</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_experiments</span><span class="p">)</span>
+    <span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+        <span class="n">_train_model</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">copied_c</span><span class="p">),</span> <span class="n">dataroot</span><span class="p">,</span> <span class="n">final_policy_set</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="n">augment_path</span><span class="p">[</span><span class="n">_</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_experiments</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">tqdm_epoch</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">))</span>
+    <span class="n">is_done</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">tqdm_epoch</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">epochs</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">exp_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_experiments</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">default_path</span><span class="p">[</span><span class="n">exp_idx</span><span class="p">]):</span>
+                        <span class="n">latest_ckpt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">default_path</span><span class="p">[</span><span class="n">exp_idx</span><span class="p">])</span>
+                        <span class="n">epochs</span><span class="p">[</span><span class="s2">&quot;default_exp</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">exp_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">latest_ckpt</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">augment_path</span><span class="p">[</span><span class="n">exp_idx</span><span class="p">]):</span>
+                        <span class="n">latest_ckpt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">augment_path</span><span class="p">[</span><span class="n">exp_idx</span><span class="p">])</span>
+                        <span class="n">epochs</span><span class="p">[</span><span class="s2">&quot;augment_exp</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">exp_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">latest_ckpt</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+            <span class="n">tqdm_epoch</span><span class="o">.</span><span class="n">set_postfix</span><span class="p">(</span><span class="n">epochs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">epochs</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_experiments</span> <span class="o">*</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">min</span><span class="p">(</span><span class="n">epochs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">epochs</span><span class="p">:</span>
+                <span class="n">is_done</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">epochs</span><span class="p">)</span> <span class="o">==</span> <span class="n">num_experiments</span> <span class="o">*</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">min</span><span class="p">(</span><span class="n">epochs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="n">epoch</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_done</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;getting results...&quot;</span><span class="p">)</span>
+    <span class="n">final_results</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">reqs</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">train_mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;augment&quot;</span><span class="p">]:</span>
+        <span class="n">avg</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_experiments</span><span class="p">):</span>
+            <span class="n">r_model</span><span class="p">,</span> <span class="n">r_cv</span><span class="p">,</span> <span class="n">r_dict</span> <span class="o">=</span> <span class="n">final_results</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] top1_train=</span><span class="si">%.4f</span><span class="s2"> top1_test=</span><span class="si">%.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">train_mode</span><span class="p">,</span> <span class="n">r_dict</span><span class="p">[</span><span class="s2">&quot;top1_train&quot;</span><span class="p">],</span> <span class="n">r_dict</span><span class="p">[</span><span class="s2">&quot;top1_test&quot;</span><span class="p">]))</span>
+            <span class="n">avg</span> <span class="o">+=</span> <span class="n">r_dict</span><span class="p">[</span><span class="s2">&quot;top1_test&quot;</span><span class="p">]</span>
+        <span class="n">avg</span> <span class="o">/=</span> <span class="n">num_experiments</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2">] top1_test average=</span><span class="si">%.4f</span><span class="s2"> (#experiments=</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">train_mode</span><span class="p">,</span> <span class="n">avg</span><span class="p">,</span> <span class="n">num_experiments</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;processed in </span><span class="si">%.4f</span><span class="s2"> secs&quot;</span> <span class="o">%</span> <span class="n">sw</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="s2">&quot;train_aug&quot;</span><span class="p">))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">sw</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_eval_tta</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">augment</span><span class="p">,</span> <span class="n">reporter</span><span class="p">):</span>
+    <span class="n">Config</span><span class="o">.</span><span class="n">set_inst</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+
+    <span class="c1"># region conf vars</span>
+    <span class="n">conf_dataset</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;dataset&quot;</span><span class="p">]</span>
+    <span class="n">conf_loader</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;loader&quot;</span><span class="p">]</span>
+    <span class="n">conf_model</span> <span class="o">=</span> <span class="n">conf</span><span class="p">[</span><span class="s2">&quot;autoaug&quot;</span><span class="p">][</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>
+    <span class="n">ds_name</span> <span class="o">=</span> <span class="n">conf_dataset</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+    <span class="n">cutout</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;cutout&quot;</span><span class="p">]</span>
+    <span class="n">n_workers</span> <span class="o">=</span> <span class="n">conf_loader</span><span class="p">[</span><span class="s2">&quot;n_workers&quot;</span><span class="p">]</span>
+    <span class="c1"># endregion</span>
+
+    <span class="n">val_ratio</span><span class="p">,</span> <span class="n">val_fold</span><span class="p">,</span> <span class="n">save_path</span> <span class="o">=</span> <span class="n">augment</span><span class="p">[</span><span class="s2">&quot;val_ratio&quot;</span><span class="p">],</span> <span class="n">augment</span><span class="p">[</span><span class="s2">&quot;val_fold&quot;</span><span class="p">],</span> <span class="n">augment</span><span class="p">[</span><span class="s2">&quot;save_path&quot;</span><span class="p">]</span>
+
+    <span class="c1"># setup - provided augmentation rules</span>
+    <span class="n">aug</span> <span class="o">=</span> <span class="n">policy_decoder</span><span class="p">(</span><span class="n">augment</span><span class="p">,</span> <span class="n">augment</span><span class="p">[</span><span class="s2">&quot;num_policy&quot;</span><span class="p">],</span> <span class="n">augment</span><span class="p">[</span><span class="s2">&quot;num_op&quot;</span><span class="p">])</span>
+
+    <span class="c1"># eval</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">conf_model</span><span class="p">,</span> <span class="n">num_class</span><span class="p">(</span><span class="n">ds_name</span><span class="p">))</span>
+    <span class="n">ckpt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;model&quot;</span> <span class="ow">in</span> <span class="n">ckpt</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">ckpt</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">ckpt</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="n">loaders</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">augment</span><span class="p">[</span><span class="s2">&quot;num_policy&quot;</span><span class="p">]):</span>
+        <span class="n">tl</span><span class="p">,</span> <span class="n">validloader</span><span class="p">,</span> <span class="n">tl2</span> <span class="o">=</span> <span class="n">get_dataloaders</span><span class="p">(</span>
+            <span class="n">augment</span><span class="p">[</span><span class="s2">&quot;dataroot&quot;</span><span class="p">],</span>
+            <span class="n">ds_name</span><span class="p">,</span>
+            <span class="n">aug</span><span class="p">,</span>
+            <span class="n">cutout</span><span class="p">,</span>
+            <span class="n">load_train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">load_test</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">val_ratio</span><span class="o">=</span><span class="n">val_ratio</span><span class="p">,</span>
+            <span class="n">val_fold</span><span class="o">=</span><span class="n">val_fold</span><span class="p">,</span>
+            <span class="n">n_workers</span><span class="o">=</span><span class="n">n_workers</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">loaders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">validloader</span><span class="p">))</span>
+        <span class="k">del</span> <span class="n">tl</span><span class="p">,</span> <span class="n">tl2</span>  <span class="c1"># TODO: why exclude validloader?</span>
+
+    <span class="n">start_t</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">Accumulator</span><span class="p">()</span>
+    <span class="n">loss_fn</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">corrects</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">loader</span> <span class="ow">in</span> <span class="n">loaders</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">loader</span><span class="p">)</span>
+                <span class="n">data</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">cuda</span><span class="p">(),</span> <span class="n">label</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+
+                <span class="n">pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+                <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+
+                <span class="n">_</span><span class="p">,</span> <span class="n">pred</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="n">pred</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">t</span><span class="p">()</span>
+                <span class="n">correct</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">label</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">expand_as</span><span class="p">(</span><span class="n">pred</span><span class="p">))</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                <span class="n">corrects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">correct</span><span class="p">)</span>
+                <span class="k">del</span> <span class="n">loss</span><span class="p">,</span> <span class="n">correct</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">label</span>
+
+            <span class="n">losses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
+            <span class="n">losses_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+            <span class="n">corrects</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">corrects</span><span class="p">)</span>
+            <span class="n">corrects_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">corrects</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="n">metrics</span><span class="o">.</span><span class="n">add_dict</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;minus_loss&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">losses_min</span><span class="p">),</span> <span class="s2">&quot;correct&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">corrects_max</span><span class="p">),</span> <span class="s2">&quot;cnt&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">corrects_max</span><span class="p">)}</span>
+            <span class="p">)</span>
+            <span class="k">del</span> <span class="n">corrects</span><span class="p">,</span> <span class="n">corrects_max</span>
+    <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">del</span> <span class="n">model</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">metrics</span> <span class="o">/</span> <span class="s2">&quot;cnt&quot;</span>
+    <span class="n">gpu_secs</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_count</span><span class="p">()</span>
+    <span class="n">reporter</span><span class="p">(</span><span class="n">minus_loss</span><span class="o">=</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;minus_loss&quot;</span><span class="p">],</span> <span class="n">top1_valid</span><span class="o">=</span><span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;correct&quot;</span><span class="p">],</span> <span class="n">elapsed_time</span><span class="o">=</span><span class="n">gpu_secs</span><span class="p">,</span> <span class="n">done</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;correct&quot;</span><span class="p">]</span>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Microsoft<br/>
+  
+      &copy; Copyright 2023.<br/>
+    Last updated on Jan 31, 2023.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

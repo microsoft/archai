@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Search algorithms &#8212; Archai</title>
+    <title>Search Algorithms &#8212; Archai</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -39,7 +39,7 @@
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Discrete Search API" href="archai.discrete_search.api.html" />
+    <link rel="next" title="API" href="archai.discrete_search.api.html" />
     <link rel="prev" title="Discrete Search" href="archai.discrete_search.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
@@ -102,29 +102,17 @@
   </a>
  </li>
  <li class="toctree-l1">
-  <a class="reference internal" href="../../getting_started/quick_start.html">
-   Quick Start
-  </a>
- </li>
- <li class="toctree-l1">
   <a class="reference internal" href="../../getting_started/package_structure.html">
    Package Structure
   </a>
  </li>
-</ul>
-<p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
-  Basic Guide
- </span>
-</p>
-<ul class="nav bd-sidenav">
  <li class="toctree-l1">
-  <a class="reference internal" href="../../basic_guide/tutorial.html">
-   30-Minute Tutorial
+  <a class="reference internal" href="../../getting_started/quick_start.html">
+   Quick Start
   </a>
  </li>
  <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../basic_guide/notebooks.html">
+  <a class="reference internal" href="../../getting_started/notebooks.html">
    Notebooks
   </a>
   <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
@@ -134,7 +122,7 @@
   </label>
   <ul>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../../basic_guide/notebooks/discrete_search.html">
+    <a class="reference internal" href="../../getting_started/notebooks/discrete_search.html">
      Discrete Search
     </a>
     <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
@@ -144,38 +132,43 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../basic_guide/notebooks/discrete_search/search_space.html">
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/search_space.html">
        Search Spaces
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../basic_guide/notebooks/discrete_search/search_algos.html">
-       Search Algorithms
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/evaluators.html">
+       Evaluators
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../../basic_guide/notebooks/discrete_search/config_search.html">
-       Config Search
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/algos.html">
+       Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/config_search.html">
+       Configuration-based Search
       </a>
      </li>
     </ul>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../basic_guide/notebooks/cv.html">
+    <a class="reference internal" href="../../getting_started/notebooks/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../getting_started/notebooks/cv.html">
      Computer Vision
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../basic_guide/notebooks/nlp.html">
+    <a class="reference internal" href="../../getting_started/notebooks/nlp.html">
      Natural Language Processing
     </a>
    </li>
   </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="../../basic_guide/examples_scripts.html">
-   Examples &amp; Scripts
-  </a>
  </li>
 </ul>
 <p aria-level="2" class="caption" role="heading">
@@ -195,30 +188,20 @@
   </label>
   <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/nas/available_algorithms.html">
-     Available Algorithms
+    <a class="reference internal" href="../../advanced_guide/nas/discrete_search.html">
+     Discrete Search
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/nas/petridish.html">
-     Petridish
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/nas/implementing_darts.html">
-     Implementing DARTS
+    <a class="reference internal" href="../../advanced_guide/nas/supergraph.html">
+     Supergraph
     </a>
    </li>
   </ul>
  </li>
- <li class="toctree-l1">
+ <li class="toctree-l1 has-children">
   <a class="reference internal" href="../../advanced_guide/cv.html">
    Computer Vision
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../advanced_guide/nlp.html">
-   Natural Language Processing
   </a>
   <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
   <label for="toctree-checkbox-4">
@@ -227,13 +210,45 @@
   </label>
   <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/nlp/training.html">
-     Training
+    <a class="reference internal" href="../../advanced_guide/cv/datasets.html">
+     Datasets
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/nlp/evaluation.html">
-     Evaluation
+    <a class="reference internal" href="../../advanced_guide/cv/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/cv/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/cv/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../advanced_guide/nlp.html">
+   Natural Language Processing
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/nlp/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/nlp/trainers.html">
+     Trainers
     </a>
    </li>
    <li class="toctree-l2">
@@ -249,30 +264,8 @@
   </ul>
  </li>
  <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../advanced_guide/large_scale_training.html">
-   Large-Scale Training
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-  <label for="toctree-checkbox-5">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/large_scale_training/deepspeed.html">
-     DeepSpeed
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/large_scale_training/fsdp.html">
-     Fully Shared Data Parallel (FSDP)
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../../advanced_guide/devops.html">
-   DevOps
+  <a class="reference internal" href="../../advanced_guide/cloud.html">
+   Cloud-Based Search
   </a>
   <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
   <label for="toctree-checkbox-6">
@@ -281,7 +274,7 @@
   </label>
   <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../../advanced_guide/devops/azure.html">
+    <a class="reference internal" href="../../advanced_guide/cloud/azure.html">
      Azure
     </a>
    </li>
@@ -348,62 +341,10 @@
    </i>
   </label>
   <ul class="current">
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="archai.algos.html">
-     Algorithms
+   <li class="toctree-l2">
+    <a class="reference internal" href="archai.api.html">
+     API
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-    <label for="toctree-checkbox-8">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.darts.html">
-       DARTS
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.didarts.html">
-       DiDARTS
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.divnas.html">
-       DivNAS
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.gumbelsoftmax.html">
-       Gumbel-Softmax
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.manual.html">
-       Manual
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.nasbench101.html">
-       NasBench-101
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.petridish.html">
-       Petridish
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.random.html">
-       Random
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.algos.xnas.html">
-       XNAS
-      </a>
-     </li>
-    </ul>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="archai.common.html">
@@ -411,18 +352,35 @@
     </a>
    </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="archai.cv.html">
-     Computer Vision
+    <a class="reference internal" href="archai.datasets.html">
+     Datasets
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
-    <label for="toctree-checkbox-9">
+    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+    <label for="toctree-checkbox-8">
      <i class="fas fa-chevron-down">
      </i>
     </label>
     <ul>
      <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.cv.datasets.html">
-       Datasets
+      <a class="reference internal" href="archai.datasets.cv.html">
+       Computer Vision
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.datasets.cv.transforms.html">
+         Transforms
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.datasets.nlp.html">
+       Natural Language Processing
       </a>
       <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
       <label for="toctree-checkbox-10">
@@ -431,30 +389,8 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="archai.cv.datasets.providers.html">
-         Providers
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.cv.datasets.transforms.html">
-         Transforms
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.cv.models.html">
-       Models
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-      <label for="toctree-checkbox-11">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.cv.models.shakeshake.html">
-         ShakeShake
+        <a class="reference internal" href="archai.datasets.nlp.tokenizer_utils.html">
+         Tokenization Utilities
         </a>
        </li>
       </ul>
@@ -465,143 +401,140 @@
     <a class="reference internal" href="archai.discrete_search.html">
      Discrete Search
     </a>
-    <input checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
-    <label for="toctree-checkbox-12">
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+    <label for="toctree-checkbox-11">
      <i class="fas fa-chevron-down">
      </i>
     </label>
     <ul class="current">
      <li class="toctree-l3 current active">
       <a class="current reference internal" href="#">
-       Search algorithms
+       Search Algorithms
       </a>
      </li>
      <li class="toctree-l3">
       <a class="reference internal" href="archai.discrete_search.api.html">
-       Discrete Search API
+       API
       </a>
      </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.discrete_search.datasets.html">
-       Datasets
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.discrete_search.evaluators.html">
+       Evaluators
       </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.discrete_search.objectives.html">
-       Bultin search objectives
-      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+      <label for="toctree-checkbox-12">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">
+         PyTorch Profiler (Utilities)
+        </a>
+       </li>
+      </ul>
      </li>
      <li class="toctree-l3">
       <a class="reference internal" href="archai.discrete_search.predictors.html">
        Predictors
       </a>
      </li>
-     <li class="toctree-l3">
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="archai.discrete_search.search_spaces.html">
-       Bultin Discrete Search Spaces
+       Search Spaces
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+      <label for="toctree-checkbox-13">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.config.html">
+         Configuration-Based
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">
+         NATS-Bench
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">
+         Segmentation DAG
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.discrete_search.utils.html">
+       Utilities
       </a>
      </li>
     </ul>
    </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="archai.nas.html">
-     Neural Architecture Search
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.onnx.html">
+     ONNX
     </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+    <label for="toctree-checkbox-14">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.onnx.config_utils.html">
+       Configuration Utilities
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.onnx.optimization_utils.html">
+       Optimization Utilities
+      </a>
+     </li>
+    </ul>
    </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="archai.nlp.html">
-     Natural Language Processing
+    <a class="reference internal" href="archai.quantization.html">
+     Quantization
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
-    <label for="toctree-checkbox-13">
+    <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+    <label for="toctree-checkbox-15">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.quantization.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.supergraph.html">
+     Supergraph
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+    <label for="toctree-checkbox-16">
      <i class="fas fa-chevron-down">
      </i>
     </label>
     <ul>
      <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.nlp.datasets.html">
-       Datasets
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
-      <label for="toctree-checkbox-14">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.datasets.hf.html">
-         Hugging Face
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.datasets.nvidia.html">
-         NVIDIA
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.nlp.eval.html">
-       Evaluation
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
-      <label for="toctree-checkbox-15">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.eval.harness.html">
-         Harness
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.eval.profiler.html">
-         Profiler
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.eval.text_predict.html">
-         Text Predict
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.nlp.objectives.html">
-       Objectives
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.nlp.onnx.html">
-       ONNX
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
-      <label for="toctree-checkbox-16">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.onnx.config_utils.html">
-         Configuration Utilities
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.onnx.optimization_utils.html">
-         Optimization Utilities
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="archai.nlp.quantization.html">
-       Quantization
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.nlp.search_spaces.html">
-       Search Spaces
+      <a class="reference internal" href="archai.supergraph.algos.html">
+       Algorithms
       </a>
       <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
       <label for="toctree-checkbox-17">
@@ -610,15 +543,55 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.search_spaces.transformer_flex.html">
-         Transformer-Flex
+        <a class="reference internal" href="archai.supergraph.algos.darts.html">
+         DARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.didarts.html">
+         DiDARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.divnas.html">
+         DivNAS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.gumbelsoftmax.html">
+         Gumbel-Softmax
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.manual.html">
+         Manual
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.nasbench101.html">
+         NasBench-101
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.petridish.html">
+         Petridish
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.random.html">
+         Random
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.xnas.html">
+         XNAS
         </a>
        </li>
       </ul>
      </li>
      <li class="toctree-l3 has-children">
-      <a class="reference internal" href="archai.nlp.trainers.html">
-       Trainers
+      <a class="reference internal" href="archai.supergraph.datasets.html">
+       Datasets
       </a>
       <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
       <label for="toctree-checkbox-18">
@@ -627,16 +600,60 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.trainers.hf.html">
-         Hugging Face
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="archai.nlp.trainers.nvidia.html">
-         NVIDIA
+        <a class="reference internal" href="archai.supergraph.datasets.providers.html">
+         Providers
         </a>
        </li>
       </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.supergraph.models.html">
+       Models
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+      <label for="toctree-checkbox-19">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.models.shakeshake.html">
+         ShakeShake
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.supergraph.nas.html">
+       Neural Architecture Search
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.supergraph.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.trainers.html">
+     Trainers
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+    <label for="toctree-checkbox-20">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.trainers.cv.html">
+       Computer Vision
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.trainers.nlp.html">
+       Natural Language Processing
+      </a>
      </li>
     </ul>
    </li>
@@ -787,18 +804,33 @@ title="Edit this page"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.bananas">
+   BANANAS
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.evolution_pareto">
-   Evolution Pareto Search
+   Evolution Pareto
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.local_search">
+   Local Search
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.random_search">
+   Random Search
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.regularized_evolution">
+   Regularized Evolution
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.sucessive_halving">
    Successive Halving
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.bananas">
-   MO-BANANAS
   </a>
  </li>
 </ul>
@@ -810,7 +842,7 @@ title="Edit this page"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Search algorithms</h1>
+                <h1>Search Algorithms</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -821,18 +853,33 @@ title="Edit this page"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.bananas">
+   BANANAS
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.evolution_pareto">
-   Evolution Pareto Search
+   Evolution Pareto
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.local_search">
+   Local Search
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.random_search">
+   Random Search
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.regularized_evolution">
+   Regularized Evolution
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.sucessive_halving">
    Successive Halving
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.algos.bananas">
-   MO-BANANAS
   </a>
  </li>
 </ul>
@@ -846,48 +893,368 @@ title="Edit this page"
               <div>
                 
   <section id="search-algorithms">
-<h1>Search algorithms<a class="headerlink" href="#search-algorithms" title="Permalink to this headline">#</a></h1>
+<h1>Search Algorithms<a class="headerlink" href="#search-algorithms" title="Permalink to this headline">#</a></h1>
+<section id="module-archai.discrete_search.algos.bananas">
+<span id="bananas"></span><h2>BANANAS<a class="headerlink" href="#module-archai.discrete_search.algos.bananas" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.algos.bananas.</span></span><span class="sig-name descname"><span class="pre">MoBananasSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_space.BayesOptSearchSpace" title="archai.discrete_search.api.search_space.BayesOptSearchSpace"><span class="pre">archai.discrete_search.api.search_space.BayesOptSearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives" title="archai.discrete_search.api.search_objectives.SearchObjectives"><span class="pre">archai.discrete_search.api.search_objectives.SearchObjectives</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surrogate_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.predictor.Predictor" title="archai.discrete_search.api.predictor.Predictor"><span class="pre">archai.discrete_search.api.predictor.Predictor</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch" title="Permalink to this definition">#</a></dt>
+<dd><p>Multi-objective version of BANANAS algorithm.</p>
+<p>It has been proposed in <cite>Bag of Baselines for Multi-objective Joint Neural Architecture
+Search and Hyperparameter Optimization</cite>.</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p><a class="reference external" href="https://arxiv.org/abs/2105.01015">https://arxiv.org/abs/2105.01015</a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.get_surrogate_iter_dataset">
+<span class="sig-name descname"><span class="pre">get_surrogate_iter_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.get_surrogate_iter_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.get_surrogate_iter_dataset" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the surrogate dataset for the current iteration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>all_pop</strong> – All population models.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Tuple of encoded architectures and target values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.sample_models">
+<span class="sig-name descname"><span class="pre">sample_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.sample_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.sample_models" title="Permalink to this definition">#</a></dt>
+<dd><p>Sample models from the search space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_models</strong> – Number of models to sample.</p></li>
+<li><p><strong>patience</strong> – Number of tries to sample a valid model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of sampled models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.mutate_parents">
+<span class="sig-name descname"><span class="pre">mutate_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.mutate_parents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.mutate_parents" title="Permalink to this definition">#</a></dt>
+<dd><p>Mutate parents to generate new models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parents</strong> – List of parent models.</p></li>
+<li><p><strong>mutations_per_parent</strong> – Number of mutations to apply to each parent.</p></li>
+<li><p><strong>patience</strong> – Number of tries to sample a valid model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of mutated models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.predict_expensive_objectives">
+<span class="sig-name descname"><span class="pre">predict_expensive_objectives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">archs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.predictor.MeanVar" title="archai.discrete_search.api.predictor.MeanVar"><span class="pre">archai.discrete_search.api.predictor.MeanVar</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.predict_expensive_objectives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.predict_expensive_objectives" title="Permalink to this definition">#</a></dt>
+<dd><p>Predict expensive objectives for <cite>archs</cite> using surrogate model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>archs</strong> – List of architectures.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Dictionary of predicted expensive objectives.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.thompson_sampling">
+<span class="sig-name descname"><span class="pre">thompson_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">archs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_expensive_objs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.predictor.MeanVar" title="archai.discrete_search.api.predictor.MeanVar"><span class="pre">archai.discrete_search.api.predictor.MeanVar</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cheap_objs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.thompson_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.thompson_sampling" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the selected architecture list indices from Thompson Sampling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>archs</strong> – List of architectures.</p></li>
+<li><p><strong>sample_size</strong> – Number of architectures to select.</p></li>
+<li><p><strong>pred_expensive_objs</strong> – Predicted expensive objectives.</p></li>
+<li><p><strong>cheap_objs</strong> – Cheap objectives.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of selected architecture indices.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_results.SearchResults" title="archai.discrete_search.api.search_results.SearchResults"><span class="pre">archai.discrete_search.api.search_results.SearchResults</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.search" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for the best architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Search results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-archai.discrete_search.algos.evolution_pareto">
-<span id="evolution-pareto-search"></span><h2>Evolution Pareto Search<a class="headerlink" href="#module-archai.discrete_search.algos.evolution_pareto" title="Permalink to this headline">#</a></h2>
+<span id="evolution-pareto"></span><h2>Evolution Pareto<a class="headerlink" href="#module-archai.discrete_search.algos.evolution_pareto" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.algos.evolution_pareto.</span></span><span class="sig-name descname"><span class="pre">EvolutionParetoSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_space.EvolutionarySearchSpace" title="archai.discrete_search.api.search_space.EvolutionarySearchSpace"><span class="pre">archai.discrete_search.api.search_space.EvolutionarySearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.discrete_search.api.search_objectives.SearchObjectives</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.discrete_search.api.dataset_provider.DatasetProvider</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_population_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_random_mix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_unseen_population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_crossovers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.algos.evolution_pareto.</span></span><span class="sig-name descname"><span class="pre">EvolutionParetoSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_space.EvolutionarySearchSpace" title="archai.discrete_search.api.search_space.EvolutionarySearchSpace"><span class="pre">archai.discrete_search.api.search_space.EvolutionarySearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives" title="archai.discrete_search.api.search_objectives.SearchObjectives"><span class="pre">archai.discrete_search.api.search_objectives.SearchObjectives</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_population_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_random_mix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_unseen_population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_crossovers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch" title="Permalink to this definition">#</a></dt>
+<dd><p>Evolutionary multi-objective search algorithm that greedily
+evolves Pareto frontier models.</p>
+<p>It starts from an evaluated random subset of models. In each iteration, the algorithm
+evaluates new subset of models generated from mutations (<cite>mutation_per_parent</cite>) and
+crossovers (<cite>num_crossovers</cite>) of the current pareto frontier, and a new random subset
+of models (<cite>num_random_mix</cite>). The process is repeated until <cite>num_iters</cite> is reached.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.sample_models">
+<span class="sig-name descname"><span class="pre">sample_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.sample_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.sample_models" title="Permalink to this definition">#</a></dt>
+<dd><p>Sample models from the search space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_models</strong> – Number of models to sample.</p></li>
+<li><p><strong>patience</strong> – Number of tries to sample a valid model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of sampled models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.mutate_parents">
-<span class="sig-name descname"><span class="pre">mutate_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.mutate_parents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.mutate_parents" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">mutate_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.mutate_parents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.mutate_parents" title="Permalink to this definition">#</a></dt>
+<dd><p>Mutate parents to generate new models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parents</strong> – List of parent models.</p></li>
+<li><p><strong>mutations_per_parent</strong> – Number of mutations to apply to each parent.</p></li>
+<li><p><strong>patience</strong> – Number of tries to sample a valid model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of mutated models.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.crossover_parents">
-<span class="sig-name descname"><span class="pre">crossover_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_crossovers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.crossover_parents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.crossover_parents" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.sample_models">
-<span class="sig-name descname"><span class="pre">sample_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.sample_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.sample_models" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">crossover_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_crossovers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.crossover_parents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.crossover_parents" title="Permalink to this definition">#</a></dt>
+<dd><p>Crossover parents to generate new models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parents</strong> – List of parent models.</p></li>
+<li><p><strong>num_crossovers</strong> – Number of crossovers to apply.</p></li>
+<li><p><strong>patience</strong> – Number of tries to sample a valid model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of crossovered models.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.on_calc_task_accuracy_end">
 <span class="sig-name descname"><span class="pre">on_calc_task_accuracy_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.on_calc_task_accuracy_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.on_calc_task_accuracy_end" title="Permalink to this definition">#</a></dt>
-<dd><p>Callback function called right after calc_task_accuracy()</p>
+<dd><p>Callback function called right after calc_task_accuracy().</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.on_search_iteration_start">
 <span class="sig-name descname"><span class="pre">on_search_iteration_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.on_search_iteration_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.on_search_iteration_start" title="Permalink to this definition">#</a></dt>
-<dd><p>Callback function called right before each search iteration</p>
+<dd><p>Callback function called right before each search iteration.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.select_next_population">
 <span class="sig-name descname"><span class="pre">select_next_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.select_next_population"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.select_next_population" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Select the next population from the current population</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>current_pop</strong> – Current population.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Next population.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.search">
-<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">archai.discrete_search.api.search_results.SearchResults</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.search" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_results.SearchResults" title="archai.discrete_search.api.search_results.SearchResults"><span class="pre">archai.discrete_search.api.search_results.SearchResults</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/evolution_pareto.html#EvolutionParetoSearch.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.evolution_pareto.EvolutionParetoSearch.search" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for the best architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Search results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-archai.discrete_search.algos.local_search">
+<span id="local-search"></span><h2>Local Search<a class="headerlink" href="#module-archai.discrete_search.algos.local_search" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.local_search.LocalSearch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.algos.local_search.</span></span><span class="sig-name descname"><span class="pre">LocalSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_space.EvolutionarySearchSpace" title="archai.discrete_search.api.search_space.EvolutionarySearchSpace"><span class="pre">archai.discrete_search.api.search_space.EvolutionarySearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives" title="archai.discrete_search.api.search_objectives.SearchObjectives"><span class="pre">archai.discrete_search.api.search_objectives.SearchObjectives</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_population_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/local_search.html#LocalSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.local_search.LocalSearch" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.local_search.LocalSearch.sample_models">
+<span class="sig-name descname"><span class="pre">sample_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/local_search.html#LocalSearch.sample_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.local_search.LocalSearch.sample_models" title="Permalink to this definition">#</a></dt>
+<dd><p>Sample models from the search space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_models</strong> – Number of models to sample.</p></li>
+<li><p><strong>patience</strong> – Number of tries to sample a valid model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of sampled models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.local_search.LocalSearch.mutate_parents">
+<span class="sig-name descname"><span class="pre">mutate_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/local_search.html#LocalSearch.mutate_parents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.local_search.LocalSearch.mutate_parents" title="Permalink to this definition">#</a></dt>
+<dd><p>Mutate parents to generate new models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parents</strong> – List of parent models.</p></li>
+<li><p><strong>mutations_per_parent</strong> – Number of mutations to apply to each parent.</p></li>
+<li><p><strong>patience</strong> – Number of tries to sample a valid model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of mutated models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.local_search.LocalSearch.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_results.SearchResults" title="archai.discrete_search.api.search_results.SearchResults"><span class="pre">archai.discrete_search.api.search_results.SearchResults</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/local_search.html#LocalSearch.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.local_search.LocalSearch.search" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for the best architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Search results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-archai.discrete_search.algos.random_search">
+<span id="random-search"></span><h2>Random Search<a class="headerlink" href="#module-archai.discrete_search.algos.random_search" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.random_search.RandomSearch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.algos.random_search.</span></span><span class="sig-name descname"><span class="pre">RandomSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_space.DiscreteSearchSpace" title="archai.discrete_search.api.search_space.DiscreteSearchSpace"><span class="pre">archai.discrete_search.api.search_space.DiscreteSearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives" title="archai.discrete_search.api.search_objectives.SearchObjectives"><span class="pre">archai.discrete_search.api.search_objectives.SearchObjectives</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples_per_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/random_search.html#RandomSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.random_search.RandomSearch" title="Permalink to this definition">#</a></dt>
+<dd><p>Random search algorithm.</p>
+<p>It evaluates random samples from the search space in each iteration until
+<cite>num_iters</cite> is reached.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.random_search.RandomSearch.sample_models">
+<span class="sig-name descname"><span class="pre">sample_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/random_search.html#RandomSearch.sample_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.random_search.RandomSearch.sample_models" title="Permalink to this definition">#</a></dt>
+<dd><p>Sample models from the search space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_models</strong> – Number of models to sample.</p></li>
+<li><p><strong>patience</strong> – Number of tries to sample a valid model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of sampled models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.random_search.RandomSearch.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_results.SearchResults" title="archai.discrete_search.api.search_results.SearchResults"><span class="pre">archai.discrete_search.api.search_results.SearchResults</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/random_search.html#RandomSearch.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.random_search.RandomSearch.search" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for the best architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Search results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-archai.discrete_search.algos.regularized_evolution">
+<span id="regularized-evolution"></span><h2>Regularized Evolution<a class="headerlink" href="#module-archai.discrete_search.algos.regularized_evolution" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.regularized_evolution.RegularizedEvolutionSearch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.algos.regularized_evolution.</span></span><span class="sig-name descname"><span class="pre">RegularizedEvolutionSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_space.EvolutionarySearchSpace" title="archai.discrete_search.api.search_space.EvolutionarySearchSpace"><span class="pre">archai.discrete_search.api.search_space.EvolutionarySearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives" title="archai.discrete_search.api.search_objectives.SearchObjectives"><span class="pre">archai.discrete_search.api.search_objectives.SearchObjectives</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_population_paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pareto_sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/regularized_evolution.html#RegularizedEvolutionSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.regularized_evolution.RegularizedEvolutionSearch" title="Permalink to this definition">#</a></dt>
+<dd><p>Regularized Evolution algorithm.</p>
+<p>It has been proposed in <cite>Regularized Evolution for Image Classifier Architecture Search</cite>.</p>
+<dl class="simple">
+<dt>Reference:</dt><dd><p><a class="reference external" href="https://arxiv.org/abs/1802.01548v7">https://arxiv.org/abs/1802.01548v7</a>.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.regularized_evolution.RegularizedEvolutionSearch.sample_models">
+<span class="sig-name descname"><span class="pre">sample_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/regularized_evolution.html#RegularizedEvolutionSearch.sample_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.regularized_evolution.RegularizedEvolutionSearch.sample_models" title="Permalink to this definition">#</a></dt>
+<dd><p>Sample models from the search space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_models</strong> – Number of models to sample.</p></li>
+<li><p><strong>patience</strong> – Number of tries to sample a valid model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of sampled models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.regularized_evolution.RegularizedEvolutionSearch.mutate_parents">
+<span class="sig-name descname"><span class="pre">mutate_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/regularized_evolution.html#RegularizedEvolutionSearch.mutate_parents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.regularized_evolution.RegularizedEvolutionSearch.mutate_parents" title="Permalink to this definition">#</a></dt>
+<dd><p>Mutate parents to generate new models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parents</strong> – List of parent models.</p></li>
+<li><p><strong>mutations_per_parent</strong> – Number of mutations to apply to each parent.</p></li>
+<li><p><strong>patience</strong> – Number of tries to sample a valid model.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List of mutated models.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.algos.regularized_evolution.RegularizedEvolutionSearch.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_results.SearchResults" title="archai.discrete_search.api.search_results.SearchResults"><span class="pre">archai.discrete_search.api.search_results.SearchResults</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/regularized_evolution.html#RegularizedEvolutionSearch.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.regularized_evolution.RegularizedEvolutionSearch.search" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for the best architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Search results.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -896,51 +1263,18 @@ title="Edit this page"
 <span id="successive-halving"></span><h2>Successive Halving<a class="headerlink" href="#module-archai.discrete_search.algos.sucessive_halving" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.discrete_search.algos.sucessive_halving.SucessiveHalvingSearch">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.algos.sucessive_halving.</span></span><span class="sig-name descname"><span class="pre">SucessiveHalvingSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_space.DiscreteSearchSpace" title="archai.discrete_search.api.search_space.DiscreteSearchSpace"><span class="pre">archai.discrete_search.api.search_space.DiscreteSearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.discrete_search.api.search_objectives.SearchObjectives</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.discrete_search.api.dataset_provider.DatasetProvider</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget_multiplier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/sucessive_halving.html#SucessiveHalvingSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.sucessive_halving.SucessiveHalvingSearch" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.algos.sucessive_halving.</span></span><span class="sig-name descname"><span class="pre">SucessiveHalvingSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_space.DiscreteSearchSpace" title="archai.discrete_search.api.search_space.DiscreteSearchSpace"><span class="pre">archai.discrete_search.api.search_space.DiscreteSearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives" title="archai.discrete_search.api.search_objectives.SearchObjectives"><span class="pre">archai.discrete_search.api.search_objectives.SearchObjectives</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget_multiplier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/sucessive_halving.html#SucessiveHalvingSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.sucessive_halving.SucessiveHalvingSearch" title="Permalink to this definition">#</a></dt>
+<dd><p>Sucessive Halving algorithm</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.algos.sucessive_halving.SucessiveHalvingSearch.search">
-<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">archai.discrete_search.api.search_results.SearchResults</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/sucessive_halving.html#SucessiveHalvingSearch.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.sucessive_halving.SucessiveHalvingSearch.search" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_results.SearchResults" title="archai.discrete_search.api.search_results.SearchResults"><span class="pre">archai.discrete_search.api.search_results.SearchResults</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/sucessive_halving.html#SucessiveHalvingSearch.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.sucessive_halving.SucessiveHalvingSearch.search" title="Permalink to this definition">#</a></dt>
+<dd><p>Search for the best architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Search results.</p>
+</dd>
+</dl>
 </dd></dl>
-
-</section>
-<section id="module-archai.discrete_search.algos.bananas">
-<span id="mo-bananas"></span><h2>MO-BANANAS<a class="headerlink" href="#module-archai.discrete_search.algos.bananas" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.algos.bananas.</span></span><span class="sig-name descname"><span class="pre">MoBananasSearch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.search_space.BayesOptSearchSpace" title="archai.discrete_search.api.search_space.BayesOptSearchSpace"><span class="pre">archai.discrete_search.api.search_space.BayesOptSearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_objectives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.discrete_search.api.search_objectives.SearchObjectives</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.discrete_search.api.dataset_provider.DatasetProvider</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surrogate_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.predictor.Predictor" title="archai.discrete_search.api.predictor.Predictor"><span class="pre">archai.discrete_search.api.predictor.Predictor</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch" title="Permalink to this definition">#</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.get_surrogate_iter_dataset">
-<span class="sig-name descname"><span class="pre">get_surrogate_iter_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_pop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.get_surrogate_iter_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.get_surrogate_iter_dataset" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.sample_models">
-<span class="sig-name descname"><span class="pre">sample_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.sample_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.sample_models" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.mutate_parents">
-<span class="sig-name descname"><span class="pre">mutate_parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutations_per_parent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.mutate_parents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.mutate_parents" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.predict_expensive_objectives">
-<span class="sig-name descname"><span class="pre">predict_expensive_objectives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">archs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.predictor.MeanVar" title="archai.discrete_search.api.predictor.MeanVar"><span class="pre">archai.discrete_search.api.predictor.MeanVar</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.predict_expensive_objectives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.predict_expensive_objectives" title="Permalink to this definition">#</a></dt>
-<dd><p>Predicts expensive objectives for <cite>archs</cite> using surrogate model</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.thompson_sampling">
-<span class="sig-name descname"><span class="pre">thompson_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">archs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pred_expensive_objs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.predictor.MeanVar" title="archai.discrete_search.api.predictor.MeanVar"><span class="pre">archai.discrete_search.api.predictor.MeanVar</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cheap_objs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.thompson_sampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.thompson_sampling" title="Permalink to this definition">#</a></dt>
-<dd><p>Returns the selected architecture list indices from Thompson Sampling</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.algos.bananas.MoBananasSearch.search">
-<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/algos/bananas.html#MoBananasSearch.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.algos.bananas.MoBananasSearch.search" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
 
 </dd></dl>
 
@@ -965,7 +1299,7 @@ title="Edit this page"
     <a class='right-next' id="next-link" href="archai.discrete_search.api.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Discrete Search API</p>
+        <p class="prev-next-title">API</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
@@ -979,7 +1313,7 @@ title="Edit this page"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 13, 2023.<br/>
+    Last updated on Jan 31, 2023.<br/>
 </p>
         </footer>
     </div>

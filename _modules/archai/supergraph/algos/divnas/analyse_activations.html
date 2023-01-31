@@ -1,0 +1,1278 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>archai.supergraph.algos.divnas.analyse_activations &#8212; Archai</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/tabs.js"></script>
+    <script src="../../../../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../../../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../../../../_static/logo.png" class="logo" alt="logo">
+      
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Getting Started
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../getting_started/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../getting_started/package_structure.html">
+   Package Structure
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../getting_started/quick_start.html">
+   Quick Start
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../getting_started/notebooks.html">
+   Notebooks
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search.html">
+     Discrete Search
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/search_space.html">
+       Search Spaces
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/evaluators.html">
+       Evaluators
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/algos.html">
+       Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/config_search.html">
+       Configuration-based Search
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../getting_started/notebooks/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../getting_started/notebooks/cv.html">
+     Computer Vision
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../getting_started/notebooks/nlp.html">
+     Natural Language Processing
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Advanced Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../advanced_guide/nas.html">
+   Neural Architecture Search
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+  <label for="toctree-checkbox-3">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nas/discrete_search.html">
+     Discrete Search
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nas/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../advanced_guide/cv.html">
+   Computer Vision
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+  <label for="toctree-checkbox-4">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/cv/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/cv/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/cv/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/cv/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../advanced_guide/nlp.html">
+   Natural Language Processing
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nlp/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nlp/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nlp/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/nlp/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../advanced_guide/cloud.html">
+   Cloud-Based Search
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+  <label for="toctree-checkbox-6">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../advanced_guide/cloud/azure.html">
+     Azure
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contributing
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../contributing/first_contribution.html">
+   First Time Contributor
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../contributing/documentation.html">
+   Documentation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../contributing/unitary_tests.html">
+   Unitary Tests
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Support
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../support/faq.html">
+   Frequently Asked Questions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../support/contact.html">
+   Contact
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../support/copyright.html">
+   Copyright
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../../../../reference/api.html">
+   API
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+  <label for="toctree-checkbox-7">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../reference/api/archai.api.html">
+     API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../../../../reference/api/archai.common.html">
+     Common Packages
+    </a>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.datasets.html">
+     Datasets
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+    <label for="toctree-checkbox-8">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.datasets.cv.html">
+       Computer Vision
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.datasets.cv.transforms.html">
+         Transforms
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.datasets.nlp.html">
+       Natural Language Processing
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.datasets.nlp.tokenizer_utils.html">
+         Tokenization Utilities
+        </a>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.html">
+     Discrete Search
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+    <label for="toctree-checkbox-11">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.algos.html">
+       Search Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.api.html">
+       API
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.html">
+       Evaluators
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+      <label for="toctree-checkbox-12">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">
+         PyTorch Profiler (Utilities)
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.predictors.html">
+       Predictors
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.html">
+       Search Spaces
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+      <label for="toctree-checkbox-13">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html">
+         Configuration-Based
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">
+         NATS-Bench
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">
+         Segmentation DAG
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.discrete_search.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.onnx.html">
+     ONNX
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+    <label for="toctree-checkbox-14">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.onnx.config_utils.html">
+       Configuration Utilities
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.onnx.optimization_utils.html">
+       Optimization Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.quantization.html">
+     Quantization
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+    <label for="toctree-checkbox-15">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.quantization.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.supergraph.html">
+     Supergraph
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+    <label for="toctree-checkbox-16">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.html">
+       Algorithms
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
+      <label for="toctree-checkbox-17">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.darts.html">
+         DARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.didarts.html">
+         DiDARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.divnas.html">
+         DivNAS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.gumbelsoftmax.html">
+         Gumbel-Softmax
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.manual.html">
+         Manual
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.nasbench101.html">
+         NasBench-101
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.petridish.html">
+         Petridish
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.random.html">
+         Random
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.xnas.html">
+         XNAS
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.supergraph.datasets.html">
+       Datasets
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
+      <label for="toctree-checkbox-18">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.datasets.providers.html">
+         Providers
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../../../../../reference/api/archai.supergraph.models.html">
+       Models
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+      <label for="toctree-checkbox-19">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../../../../../reference/api/archai.supergraph.models.shakeshake.html">
+         ShakeShake
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.supergraph.nas.html">
+       Neural Architecture Search
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.supergraph.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../../../../reference/api/archai.trainers.html">
+     Trainers
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+    <label for="toctree-checkbox-20">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.trainers.cv.html">
+       Computer Vision
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../../../../reference/api/archai.trainers.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../reference/roadmap.html">
+   Roadmap
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../../../../reference/changelog.html">
+   Changelog
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/microsoft/archai"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/supergraph/algos/divnas/analyse_activations.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1></h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <h1>Source code for archai.supergraph.algos.divnas.analyse_activations</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">math</span> <span class="k">as</span> <span class="nn">ma</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">h5py</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">archai.supergraph.algos.divnas.seqopt</span> <span class="kn">import</span> <span class="n">SeqOpt</span>
+
+
+<div class="viewcode-block" id="create_submod_f"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.create_submod_f">[docs]</a><span class="k">def</span> <span class="nf">create_submod_f</span><span class="p">(</span><span class="n">covariance</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Callable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">compute_marginal_gain_func</span><span class="p">(</span><span class="n">item</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">sub_sel</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">S</span><span class="p">:</span><span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+        <span class="k">assert</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">S</span><span class="p">)</span> <span class="o">==</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">sel_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sub_sel</span><span class="p">)</span>
+        <span class="n">marg_gain</span> <span class="o">=</span> <span class="n">compute_marginal_gain</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">sel_set</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">covariance</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">marg_gain</span>
+    <span class="k">return</span> <span class="n">compute_marginal_gain_func</span></div>
+
+
+<div class="viewcode-block" id="get_batch"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.get_batch">[docs]</a><span class="k">def</span> <span class="nf">get_batch</span><span class="p">(</span><span class="n">feature_list</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="n">start_row</span> <span class="o">=</span> <span class="n">batch_size</span> <span class="o">*</span> <span class="n">i</span>
+    <span class="n">end_row</span> <span class="o">=</span> <span class="n">start_row</span> <span class="o">+</span> <span class="n">batch_size</span>
+    <span class="n">feats</span> <span class="o">=</span> <span class="p">[</span><span class="n">feat</span><span class="p">[</span><span class="n">start_row</span><span class="p">:</span><span class="n">end_row</span><span class="p">,</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="n">feature_list</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">feats</span></div>
+
+
+<div class="viewcode-block" id="rbf"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.rbf">[docs]</a><span class="k">def</span> <span class="nf">rbf</span><span class="p">(</span><span class="n">x</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Computes the rbf kernel between two input vectors &quot;&quot;&quot;</span>
+
+    <span class="c1"># make sure that inputs are vectors</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="n">sq_euclidean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">y</span><span class="p">))</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">sq_euclidean</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sigma</span><span class="o">*</span><span class="n">sigma</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">k</span></div>
+
+
+<span class="k">def</span> <span class="nf">_compute_mi</span><span class="p">(</span><span class="n">cov_kernel</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">A</span><span class="p">:</span><span class="n">Set</span><span class="p">,</span> <span class="n">V_minus_A</span><span class="p">:</span><span class="n">Set</span><span class="p">):</span>
+    <span class="n">sigma_A</span> <span class="o">=</span> <span class="n">cov_kernel</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">A</span><span class="p">))]</span>
+    <span class="n">sigma_V_minus_A</span> <span class="o">=</span> <span class="n">cov_kernel</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">V_minus_A</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">V_minus_A</span><span class="p">))]</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">sigma_A</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">sigma_V_minus_A</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">cov_kernel</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">I</span>
+
+
+<div class="viewcode-block" id="compute_brute_force_sol"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.compute_brute_force_sol">[docs]</a><span class="k">def</span> <span class="nf">compute_brute_force_sol</span><span class="p">(</span><span class="n">cov_kernel</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
+
+    <span class="k">assert</span> <span class="n">cov_kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">cov_kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">cov_kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="n">budget</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">budget</span> <span class="o">&lt;=</span> <span class="n">cov_kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">V</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">cov_kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+    <span class="c1"># for each combination of budgeted items compute its mutual</span>
+    <span class="c1"># information with the complement set</span>
+    <span class="n">mis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">subset</span> <span class="ow">in</span> <span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">cov_kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">budget</span><span class="p">):</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
+        <span class="n">V_minus_A</span> <span class="o">=</span> <span class="n">V</span> <span class="o">-</span> <span class="n">A</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">_compute_mi</span><span class="p">(</span><span class="n">cov_kernel</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">V_minus_A</span><span class="p">)</span>
+        <span class="n">mis</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">subset</span><span class="p">,</span> <span class="n">I</span><span class="p">))</span>
+
+    <span class="c1"># find the maximum subset</span>
+    <span class="n">max_subset</span><span class="p">,</span> <span class="n">mi</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">mis</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">max_subset</span><span class="p">,</span> <span class="n">mi</span></div>
+
+
+
+<div class="viewcode-block" id="compute_correlation"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.compute_correlation">[docs]</a><span class="k">def</span> <span class="nf">compute_correlation</span><span class="p">(</span><span class="n">covariance</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+    <span class="n">variance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">covariance</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">stds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">variance</span><span class="p">,</span> <span class="n">variance</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+    <span class="n">correlation</span> <span class="o">=</span> <span class="n">covariance</span> <span class="o">/</span> <span class="p">(</span><span class="n">stds</span> <span class="o">+</span> <span class="mf">1e-16</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">correlation</span></div>
+
+
+<div class="viewcode-block" id="compute_covariance_offline"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.compute_covariance_offline">[docs]</a><span class="k">def</span> <span class="nf">compute_covariance_offline</span><span class="p">(</span><span class="n">feature_list</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">])</span><span class="o">-&gt;</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute covariance matrix for high-dimensional features.</span>
+<span class="sd">    feature_shape: (num_samples, feature_dim)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_list</span><span class="p">)</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="n">feature_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">flatten_features</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">feas</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">feas</span> <span class="ow">in</span> <span class="n">feature_list</span><span class="p">]</span>
+    <span class="n">unbiased_features</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">feas</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">feas</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">feas</span> <span class="ow">in</span> <span class="n">flatten_features</span><span class="p">]</span>
+    <span class="c1"># (num_samples, feature_dim, num_features)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">unbiased_features</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">covariance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_features</span><span class="p">,</span> <span class="n">num_features</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_samples</span><span class="p">):</span>
+        <span class="n">covariance</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">features</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">covariance</span></div>
+
+
+<div class="viewcode-block" id="compute_rbf_kernel_covariance"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.compute_rbf_kernel_covariance">[docs]</a><span class="k">def</span> <span class="nf">compute_rbf_kernel_covariance</span><span class="p">(</span><span class="n">feature_list</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute rbf kernel covariance for high dimensional features.</span>
+<span class="sd">    feature_list: List of features each of shape: (num_samples, feature_dim)</span>
+<span class="sd">    sigma: sigma of the rbf kernel &quot;&quot;&quot;</span>
+    <span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_list</span><span class="p">)</span>
+    <span class="n">covariance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_features</span><span class="p">,</span> <span class="n">num_features</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_features</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_features</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                <span class="n">covariance</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># NOTE: one could try to take all pairs rbf responses</span>
+            <span class="c1"># but that is too much computation and probably does</span>
+            <span class="c1"># not add much information</span>
+            <span class="n">feats_i</span> <span class="o">=</span> <span class="n">feature_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">feats_j</span> <span class="o">=</span> <span class="n">feature_list</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">feats_i</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">feats_j</span><span class="o">.</span><span class="n">shape</span>
+
+            <span class="n">rbfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">feats_i</span> <span class="o">-</span> <span class="n">feats_j</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">sigma</span><span class="o">*</span><span class="n">sigma</span><span class="p">))</span>
+            <span class="n">avg_cov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rbfs</span><span class="p">)</span><span class="o">/</span><span class="n">feats_i</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">covariance</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_cov</span>
+
+    <span class="k">return</span> <span class="n">covariance</span></div>
+
+
+<div class="viewcode-block" id="compute_euclidean_dist_quantiles"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.compute_euclidean_dist_quantiles">[docs]</a><span class="k">def</span> <span class="nf">compute_euclidean_dist_quantiles</span><span class="p">(</span><span class="n">feature_list</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">subsamplefactor</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute quantile distances between feature pairs</span>
+<span class="sd">    feature_list: List of features each of shape: (num_samples, feature_dim)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_features</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feature_list</span><span class="p">)</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="n">feature_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># (num_samples, feature_dim, num_features)</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">feature_list</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># compute all pairwise feature distances</span>
+    <span class="c1"># too slow need to vectorize asap</span>
+    <span class="n">distances</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_features</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_features</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">subsamplefactor</span><span class="p">):</span>
+                <span class="n">feat_i</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">i</span><span class="p">]</span>
+                <span class="n">feat_j</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:][:,</span> <span class="n">j</span><span class="p">]</span>
+                <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">feat_i</span><span class="o">-</span><span class="n">feat_j</span><span class="p">)))</span>
+                <span class="n">distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+
+    <span class="n">quantiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mf">0.1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span>
+    <span class="n">quant_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">quantiles</span><span class="p">)</span>
+    <span class="n">quants</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">quant</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">quantiles</span><span class="p">,</span> <span class="n">quant_vals</span><span class="o">.</span><span class="n">tolist</span><span class="p">()):</span>
+        <span class="n">quants</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">quant</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">quants</span></div>
+
+
+<div class="viewcode-block" id="greedy_op_selection"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.greedy_op_selection">[docs]</a><span class="k">def</span> <span class="nf">greedy_op_selection</span><span class="p">(</span><span class="n">covariance</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="k">assert</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="n">k</span> <span class="o">&lt;=</span> <span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="c1"># to keep order information</span>
+    <span class="n">A_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">S</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">covariance</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">S</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)):</span>
+        <span class="n">marginal_gains</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">marginal_gain_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">S</span> <span class="o">-</span> <span class="n">A</span><span class="p">:</span>
+            <span class="n">delta_y</span> <span class="o">=</span> <span class="n">compute_marginal_gain</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">covariance</span><span class="p">)</span>
+            <span class="n">marginal_gains</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delta_y</span><span class="p">)</span>
+            <span class="n">marginal_gain_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="n">val</span> <span class="o">=</span> <span class="o">-</span><span class="n">ma</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">argmax</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">marg_gain</span><span class="p">,</span> <span class="n">marg_gain_id</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">marginal_gains</span><span class="p">,</span> <span class="n">marginal_gain_ids</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">marg_gain</span> <span class="o">&gt;</span> <span class="n">val</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">marg_gain</span>
+                <span class="n">argmax</span> <span class="o">=</span> <span class="n">marg_gain_id</span>
+
+        <span class="n">A</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">argmax</span><span class="p">)</span>
+        <span class="n">A_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">argmax</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">A_list</span></div>
+
+
+<div class="viewcode-block" id="compute_marginal_gain"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.compute_marginal_gain">[docs]</a><span class="k">def</span> <span class="nf">compute_marginal_gain</span><span class="p">(</span><span class="n">y</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">A</span><span class="p">:</span><span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">S</span><span class="p">:</span><span class="n">Set</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">covariance</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">float</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="n">A</span><span class="p">:</span>
+        <span class="n">A_copy</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+        <span class="n">A_copy</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">A_copy</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">A_copy</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">A_bar</span> <span class="o">=</span> <span class="n">S</span> <span class="o">-</span> <span class="n">A_copy</span>
+
+    <span class="n">sigma_y_sqr</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">A</span><span class="p">:</span>
+        <span class="n">sigma_AA</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">A</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">A</span><span class="p">))]</span>
+        <span class="n">sigma_yA</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="n">A</span><span class="p">))]</span>
+        <span class="n">numerator</span> <span class="o">=</span> <span class="n">sigma_y_sqr</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">sigma_yA</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">sigma_AA</span><span class="p">),</span> <span class="n">sigma_yA</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">numerator</span> <span class="o">=</span> <span class="n">sigma_y_sqr</span>
+
+    <span class="k">if</span> <span class="n">A_bar</span><span class="p">:</span>
+        <span class="n">sigma_AA_bar</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">A_bar</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">A_bar</span><span class="p">))]</span>
+        <span class="n">sigma_yA_bar</span> <span class="o">=</span> <span class="n">covariance</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ix_</span><span class="p">([</span><span class="n">y</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="n">A_bar</span><span class="p">))]</span>
+        <span class="n">denominator</span> <span class="o">=</span> <span class="n">sigma_y_sqr</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">sigma_yA_bar</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">sigma_AA_bar</span><span class="p">),</span> <span class="n">sigma_yA_bar</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">denominator</span> <span class="o">=</span> <span class="n">sigma_y_sqr</span>
+
+    <span class="n">gain</span> <span class="o">=</span> <span class="n">numerator</span><span class="o">/</span><span class="n">denominator</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">gain</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="collect_features"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.collect_features">[docs]</a><span class="k">def</span> <span class="nf">collect_features</span><span class="p">(</span><span class="n">rootfolder</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">subsampling_factor</span><span class="p">:</span><span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Walks the rootfolder for h5py files and loads them into the format</span>
+<span class="sd">    required for analysis.</span>
+
+<span class="sd">    Inputs:</span>
+
+<span class="sd">    rootfolder: full path to folder containing h5 files which have activations</span>
+<span class="sd">    subsampling_factor: every nth minibatch will be loaded to keep memory manageable</span>
+
+<span class="sd">    Outputs:</span>
+
+<span class="sd">    dictionary with edge name strings as keys and values are lists of np.array [num_samples, feature_dim]</span>
+<span class="sd">     &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">subsampling_factor</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="c1"># gather all h5 files</span>
+    <span class="n">h5files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootfolder</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">rootfolder</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rootfolder</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span> <span class="ow">and</span> <span class="s1">&#39;.h5&#39;</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">h5files</span>
+
+
+    <span class="c1"># storage for holding activations for all edges</span>
+    <span class="n">all_edges_activs</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">h5file</span> <span class="ow">in</span> <span class="n">h5files</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">h5file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">hf</span><span class="p">:</span>
+            <span class="n">edge_name</span> <span class="o">=</span> <span class="n">h5file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">edge_activ_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># load all batches</span>
+            <span class="n">keys_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">hf</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;processing </span><span class="si">{</span><span class="n">h5file</span><span class="si">}</span><span class="s1">, num batches </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">keys_list</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">keys_list</span><span class="p">),</span> <span class="n">subsampling_factor</span><span class="p">):</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="n">keys_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">payload</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">hf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+                <span class="n">edge_activ_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+            <span class="n">obsv_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+            <span class="c1"># separate activations by ops</span>
+            <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">edge_activ_list</span><span class="p">:</span>
+                <span class="c1"># assumption (num_ops, batch_size, x, y, z)</span>
+                <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="n">feat</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="n">op</span><span class="p">][</span><span class="n">b</span><span class="p">]</span>
+                        <span class="n">feat</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                        <span class="n">obsv_dict</span><span class="p">[</span><span class="n">op</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+
+            <span class="n">num_ops</span> <span class="o">=</span> <span class="n">edge_activ_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">feature_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_ops</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">obsv_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">feat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">obsv_dict</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+                <span class="n">feature_list</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">feat</span>
+
+            <span class="c1"># removing none and skip_connect</span>
+            <span class="k">del</span> <span class="n">feature_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">feature_list</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+            <span class="n">all_edges_activs</span><span class="p">[</span><span class="n">edge_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature_list</span>
+
+    <span class="k">return</span> <span class="n">all_edges_activs</span></div>
+
+
+<div class="viewcode-block" id="plot_all_covs"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.plot_all_covs">[docs]</a><span class="k">def</span> <span class="nf">plot_all_covs</span><span class="p">(</span><span class="n">covs_kernel</span><span class="p">,</span> <span class="n">corr</span><span class="p">,</span> <span class="n">primitives</span><span class="p">,</span> <span class="n">axs</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">axs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">axs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">covs_kernel</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">flat_axs</span> <span class="o">=</span> <span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">quantile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">covs_kernel</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">covs_kernel</span><span class="p">[</span><span class="n">quantile</span><span class="p">]</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">cov</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;.1g&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">,</span> <span class="n">xticklabels</span><span class="o">=</span><span class="n">primitives</span><span class="p">,</span> <span class="n">yticklabels</span><span class="o">=</span><span class="n">primitives</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">flat_axs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">flat_axs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Kernel covariance sigma=</span><span class="si">{</span><span class="n">quantile</span><span class="si">}</span><span class="s1"> quantile&#39;</span><span class="p">)</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;.1g&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">,</span> <span class="n">xticklabels</span><span class="o">=</span><span class="n">primitives</span><span class="p">,</span> <span class="n">yticklabels</span><span class="o">=</span><span class="n">primitives</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">flat_axs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">flat_axs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Correlation&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.divnas.html#archai.supergraph.algos.divnas.analyse_activations.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="n">rootfile</span> <span class="o">=</span> <span class="s1">&#39;/media/dedey/DATADRIVE1/activations&#39;</span>
+
+    <span class="n">all_edges_activs</span> <span class="o">=</span> <span class="n">collect_features</span><span class="p">(</span><span class="n">rootfile</span><span class="p">,</span> <span class="n">subsampling_factor</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="n">PRIMITIVES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;max_pool_3x3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;avg_pool_3x3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sep_conv_3x3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sep_conv_5x5&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;dil_conv_3x3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;dil_conv_5x5&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># # Use all edges</span>
+    <span class="c1"># all_edges_list = []</span>
+    <span class="c1"># all_names_list = []</span>
+    <span class="c1"># for i in all_edges_activs.keys():</span>
+    <span class="c1">#     all_edges_list.extend(all_edges_activs[i])</span>
+    <span class="c1">#     for prim in PRIMITIVES:</span>
+    <span class="c1">#         all_names_list.append(i + &#39;_&#39; + prim)</span>
+
+    <span class="c1"># Use specific edges</span>
+    <span class="n">all_edges_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_names_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># edge_list = [&#39;activations_node_0_edge_0&#39;]</span>
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;activations_node_0_edge_0&#39;</span><span class="p">,</span> <span class="s1">&#39;activations_node_0_edge_1&#39;</span><span class="p">]</span>
+    <span class="c1"># edge_list = [&#39;activations_node_1_edge_0&#39;, &#39;activations_node_1_edge_1&#39;, &#39;activations_node_1_edge_2&#39;]</span>
+    <span class="c1"># edge_list = [&#39;activations_node_2_edge_0&#39;, &#39;activations_node_2_edge_1&#39;, &#39;activations_node_2_edge_2&#39;, &#39;activations_node_2_edge_3&#39;]</span>
+    <span class="c1"># edge_list = [&#39;activations_node_3_edge_0&#39;, &#39;activations_node_3_edge_1&#39;, &#39;activations_node_3_edge_2&#39;, &#39;activations_node_3_edge_3&#39;, &#39;activations_node_3_edge_4&#39;]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">edge_list</span><span class="p">:</span>
+        <span class="n">all_edges_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">all_edges_activs</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">prim</span> <span class="ow">in</span> <span class="n">PRIMITIVES</span><span class="p">:</span>
+            <span class="n">all_names_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">prim</span><span class="p">)</span>
+
+
+    <span class="c1"># compute covariance like usual</span>
+    <span class="c1"># cov = compute_covariance_offline(all_edges_list)</span>
+    <span class="c1"># corr = compute_correlation(cov)</span>
+    <span class="c1"># sns.heatmap(corr, annot=False, xticklabels=all_names_list, yticklabels=all_names_list, cmap=&#39;coolwarm&#39;)</span>
+    <span class="c1"># plt.axis(&#39;equal&#39;)</span>
+    <span class="c1"># plt.show()</span>
+
+    <span class="c1"># compute kernel covariance</span>
+    <span class="c1"># quants = compute_euclidean_dist_quantiles(all_edges_list, subsamplefactor=20)</span>
+    <span class="n">cov_kernel_orig</span> <span class="o">=</span> <span class="n">compute_rbf_kernel_covariance</span><span class="p">(</span><span class="n">all_edges_list</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">168</span><span class="p">)</span>
+    <span class="n">cov_kernel</span> <span class="o">=</span> <span class="n">cov_kernel_orig</span> <span class="o">+</span> <span class="mf">1.0</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">cov_kernel_orig</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Det before diag addition </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">cov_kernel_orig</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Det after diag addition </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">det</span><span class="p">(</span><span class="n">cov_kernel</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Condition number is </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cond</span><span class="p">(</span><span class="n">cov_kernel</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">cov_kernel</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">xticklabels</span><span class="o">=</span><span class="n">all_names_list</span><span class="p">,</span> <span class="n">yticklabels</span><span class="o">=</span><span class="n">all_names_list</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="c1"># brute force solution</span>
+    <span class="n">budget</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">bf_sensors</span><span class="p">,</span> <span class="n">bf_val</span> <span class="o">=</span> <span class="n">compute_brute_force_sol</span><span class="p">(</span><span class="n">cov_kernel_orig</span><span class="p">,</span> <span class="n">budget</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Brute force max subset </span><span class="si">{</span><span class="n">bf_sensors</span><span class="si">}</span><span class="s1">, max mi </span><span class="si">{</span><span class="n">bf_val</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># greedy</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Greedy selection&#39;</span><span class="p">)</span>
+    <span class="n">greedy_ops</span> <span class="o">=</span> <span class="n">greedy_op_selection</span><span class="p">(</span><span class="n">cov_kernel</span><span class="p">,</span> <span class="n">cov_kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">op_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">greedy_ops</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Greedy op </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1"> is </span><span class="si">{</span><span class="n">all_names_list</span><span class="p">[</span><span class="n">op_index</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">greedy_budget</span> <span class="o">=</span> <span class="n">greedy_ops</span><span class="p">[:</span><span class="n">budget</span><span class="p">]</span>
+     <span class="c1"># find MI of the greedy solution</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">cov_kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">A_greedy</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">greedy_budget</span><span class="p">)</span>
+    <span class="n">V_minus_A_greedy</span> <span class="o">=</span> <span class="n">V</span> <span class="o">-</span> <span class="n">A_greedy</span>
+    <span class="n">I_greedy</span> <span class="o">=</span> <span class="n">_compute_mi</span><span class="p">(</span><span class="n">cov_kernel_orig</span><span class="p">,</span> <span class="n">A_greedy</span><span class="p">,</span> <span class="n">V_minus_A_greedy</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Greedy solution is </span><span class="si">{</span><span class="n">greedy_budget</span><span class="si">}</span><span class="s1">, mi is </span><span class="si">{</span><span class="n">I_greedy</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># seqopt</span>
+    <span class="c1"># simulated batch size</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">all_edges_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="c1"># seqopt object that will get updated in an online manner</span>
+    <span class="n">num_items</span> <span class="o">=</span> <span class="n">cov_kernel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="mf">0.1</span>
+    <span class="n">seqopt</span> <span class="o">=</span> <span class="n">SeqOpt</span><span class="p">(</span><span class="n">num_items</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">)):</span>
+        <span class="c1"># simulate getting a new batch of activations</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">get_batch</span><span class="p">(</span><span class="n">all_edges_list</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+        <span class="c1"># sample a list of activations from seqopt</span>
+        <span class="n">sel_list</span> <span class="o">=</span> <span class="n">seqopt</span><span class="o">.</span><span class="n">sample_sequence</span><span class="p">(</span><span class="n">with_replacement</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Using 50th percentile distance</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="mf">168.0</span>
+        <span class="n">cov</span> <span class="o">=</span> <span class="n">compute_rbf_kernel_covariance</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+
+        <span class="c1"># update seqopt</span>
+        <span class="n">compute_marginal_gain_func</span> <span class="o">=</span> <span class="n">create_submod_f</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
+        <span class="n">seqopt</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sel_list</span><span class="p">,</span> <span class="n">compute_marginal_gain_func</span><span class="p">)</span>
+
+    <span class="c1"># now sample a list of ops and hope it is diverse</span>
+    <span class="n">sel_list</span> <span class="o">=</span> <span class="n">seqopt</span><span class="o">.</span><span class="n">sample_sequence</span><span class="p">(</span><span class="n">with_replacement</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># sel_primitives = [all_names_list for i in sel_list]</span>
+    <span class="c1"># print(f&#39;SeqOpt selected primitives are {sel_primitives}&#39;)</span>
+
+    <span class="c1"># check that it is close to greedy and or bruteforce</span>
+    <span class="n">budget</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">sel_list</span> <span class="o">=</span> <span class="n">sel_list</span><span class="p">[:</span><span class="n">budget</span><span class="p">]</span>
+     <span class="c1"># find MI of the greedy solution</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_items</span><span class="p">))</span>
+    <span class="n">A_seqopt</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">sel_list</span><span class="p">)</span>
+    <span class="n">V_minus_A_seqopt</span> <span class="o">=</span> <span class="n">V</span> <span class="o">-</span> <span class="n">A_seqopt</span>
+    <span class="n">I_seqopt</span> <span class="o">=</span> <span class="n">_compute_mi</span><span class="p">(</span><span class="n">cov_kernel_orig</span><span class="p">,</span> <span class="n">A_seqopt</span><span class="p">,</span> <span class="n">V_minus_A_seqopt</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;SeqOpt solution is </span><span class="si">{</span><span class="n">sel_list</span><span class="si">}</span><span class="s1">, mi is </span><span class="si">{</span><span class="n">I_seqopt</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># # For enumerating through many choices of rbf sigmas</span>
+    <span class="c1"># covs_kernel = {}</span>
+    <span class="c1"># for quantile, val in quants:</span>
+    <span class="c1">#     print(f&#39;Computing kernel covariance for quantile {quantile}&#39;)</span>
+    <span class="c1">#     cov_kernel = compute_rbf_kernel_covariance(all_edges_list, sigma=val)</span>
+    <span class="c1">#     covs_kernel[quantile] = cov_kernel</span>
+
+    <span class="c1"># # compute greedy sequence of ops on one of the kernels</span>
+    <span class="c1"># print(&#39;Greedy selection&#39;)</span>
+    <span class="c1"># greedy_ops = greedy_op_selection(covs_kernel[0.5], 3)</span>
+
+    <span class="c1"># for i, op_index in enumerate(greedy_ops):</span>
+    <span class="c1">#     print(f&#39;Greedy op {i} is {all_names_list[op_index]}&#39;)</span>
+
+
+    <span class="c1"># fig, axs = plt.subplots(5, 2)</span>
+    <span class="c1"># plot_all_covs(covs_kernel, corr, all_names_list, axs)</span>
+    <span class="c1"># plt.show()</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Microsoft<br/>
+  
+      &copy; Copyright 2023.<br/>
+    Last updated on Jan 31, 2023.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,1290 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Datasets &#8212; Archai</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Providers" href="archai.supergraph.datasets.providers.html" />
+    <link rel="prev" title="XNAS" href="archai.supergraph.algos.xnas.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../../_static/logo.png" class="logo" alt="logo">
+      
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Getting Started
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../getting_started/installation.html">
+   Installation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../getting_started/package_structure.html">
+   Package Structure
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../getting_started/quick_start.html">
+   Quick Start
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../getting_started/notebooks.html">
+   Notebooks
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../../getting_started/notebooks/discrete_search.html">
+     Discrete Search
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/search_space.html">
+       Search Spaces
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/evaluators.html">
+       Evaluators
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/algos.html">
+       Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../../getting_started/notebooks/discrete_search/config_search.html">
+       Configuration-based Search
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../getting_started/notebooks/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../getting_started/notebooks/cv.html">
+     Computer Vision
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../getting_started/notebooks/nlp.html">
+     Natural Language Processing
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Advanced Guide
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../advanced_guide/nas.html">
+   Neural Architecture Search
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+  <label for="toctree-checkbox-3">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/nas/discrete_search.html">
+     Discrete Search
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/nas/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../advanced_guide/cv.html">
+   Computer Vision
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+  <label for="toctree-checkbox-4">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/cv/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/cv/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/cv/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/cv/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../advanced_guide/nlp.html">
+   Natural Language Processing
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/nlp/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/nlp/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/nlp/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/nlp/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../../advanced_guide/cloud.html">
+   Cloud-Based Search
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+  <label for="toctree-checkbox-6">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../../advanced_guide/cloud/azure.html">
+     Azure
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contributing
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../contributing/first_contribution.html">
+   First Time Contributor
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../contributing/documentation.html">
+   Documentation
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../contributing/unitary_tests.html">
+   Unitary Tests
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Support
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../support/faq.html">
+   Frequently Asked Questions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../support/contact.html">
+   Contact
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../../support/copyright.html">
+   Copyright
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="../api.html">
+   API
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+  <label for="toctree-checkbox-7">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="archai.api.html">
+     API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="archai.common.html">
+     Common Packages
+    </a>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.datasets.html">
+     Datasets
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+    <label for="toctree-checkbox-8">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.datasets.cv.html">
+       Computer Vision
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.datasets.cv.transforms.html">
+         Transforms
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.datasets.nlp.html">
+       Natural Language Processing
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
+      <label for="toctree-checkbox-10">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.datasets.nlp.tokenizer_utils.html">
+         Tokenization Utilities
+        </a>
+       </li>
+      </ul>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.discrete_search.html">
+     Discrete Search
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+    <label for="toctree-checkbox-11">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.discrete_search.algos.html">
+       Search Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.discrete_search.api.html">
+       API
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.discrete_search.evaluators.html">
+       Evaluators
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+      <label for="toctree-checkbox-12">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">
+         PyTorch Profiler (Utilities)
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.discrete_search.predictors.html">
+       Predictors
+      </a>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.discrete_search.search_spaces.html">
+       Search Spaces
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+      <label for="toctree-checkbox-13">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.config.html">
+         Configuration-Based
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">
+         NATS-Bench
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">
+         Segmentation DAG
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.discrete_search.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.onnx.html">
+     ONNX
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+    <label for="toctree-checkbox-14">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.onnx.config_utils.html">
+       Configuration Utilities
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.onnx.optimization_utils.html">
+       Optimization Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.quantization.html">
+     Quantization
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+    <label for="toctree-checkbox-15">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.quantization.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 current active has-children">
+    <a class="reference internal" href="archai.supergraph.html">
+     Supergraph
+    </a>
+    <input checked="" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+    <label for="toctree-checkbox-16">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul class="current">
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.supergraph.algos.html">
+       Algorithms
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
+      <label for="toctree-checkbox-17">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.darts.html">
+         DARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.didarts.html">
+         DiDARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.divnas.html">
+         DivNAS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.gumbelsoftmax.html">
+         Gumbel-Softmax
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.manual.html">
+         Manual
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.nasbench101.html">
+         NasBench-101
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.petridish.html">
+         Petridish
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.random.html">
+         Random
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.algos.xnas.html">
+         XNAS
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 current active has-children">
+      <a class="current reference internal" href="#">
+       Datasets
+      </a>
+      <input checked="" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
+      <label for="toctree-checkbox-18">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.datasets.providers.html">
+         Providers
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="archai.supergraph.models.html">
+       Models
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+      <label for="toctree-checkbox-19">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="archai.supergraph.models.shakeshake.html">
+         ShakeShake
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.supergraph.nas.html">
+       Neural Architecture Search
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.supergraph.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="archai.trainers.html">
+     Trainers
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+    <label for="toctree-checkbox-20">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.trainers.cv.html">
+       Computer Vision
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="archai.trainers.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../roadmap.html">
+   Roadmap
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../changelog.html">
+   Changelog
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/microsoft/archai"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Freference/api/archai.supergraph.datasets.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/microsoft/archai/edit/master/reference/api/archai.supergraph.datasets.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Sections
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.aug_policies">
+   Augmentation Policies
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.augmentation">
+   Augmentations
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.data">
+   Data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.dataset_provider">
+   Dataset Provider
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.distributed_stratified_sampler">
+   Distributed Stratified Sampler
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.limit_dataset">
+   Limit Dataset
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.meta_dataset">
+   Meta Dataset
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Datasets</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Sections </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.aug_policies">
+   Augmentation Policies
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.augmentation">
+   Augmentations
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.data">
+   Data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.dataset_provider">
+   Dataset Provider
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.distributed_stratified_sampler">
+   Distributed Stratified Sampler
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.limit_dataset">
+   Limit Dataset
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-archai.supergraph.datasets.meta_dataset">
+   Meta Dataset
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="datasets">
+<h1>Datasets<a class="headerlink" href="#datasets" title="Permalink to this headline">#</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="archai.supergraph.datasets.providers.html">Providers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.aircraft_provider">Aicraft</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.cifar100_provider">CIFAR-100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.cifar10_provider">CIFAR-10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.fashion_mnist_provider">Fashion-MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.flower102_provider">Flower-102</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.food101_provider">Food-101</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.imagenet_folder">ImageNet Folder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.imagenet_provider">ImageNet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.mit67_provider">MIT-67</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.mnist_provider">MNIST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.person_coco_provider">Person-COCO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.sport8_provider">Sport-8</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.stanfordcars_provider">StanfordCars</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.datasets.providers.html#module-archai.supergraph.datasets.providers.svhn_provider">SVHN</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="module-archai.supergraph.datasets.aug_policies">
+<span id="augmentation-policies"></span><h2>Augmentation Policies<a class="headerlink" href="#module-archai.supergraph.datasets.aug_policies" title="Permalink to this headline">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.aug_policies.fa_reduced_cifar10">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.aug_policies.</span></span><span class="sig-name descname"><span class="pre">fa_reduced_cifar10</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/aug_policies.html#fa_reduced_cifar10"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.aug_policies.fa_reduced_cifar10" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.aug_policies.fa_resnet50_rimagenet">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.aug_policies.</span></span><span class="sig-name descname"><span class="pre">fa_resnet50_rimagenet</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/aug_policies.html#fa_resnet50_rimagenet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.aug_policies.fa_resnet50_rimagenet" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.aug_policies.fa_reduced_svhn">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.aug_policies.</span></span><span class="sig-name descname"><span class="pre">fa_reduced_svhn</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/aug_policies.html#fa_reduced_svhn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.aug_policies.fa_reduced_svhn" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-archai.supergraph.datasets.augmentation">
+<span id="augmentations"></span><h2>Augmentations<a class="headerlink" href="#module-archai.supergraph.datasets.augmentation" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Augmentation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Augmentation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Augmentation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Augmentation" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.add_named_augs">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">add_named_augs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transform_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#add_named_augs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.add_named_augs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.ShearX">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">ShearX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#ShearX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.ShearX" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.ShearY">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">ShearY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#ShearY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.ShearY" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.TranslateX">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">TranslateX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#TranslateX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.TranslateX" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.TranslateY">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">TranslateY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#TranslateY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.TranslateY" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.TranslateXAbs">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">TranslateXAbs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#TranslateXAbs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.TranslateXAbs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.TranslateYAbs">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">TranslateYAbs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#TranslateYAbs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.TranslateYAbs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Rotate">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Rotate" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.AutoContrast">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">AutoContrast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#AutoContrast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.AutoContrast" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Invert">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Invert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Invert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Invert" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Equalize">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Equalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Equalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Equalize" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Flip">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Flip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Flip"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Flip" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Solarize">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Solarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Solarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Solarize" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Posterize">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Posterize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Posterize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Posterize" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Posterize2">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Posterize2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Posterize2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Posterize2" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Contrast">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Contrast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Contrast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Contrast" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Color">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Color</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Color" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Brightness">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Brightness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Brightness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Brightness" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Sharpness">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Sharpness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Sharpness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Sharpness" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.Cutout">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">Cutout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#Cutout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.Cutout" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.CutoutAbs">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">CutoutAbs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#CutoutAbs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.CutoutAbs" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.SamplePairing">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">SamplePairing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imgs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#SamplePairing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.SamplePairing" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.augment_list">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">augment_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">for_autoaug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#augment_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.augment_list" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.get_augment">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">get_augment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#get_augment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.get_augment" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.apply_augment">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">apply_augment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#apply_augment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.apply_augment" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.arsaug_policy">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">arsaug_policy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#arsaug_policy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.arsaug_policy" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.autoaug2arsaug">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">autoaug2arsaug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#autoaug2arsaug"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.autoaug2arsaug" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.autoaug_paper_cifar10">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">autoaug_paper_cifar10</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#autoaug_paper_cifar10"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.autoaug_paper_cifar10" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.autoaug_policy">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">autoaug_policy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#autoaug_policy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.autoaug_policy" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.float_parameter">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">float_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxval</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#float_parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.float_parameter" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.int_parameter">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">int_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxval</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#int_parameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.int_parameter" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.no_duplicates">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">no_duplicates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#no_duplicates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.no_duplicates" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.remove_deplicates">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">remove_deplicates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#remove_deplicates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.remove_deplicates" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.augmentation.policy_decoder">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.augmentation.</span></span><span class="sig-name descname"><span class="pre">policy_decoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">augment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_policy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_op</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/augmentation.html#policy_decoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.augmentation.policy_decoder" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-archai.supergraph.datasets.data">
+<span id="data"></span><h2>Data<a class="headerlink" href="#module-archai.supergraph.datasets.data" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.data.DataLoaders">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.data.</span></span><span class="sig-name descname"><span class="pre">DataLoaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_dl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataloader.DataLoader</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_dl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataloader.DataLoader</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_dl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataloader.DataLoader</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/data.html#DataLoaders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.data.DataLoaders" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.data.get_data">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.data.</span></span><span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_loader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.supergraph.datasets.data.DataLoaders" title="archai.supergraph.datasets.data.DataLoaders"><span class="pre">archai.supergraph.datasets.data.DataLoaders</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/data.html#get_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.data.get_data" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.data.create_dataset_provider">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.data.</span></span><span class="sig-name descname"><span class="pre">create_dataset_provider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.supergraph.datasets.dataset_provider.DatasetProvider" title="archai.supergraph.datasets.dataset_provider.DatasetProvider"><span class="pre">archai.supergraph.datasets.dataset_provider.DatasetProvider</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/data.html#create_dataset_provider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.data.create_dataset_provider" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.data.get_dataloaders">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.data.</span></span><span class="sig-name descname"><span class="pre">get_dataloaders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.supergraph.datasets.dataset_provider.DatasetProvider" title="archai.supergraph.datasets.dataset_provider.DatasetProvider"><span class="pre">archai.supergraph.datasets.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.utils.html#archai.supergraph.utils.apex_utils.ApexUtils" title="archai.supergraph.utils.apex_utils.ApexUtils"><span class="pre">archai.supergraph.utils.apex_utils.ApexUtils</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_fold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_workers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_workers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_batches</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataloader.DataLoader</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataloader.DataLoader</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataloader.DataLoader</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/data.html#get_dataloaders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.data.get_dataloaders" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.data.SubsetSampler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.data.</span></span><span class="sig-name descname"><span class="pre">SubsetSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/data.html#SubsetSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.data.SubsetSampler" title="Permalink to this definition">#</a></dt>
+<dd><p>Samples elements from a given list of indices, without replacement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>indices</strong> (<em>sequence</em>) – a sequence of indices</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-archai.supergraph.datasets.dataset_provider">
+<span id="dataset-provider"></span><h2>Dataset Provider<a class="headerlink" href="#module-archai.supergraph.datasets.dataset_provider" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.dataset_provider.DatasetProvider">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.dataset_provider.</span></span><span class="sig-name descname"><span class="pre">DatasetProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/dataset_provider.html#DatasetProvider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.dataset_provider.DatasetProvider" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.dataset_provider.DatasetProvider.get_datasets">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">load_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_test</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataset.Dataset</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.utils.data.dataset.Dataset</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/dataset_provider.html#DatasetProvider.get_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.dataset_provider.DatasetProvider.get_datasets" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.dataset_provider.DatasetProvider.get_transforms">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_transforms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/dataset_provider.html#DatasetProvider.get_transforms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.dataset_provider.DatasetProvider.get_transforms" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.dataset_provider.register_dataset_provider">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.dataset_provider.</span></span><span class="sig-name descname"><span class="pre">register_dataset_provider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">overrides.enforce.EnforceOverridesMeta</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/dataset_provider.html#register_dataset_provider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.dataset_provider.register_dataset_provider" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.dataset_provider.get_provider_type">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.dataset_provider.</span></span><span class="sig-name descname"><span class="pre">get_provider_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">overrides.enforce.EnforceOverridesMeta</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/dataset_provider.html#get_provider_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.dataset_provider.get_provider_type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-archai.supergraph.datasets.distributed_stratified_sampler">
+<span id="distributed-stratified-sampler"></span><h2>Distributed Stratified Sampler<a class="headerlink" href="#module-archai.supergraph.datasets.distributed_stratified_sampler" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.distributed_stratified_sampler.DistributedStratifiedSampler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.distributed_stratified_sampler.</span></span><span class="sig-name descname"><span class="pre">DistributedStratifiedSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.utils.data.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">world_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_val_split</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/distributed_stratified_sampler.html#DistributedStratifiedSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.distributed_stratified_sampler.DistributedStratifiedSampler" title="Permalink to this definition">#</a></dt>
+<dd><p>Distributed stratified sampling of dataset.</p>
+<p>This sampler works in distributed as well as non-distributed setting with no penalty in
+either mode and is a replacement for built-in <cite>torch.util.data.DistributedSampler</cite>.</p>
+<p>In distributed setting, many instances of the same code runs as process
+known as replicas. Each replica has sequential number assigned by the launcher,
+starting from 0 to uniquely identify it. This is known as global rank or simply rank.
+The number of replicas is known as the world size. For non-distributed setting,
+<cite>world_size=1</cite> and <cite>rank=0</cite>.</p>
+<p>This sampler assumes that labels for each datapoint is available in dataset.targets
+property which should be array like containing as many values as length of the dataset.
+This is availalble already for many popular datasets such as cifar and, with newer
+PyTorch versions, <cite>ImageFolder</cite> as well as <cite>DatasetFolder</cite>. If you are using custom dataset,
+you can usually create this property with one line of code such as
+<cite>dataset.targets = [yi for _, yi in dataset]</cite>.</p>
+<p>To do distributed sampling, each replica must shuffle with same seed as all other
+replicas with every epoch and then chose some subset of dataset for itself.
+Traditionally, we use epoch number as seed for shuffling for each replica.
+However, this then requires that training code calls <cite>sampler.set_epoch(epoch)</cite>
+to set seed at every epoch.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.distributed_stratified_sampler.DistributedStratifiedSampler.set_epoch">
+<span class="sig-name descname"><span class="pre">set_epoch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/distributed_stratified_sampler.html#DistributedStratifiedSampler.set_epoch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.distributed_stratified_sampler.DistributedStratifiedSampler.set_epoch" title="Permalink to this definition">#</a></dt>
+<dd><p>Set the epoch for the current replica, which is used to seed the shuffling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>epoch</strong> – Epoch number.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-archai.supergraph.datasets.limit_dataset">
+<span id="limit-dataset"></span><h2>Limit Dataset<a class="headerlink" href="#module-archai.supergraph.datasets.limit_dataset" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.limit_dataset.LimitDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.limit_dataset.</span></span><span class="sig-name descname"><span class="pre">LimitDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/limit_dataset.html#LimitDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.limit_dataset.LimitDataset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-archai.supergraph.datasets.meta_dataset">
+<span id="meta-dataset"></span><h2>Meta Dataset<a class="headerlink" href="#module-archai.supergraph.datasets.meta_dataset" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.supergraph.datasets.meta_dataset.MetaDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.datasets.meta_dataset.</span></span><span class="sig-name descname"><span class="pre">MetaDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.utils.data.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/datasets/meta_dataset.html#MetaDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.datasets.meta_dataset.MetaDataset" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="archai.supergraph.algos.xnas.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">XNAS</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="archai.supergraph.datasets.providers.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Providers</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Microsoft<br/>
+  
+      &copy; Copyright 2023.<br/>
+    Last updated on Jan 31, 2023.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

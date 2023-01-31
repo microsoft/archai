@@ -102,29 +102,17 @@
   </a>
  </li>
  <li class="toctree-l1">
-  <a class="reference internal" href="../getting_started/quick_start.html">
-   Quick Start
-  </a>
- </li>
- <li class="toctree-l1">
   <a class="reference internal" href="../getting_started/package_structure.html">
    Package Structure
   </a>
  </li>
-</ul>
-<p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
-  Basic Guide
- </span>
-</p>
-<ul class="nav bd-sidenav">
  <li class="toctree-l1">
-  <a class="reference internal" href="../basic_guide/tutorial.html">
-   30-Minute Tutorial
+  <a class="reference internal" href="../getting_started/quick_start.html">
+   Quick Start
   </a>
  </li>
  <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../basic_guide/notebooks.html">
+  <a class="reference internal" href="../getting_started/notebooks.html">
    Notebooks
   </a>
   <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
@@ -134,7 +122,7 @@
   </label>
   <ul>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../basic_guide/notebooks/discrete_search.html">
+    <a class="reference internal" href="../getting_started/notebooks/discrete_search.html">
      Discrete Search
     </a>
     <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
@@ -144,38 +132,43 @@
     </label>
     <ul>
      <li class="toctree-l3">
-      <a class="reference internal" href="../basic_guide/notebooks/discrete_search/search_space.html">
+      <a class="reference internal" href="../getting_started/notebooks/discrete_search/search_space.html">
        Search Spaces
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../basic_guide/notebooks/discrete_search/search_algos.html">
-       Search Algorithms
+      <a class="reference internal" href="../getting_started/notebooks/discrete_search/evaluators.html">
+       Evaluators
       </a>
      </li>
      <li class="toctree-l3">
-      <a class="reference internal" href="../basic_guide/notebooks/discrete_search/config_search.html">
-       Config Search
+      <a class="reference internal" href="../getting_started/notebooks/discrete_search/algos.html">
+       Algorithms
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../getting_started/notebooks/discrete_search/config_search.html">
+       Configuration-based Search
       </a>
      </li>
     </ul>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../basic_guide/notebooks/cv.html">
+    <a class="reference internal" href="../getting_started/notebooks/supergraph.html">
+     Supergraph
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../getting_started/notebooks/cv.html">
      Computer Vision
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../basic_guide/notebooks/nlp.html">
+    <a class="reference internal" href="../getting_started/notebooks/nlp.html">
      Natural Language Processing
     </a>
    </li>
   </ul>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="../basic_guide/examples_scripts.html">
-   Examples &amp; Scripts
-  </a>
  </li>
 </ul>
 <p aria-level="2" class="caption" role="heading">
@@ -195,30 +188,20 @@
   </label>
   <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../advanced_guide/nas/available_algorithms.html">
-     Available Algorithms
+    <a class="reference internal" href="../advanced_guide/nas/discrete_search.html">
+     Discrete Search
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../advanced_guide/nas/petridish.html">
-     Petridish
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../advanced_guide/nas/implementing_darts.html">
-     Implementing DARTS
+    <a class="reference internal" href="../advanced_guide/nas/supergraph.html">
+     Supergraph
     </a>
    </li>
   </ul>
  </li>
- <li class="toctree-l1">
+ <li class="toctree-l1 has-children">
   <a class="reference internal" href="../advanced_guide/cv.html">
    Computer Vision
-  </a>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../advanced_guide/nlp.html">
-   Natural Language Processing
   </a>
   <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
   <label for="toctree-checkbox-4">
@@ -227,13 +210,45 @@
   </label>
   <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../advanced_guide/nlp/training.html">
-     Training
+    <a class="reference internal" href="../advanced_guide/cv/datasets.html">
+     Datasets
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="../advanced_guide/nlp/evaluation.html">
-     Evaluation
+    <a class="reference internal" href="../advanced_guide/cv/trainers.html">
+     Trainers
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../advanced_guide/cv/onnx.html">
+     ONNX
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../advanced_guide/cv/quantization.html">
+     Quantization
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../advanced_guide/nlp.html">
+   Natural Language Processing
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../advanced_guide/nlp/datasets.html">
+     Datasets
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../advanced_guide/nlp/trainers.html">
+     Trainers
     </a>
    </li>
    <li class="toctree-l2">
@@ -249,30 +264,8 @@
   </ul>
  </li>
  <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../advanced_guide/large_scale_training.html">
-   Large-Scale Training
-  </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-  <label for="toctree-checkbox-5">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../advanced_guide/large_scale_training/deepspeed.html">
-     DeepSpeed
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../advanced_guide/large_scale_training/fsdp.html">
-     Fully Shared Data Parallel (FSDP)
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../advanced_guide/devops.html">
-   DevOps
+  <a class="reference internal" href="../advanced_guide/cloud.html">
+   Cloud-Based Search
   </a>
   <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
   <label for="toctree-checkbox-6">
@@ -281,7 +274,7 @@
   </label>
   <ul>
    <li class="toctree-l2">
-    <a class="reference internal" href="../advanced_guide/devops/azure.html">
+    <a class="reference internal" href="../advanced_guide/cloud/azure.html">
      Azure
     </a>
    </li>
@@ -348,62 +341,10 @@
    </i>
   </label>
   <ul>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../reference/api/archai.algos.html">
-     Algorithms
+   <li class="toctree-l2">
+    <a class="reference internal" href="../reference/api/archai.api.html">
+     API
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
-    <label for="toctree-checkbox-8">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.algos.darts.html">
-       DARTS
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.algos.didarts.html">
-       DiDARTS
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.algos.divnas.html">
-       DivNAS
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.algos.gumbelsoftmax.html">
-       Gumbel-Softmax
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.algos.manual.html">
-       Manual
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.algos.nasbench101.html">
-       NasBench-101
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.algos.petridish.html">
-       Petridish
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.algos.random.html">
-       Random
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.algos.xnas.html">
-       XNAS
-      </a>
-     </li>
-    </ul>
    </li>
    <li class="toctree-l2">
     <a class="reference internal" href="../reference/api/archai.common.html">
@@ -411,18 +352,35 @@
     </a>
    </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../reference/api/archai.cv.html">
-     Computer Vision
+    <a class="reference internal" href="../reference/api/archai.datasets.html">
+     Datasets
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
-    <label for="toctree-checkbox-9">
+    <input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/>
+    <label for="toctree-checkbox-8">
      <i class="fas fa-chevron-down">
      </i>
     </label>
     <ul>
      <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../reference/api/archai.cv.datasets.html">
-       Datasets
+      <a class="reference internal" href="../reference/api/archai.datasets.cv.html">
+       Computer Vision
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/>
+      <label for="toctree-checkbox-9">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.datasets.cv.transforms.html">
+         Transforms
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../reference/api/archai.datasets.nlp.html">
+       Natural Language Processing
       </a>
       <input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/>
       <label for="toctree-checkbox-10">
@@ -431,30 +389,8 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.cv.datasets.providers.html">
-         Providers
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.cv.datasets.transforms.html">
-         Transforms
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../reference/api/archai.cv.models.html">
-       Models
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
-      <label for="toctree-checkbox-11">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.cv.models.shakeshake.html">
-         ShakeShake
+        <a class="reference internal" href="../reference/api/archai.datasets.nlp.tokenizer_utils.html">
+         Tokenization Utilities
         </a>
        </li>
       </ul>
@@ -465,143 +401,140 @@
     <a class="reference internal" href="../reference/api/archai.discrete_search.html">
      Discrete Search
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
-    <label for="toctree-checkbox-12">
+    <input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/>
+    <label for="toctree-checkbox-11">
      <i class="fas fa-chevron-down">
      </i>
     </label>
     <ul>
      <li class="toctree-l3">
       <a class="reference internal" href="../reference/api/archai.discrete_search.algos.html">
-       Search algorithms
+       Search Algorithms
       </a>
      </li>
      <li class="toctree-l3">
       <a class="reference internal" href="../reference/api/archai.discrete_search.api.html">
-       Discrete Search API
+       API
       </a>
      </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.discrete_search.datasets.html">
-       Datasets
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../reference/api/archai.discrete_search.evaluators.html">
+       Evaluators
       </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.discrete_search.objectives.html">
-       Bultin search objectives
-      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/>
+      <label for="toctree-checkbox-12">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.discrete_search.evaluators.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">
+         PyTorch Profiler (Utilities)
+        </a>
+       </li>
+      </ul>
      </li>
      <li class="toctree-l3">
       <a class="reference internal" href="../reference/api/archai.discrete_search.predictors.html">
        Predictors
       </a>
      </li>
-     <li class="toctree-l3">
+     <li class="toctree-l3 has-children">
       <a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.html">
-       Bultin Discrete Search Spaces
+       Search Spaces
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
+      <label for="toctree-checkbox-13">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.config.html">
+         Configuration-Based
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">
+         NATS-Bench
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.nlp.html">
+         Natural Language Processing
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">
+         Segmentation DAG
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../reference/api/archai.discrete_search.utils.html">
+       Utilities
       </a>
      </li>
     </ul>
    </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../reference/api/archai.nas.html">
-     Neural Architecture Search
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../reference/api/archai.onnx.html">
+     ONNX
     </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
+    <label for="toctree-checkbox-14">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../reference/api/archai.onnx.config_utils.html">
+       Configuration Utilities
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../reference/api/archai.onnx.optimization_utils.html">
+       Optimization Utilities
+      </a>
+     </li>
+    </ul>
    </li>
    <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../reference/api/archai.nlp.html">
-     Natural Language Processing
+    <a class="reference internal" href="../reference/api/archai.quantization.html">
+     Quantization
     </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/>
-    <label for="toctree-checkbox-13">
+    <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
+    <label for="toctree-checkbox-15">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../reference/api/archai.quantization.nlp.html">
+       Natural Language Processing
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../reference/api/archai.supergraph.html">
+     Supergraph
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
+    <label for="toctree-checkbox-16">
      <i class="fas fa-chevron-down">
      </i>
     </label>
     <ul>
      <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../reference/api/archai.nlp.datasets.html">
-       Datasets
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/>
-      <label for="toctree-checkbox-14">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.nlp.datasets.hf.html">
-         Hugging Face
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.nlp.datasets.nvidia.html">
-         NVIDIA
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../reference/api/archai.nlp.eval.html">
-       Evaluation
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/>
-      <label for="toctree-checkbox-15">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.nlp.eval.harness.html">
-         Harness
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.nlp.eval.profiler.html">
-         Profiler
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.nlp.eval.text_predict.html">
-         Text Predict
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.nlp.objectives.html">
-       Objectives
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../reference/api/archai.nlp.onnx.html">
-       ONNX
-      </a>
-      <input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/>
-      <label for="toctree-checkbox-16">
-       <i class="fas fa-chevron-down">
-       </i>
-      </label>
-      <ul>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.nlp.onnx.config_utils.html">
-         Configuration Utilities
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.nlp.onnx.optimization_utils.html">
-         Optimization Utilities
-        </a>
-       </li>
-      </ul>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="../reference/api/archai.nlp.quantization.html">
-       Quantization
-      </a>
-     </li>
-     <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../reference/api/archai.nlp.search_spaces.html">
-       Search Spaces
+      <a class="reference internal" href="../reference/api/archai.supergraph.algos.html">
+       Algorithms
       </a>
       <input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/>
       <label for="toctree-checkbox-17">
@@ -610,15 +543,55 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.nlp.search_spaces.transformer_flex.html">
-         Transformer-Flex
+        <a class="reference internal" href="../reference/api/archai.supergraph.algos.darts.html">
+         DARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.supergraph.algos.didarts.html">
+         DiDARTS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.supergraph.algos.divnas.html">
+         DivNAS
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.supergraph.algos.gumbelsoftmax.html">
+         Gumbel-Softmax
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.supergraph.algos.manual.html">
+         Manual
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.supergraph.algos.nasbench101.html">
+         NasBench-101
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.supergraph.algos.petridish.html">
+         Petridish
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.supergraph.algos.random.html">
+         Random
+        </a>
+       </li>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.supergraph.algos.xnas.html">
+         XNAS
         </a>
        </li>
       </ul>
      </li>
      <li class="toctree-l3 has-children">
-      <a class="reference internal" href="../reference/api/archai.nlp.trainers.html">
-       Trainers
+      <a class="reference internal" href="../reference/api/archai.supergraph.datasets.html">
+       Datasets
       </a>
       <input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/>
       <label for="toctree-checkbox-18">
@@ -627,16 +600,60 @@
       </label>
       <ul>
        <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.nlp.trainers.hf.html">
-         Hugging Face
-        </a>
-       </li>
-       <li class="toctree-l4">
-        <a class="reference internal" href="../reference/api/archai.nlp.trainers.nvidia.html">
-         NVIDIA
+        <a class="reference internal" href="../reference/api/archai.supergraph.datasets.providers.html">
+         Providers
         </a>
        </li>
       </ul>
+     </li>
+     <li class="toctree-l3 has-children">
+      <a class="reference internal" href="../reference/api/archai.supergraph.models.html">
+       Models
+      </a>
+      <input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/>
+      <label for="toctree-checkbox-19">
+       <i class="fas fa-chevron-down">
+       </i>
+      </label>
+      <ul>
+       <li class="toctree-l4">
+        <a class="reference internal" href="../reference/api/archai.supergraph.models.shakeshake.html">
+         ShakeShake
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../reference/api/archai.supergraph.nas.html">
+       Neural Architecture Search
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../reference/api/archai.supergraph.utils.html">
+       Utilities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="../reference/api/archai.trainers.html">
+     Trainers
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/>
+    <label for="toctree-checkbox-20">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../reference/api/archai.trainers.cv.html">
+       Computer Vision
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../reference/api/archai.trainers.nlp.html">
+       Natural Language Processing
+      </a>
      </li>
     </ul>
    </li>
@@ -835,7 +852,7 @@ title="Edit this page"
 <p>We welcome any questions, feedback, or suggestions you may have and look forward to hearing from you.</p>
 <section id="team">
 <h2>Team<a class="headerlink" href="#team" title="Permalink to this headline">#</a></h2>
-<p>Archai has been created and maintained by <a class="reference external" href="https://shital.com">Shital Shah</a>, <a class="reference external" href="www.debadeepta.com">Debadeepta Dey</a>, <a class="reference external" href="https://www.microsoft.com/en-us/research/people/gderosa">Gustavo de Rosa</a>, Caio Mendes, <a class="reference external" href="https://www.microsoft.com/en-us/research/people/pkauffmann">Piero Kauffmann</a>, and <a class="reference external" href="https://www.microsoft.com/en-us/research/people/oferd">Ofer Dekel</a> at Microsoft Research.</p>
+<p>Archai has been created and maintained by <a class="reference external" href="https://shital.com">Shital Shah</a>, <a class="reference external" href="www.debadeepta.com">Debadeepta Dey</a>, <a class="reference external" href="https://www.microsoft.com/en-us/research/people/gderosa">Gustavo de Rosa</a>, Caio Mendes, <a class="reference external" href="https://www.microsoft.com/en-us/research/people/pkauffmann">Piero Kauffmann</a>, Allie Del Giorno, Mojan Javaheripi, and <a class="reference external" href="https://www.microsoft.com/en-us/research/people/oferd">Ofer Dekel</a> at Microsoft Research.</p>
 </section>
 </section>
 
@@ -871,7 +888,7 @@ title="Edit this page"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 13, 2023.<br/>
+    Last updated on Jan 31, 2023.<br/>
 </p>
         </footer>
     </div>
