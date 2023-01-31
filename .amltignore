@@ -1,10 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-# Folders to be ignored when using AMLT
-devices/
-dockers/
+# Unwanted files and folders
+confs/
+devops/
+docker/
 docs/
+research/
 scripts/
+tasks/
 tests/
-tools/
