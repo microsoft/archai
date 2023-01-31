@@ -101,10 +101,13 @@ class Model(ArchModule):
         return next(self.parameters()).device.type
 
     def drop_path_prob(self, p:float):
-        """ Set drop path probability
-        This will be called externally so any DropPath_ modules get
-        new probability. Typically, every epoch we will reduce this probability.
+        """Set drop path probability.
+        
+        This will be called externally so any `DropPath_` modules get new probability.
+        Typically, every epoch we will reduce this probability.
+
         """
+
         for module in self.modules():
             if isinstance(module, DropPath_):
                 module.p = p

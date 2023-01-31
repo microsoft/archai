@@ -15,7 +15,7 @@ class Lamb(Optimizer):
     """Lamb algorithm for large batch optimization.
 
     It has been proposed in `Large Batch Optimization for Deep Learning:
-        Training BERT in 76 minutes.`
+    Training BERT in 76 minutes`.
 
     Reference:
         https://arxiv.org/abs/1904.00962
@@ -164,7 +164,7 @@ class JITLamb(Optimizer):
     """JIT-based version of the Lamb algorithm for large batch optimization.
 
     It has been proposed in `Large Batch Optimization for Deep Learning:
-        Training BERT in 76 minutes.`
+    Training BERT in 76 minutes`.
 
     Reference:
         https://arxiv.org/abs/1904.00962
