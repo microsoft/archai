@@ -1,0 +1,27 @@
+search:
+  search_space:
+    name: hgnet
+
+    params:
+      num_classes: 7
+      image_size: [256, 256] # (w, h)
+      in_channels: 3
+      op_subset: ['conv3x3', 'conv5x5', 'conv7x7']
+      stem_strides: [2, 4]
+      
+      # number of downsampling blocks without counting stem convs
+      num_blocks: 4 
+      
+      # Max number of ops on each donwsampling block
+      downsample_block_max_ops: 5 
+
+      # Max number of on each skip block
+      skip_block_max_ops: 3
+
+      # Max number of on each upsampling block
+      upsample_block_max_ops: 4
+
+  algo:
+    name: mo_bananas
+    params: 
+
