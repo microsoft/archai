@@ -54,4 +54,4 @@ jobs:
       - name: Tests documentation notebooks
         shell: bash -l {0}
         run: |
-          pytest --nbval-lax docs/basic_guide/notebooks
+          pytest --nbval-lax docs/getting_started/notebooks
