@@ -1,6 +1,10 @@
 # Text Generation
 
+At Archai, we understand the significance of finding the optimal neural architecture in order to achieve the highest performance in text generation. That's why we have developed a cutting-edge neural architecture search method named LiteTransformer Search (LTS). This innovative method allows us to find the most optimal architectures that lie on the Pareto Frontier, where trade-offs are made between multiple objectives such as latency and memory usage.
+
 ## Model Gallery
+
+We utilized GPT-2 as our base model and applied LTS on top of it to find the best performing architectures given a set of constraints. The following table showcases the results of our search:
 
 | Hash | Non-Embedding Parameters (M) | Latency (s) | Memory (MB) |
 | - | - | - | - |
@@ -27,14 +31,46 @@
 
 ## Searching for Pareto-optimal Architectures
 
+We ran LTS for a total of 10 generations and discovered multiple architectures that perform well with regards to non-embedding parameters, latency, and memory. To reproduce the search, the following command can be used:
+
+```python
+python search.py -h
+```
+
+*The arguments used on this task are the default ones provided by the script.*
+
 ### Results
 
+The points to the bottom-left of the plot indicate the best architectures in terms of non-embedding parameters and ONNX-based latency.
+
 ![Non-Embedding Parameters x ONNX Latency Plot](assets/pareto_non_embedding_params_vs_onnx_latency.png)
+
+The points to the bottom-left of the plot represent the best architectures in terms of non-embedding parameters and ONNX-based memory.
 
 ![Non-Embedding Parameters x ONNX Memory Plot](assets/pareto_non_embedding_params_vs_onnx_latency.png)
 
 ## Training the Architectures
 
+Once the Pareto-optimal architectures have been found (located in the `models` folder), they can be trained using the following script:
+
+```python
+python train.py -h
+```
+
+*The arguments used on this task are the default ones provided by the script. The dataset used for training is 7.8B tokens from a pre-encoded version of ThePile.*
+
 ### Results
 
 ## Generating Text with Pre-Trained Architectures
+
+With our pre-trained architectures, high-quality text can be generated with ease using just a few lines of code. Simply download one of the models from our Model Gallery and start generating text immediately:
+
+```python
+python generate_text.py -h
+```
+
+As an alternative, one can use models from Hugging Face's Hub to generate text, such as:
+
+```python
+python generate_text.py "gpt2" "gpt2" <prompt>
+```
