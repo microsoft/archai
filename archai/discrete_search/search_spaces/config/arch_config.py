@@ -2,8 +2,8 @@
 # Licensed under the MIT license.
 
 from __future__ import annotations
-
 import json
+from warnings import warn
 from collections import OrderedDict
 from copy import deepcopy
 from pathlib import Path
@@ -156,12 +156,14 @@ class ArchConfig:
 
         path = Path(path)
 
-        if path.suffix == ".json":
-            # For compatibility with older versions
-            d = json.load(open(path, "r", encoding="utf-8"))
-        elif path.suffix == ".yaml":
+        if path.suffix == ".yaml":
             d = yaml.load(open(path, "r", encoding="utf-8"), Loader=yaml.Loader)
-
+        elif path.suffix == ".json":
+            d = json.load(open(path, "r", encoding="utf-8"))
+        else:
+            warn(f'File extension not found in {str(path)}, trying to load as json')
+            d = json.load(open(path, "r", encoding="utf-8"))
+        
         return build_arch_config(d)
 
 
