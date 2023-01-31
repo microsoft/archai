@@ -26,6 +26,8 @@ def repeat_config(
         Dict[str, Any]: Config dictionary with the repeated config.
     """    
 
+    repeat_times = [repeat_times] if isinstance(repeat_times, int) else repeat_times
+
     return {
         "_config_type": "config_list",
         "_share_arch": share_arch,
