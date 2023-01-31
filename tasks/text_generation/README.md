@@ -1,6 +1,6 @@
 # Text Generation
 
-At Archai, we understand the significance of finding the optimal neural architecture in order to achieve the highest performance in text generation. That's why we have developed a cutting-edge neural architecture search method named LiteTransformer Search (LTS). This innovative method allows us to find the most optimal architectures that lie on the Pareto Frontier, where trade-offs are made between multiple objectives such as latency and memory usage.
+At Archai, we understand the significance of finding the optimal neural architecture in order to achieve the highest performance in text generation. That's why we have developed a cutting-edge neural architecture search method named Lightweight Transformer Search (LTS). This innovative method allows us to find the most optimal architectures that lie on the Pareto Frontier, where trade-offs are made between multiple objectives such as latency and memory usage.
 
 ## Model Gallery
 
