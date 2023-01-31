@@ -1,9 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from random import Random
-from typing import List, Optional, Type, Dict, Any, Union, Callable
 import hashlib
+from random import Random
+from typing import Any, Callable, Dict, List, Optional, Type, Union
 
 import numpy as np
 import torch
@@ -12,12 +12,12 @@ from overrides import overrides
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_space import (
     BayesOptSearchSpace,
-    EvolutionarySearchSpace
+    EvolutionarySearchSpace,
 )
 from archai.discrete_search.search_spaces.config import utils
 from archai.discrete_search.search_spaces.config.arch_config import (
     ArchConfig,
-    build_arch_config
+    build_arch_config,
 )
 from archai.discrete_search.search_spaces.config.arch_param_tree import ArchParamTree
 
@@ -30,10 +30,10 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         seed: Optional[int] = None,
         mutation_prob: float = 0.3,
         track_unused_params: bool = True,
-        unused_param_value: float = float('NaN'),
+        unused_param_value: float = float("NaN"),
         hash_archid: bool = True,
         model_kwargs: Optional[Dict[str, Any]] = None,
-        builder_kwargs: Optional[Dict[str, Any]] = None
+        builder_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Config-based Discrete Search Space.
 
@@ -58,8 +58,8 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.mutation_prob = mutation_prob
         self.track_unused_params = track_unused_params
         self.unused_param_value = unused_param_value
-        self.model_kwargs = model_kwargs
-        self.builder_kwargs = builder_kwargs
+        self.model_kwargs = model_kwargs or {}
+        self.builder_kwargs = builder_kwargs or {}
         self.hash_archid = hash_archid
 
         if callable(self.arch_param_tree):
@@ -82,7 +82,7 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         archid = str(tuple(archid))
 
         if self.hash_archid:
-            archid = hashlib.sha1(archid.encode('utf-8')).hexdigest()
+            archid = hashlib.sha1(archid.encode("utf-8")).hexdigest()
 
         return archid
 
