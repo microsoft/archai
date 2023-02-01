@@ -49,6 +49,7 @@ class HourglassNet(nn.Module):
         super().__init__()
         
         self.num_classes = num_classes
+        self.in_channels = in_channels
         self.arch_config = arch_config
         self.base_channels = arch_config.pick('base_ch')
         
@@ -118,25 +119,24 @@ class HourglassNet(nn.Module):
             self.up_blocks.append(nn.Sequential(*up_block)) 
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        out_dict = {i: 0 for i in range(self.nb_blocks)}
-        inp = self.stem_conv(x)
-        
+        branches = {i: 0 for i in range(self.nb_blocks)}
+        branches[-1] = self.stem_conv(x)
+
         for i in range(self.nb_blocks):
-            out_dict[i] = self.down_blocks[i](inp)
-            inp = out_dict[i]
+            branches[i] = self.down_blocks[i](branches[i-1])
         
         for i in range(self.nb_blocks - 1):
-            out_dict[i] = self.skip_blocks[i](out_dict[i])
+            branches[i] = self.skip_blocks[i](branches[i])
         
+        output = branches[self.nb_blocks - 1]
+
         for i in range(self.nb_blocks)[::-1]:
-            inp = out_dict.pop(i)
-            
             if i > 0:
-                out_dict[i-1] += self.up_blocks[i](self.upsample(inp))
+                output = branches.pop(i-1) + self.up_blocks[i](self.upsample(output))
             else:
-                out = self.up_blocks[i](self.final_upsample(inp))
+                output = self.up_blocks[i](self.final_upsample(output))
         
-        return self.classifier(out)
+        return self.classifier(output)
 
 
 class HgnetSegmentationSearchSpace(ConfigSearchSpace):
