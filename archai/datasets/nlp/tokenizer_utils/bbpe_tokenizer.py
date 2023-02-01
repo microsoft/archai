@@ -38,7 +38,7 @@ class BbpeTokenizer(TokenizerBase):
         model_max_length: Optional[int] = None,
         add_prefix_space: Optional[bool] = True,
         add_prefix_new_line: Optional[bool] = False,
-        sorted_vocab: Optional[bool] = True,
+        sorted_vocab: Optional[bool] = False,
         encode_special_tokens: Optional[bool] = False,
         decode_special_tokens: Optional[bool] = False,
     ) -> None:

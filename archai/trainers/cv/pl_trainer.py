@@ -58,7 +58,10 @@ class PlTrainer(Trainer, TrainerBase):
         return_predictions: Optional[bool] = None,
         ckpt_path: Optional[str] = None,
     ) -> Optional[_PREDICT_OUTPUT]:
-        return self.predict(
+        # Needs to call method directly from class to avoid infinite recurssion
+        # due to same method name in TrainerBase
+        return Trainer.predict(
+            self,
             model=model,
             dataloaders=dataloaders,
             datamodule=datamodule,
