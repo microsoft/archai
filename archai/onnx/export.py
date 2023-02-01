@@ -114,6 +114,7 @@ def export_to_onnx(
     output_model_path: str,
     task: Optional[str] = "causal-lm",
     use_past: Optional[bool] = True,
+    validate: Optional[bool] = True,
     share_weights: Optional[bool] = True,
     opset: Optional[int] = 11,
     atol: Optional[float] = 1e-4,
@@ -125,6 +126,7 @@ def export_to_onnx(
         output_model_path: Path to save the exported ONNX model.
         task: Task identifier to use proper inputs/outputs.
         use_past: Whether to include past key/values in the model.
+        validate: Whether to validate the exported model.
         share_weights: Whether to share the embedding and softmax weights.
         opset: Set of operations to use with ONNX.
         atol: Tolerance between input and exported model.
@@ -162,7 +164,9 @@ def export_to_onnx(
         opset_version=opset,
         do_constant_folding=True,
     )
-    validate_onnx_outputs(onnx_config, model, output_model_path, atol)
+
+    if validate:
+        validate_onnx_outputs(onnx_config, model, output_model_path, atol)
 
     if share_weights:
         weight_sharing(output_model_path, model_type)

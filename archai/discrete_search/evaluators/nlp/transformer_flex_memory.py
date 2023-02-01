@@ -2,7 +2,8 @@
 # Licensed under the MIT license.
 
 import copy
-import os
+import pathlib
+import shutil
 from typing import Any, Dict, Optional
 
 import torch
@@ -18,6 +19,8 @@ from archai.onnx.export import export_to_onnx
 from archai.onnx.export_utils import prepare_model_for_onnx
 from archai.onnx.optimization import optimize_onnx
 
+TMP_FOLDER = pathlib.Path("tmp")
+
 
 class TransformerFlexOnnxMemory(ModelEvaluator):
     """Measure the memory usage of models from the Transformer-Flex search space."""
@@ -26,8 +29,10 @@ class TransformerFlexOnnxMemory(ModelEvaluator):
         self,
         search_space: TransformerFlexSearchSpace,
         use_past: Optional[bool] = True,
+        validate: Optional[bool] = True,
         share_weights: Optional[bool] = True,
         opset: Optional[int] = 11,
+        optimize: Optional[bool] = True,
         only_ort: Optional[bool] = False,
     ) -> None:
         """Initialize the evaluator.
@@ -35,8 +40,10 @@ class TransformerFlexOnnxMemory(ModelEvaluator):
         Args:
             search_space: The search space to use for loading the model.
             use_past: Whether to include past key/values in the model.
+            validate: Whether to validate the exported model.
             share_weights: Whether to share the embedding and softmax weights.
             opset: Set of operations to use with ONNX.
+            optimize: Whether to optimize the ONNX model.
             only_ort: Whether to only apply ORT optimization.
 
         """
@@ -46,8 +53,10 @@ class TransformerFlexOnnxMemory(ModelEvaluator):
 
         # Benchmark settings
         self.use_past = use_past
+        self.validate = validate
         self.share_weights = share_weights
         self.opset = opset
+        self.optimize = optimize
         self.only_ort = only_ort
 
     def _load_and_prepare(self, config: Dict[str, Any]) -> torch.nn.Module:
@@ -65,24 +74,24 @@ class TransformerFlexOnnxMemory(ModelEvaluator):
 
         # There is a bug for Python < 3.10 when using TemporaryFile with Windows,
         # thus, we opted to manually save and remove the temporary file
-        tmp_path = "tmp.onnx"
+        TMP_FOLDER.mkdir(parents=True, exist_ok=True)
+        onnx_path = TMP_FOLDER / "model.onnx"
 
         onnx_config = export_to_onnx(
             model,
-            tmp_path,
+            onnx_path.as_posix(),
             task="causal-lm",
             use_past=self.use_past,
+            validate=self.validate,
             share_weights=self.share_weights,
             opset=self.opset,
         )
-        opt_tmp_path = optimize_onnx(tmp_path, onnx_config, opt_level=0, only_ort=self.only_ort)
 
-        memory = os.path.getsize(opt_tmp_path) / (1024**2)
+        if self.optimize:
+            onnx_path = optimize_onnx(onnx_path.as_posix(), onnx_config, opt_level=0, only_ort=self.only_ort)
 
-        try:
-            os.remove(tmp_path)
-            os.remove(opt_tmp_path)
-        except FileNotFoundError:
-            pass
+        memory = pathlib.Path(onnx_path).stat().st_size / (1024**2)
+
+        shutil.rmtree(TMP_FOLDER)
 
         return memory
