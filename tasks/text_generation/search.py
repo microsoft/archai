@@ -107,7 +107,7 @@ if __name__ == "__main__":
     )
     search_objectives.add_objective(
         "onnx_latency",
-        TransformerFlexOnnxLatency(space, providers=["CPUExecutionProvider"], seq_len=1024, n_trials=5, use_past=False),
+        TransformerFlexOnnxLatency(space, seq_len=1024, n_trials=5, use_past=False),
         higher_is_better=False,
         compute_intensive=False,
     )

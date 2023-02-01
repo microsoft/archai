@@ -48,6 +48,10 @@ class TransformerFlexOnnxLatency(ModelEvaluator):
     ) -> None:
         """Initialize the evaluator.
 
+        This evaluator supports measuring in different ONNX Runtime providers. For measuring on
+        GPUs, use `providers=["CUDAExecutionProvider"]` and make sure that `onnxruntime-gpu`
+        package is installed.
+
         Args:
             search_space: The search space to use for loading the model.
             providers: The list of ORT providers to use for benchmarking.
