@@ -104,7 +104,7 @@ def test_eval_cache(sample_input, models):
     )
     search_objectives.add_objective(
         "OnnxLatency",
-        AvgOnnxLatency(input_shape=(1, 1, 192), num_trials=1, input_dtype="torch.LongTensearch_objectivesr"),
+        AvgOnnxLatency(input_shape=(1, 1, 192), num_trials=1, input_dtype="torch.LongTensor"),
         higher_is_better=False,
     )
     search_objectives.add_constraint("NumberOfParameters", TorchNumParameters(), (0, float("inf")))
@@ -112,11 +112,12 @@ def test_eval_cache(sample_input, models):
 
     # Assert that cheap objectives are evaluated and cached
     result = search_objectives.eval_cheap_objs(models, None, progress_bar=True)
+    assert len(result) == 1
     assert ("Flops", models[0].archid, "NoneType", None) in search_objectives.cache
+
+    assert search_objectives.is_model_valid(models[0], None)
     assert ("NumberOfParameters", models[0].archid, "NoneType", None) in search_objectives.cache
     assert ("Random number", models[0].archid, "NoneType", None) in search_objectives.cache
-    assert len(result) == 1
-    assert search_objectives.is_model_valid(models[0], None)
 
     # Assert that cached value is correct and constraints are valid
     cached_val = search_objectives.cache[("Random number", models[0].archid, "NoneType", None)]
