@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Any
 from unittest.mock import MagicMock
 
 from overrides import overrides
@@ -14,21 +13,22 @@ class MyTrainer(TrainerBase):
         super().__init__()
 
     @overrides
-    def train(self) -> Any:
+    def train(self) -> None:
         return MagicMock()
 
     @overrides
-    def evaluate(self) -> Any:
+    def evaluate(self) -> None:
         return MagicMock()
 
     @overrides
-    def predict(self) -> Any:
+    def predict(self) -> None:
         return MagicMock()
 
 
-def test_my_trainer():
+def test_trainer():
     trainer = MyTrainer()
 
+    # Assert that mocked methods run
     assert trainer.train()
     assert trainer.evaluate()
     assert trainer.predict()
