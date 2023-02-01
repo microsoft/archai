@@ -25,6 +25,7 @@ dependencies = [
     "plotly",
     "psutil",
     "pytest",
+    "pytorch-lightning",
     "pyunpack",
     "pyyaml",
     "ray>=1.0.0",
@@ -61,6 +62,7 @@ extras_require = {}
 extras_require["cv"] = filter_dependencies(
     "gorilla",
     "opencv-python",
+    "pytorch-lightning",
     "scikit-learn",
     "torchvision",
 )
