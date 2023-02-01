@@ -14,7 +14,7 @@ class FaceSyntheticsDataset(torch.utils.data.Dataset):
                'right_ear', 'left_ear', 'mouth_interior', 'top_lip', 'bottom_lip', 'neck', 'hair',
                'beard', 'clothing', 'glasses', 'headwear', 'facewear']
 
-    def __init__(self, dataset_dir: str, img_size: Tuple[int, int],
+    def __init__(self, dataset_dir: str, img_size: Tuple[int, int] = (256, 256),
                  subset: str = 'train', val_size: int = 2000, ignore_index: int = 255,
                  mask_size: Optional[Tuple[int, int]] = None,
                  augmentation: Optional[Callable] = None):
@@ -22,7 +22,7 @@ class FaceSyntheticsDataset(torch.utils.data.Dataset):
 
         Args:
             dataset_dir (str): Dataset directory.
-            img_size (Tuple[int, int]): Image size (width, height)
+            img_size (Tuple[int, int]): Image size (width, height). Defaults to (256, 256).
             subset (str, optional): Subset ['train', 'test', 'validation']. Defaults to 'train'.
             val_size (int, optional): Validation set size. Defaults to 2000.
             
@@ -81,9 +81,9 @@ class FaceSyntheticsDataset(torch.utils.data.Dataset):
 
 
 class FaceSyntheticsDatasetProvider(DatasetProvider):
-    def __init__(self, dataset_dir: Path):
+    def __init__(self, dataset_dir: str):
+        self.dataset_dir = Path(dataset_dir)
         assert self.dataset_dir.is_dir()
-        self.dataset_dir = dataset_dir
     
     @overrides
     def get_train_dataset(self, **kwargs) -> torch.utils.data.Dataset:
