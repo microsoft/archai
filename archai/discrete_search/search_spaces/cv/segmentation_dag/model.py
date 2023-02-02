@@ -15,7 +15,7 @@ import torch
 import yaml
 from torch import nn
 
-from archai.discrete_search.search_spaces.segmentation_dag.ops import OPS, Block
+from archai.discrete_search.search_spaces.cv.segmentation_dag.ops import OPS, Block
 
 
 class SegmentationDagModel(torch.nn.Module):

@@ -14,7 +14,7 @@ from overrides.overrides import overrides
 from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_space import EvolutionarySearchSpace
-from archai.discrete_search.search_spaces.segmentation_dag.model import (
+from archai.discrete_search.search_spaces.cv.segmentation_dag.model import (
     OPS,
     SegmentationDagModel,
 )
