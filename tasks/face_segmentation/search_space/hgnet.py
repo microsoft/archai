@@ -33,7 +33,7 @@ def hgnet_param_tree_factory(stem_strides: Tuple[int, ...] = (2, 4),
                     'op': DiscreteChoice(op_subset)
                 }, repeat_times=range(1, downsample_block_max_ops + 1), share_arch=False),
                 
-                'ch_expansion_factor': DiscreteChoice([0.8, 1.0, 1.2, 1.5, 1.6, 2.0]),
+                'ch_expansion_factor': DiscreteChoice([0.8, 1.0, 1.2, 1.5, 1.6, 2.0, 2.2]),
             }, repeat_times=num_blocks),
             
             'skip_blocks': repeat_config({
@@ -181,11 +181,12 @@ class HgnetSegmentationSearchSpace(ConfigSearchSpace):
                  img_size: Tuple[int, int],
                  in_channels: int = 3,
                  op_subset: Tuple[str, ...] = ('conv3x3', 'conv5x5', 'conv7x7'),
-                 stem_strides: Tuple[int, ...] = (2, 4),
+                 stem_strides: Tuple[int, ...] = (1, 2, 4),
                  num_blocks: int = 4, 
-                 downsample_block_max_ops: int = 5,
-                 skip_block_max_ops: int = 3,
+                 downsample_block_max_ops: int = 4,
+                 skip_block_max_ops: int = 2,
                  upsample_block_max_ops: int = 4,
+                 post_upsample_max_ops: int = 3,
                  **ss_kwargs):
         
         possible_downsample_factors = [
@@ -206,7 +207,8 @@ class HgnetSegmentationSearchSpace(ConfigSearchSpace):
             'num_blocks': num_blocks,
             'downsample_block_max_ops': downsample_block_max_ops,
             'skip_block_max_ops': skip_block_max_ops,
-            'upsample_block_max_ops': upsample_block_max_ops
+            'upsample_block_max_ops': upsample_block_max_ops,
+            'post_upsample_max_ops': post_upsample_max_ops
         }
 
         ss_kwargs['model_kwargs'] = {
