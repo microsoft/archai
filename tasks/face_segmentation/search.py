@@ -69,7 +69,10 @@ if __name__ == '__main__':
 
     so.add_objective(
         'CPU ONNX Latency (s)',
-        AvgOnnxLatency(input_shape=(1, search_space.in_channels, *search_space.img_size[::-1])),
+        AvgOnnxLatency(
+            input_shape=(1, search_space.in_channels, *search_space.img_size[::-1]), 
+            export_kwargs={'opset_version': 11}
+        ),
         higher_is_better=False,
         compute_intensive=False,
         constraint=[0, 5]
