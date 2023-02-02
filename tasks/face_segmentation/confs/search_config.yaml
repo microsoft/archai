@@ -22,4 +22,7 @@ search:
       upsample_block_max_ops: 4
 
   algorithm:
-    name: mo_bananas
+    name: evolution_pareto
+
+    params:
+      mutations_per_parent: 5
