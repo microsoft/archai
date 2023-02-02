@@ -1,4 +1,8 @@
 Computer Vision
 ===============
 
-This page is under development.
+.. toctree::
+   :maxdepth: 2
+
+   Datasets <cv/datasets.ipynb>
+   Trainers <cv/trainers.ipynb>
