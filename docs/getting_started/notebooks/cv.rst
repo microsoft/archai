@@ -4,5 +4,5 @@ Computer Vision
 .. toctree::
    :maxdepth: 2
 
-   Datasets <cv/datasets.ipynb>
-   Trainers <cv/trainers.ipynb>
+   Dataset Provider <cv/cv_dataset_provider.ipynb>
+   PyTorch-Lightining Trainer <cv/pl_trainer.ipynb>
