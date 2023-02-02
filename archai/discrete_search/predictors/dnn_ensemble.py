@@ -27,6 +27,7 @@ class PredictiveDNNEnsemble(Predictor):
         width: Optional[int] = 64,
         lr: Optional[float] = 1e-4,
         num_tr_steps: Optional[int] = 2_000,
+        device: Optional[str] = "cuda",
     ) -> None:
         """Initialize the predictor.
 
@@ -36,6 +37,7 @@ class PredictiveDNNEnsemble(Predictor):
             width: Number of neurons in each hidden layer.
             lr: Learning rate of each ensemble mmember.
             num_tr_steps: Number of training steps of each member.
+            device: Device to use for training.
 
         """
 
@@ -46,7 +48,7 @@ class PredictiveDNNEnsemble(Predictor):
         self.num_tr_steps = num_tr_steps
 
         self.is_fit = False
-        self.device = "cuda"
+        self.device = device
         self.X_meanvar = None
         self.y_meanvar = None
 

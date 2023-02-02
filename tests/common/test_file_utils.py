@@ -11,7 +11,11 @@ from archai.common.file_utils import (
     calculate_onnx_model_size,
     calculate_torch_model_size,
     check_available_checkpoint,
+    copy_file,
+    create_empty_file,
     create_file_name_identifier,
+    create_file_with_string,
+    get_full_path,
 )
 
 
@@ -53,3 +57,60 @@ def test_create_file_name_identifier():
     assert create_file_name_identifier("file.txt", "-abc") == "file-abc.txt"
     assert create_file_name_identifier("/path/to/file.txt", "-abc") == "/path/to/file-abc.txt"
     assert create_file_name_identifier("/path/to/file.txt", "-123") == "/path/to/file-123.txt"
+
+
+def test_create_empty_file():
+    # Assert that the file is created and is empty
+    file_path = "empty_file.txt"
+    create_empty_file(file_path)
+
+    assert os.path.exists(file_path)
+    assert os.path.getsize(file_path) == 0
+
+    os.remove(file_path)
+
+
+def test_create_file_with_string():
+    # Assert that the file is created and contains the string
+    file_path = "file_with_string.txt"
+    content = "Hello World!"
+
+    create_file_with_string(file_path, content)
+    assert os.path.exists(file_path)
+    assert os.path.getsize(file_path) > 0
+
+    with open(file_path, "r") as f:
+        assert f.read() == content
+
+    os.remove(file_path)
+
+
+def test_copy_file():
+    # Assert that the file is copied correctly
+    src_file_path = "src_file.txt"
+    dest_file_path = "dest_file.txt"
+
+    content = "Hello World!"
+    with open(src_file_path, "w") as f:
+        f.write(content)
+
+    copy_file(src_file_path, dest_file_path)
+
+    assert os.path.exists(dest_file_path)
+    assert os.path.getsize(dest_file_path) > 0
+
+    with open(dest_file_path, "r") as f:
+        assert f.read() == content
+
+    os.remove(src_file_path)
+    os.remove(dest_file_path)
+
+
+def test_get_full_path():
+    # Assert that the path is correct
+    path = "~/example_folder"
+    full_path = get_full_path(path, create_folder=True)
+
+    assert os.path.exists(full_path)
+
+    os.rmdir(full_path)

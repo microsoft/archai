@@ -6,11 +6,8 @@ import re
 from setuptools import find_packages, setup
 
 dependencies = [
-    "coloredlogs",
     "datasets>=2.4.0",
-    "evaluate>=0.3.0",
     "flake8>=5.0.4",
-    "ftfy",
     "gorilla>=0.4.0",
     "h5py",
     "hyperopt",
@@ -25,12 +22,11 @@ dependencies = [
     "plotly",
     "psutil",
     "pytest",
+    "pytorch-lightning",
     "pyunpack",
     "pyyaml",
     "ray>=1.0.0",
-    "requests",
     "runstats>=2.0.0",
-    "sacremoses",
     "scikit-learn",
     "seaborn",
     "send2trash>=1.8.0",
@@ -42,7 +38,6 @@ dependencies = [
     "sphinxcontrib-programoutput",
     "sphinxcontrib-mermaid",
     "statopt",
-    "sympy",
     "tensorboard",
     "tensorwatch",
     "tokenizers>=0.10.3",
@@ -61,12 +56,11 @@ extras_require = {}
 extras_require["cv"] = filter_dependencies(
     "gorilla",
     "opencv-python",
+    "pytorch-lightning",
     "scikit-learn",
     "torchvision",
 )
-extras_require["nlp"] = filter_dependencies(
-    "coloredlogs", "datasets", "evaluate", "ftfy", "sacremoses", "sympy", "tokenizers", "transformers"
-)
+extras_require["nlp"] = filter_dependencies("datasets", "tokenizers", "transformers")
 extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
 
 extras_require["docs"] = filter_dependencies(
@@ -95,7 +89,6 @@ install_requires = filter_dependencies(
     "pyunpack",
     "pyyaml",
     "ray",
-    "requests",
     "runstats",
     "seaborn",
     "send2trash",
