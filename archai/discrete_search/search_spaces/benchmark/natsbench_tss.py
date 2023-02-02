@@ -19,14 +19,6 @@ from archai.discrete_search.api.search_space import (
     EvolutionarySearchSpace,
 )
 
-try:
-    from xautodl.models import get_cell_based_tiny_net
-except ImportError:
-    raise ImportError(
-        "xautodl installation not found. "
-        "Please install it using `pip install git+https://github.com/D-X-Y/AutoDL-Projects/`"
-    )
-
 
 class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
     """Search space for NATS-Bench-TSS."""
@@ -42,6 +34,14 @@ class NatsbenchTssSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
             seed: Random seed.
 
         """
+
+        try:
+            from xautodl.models import get_cell_based_tiny_net
+        except ImportError:
+            raise ImportError(
+                "xautodl installation not found. "
+                "Please install it using `pip install git+https://github.com/D-X-Y/AutoDL-Projects/`"
+            )
 
         self.natsbench_location = Path(natsbench_location)
         self.base_dataset = base_dataset
