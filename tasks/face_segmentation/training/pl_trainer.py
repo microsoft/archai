@@ -9,17 +9,14 @@ from .metrics import get_confusion_matrix, get_iou, get_f1_scores
 
 
 class SegmentationTrainingLoop(pl.LightningModule):
-    def __init__(self, model: nn.Module, image_size: Tuple[int, int], 
-                 lr: float = 2e-4, batch_size: int = 32,
+    def __init__(self, model: nn.Module, lr: float = 2e-4, batch_size: int = 32,
                  ignore_mask_value: int = 255):
         super().__init__()
         
         self.model = model
         self.num_classes = model.num_classes
         self.in_channels = model.in_channels
-        self.image_size = image_size
         self.ignore_mask_value = ignore_mask_value
-        self.batch_size = batch_size
         self.lr = lr
 
         self.save_hyperparameters(ignore=['model'])
@@ -93,21 +90,3 @@ class SegmentationTrainingLoop(pl.LightningModule):
         }
 
         return [optimizer], [scheduler]
-
-    def on_train_start(self) -> None:
-        with torch.no_grad():
-            sample = torch.rand(1, self.in_channels, self.image_size[1], self.image_size[0]).to(self.device)
-            self.logger.experiment.add_graph(self.model, sample)
-            pass
-
-        return
-        
-    def export_model(self, output_path: Path):
-        # input_shape = (1, 3, 96, 160)
-        # dummy_input = torch.randint(255, size=input_shape).float() / 255
-        # dummy_input = dummy_input.to(self.device)
-        # torch.onnx.export(
-        #     self.model, dummy_input, str(output_path), verbose=True, opset_version=11, 
-        #     input_names=['input_0'], output_names=['output_0']
-        # )
-        pass

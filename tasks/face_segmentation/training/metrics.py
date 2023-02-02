@@ -1,6 +1,7 @@
 from typing import Optional, List, Dict
 import torch
 
+
 @torch.no_grad()
 def get_confusion_matrix(pred_labels: torch.LongTensor,
                          true_labels: torch.LongTensor,

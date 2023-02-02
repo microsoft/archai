@@ -178,7 +178,7 @@ class StackedHourglass(nn.Module):
 class HgnetSegmentationSearchSpace(ConfigSearchSpace):
     def __init__(self, 
                  num_classes: int,
-                 image_size: Tuple[int, int],
+                 img_size: Tuple[int, int],
                  in_channels: int = 3,
                  op_subset: Tuple[str, ...] = ('conv3x3', 'conv5x5', 'conv7x7'),
                  stem_strides: Tuple[int, ...] = (2, 4),
@@ -192,7 +192,7 @@ class HgnetSegmentationSearchSpace(ConfigSearchSpace):
             2**num_blocks * stem_stride for stem_stride in stem_strides
         ]
 
-        w, h = image_size
+        w, h = img_size
         
         assert all(w % d_factor == 0 for d_factor in possible_downsample_factors), \
             f'Image width must be divisible by all possible downsample factors ({2**num_blocks} * stem_stride)'
@@ -213,5 +213,8 @@ class HgnetSegmentationSearchSpace(ConfigSearchSpace):
             'num_classes': num_classes,
             'in_channels': in_channels,
         }
+
+        self.img_size = img_size
+        self.in_channels = in_channels
 
         super().__init__(StackedHourglass, hgnet_param_tree_factory, **ss_kwargs)

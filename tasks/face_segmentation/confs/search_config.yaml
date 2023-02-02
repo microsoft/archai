@@ -3,8 +3,8 @@ search:
     name: hgnet
 
     params:
-      num_classes: 7
-      image_size: [256, 256] # (w, h)
+      num_classes: 18
+      img_size: [256, 256] # (w, h)
       in_channels: 3
       op_subset: ['conv3x3', 'conv5x5', 'conv7x7']
       stem_strides: [2, 4]
@@ -21,7 +21,5 @@ search:
       # Max number of on each upsampling block
       upsample_block_max_ops: 4
 
-  algo:
+  algorithm:
     name: mo_bananas
-    params: 
-
