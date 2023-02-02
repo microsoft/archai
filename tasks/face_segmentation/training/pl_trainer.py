@@ -5,7 +5,7 @@ import torch
 from torch import nn
 import pytorch_lightning as pl
 
-from .metrics import get_confusion_matrix, get_iou
+from .metrics import get_confusion_matrix, get_iou, get_f1_scores
 
 
 class SegmentationTrainingLoop(pl.LightningModule):
@@ -40,13 +40,13 @@ class SegmentationTrainingLoop(pl.LightningModule):
         loss = self.loss(logits_mask, mask.view(batch_size, -1))
 
         pred_classes = logits_mask.argmax(axis=1)
-        # confusion_matrix = get_confusion_matrix(
-        #     pred_classes.cpu(), mask.cpu(), self.num_classes, self.ignore_mask_value
-        # )
+        confusion_matrix = get_confusion_matrix(
+            pred_classes.cpu(), mask.cpu(), self.num_classes, self.ignore_mask_value
+        )
 
         return {
             'loss': loss,
-            # 'confusion_matrix': confusion_matrix
+            'confusion_matrix': confusion_matrix
         }
 
     def training_step(self, batch, batch_idx):
@@ -66,25 +66,22 @@ class SegmentationTrainingLoop(pl.LightningModule):
     def validation_epoch_end(self, outputs):
         self.shared_epoch_end(outputs, stage='validation')
 
-    def training_epoch_end(self, outputs):
-        self.shared_epoch_end(outputs, stage='train')
-
     def shared_epoch_end(self, outputs, stage):
-        #confusion_matrix = torch.sum([x['confusion_matrix'] for x in outputs])
-        #avg_loss = torch.tensor([x['loss'] for x in outputs]).mean()
+        confusion_matrix = sum([x['confusion_matrix'] for x in outputs])
+        avg_loss = torch.tensor([x['loss'] for x in outputs]).mean()
 
-        #iou = get_iou(confusion_matrix)
-        #miou = iou.mean()
+        iou_dict = get_iou(confusion_matrix)
+        f1_dict = get_f1_scores(confusion_matrix)
 
-        #results = {
-        #    f'{stage}_loss': avg_loss,
-        #    f'{stage}_IOU': iou,
-        #    f'{stage}_mIOU': miou
-        #}
+        results = {
+           f'{stage}_loss': avg_loss,
+           f'{stage}_mIOU': iou_dict['mIOU'],
+           f'{stage}_macro_f1': f1_dict['macro_f1'],
+           f'{stage}_weighted_f1': f1_dict['weighted_f1']
+        }
 
-        #self.log_dict(results, sync_dist=True)
-        #return results
-        return
+        self.log_dict(results, sync_dist=True)
+        return results
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -99,8 +96,8 @@ class SegmentationTrainingLoop(pl.LightningModule):
 
     def on_train_start(self) -> None:
         with torch.no_grad():
-            # sample = torch.rand(1, self.in_channels, self.image_size[1], self.image_size[0]).to(self.device)
-            # self.logger.experiment.add_graph(self.model, sample)
+            sample = torch.rand(1, self.in_channels, self.image_size[1], self.image_size[0]).to(self.device)
+            self.logger.experiment.add_graph(self.model, sample)
             pass
 
         return
