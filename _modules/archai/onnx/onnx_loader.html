@@ -790,6 +790,7 @@ title="Open an issue"
 <span class="c1"># Licensed under the MIT license.</span>
 
 <span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">environ</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">onnxruntime</span> <span class="kn">import</span> <span class="n">GraphOptimizationLevel</span><span class="p">,</span> <span class="n">InferenceSession</span><span class="p">,</span> <span class="n">SessionOptions</span>
 
@@ -798,7 +799,7 @@ title="Open an issue"
 <span class="n">logger</span> <span class="o">=</span> <span class="n">OrderedDictLogger</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="load_from_onnx"><a class="viewcode-back" href="../../../reference/api/archai.onnx.html#archai.onnx.onnx_loader.load_from_onnx">[docs]</a><span class="k">def</span> <span class="nf">load_from_onnx</span><span class="p">(</span><span class="n">onnx_model_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InferenceSession</span><span class="p">:</span>
+<div class="viewcode-block" id="load_from_onnx"><a class="viewcode-back" href="../../../reference/api/archai.onnx.html#archai.onnx.onnx_loader.load_from_onnx">[docs]</a><span class="k">def</span> <span class="nf">load_from_onnx</span><span class="p">(</span><span class="n">onnx_model_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">providers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InferenceSession</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an ONNX-based model from file.</span>
 
 <span class="sd">    This function loads an ONNX-based model from the specified file path and</span>
@@ -806,6 +807,7 @@ title="Open an issue"
 
 <span class="sd">    Args:</span>
 <span class="sd">        onnx_model_path: Path to the ONNX model file.</span>
+<span class="sd">        providers: List of providers to use for inference.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ONNX inference session.</span>
@@ -823,7 +825,9 @@ title="Open an issue"
     <span class="n">options</span><span class="o">.</span><span class="n">intra_op_num_threads</span> <span class="o">=</span> <span class="n">OMP_NUM_THREADS</span>
     <span class="n">options</span><span class="o">.</span><span class="n">graph_optimization_level</span> <span class="o">=</span> <span class="n">GraphOptimizationLevel</span><span class="o">.</span><span class="n">ORT_ENABLE_ALL</span>
 
-    <span class="n">session</span> <span class="o">=</span> <span class="n">InferenceSession</span><span class="p">(</span><span class="n">onnx_model_path</span><span class="p">,</span> <span class="n">sess_options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">providers</span> <span class="o">=</span> <span class="n">providers</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;CPUExecutionProvider&quot;</span><span class="p">]</span>
+
+    <span class="n">session</span> <span class="o">=</span> <span class="n">InferenceSession</span><span class="p">(</span><span class="n">onnx_model_path</span><span class="p">,</span> <span class="n">sess_options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">providers</span><span class="o">=</span><span class="n">providers</span><span class="p">)</span>
     <span class="n">session</span><span class="o">.</span><span class="n">disable_fallback</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">session</span></div>
@@ -846,7 +850,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 31, 2023.<br/>
+    Last updated on Feb 02, 2023.<br/>
 </p>
         </footer>
     </div>

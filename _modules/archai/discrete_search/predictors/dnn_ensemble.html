@@ -815,6 +815,7 @@ title="Open an issue"
         <span class="n">width</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">64</span><span class="p">,</span>
         <span class="n">lr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
         <span class="n">num_tr_steps</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2_000</span><span class="p">,</span>
+        <span class="n">device</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the predictor.</span>
 
@@ -824,6 +825,7 @@ title="Open an issue"
 <span class="sd">            width: Number of neurons in each hidden layer.</span>
 <span class="sd">            lr: Learning rate of each ensemble mmember.</span>
 <span class="sd">            num_tr_steps: Number of training steps of each member.</span>
+<span class="sd">            device: Device to use for training.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -834,7 +836,7 @@ title="Open an issue"
         <span class="bp">self</span><span class="o">.</span><span class="n">num_tr_steps</span> <span class="o">=</span> <span class="n">num_tr_steps</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">is_fit</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">X_meanvar</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">y_meanvar</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -967,7 +969,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 31, 2023.<br/>
+    Last updated on Feb 02, 2023.<br/>
 </p>
         </footer>
     </div>

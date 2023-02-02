@@ -902,6 +902,7 @@ title="Open an issue"
     <span class="n">output_model_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">task</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;causal-lm&quot;</span><span class="p">,</span>
     <span class="n">use_past</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">validate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">share_weights</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">opset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span>
     <span class="n">atol</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
@@ -913,6 +914,7 @@ title="Open an issue"
 <span class="sd">        output_model_path: Path to save the exported ONNX model.</span>
 <span class="sd">        task: Task identifier to use proper inputs/outputs.</span>
 <span class="sd">        use_past: Whether to include past key/values in the model.</span>
+<span class="sd">        validate: Whether to validate the exported model.</span>
 <span class="sd">        share_weights: Whether to share the embedding and softmax weights.</span>
 <span class="sd">        opset: Set of operations to use with ONNX.</span>
 <span class="sd">        atol: Tolerance between input and exported model.</span>
@@ -950,7 +952,9 @@ title="Open an issue"
         <span class="n">opset_version</span><span class="o">=</span><span class="n">opset</span><span class="p">,</span>
         <span class="n">do_constant_folding</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">validate_onnx_outputs</span><span class="p">(</span><span class="n">onnx_config</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">output_model_path</span><span class="p">,</span> <span class="n">atol</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
+        <span class="n">validate_onnx_outputs</span><span class="p">(</span><span class="n">onnx_config</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">output_model_path</span><span class="p">,</span> <span class="n">atol</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">share_weights</span><span class="p">:</span>
         <span class="n">weight_sharing</span><span class="p">(</span><span class="n">output_model_path</span><span class="p">,</span> <span class="n">model_type</span><span class="p">)</span>
@@ -975,7 +979,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 31, 2023.<br/>
+    Last updated on Feb 02, 2023.<br/>
 </p>
         </footer>
     </div>

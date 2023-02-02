@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>archai.trainers.nlp.hf_training_args &#8212; Archai</title>
+    <title>archai.trainers.cv.pl_trainer &#8212; Archai</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -742,7 +742,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/trainers/nlp/hf_training_args.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/trainers/cv/pl_trainer.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -785,33 +785,77 @@ title="Open an issue"
                 
               <div>
                 
-  <h1>Source code for archai.trainers.nlp.hf_training_args</h1><div class="highlight"><pre>
+  <h1>Source code for archai.trainers.cv.pl_trainer</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">transformers.training_args</span> <span class="kn">import</span> <span class="n">TrainingArguments</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+<span class="kn">from</span> <span class="nn">pytorch_lightning</span> <span class="kn">import</span> <span class="n">LightningDataModule</span><span class="p">,</span> <span class="n">LightningModule</span>
+<span class="kn">from</span> <span class="nn">pytorch_lightning.trainer</span> <span class="kn">import</span> <span class="n">Trainer</span>
+<span class="kn">from</span> <span class="nn">pytorch_lightning.utilities.types</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_EVALUATE_OUTPUT</span><span class="p">,</span>
+    <span class="n">_PREDICT_OUTPUT</span><span class="p">,</span>
+    <span class="n">EVAL_DATALOADERS</span><span class="p">,</span>
+    <span class="n">TRAIN_DATALOADERS</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">archai.api.trainer_base</span> <span class="kn">import</span> <span class="n">TrainerBase</span>
 
 
-<div class="viewcode-block" id="DistillerTrainingArguments"><a class="viewcode-back" href="../../../../reference/api/archai.trainers.nlp.html#archai.trainers.nlp.hf_training_args.DistillerTrainingArguments">[docs]</a><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">DistillerTrainingArguments</span><span class="p">(</span><span class="n">TrainingArguments</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Training arguments for distillation-based training.</span>
+<div class="viewcode-block" id="PlTrainer"><a class="viewcode-back" href="../../../../reference/api/archai.trainers.cv.html#archai.trainers.cv.pl_trainer.PlTrainer">[docs]</a><span class="k">class</span> <span class="nc">PlTrainer</span><span class="p">(</span><span class="n">Trainer</span><span class="p">,</span> <span class="n">TrainerBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;PyTorch-Lightning trainer.&quot;&quot;&quot;</span>
 
-<span class="sd">    This class extends `TrainingArguments` and provides additional arguments</span>
-<span class="sd">    specific to distillation-based training.</span>
+<div class="viewcode-block" id="PlTrainer.train"><a class="viewcode-back" href="../../../../reference/api/archai.trainers.cv.html#archai.trainers.cv.pl_trainer.PlTrainer.train">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">LightningModule</span><span class="p">,</span>
+        <span class="n">train_dataloaders</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TRAIN_DATALOADERS</span><span class="p">,</span> <span class="n">LightningDataModule</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">val_dataloaders</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EVAL_DATALOADERS</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">datamodule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LightningDataModule</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ckpt_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span>
+            <span class="n">train_dataloaders</span><span class="o">=</span><span class="n">train_dataloaders</span><span class="p">,</span>
+            <span class="n">val_dataloaders</span><span class="o">=</span><span class="n">val_dataloaders</span><span class="p">,</span>
+            <span class="n">datamodule</span><span class="o">=</span><span class="n">datamodule</span><span class="p">,</span>
+            <span class="n">ckpt_path</span><span class="o">=</span><span class="n">ckpt_path</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
-<span class="sd">    Args:</span>
-<span class="sd">        alpha: Weight ratio between the student and KD losses. This should be</span>
-<span class="sd">            a value in the range [0, 1].</span>
-<span class="sd">        temperature: Annealing ratio for the softmax activations. This value</span>
-<span class="sd">            should be greater than 0.</span>
+<div class="viewcode-block" id="PlTrainer.evaluate"><a class="viewcode-back" href="../../../../reference/api/archai.trainers.cv.html#archai.trainers.cv.pl_trainer.PlTrainer.evaluate">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LightningModule</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dataloaders</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">EVAL_DATALOADERS</span><span class="p">,</span> <span class="n">LightningDataModule</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ckpt_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">datamodule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LightningDataModule</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_EVALUATE_OUTPUT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">dataloaders</span><span class="o">=</span><span class="n">dataloaders</span><span class="p">,</span> <span class="n">ckpt_path</span><span class="o">=</span><span class="n">ckpt_path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">datamodule</span><span class="o">=</span><span class="n">datamodule</span>
+        <span class="p">)</span></div>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="s2">&quot;Weight ratio between student and KD losses.&quot;</span><span class="p">})</span>
-
-    <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;help&quot;</span><span class="p">:</span> <span class="s2">&quot;Annealing ratio for the softmax activations.&quot;</span><span class="p">})</span></div>
+<div class="viewcode-block" id="PlTrainer.predict"><a class="viewcode-back" href="../../../../reference/api/archai.trainers.cv.html#archai.trainers.cv.pl_trainer.PlTrainer.predict">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LightningModule</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dataloaders</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">EVAL_DATALOADERS</span><span class="p">,</span> <span class="n">LightningDataModule</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">datamodule</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LightningDataModule</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">return_predictions</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ckpt_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_PREDICT_OUTPUT</span><span class="p">]:</span>
+        <span class="c1"># Needs to call method directly from class to avoid infinite recurssion</span>
+        <span class="c1"># due to same method name in TrainerBase</span>
+        <span class="k">return</span> <span class="n">Trainer</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">dataloaders</span><span class="o">=</span><span class="n">dataloaders</span><span class="p">,</span>
+            <span class="n">datamodule</span><span class="o">=</span><span class="n">datamodule</span><span class="p">,</span>
+            <span class="n">return_predictions</span><span class="o">=</span><span class="n">return_predictions</span><span class="p">,</span>
+            <span class="n">ckpt_path</span><span class="o">=</span><span class="n">ckpt_path</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
 </pre></div>
 
               </div>

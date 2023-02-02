@@ -1690,7 +1690,7 @@ array([ 3,  1, 64])
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.segmentation_dag.search_space</span> <span class="kn">import</span> <span class="n">SegmentationDagSearchSpace</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.cv</span> <span class="kn">import</span> <span class="n">SegmentationDagSearchSpace</span>
 
 <span class="n">ss</span> <span class="o">=</span> <span class="n">SegmentationDagSearchSpace</span><span class="p">(</span><span class="n">nb_classes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">img_size</span><span class="o">=</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span> <span class="n">max_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">ss</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">())</span>
@@ -1781,7 +1781,7 @@ ArchaiModel(
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Jan 31, 2023.<br/>
+    Last updated on Feb 02, 2023.<br/>
 </p>
         </footer>
     </div>
