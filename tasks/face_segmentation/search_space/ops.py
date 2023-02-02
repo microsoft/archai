@@ -9,16 +9,16 @@ class Conv2dSamePadding(nn.Conv2d):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         pad_shape = tuple(chain(*[
             [k // 2 + (k - 2 * (k // 2)) - 1, k // 2]
             for k in self.kernel_size[::-1]
         ]))
-        
+
         self.pad = nn.ZeroPad2d(pad_shape)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return  self._conv_forward(self.pad(x), self.weight, self.bias)
+        return self._conv_forward(self.pad(x), self.weight, self.bias)
 
 
 class ReluConv2d(nn.Module):
@@ -26,7 +26,7 @@ class ReluConv2d(nn.Module):
                  kernel_size: int = 3, stride: int = 1, 
                  bias: bool = False,  **kwargs):
         super().__init__()
-        
+
         self.conv = Conv2dSamePadding(
             in_channels, out_channels, kernel_size=kernel_size,
             stride=stride, bias=bias
