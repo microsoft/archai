@@ -22,7 +22,7 @@ class Gpt2Tokenizer(BbpeTokenizer):
         model_max_length: Optional[int] = 1024,
         add_prefix_space: Optional[bool] = True,
         add_prefix_new_line: Optional[bool] = True,
-        sorted_vocab: Optional[bool] = True,
+        sorted_vocab: Optional[bool] = False,
     ) -> None:
         """Define the tokenization pipeline.
 
