@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 import json
-from warnings import warn
 from collections import OrderedDict
 from copy import deepcopy
 from pathlib import Path
@@ -132,13 +131,14 @@ class ArchConfig:
         """
 
         path = Path(path)
+        path = path.parent / f"{path.name}.json" if path.suffix == "" else path
 
         d = self.to_dict()
 
-        if path.suffix == ".json":
-            json.dump(d, open(path, "w", encoding="utf-8"), indent=4)
-        elif path.suffix == ".yaml":
+        if path.suffix == ".yaml":
             yaml.dump(d, open(path, "w", encoding="utf-8"), default_flow_style=False, sort_keys=False)
+        elif path.suffix == ".json":
+            json.dump(d, open(path, "w", encoding="utf-8"), indent=4)
         else:
             raise ValueError(f"Unsupported file extension {path.suffix}")
 
@@ -155,14 +155,14 @@ class ArchConfig:
         """
 
         path = Path(path)
+        path = path.parent / f"{path.name}.json" if path.suffix == "" else path
 
         if path.suffix == ".yaml":
             d = yaml.load(open(path, "r", encoding="utf-8"), Loader=yaml.Loader)
         elif path.suffix == ".json":
             d = json.load(open(path, "r", encoding="utf-8"))
         else:
-            warn(f'File extension not found in {str(path)}, trying to load as json')
-            d = json.load(open(path, "r", encoding="utf-8"))
+            raise ValueError(f"Unsupported file extension {path.suffix}")
         
         return build_arch_config(d)
 
