@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import operator
+import itertools
 from collections import OrderedDict
 from copy import deepcopy
 from functools import reduce
@@ -13,10 +13,7 @@ from archai.discrete_search.search_spaces.config.arch_config import (
     build_arch_config,
 )
 from archai.discrete_search.search_spaces.config.discrete_choice import DiscreteChoice
-from archai.discrete_search.search_spaces.config.utils import (
-    flatten_dict,
-    replace_ptree_choices,
-)
+from archai.discrete_search.search_spaces.config.utils import flatten_dict, replace_ptree_choices
 
 
 class ArchParamTree:
@@ -40,7 +37,7 @@ class ArchParamTree:
         param_dict = self.to_dict(flatten=True, deduplicate_params=True, remove_constants=True)
         num_options = [float(len(p.choices)) for p in param_dict.values()]
 
-        return reduce(operator.mul, num_options, 1)
+        return reduce(lambda a, b: a*b, num_options, 1)
 
     def _init_tree(self, config_tree: Dict[str, Any]) -> Tuple[OrderedDict, OrderedDict]:
         params, constants = OrderedDict(), OrderedDict()
@@ -126,7 +123,7 @@ class ArchParamTree:
         """
 
         rng = rng or Random()
-        choices_dict = replace_ptree_choices(self.to_dict(), lambda x: rng.choice(x.choices))
+        choices_dict = replace_ptree_choices(self.to_dict(), lambda x: x.random_sample(rng))
 
         return build_arch_config(choices_dict)
 
@@ -157,18 +154,23 @@ class ArchParamTree:
 
         """
 
-        deduped_features = list(self.to_dict(flatten=True, deduplicate_params=True, remove_constants=True).keys())
+        deduped_features = self.to_dict(flatten=True, deduplicate_params=True, remove_constants=True)
 
         flat_config = flatten_dict(config._config_dict)
         flat_used_params = flatten_dict(config.get_used_params())
 
         # Build feature array
-        features = OrderedDict([(k, v) for k, v in flat_config.items() if k in deduped_features])
+        features = OrderedDict([
+            (k, deduped_features[k].encode(v)) 
+            for k, v in flat_config.items() 
+            if k in deduped_features
+        ])
 
         # Replaces unused params with NaNs if necessary
         if track_unused_params:
-            for feature_name, _ in features.items():
+            for feature_name, enc_param in features.items():
                 if not flat_used_params[feature_name]:
-                    features[feature_name] = float("NaN")
+                    features[feature_name] = [float("NaN") for _ in enc_param]
 
-        return list(features.values())
+        # Flattens the feature array
+        return list(itertools.chain(*features.values()))
