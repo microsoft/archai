@@ -333,7 +333,7 @@ class NvidiaTrainer(TrainerBase):
 
         # Support `bf16` based on PyTorch version and CUDA availability
         autocast = torch.autocast(self.args.device.type, enabled=self.args.fp16)
-        if version.parse(torch.__version__) >= version.parse("1.10"):
+        if version.parse(torch.__version__) >= version.parse("1.10") and self.args.device.type != "cpu":
             dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
             autocast = torch.cuda.amp.autocast(enabled=self.args.fp16, dtype=dtype)
 

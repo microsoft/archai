@@ -1,0 +1,8 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+# Ignore notebook output
+hf-codegen/
+
+# Ignore local data created by `NvidiaDatasetProvider`
+dataroot/
