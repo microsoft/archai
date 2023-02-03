@@ -75,27 +75,29 @@ class HfHubDatasetProvider(DatasetProvider):
     @overrides
     def get_train_dataset(
         self,
+        split: Optional[Union[str, Split]] = "train",
         refresh_cache: Optional[bool] = False,
         keep_in_memory: Optional[bool] = False,
         streaming: Optional[bool] = False,
     ) -> Union[Dataset, IterableDataset]:
         return self.get_dataset(
-            split="train", refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
+            split=split, refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
         )
 
     @overrides
     def get_val_dataset(
         self,
+        split: Optional[Union[str, Split]] = "validation",
         refresh_cache: Optional[bool] = False,
         keep_in_memory: Optional[bool] = False,
         streaming: Optional[bool] = False,
     ) -> Union[Dataset, IterableDataset]:
         try:
             return self.get_dataset(
-                split="validation", refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
+                split=split, refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
             )
         except ValueError:
-            logger.warn(f"Validation set not available for `{self.dataset}`. Returning training set ...")
+            logger.warn(f"Validation set not available for `{self.dataset}`. Returning full training set ...")
             return self.get_dataset(
                 split="train", refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
             )
@@ -103,16 +105,17 @@ class HfHubDatasetProvider(DatasetProvider):
     @overrides
     def get_test_dataset(
         self,
+        split: Optional[Union[str, Split]] = "test",
         refresh_cache: Optional[bool] = False,
         keep_in_memory: Optional[bool] = False,
         streaming: Optional[bool] = False,
     ) -> Union[Dataset, IterableDataset]:
         try:
             return self.get_dataset(
-                split="test", refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
+                split=split, refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
             )
         except ValueError:
-            logger.warn(f"Testing set not available for `{self.dataset}`. Returning validation set ...")
+            logger.warn(f"Testing set not available for `{self.dataset}`. Returning full validation set ...")
             return self.get_dataset(
                 split="validation", refresh_cache=refresh_cache, keep_in_memory=keep_in_memory, streaming=streaming
             )
