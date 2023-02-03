@@ -30,7 +30,7 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         seed: Optional[int] = None,
         mutation_prob: float = 0.3,
         track_unused_params: bool = True,
-        unused_param_value: float = float("NaN"),
+        unused_param_value: float = -1.0,
         hash_archid: bool = True,
         model_kwargs: Optional[Dict[str, Any]] = None,
         builder_kwargs: Optional[Dict[str, Any]] = None,
@@ -158,6 +158,11 @@ class ConfigSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
 
     @overrides
     def encode(self, model: ArchaiModel) -> np.ndarray:
-        return np.array(
-            self.arch_param_tree.encode_config(model.metadata["config"], track_unused_params=self.track_unused_params)
+        encoded_config = np.array(
+            self.arch_param_tree.encode_config(
+                model.metadata["config"],
+                track_unused_params=self.track_unused_params
+            )
         )
+
+        return np.nan_to_num(encoded_config, nan=self.unused_param_value)
