@@ -6,6 +6,7 @@ These notebooks are designed to help you understand the basics and gain hands-on
 .. toctree::
    :maxdepth: 2
 
+   API <notebooks/api>
    Discrete Search <notebooks/discrete_search>
    Supergraph <notebooks/supergraph>
    Computer Vision <notebooks/cv>
