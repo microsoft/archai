@@ -11,39 +11,46 @@ to work.
 
 """
 
+import os
+import pdb
+import time
 import argparse
 import os
-import pathlib
 import tempfile
 
-from torch.utils.model_zoo import tqdm
 from torchvision.datasets.utils import download_and_extract_archive
+from torch.utils.model_zoo import tqdm
 
-from archai.supergraph.utils import utils
+from PIL import Image
+import shutil
+from collections import defaultdict
+import pathlib
+
+from archai.common import utils
+
 
 
 def copy_file_list(file_list, src_dir, dest_dir):
     with tqdm(total=len(file_list)) as pbar:
-        for i, filename in enumerate(file_list):
+        for i,filename in enumerate(file_list):
             filename = filename.strip()
             if filename:
                 # convert / to os-specific dir separator
-                filename_parts = (filename + ".jpg").split("/")
+                filename_parts = (filename + '.jpg').split('/')
                 target = os.path.join(dest_dir, *filename_parts)
                 if not os.path.isfile(target):
                     utils.copy_file(os.path.join(src_dir, *filename_parts), target)
             pbar.update(1)
 
+def prepare_data(dataroot:str)->None:
+    meta_path = os.path.join(dataroot, 'food-101', 'meta')
+    images_path = os.path.join(dataroot, 'food-101', 'images')
+    train_path = os.path.join(dataroot, 'food-101', 'train')
+    test_path = os.path.join(dataroot, 'food-101', 'test')
 
-def prepare_data(dataroot: str) -> None:
-    meta_path = os.path.join(dataroot, "food-101", "meta")
-    images_path = os.path.join(dataroot, "food-101", "images")
-    train_path = os.path.join(dataroot, "food-101", "train")
-    test_path = os.path.join(dataroot, "food-101", "test")
-
-    train_list = pathlib.Path(os.path.join(meta_path, "train.txt")).read_text().splitlines()
-    test_list = pathlib.Path(os.path.join(meta_path, "test.txt")).read_text().splitlines()
-    class_list = pathlib.Path(os.path.join(meta_path, "classes.txt")).read_text().splitlines()
+    train_list = pathlib.Path(os.path.join(meta_path, 'train.txt')).read_text().splitlines()
+    test_list = pathlib.Path(os.path.join(meta_path, 'test.txt')).read_text().splitlines()
+    class_list = pathlib.Path(os.path.join(meta_path, 'classes.txt')).read_text().splitlines()
 
     for class_name in class_list:
         class_name = class_name.strip()
@@ -55,20 +62,15 @@ def prepare_data(dataroot: str) -> None:
     copy_file_list(test_list, images_path, test_path)
 
 
-def download(dataroot: str):
-    DOWNLOAD_URL = "https://data.vision.ee.ethz.ch/cvl/food-101.tar.gz"
+def download(dataroot:str):
+    DOWNLOAD_URL = 'https://data.vision.ee.ethz.ch/cvl/food-101.tar.gz'
     download_and_extract_archive(DOWNLOAD_URL, tempfile.tempdir, extract_root=dataroot, remove_finished=True)
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     # download()
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--dataroot",
-        type=str,
-        default="d:\\datasets",
-        help="root directory where food-101 folder exist (downloaded and extracted from ETHZ)",
-    )
+    parser.add_argument('--dataroot', type=str, default='d:\\datasets',
+                        help='root directory where food-101 folder exist (downloaded and extracted from ETHZ)')
     args = parser.parse_args()
 
     prepare_data(args.dataroot)

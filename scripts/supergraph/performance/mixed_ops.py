@@ -1,6 +1,28 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from archai.supergraph.algos.darts.mixed_op import MixedOp
+from archai.common import utils, timing
+
+import torch
+import torch.backends.cudnn as cudnn
+import numpy as np
+
+
+utils.setup_cuda(2, local_rank=0)
+
+device = torch.device('cuda')
+
+mop = MixedOp(16,1).to(device=device)
+
+a = torch.randn(8, requires_grad=True).to(device=device)
+x = torch.randn((64,16,32,32), requires_grad=True).to(device=device)
+
+for i in range(1000):
+    y = mop(x, a)
+
+timing.print_all_timings()
+
 """
 Without cudnn setup, requires_grad=False:
                         3:    0.90ms for   1000 calls [stddev:    9.08, min:    0.49, max:  287.68]
@@ -100,24 +122,3 @@ torch.Size([64, 16, 32, 32])1TrueTrue:    5.23ms for   1000 calls [stddev:    0.
 torch.Size([64, 16, 32, 32])0TrueTrue:    7.89ms for   1000 calls [stddev:    0.91, min:    5.85, max:   21.50]
                   forward:  136.22ms for   1000 calls [stddev:   22.90, min:  109.06, max:  205.25]
 """
-
-
-import torch
-from torch_testbed.timing import print_all_timings
-
-from archai.supergraph.algos.darts.mixed_op import MixedOp
-from archai.supergraph.utils import utils
-
-utils.setup_cuda(2, local_rank=0)
-
-device = torch.device("cuda")
-
-mop = MixedOp(16, 1).to(device=device)
-
-a = torch.randn(8, requires_grad=True).to(device=device)
-x = torch.randn((64, 16, 32, 32), requires_grad=True).to(device=device)
-
-for i in range(1000):
-    y = mop(x, a)
-
-print_all_timings()

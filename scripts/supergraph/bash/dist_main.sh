@@ -2,6 +2,8 @@
 #fail if any errors
 set -e
 
+bash "${BASH_SOURCE%/*}/apex_install.sh"
+
 nvidia-smi --list-gpus
 
 gpu_count=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)

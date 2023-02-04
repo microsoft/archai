@@ -5,26 +5,38 @@
 from here: https://www.rarlab.com/download.htm and adding path of unrar.exe to PATH environment variable.
 """
 
+from typing import List, Dict, Tuple, Union, Optional
 import os
+import pdb
+import time
+import argparse
+import os
+import tempfile
+import requests
+import pyunpack
+
+from torchvision.datasets import utils as tvutils
+from torch.utils.model_zoo import tqdm
+
+from PIL import Image
+import shutil
 from collections import defaultdict
-from typing import Dict, List
+import pathlib
+
+from archai.common import utils
 
 import dataset_utils
-import pyunpack
-from torchvision.datasets import utils as tvutils
-
-from archai.supergraph.utils import utils
-
+from mit67_install import load_train_csv_data
 
 def load_csv_data(filename: str) -> Dict[str, List[str]]:
-    """Loads the data in csv files into a dictionary with
-    class names as keys and list of image names as values."""
+    ''' Loads the data in csv files into a dictionary with
+    class names as keys and list of image names as values. '''
     data_dict = defaultdict(list)
-    with open(filename, "r") as f:
+    with open(filename, 'r') as f:
         lines = f.readlines()
         assert len(lines) > 0
         for line in lines[1:]:
-            words = line.rstrip().split(",")
+            words = line.rstrip().split(',')
             assert len(words) > 0
             data_dict[words[0]] = words[1:]
 
@@ -32,10 +44,10 @@ def load_csv_data(filename: str) -> Dict[str, List[str]]:
 
 
 def dataset_valid(dataroot: str) -> bool:
-    sport8 = os.path.join(dataroot, "sport8")
-    train = os.path.join(sport8, "train")
-    test = os.path.join(sport8, "test")
-    meta = os.path.join(sport8, "meta")
+    sport8 = os.path.join(dataroot, 'sport8')
+    train = os.path.join(sport8, 'train')
+    test = os.path.join(sport8, 'test')
+    meta = os.path.join(sport8, 'meta')
 
     if not os.path.isdir(sport8) or not os.path.isdir(train) or not os.path.isdir(test) or not os.path.isdir(meta):
         return False
@@ -61,11 +73,11 @@ def dataset_valid(dataroot: str) -> bool:
 
 
 def download():
-    DOWNLOAD_URL = "https://vision.stanford.edu/lijiali/event_dataset/event_dataset.rar"
+    DOWNLOAD_URL = 'https://vision.stanford.edu/lijiali/event_dataset/event_dataset.rar'
 
     # make sport8 directory
-    sport8 = utils.full_path(os.path.join(dataroot, "sport8"))
-    meta = utils.full_path(os.path.join(sport8, "meta"))
+    sport8 = utils.full_path(os.path.join(dataroot, 'sport8'))
+    meta = utils.full_path(os.path.join(sport8, 'meta'))
 
     os.makedirs(sport8, exist_ok=True)
     os.makedirs(meta, exist_ok=True)
@@ -81,14 +93,13 @@ def download():
     # download the csv files for the train and test split
     # from 'NAS Evaluation is Frustrating' repo
     # note that download_url doesn't work in vscode debug mode
-    test_file_url = "https://raw.githubusercontent.com/antoyang/NAS-Benchmark/master/data/Sport8_test.csv"
-    train_file_url = "https://raw.githubusercontent.com/antoyang/NAS-Benchmark/master/data/Sport8_train.csv"
+    test_file_url = 'https://raw.githubusercontent.com/antoyang/NAS-Benchmark/master/data/Sport8_test.csv'
+    train_file_url = 'https://raw.githubusercontent.com/antoyang/NAS-Benchmark/master/data/Sport8_train.csv'
 
     tvutils.download_url(test_file_url, meta, filename=None, md5=None)
     tvutils.download_url(train_file_url, meta, filename=None, md5=None)
 
     return sport8, meta
-
 
 def copy_data_helper(data: Dict[str, List[str]], imagesroot: str, foldername: str) -> None:
 
@@ -103,34 +114,34 @@ def copy_data_helper(data: Dict[str, List[str]], imagesroot: str, foldername: st
                 utils.copy_file(source, target)
 
 
-def prepare_data(sport8: str, meta: str):
-    test_file = os.path.join(meta, "Sport8_test.csv")
+def prepare_data(sport8:str, meta:str):
+    test_file = os.path.join(meta, 'Sport8_test.csv')
     test_data = load_csv_data(test_file)
 
-    train_file = os.path.join(meta, "Sport8_train.csv")
+    train_file = os.path.join(meta, 'Sport8_train.csv')
     train_data = load_csv_data(train_file)
 
-    train = os.path.join(sport8, "train")
-    test = os.path.join(sport8, "test")
+    train = os.path.join(sport8, 'train')
+    test = os.path.join(sport8, 'test')
     os.makedirs(train, exist_ok=True)
     os.makedirs(test, exist_ok=True)
 
     # make classname directories for train and test
     for key in test_data.keys():
-        os.makedirs(os.path.join(sport8, "test", key), exist_ok=True)
-        os.makedirs(os.path.join(sport8, "train", key), exist_ok=True)
+        os.makedirs(os.path.join(sport8, 'test', key), exist_ok=True)
+        os.makedirs(os.path.join(sport8, 'train', key), exist_ok=True)
 
     # copy images to the right locations
-    imagesroot = os.path.join(sport8, "event_img")
+    imagesroot = os.path.join(sport8, 'event_img')
 
-    testfoldername = os.path.join(sport8, "test")
+    testfoldername = os.path.join(sport8, 'test')
     copy_data_helper(test_data, imagesroot, testfoldername)
 
-    trainfoldername = os.path.join(sport8, "train")
+    trainfoldername = os.path.join(sport8, 'train')
     copy_data_helper(train_data, imagesroot, trainfoldername)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     dataroot = dataset_utils.get_dataroot()
 
     # check that dataset is in format required
