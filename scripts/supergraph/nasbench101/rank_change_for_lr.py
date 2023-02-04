@@ -8,7 +8,8 @@ from ast import literal_eval
 
 import scipy
 
-from archai.supergraph.utils import delimited_text, utils
+from archai.common import delimited_text
+from archai.common import utils
 
 
 def main():
