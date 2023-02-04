@@ -1,17 +1,22 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from typing import List, Tuple, Union, Optional
 import os
 import shutil
-
 import torch
+
 import torchvision
-from torchvision.datasets.utils import check_integrity
+from torchvision.transforms import transforms
+from torch.utils.data.dataset import Dataset
+from torchvision.datasets.utils import check_integrity, download_url
+from archai.common.utils import download_and_extract_tar, extract_tar
 
-from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.utils.utils import download_and_extract_tar, extract_tar
 
-logger = get_global_logger()
+from archai.common.common import logger
+
+
+
 _ARCHIVE_DICT = {
     'train': {
         'url': 'https://www.image-net.org/challenges/LSVRC/2012/nnoupb/ILSVRC2012_img_train.tar',

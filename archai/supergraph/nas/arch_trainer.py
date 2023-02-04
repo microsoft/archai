@@ -1,20 +1,24 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from typing import Optional, Callable, Type
 import os
-from typing import Callable, Optional, Type
 
 import torch
-from overrides import EnforceOverrides, overrides
+from torch.utils.data import DataLoader
 from torch import Tensor
+from torch.optim.optimizer import Optimizer
+from torch.optim.lr_scheduler import _LRScheduler
+
+from overrides import overrides, EnforceOverrides
 
 from archai.common.config import Config
-from archai.supergraph.datasets import data
+from archai.common import utils
 from archai.supergraph.nas.model import Model
-from archai.supergraph.nas.vis_model_desc import draw_model_desc
-from archai.supergraph.utils import utils
-from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.supergraph.utils.trainer import Trainer
+from archai.supergraph.datasets import data
+from archai.supergraph.nas.vis_model_desc import draw_model_desc
+from archai.supergraph.utils.checkpoint import CheckPoint
 
 TArchTrainer = Optional[Type['ArchTrainer']]
 

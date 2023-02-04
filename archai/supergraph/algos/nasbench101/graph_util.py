@@ -13,7 +13,9 @@
 # limitations under the License.
 
 """Utility functions used by generate_graph.py."""
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import hashlib
 import itertools
@@ -25,32 +27,27 @@ def gen_is_edge_fn(bits):
   """Generate a boolean function for the edge connectivity.
 
   Given a bitstring FEDCBA and a 4x4 matrix, the generated matrix is
-
-  [[0, A, B, D],
-  [0, 0, C, E],
-  [0, 0, 0, F],
-  [0, 0, 0, 0]]
+    [[0, A, B, D],
+     [0, 0, C, E],
+     [0, 0, 0, F],
+     [0, 0, 0, 0]]
 
   Note that this function is agnostic to the actual matrix dimension due to
   order in which elements are filled out (column-major, starting from least
   significant bit). For example, the same FEDCBA bitstring (0-padded) on a 5x5
   matrix is
-
-  [[0, A, B, D, 0],
-  [0, 0, C, E, 0],
-  [0, 0, 0, F, 0],
-  [0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0]]
+    [[0, A, B, D, 0],
+     [0, 0, C, E, 0],
+     [0, 0, 0, F, 0],
+     [0, 0, 0, 0, 0],
+     [0, 0, 0, 0, 0]]
 
   Args:
     bits: integer which will be interpreted as a bit mask.
 
   Returns:
     vectorized function that returns True when an edge is present.
-
   """
-
-
   def is_edge(x, y):
     """Is there an edge from x to y (0-indexed)?"""
     if x >= y:

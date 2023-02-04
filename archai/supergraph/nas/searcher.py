@@ -1,23 +1,27 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from typing import Iterator, Mapping, Type, Optional, Tuple, List, Dict
+import math
 import copy
-from typing import Dict, Optional, Tuple
+import random
+import os
 
 from overrides import EnforceOverrides
 
-from archai.common.config import Config
-from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.datasets import data
-from archai.supergraph.nas.arch_trainer import TArchTrainer
-from archai.supergraph.nas.finalizers import Finalizers
-from archai.supergraph.nas.model import Model
-from archai.supergraph.nas.model_desc import ModelDesc
-from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils.metrics import Metrics
-from archai.supergraph.utils.trainer import Trainer
+from torch.utils.data.dataloader import DataLoader
 
-logger = get_global_logger()
+from archai.common.common import logger
+
+from archai.common.config import Config
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.arch_trainer import TArchTrainer
+from archai.supergraph.utils.trainer import Trainer
+from archai.supergraph.nas.model_desc import ModelDesc
+from archai.supergraph.datasets import data
+from archai.supergraph.nas.model import Model
+from archai.supergraph.utils.metrics import Metrics
+from archai.supergraph.nas.finalizers import Finalizers
 
 
 class ModelMetrics:

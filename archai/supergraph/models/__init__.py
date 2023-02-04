@@ -1,22 +1,21 @@
 import torch
+
 from torch import nn
 from torch.nn import DataParallel
-
-from .densenet import *
-from .googlenet import *
-from .inception import *
-from .mobilenetv2 import *
-from .pyramidnet import PyramidNet
-from .resnet import *
-from .resnet_orig import *
-from .shakeshake.shake_resnet import ShakeResNet
-from .shakeshake.shake_resnext import ShakeResNeXt
-from .vgg import *
-from .wideresnet import WideResNet
-
 # from torchvision import models
 
+from .pyramidnet import PyramidNet
+from .shakeshake.shake_resnet import ShakeResNet
+from .wideresnet import WideResNet
+from .shakeshake.shake_resnext import ShakeResNeXt
 
+from .mobilenetv2 import *
+from .resnet import *
+from .vgg import *
+from .densenet import *
+from .resnet_orig import *
+from .googlenet import *
+from .inception import *
 
 
 def get_model(conf, num_class=10):

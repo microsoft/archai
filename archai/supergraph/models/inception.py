@@ -1,9 +1,8 @@
-import os
 from collections import namedtuple
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import os
 
 __all__ = ['Inception3', 'inception_v3']
 

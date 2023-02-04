@@ -1,19 +1,28 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional
+from typing import Mapping, Optional, Union
+import copy
+
+import torch
+from torch.utils.data import DataLoader
+from torch import Tensor, nn, autograd
+from torch.nn.modules.loss import _Loss
+from torch.optim.optimizer import Optimizer
+from torch.optim.lr_scheduler import _LRScheduler
 
 from overrides import overrides
-from torch import Tensor
 
 from archai.common.config import Config
-from archai.supergraph.algos.darts.bilevel_optimizer import BilevelOptimizer
-from archai.supergraph.datasets import data
 from archai.supergraph.nas.arch_trainer import ArchTrainer
+from archai.common import utils
 from archai.supergraph.nas.model import Model
 from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
+from archai.supergraph.datasets import data
 
+from archai.common.common import logger
+from archai.supergraph.algos.darts.bilevel_optimizer import BilevelOptimizer
 
 class BilevelArchTrainer(ArchTrainer):
     def __init__(self, conf_train: Config, model: Model,

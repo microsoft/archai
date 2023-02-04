@@ -1,4 +1,4 @@
-"""
+'''
 Properly implemented ResNet-s for CIFAR10 as described in paper [1].
 
 The implementation and structure of this file is hugely influenced by [2]
@@ -20,17 +20,19 @@ ResNet1202|  1202  | 19.4m
 which this implementation indeed has.
 
 Reference:
-[1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. Deep Residual Learning for Image Recognition. arXiv:1512.03385
+[1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+    Deep Residual Learning for Image Recognition. arXiv:1512.03385
 [2] https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
 
 If you use this implementation in you work, please don't forget to mention the
 author, Yerlan Idelbayev.
-
-"""
-
+'''
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
+
+from torch.autograd import Variable
 
 __all__ = ['ResNet', 'resnet20', 'resnet32', 'resnet44', 'resnet56', 'resnet110', 'resnet1202']
 

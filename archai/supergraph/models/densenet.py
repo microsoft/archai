@@ -1,9 +1,9 @@
-import os
-from collections import OrderedDict
-
+import re
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from collections import OrderedDict
+import os
 
 __all__ = ['DenseNet', 'densenet121', 'densenet169', 'densenet201', 'densenet161']
 
@@ -69,7 +69,7 @@ class DenseNet(nn.Module):
         super(DenseNet, self).__init__()
 
         # First convolution
-
+        
         # CIFAR-10: kernel_size 7 ->3, stride 2->1, padding 3->1
         self.features = nn.Sequential(OrderedDict([
             ('conv0', nn.Conv2d(3, num_init_features, kernel_size=3, stride=1,

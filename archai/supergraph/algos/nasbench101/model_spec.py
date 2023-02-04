@@ -4,17 +4,18 @@ This module handles pruning the unused parts of the computation graph but should
 avoid creating any TensorFlow models (this is done inside model_builder.py).
 """
 
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import copy
-
 import numpy as np
 
 from archai.supergraph.algos.nasbench101 import graph_util
 
 # Graphviz is optional and only required for visualization.
 try:
-  import graphviz  # pylint: disable=g-import-not-at-top
+  import graphviz   # pylint: disable=g-import-not-at-top
 except ImportError:
   pass
 

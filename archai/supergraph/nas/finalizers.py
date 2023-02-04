@@ -1,15 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Optional, Tuple
-
+from archai.common.config import Config
+from typing import List, Tuple, Optional, Iterator
 from overrides import EnforceOverrides
+
 from torch import nn
 
-from archai.supergraph.nas.cell import Cell
 from archai.supergraph.nas.model import Model
-from archai.supergraph.nas.model_desc import CellDesc, EdgeDesc, ModelDesc, NodeDesc
-
+from archai.supergraph.nas.cell import Cell
+from archai.supergraph.nas.model_desc import CellDesc, ModelDesc, NodeDesc, EdgeDesc
 
 class Finalizers(EnforceOverrides):
     """Provides base algorithms for finalizing model, cell and edge which can be overriden

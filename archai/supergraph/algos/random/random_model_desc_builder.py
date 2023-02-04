@@ -1,26 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import copy
+from typing import Iterable, Sequence, Tuple, List, Set, Optional
 import random
-from typing import List, Optional, Tuple
+import copy
 
 from overrides import overrides
 
-from archai.common.config import Config
-from archai.supergraph.nas.model_desc import (
-    AuxTowerDesc,
-    CellDesc,
-    CellType,
-    ConvMacroParams,
-    EdgeDesc,
-    NodeDesc,
-    OpDesc,
-    TensorShape,
-    TensorShapes,
-    TensorShapesList,
-)
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+                                  EdgeDesc, TensorShape, TensorShapes, TensorShapesList, NodeDesc, AuxTowerDesc
+from archai.common.config import Config
 
 
 class RandOps:

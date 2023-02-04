@@ -1,14 +1,19 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from typing import Tuple, List
+import copy
+
 from overrides import overrides
 
+from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+                                  EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.operations import MultiOp, Op
 from archai.common.config import Config
+from archai.supergraph.algos.random.random_model_desc_builder import RandomModelDescBuilder
+
 from archai.supergraph.algos.petridish.petridish_op import PetridishOp, TempIdentityOp
-from archai.supergraph.algos.random.random_model_desc_builder import (
-    RandomModelDescBuilder,
-)
-from archai.supergraph.nas.operations import Op
 
 
 class PetridishModelBuilder(RandomModelDescBuilder):

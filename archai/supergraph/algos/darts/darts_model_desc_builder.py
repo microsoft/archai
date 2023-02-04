@@ -1,25 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from typing import Collection, Optional, Tuple, List
 import copy
-from typing import List, Tuple
 
 from overrides import overrides
 
-from archai.common.config import Config
-from archai.supergraph.algos.darts.mixed_op import MixedOp
-from archai.supergraph.nas.model_desc import (
-    CellType,
-    ConvMacroParams,
-    EdgeDesc,
-    NodeDesc,
-    OpDesc,
-    TensorShape,
-    TensorShapes,
-)
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.supergraph.nas.operations import Op
-
+from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+                                  EdgeDesc, TensorShape, TensorShapes, NodeDesc
+from archai.supergraph.algos.darts.mixed_op import MixedOp
+from archai.common.config import Config
 
 class DartsModelDescBuilder(ModelDescBuilder):
     @overrides

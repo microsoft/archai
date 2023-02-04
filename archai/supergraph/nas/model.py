@@ -1,19 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Optional, Tuple
-
+from typing import Iterable, Tuple, Optional, Any, List
+from collections import OrderedDict
 import numpy as np
+import yaml
+import os
+
 import torch
+from torch import nn, Tensor
 from overrides import overrides
-from torch import Tensor, nn
 
-from archai.supergraph.nas.arch_module import ArchModule
 from archai.supergraph.nas.cell import Cell
-from archai.supergraph.nas.model_desc import AuxTowerDesc, CellDesc, ModelDesc
-from archai.supergraph.nas.operations import DropPath_, Op
+from archai.supergraph.nas.operations import Op, DropPath_
+from archai.supergraph.nas.model_desc import ModelDesc, AuxTowerDesc, CellDesc
 from archai.supergraph.utils import ml_utils
-
+from archai.supergraph.nas.arch_module import ArchModule
 
 class Model(ArchModule):
     def __init__(self, model_desc:ModelDesc, droppath:bool, affine:bool):
@@ -40,6 +42,10 @@ class Model(ArchModule):
         # since ch_p records last cell's output channels
         # it indicates the input channel number
         self.logits_op = Op.create(model_desc.logits_op, affine=affine)
+
+        # for i,cell in enumerate(self.cells):
+        #     print(i, ml_utils.param_size(cell))
+        #logger.info({'model_summary': self.summary()})
 
     def _build_cell(self, cell_desc:CellDesc,
                     aux_tower_desc:Optional[AuxTowerDesc],
@@ -101,13 +107,10 @@ class Model(ArchModule):
         return next(self.parameters()).device.type
 
     def drop_path_prob(self, p:float):
-        """Set drop path probability.
-        
-        This will be called externally so any `DropPath_` modules get new probability.
-        Typically, every epoch we will reduce this probability.
-
+        """ Set drop path probability
+        This will be called externally so any DropPath_ modules get
+        new probability. Typically, every epoch we will reduce this probability.
         """
-
         for module in self.modules():
             if isinstance(module, DropPath_):
                 module.p = p

@@ -1,20 +1,23 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os
+from typing import Optional, Type, Tuple
 from abc import ABC, abstractmethod
-from typing import Optional, Tuple
+import shutil
+import os
 
 from overrides import EnforceOverrides
 
-from archai.common.config import Config
-from archai.supergraph.nas.arch_trainer import TArchTrainer
-from archai.supergraph.nas.evaluater import EvalResult, Evaluater
-from archai.supergraph.nas.finalizers import Finalizers
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.nas.random_finalizers import RandomFinalizers
+from archai.supergraph.nas.arch_trainer import TArchTrainer
+from archai.common import common
+from archai.common import utils
+from archai.common.config import Config
+from archai.supergraph.nas.evaluater import Evaluater, EvalResult
 from archai.supergraph.nas.searcher import Searcher, SearchResult
-from archai.supergraph.utils import common, utils
+from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.nas.random_finalizers import RandomFinalizers
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 
 
 class ExperimentRunner(ABC, EnforceOverrides):

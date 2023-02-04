@@ -1,25 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from typing import Iterable, Sequence, Tuple, List, Set, Optional
 import copy
-from typing import List, Tuple
 
 from overrides import overrides
 
+from archai.common.common import get_conf
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.supergraph.nas.operations import Op, MultiOp
+from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
+                                  EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
 from archai.common.config import Config
 from archai.supergraph.algos.gumbelsoftmax.gs_op import GsOp
-from archai.supergraph.nas.model_desc import (
-    CellType,
-    ConvMacroParams,
-    EdgeDesc,
-    NodeDesc,
-    OpDesc,
-    TensorShape,
-    TensorShapes,
-)
-from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.nas.operations import Op
-
 
 class GsModelDescBuilder(ModelDescBuilder):
     @overrides

@@ -1,8 +1,7 @@
-import os
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import os
 
 #Credit to https://github.com/akamaster/pytorch_resnet_cifar10
 

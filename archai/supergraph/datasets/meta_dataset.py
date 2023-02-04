@@ -1,8 +1,6 @@
 from typing import List, Optional
-
 import torch
 from torch.utils.data import Dataset
-
 
 class MetaDataset(Dataset):
     def __init__(self, source:Dataset, transform=None, target_transform=None) -> None:

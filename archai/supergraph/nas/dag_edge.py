@@ -1,16 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Optional
+from typing import Iterable, List, Optional, Tuple
 
 import torch
-from overrides import overrides
 from torch import nn
+from overrides import overrides
 
-from archai.supergraph.nas.arch_module import ArchModule
+from archai.supergraph.nas.operations import Op, DropPath_
 from archai.supergraph.nas.model_desc import EdgeDesc
-from archai.supergraph.nas.operations import DropPath_, Op
-
+from archai.supergraph.nas.arch_module import ArchModule
 
 class DagEdge(ArchModule):
     def __init__(self, desc:EdgeDesc, affine:bool, droppath:bool,

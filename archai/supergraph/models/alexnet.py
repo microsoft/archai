@@ -1,12 +1,11 @@
-import os
-
 import torch
 import torch.nn as nn
+import os
 
 __all__ = ['AlexNet','alexnet']
 
 class AlexNet(nn.Module):
-
+ 
     def __init__(self,num_classes=1000,init_weights='True'):
         super(AlexNet,self).__init__()
         self.features=nn.Sequential(
@@ -63,7 +62,7 @@ class AlexNet(nn.Module):
 
 def alexnet(pretrained=False, progress=True, device='cpu', **kwargs):
     """
-    AlexNet architecture implemented from the paper
+    AlexNet architecture implemented from the paper 
     `"ImageNet Classification with Deep Convolutional Neural Networks" <https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks>`
 
     Args:
