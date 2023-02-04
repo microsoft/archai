@@ -1,15 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import os
-import weakref
 from collections import UserDict
-from typing import Callable
+from typing import Callable, Any
+import weakref
+import os
 
 import torch
 
 from archai.common.config import Config
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 _CallbackType = Callable #[['CheckPoint', *kargs: Any, **kwargs: Any], None]
 class CheckPoint(UserDict):

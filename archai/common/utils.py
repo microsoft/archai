@@ -1,41 +1,39 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import csv
+import functools
+from typing import Dict, Iterable, Sized, Type, MutableMapping, Mapping, Any, Optional, Tuple, List, Union
+import  numpy as np
 import logging
-import multiprocessing
-import os
-import pathlib
-import platform
-import random
-import shutil
-import subprocess
-import sys
+import csv
 from collections import OrderedDict
-from datetime import datetime
+import sys
+import  os
+import pathlib
+from pathlib import Path
+import random
 from itertools import zip_longest
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    List,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Sized,
-    Tuple,
-    Type,
-    Union,
-)
-from urllib.parse import unquote, urlparse
+import shutil
+import multiprocessing
+from distutils import dir_util
+from datetime import datetime
+import platform
+from urllib.parse import urlparse, unquote
 from urllib.request import url2pathname
 
-import numpy as np
-import torch
+import  torch
 import torch.backends.cudnn as cudnn
-import yaml
+from torch import nn
+from torch.optim import lr_scheduler, SGD, Adam
+from torch.optim.lr_scheduler import _LRScheduler
+from torch.optim.optimizer import Optimizer
+from torch.nn.modules.loss import _WeightedLoss, _Loss
+import torch.nn.functional as F
+import torch.backends.cudnn as cudnn
 from torchvision.datasets import utils as tvutils
 
+import yaml
+import subprocess
 
 class AverageMeter:
 
@@ -142,6 +140,38 @@ def write_string(filepath:str, content:str)->None:
     pathlib.Path(filepath).write_text(content)
 def read_string(filepath:str)->str:
     return pathlib.Path(filepath).read_text()
+
+def create_logger(filepath:Optional[str]=None,
+                  name:Optional[str]=None,
+                  level=logging.INFO,
+                  enable_stdout=True)->logging.Logger:
+    logging.basicConfig(level=level) # this sets level for standard logging.info calls
+    logger = logging.getLogger(name=name)
+
+    # close current handlers
+    for handler in logger.handlers[:]:
+        handler.close()
+        logger.removeHandler(handler)
+
+    logger.setLevel(level)
+
+    if enable_stdout:
+        ch = logging.StreamHandler()
+        ch.setLevel(level)
+        ch.setFormatter(logging.Formatter('%(asctime)s %(message)s', '%H:%M'))
+        logger.addHandler(ch)
+
+    logger.propagate = False # otherwise root logger prints things again
+
+    if filepath:
+        filepath = full_path(filepath)
+        # log files gets appeneded if already exist
+        # zero_file(filepath)
+        fh = logging.FileHandler(filename=full_path(filepath))
+        fh.setLevel(level)
+        fh.setFormatter(logging.Formatter('[%(asctime)s][%(levelname)s] %(message)s'))
+        logger.addHandler(fh)
+    return logger
 
 def fmt(val:Any)->str:
     if isinstance(val, float):

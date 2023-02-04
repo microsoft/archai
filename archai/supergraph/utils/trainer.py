@@ -1,27 +1,28 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Callable, Optional, Tuple
+from typing import Callable, Tuple, Optional
 
 import torch
-from overrides import EnforceOverrides
-from torch import Tensor, nn
-from torch.optim.lr_scheduler import _LRScheduler
+from torch import nn, Tensor
 from torch.optim.optimizer import Optimizer
+from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader
 
-from archai.common.config import Config
-from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.datasets import data
-from archai.supergraph.utils import ml_utils
-from archai.supergraph.utils.apex_utils import ApexUtils
-from archai.supergraph.utils.checkpoint import CheckPoint
+from overrides import EnforceOverrides
+
 from archai.supergraph.utils.metrics import Metrics
-from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched
 from archai.supergraph.utils.tester import Tester
+from archai.common.config import Config
+from archai.common import utils
+from archai.supergraph.utils import ml_utils
+from archai.common.common import logger
+from archai.supergraph.datasets import data
+from archai.supergraph.utils.checkpoint import CheckPoint
+from archai.common.apex_utils import ApexUtils
+from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched
 
-logger = get_global_logger()
-
+# pyright: reportOptionalMemberAccess=false, reportOptionalSubscript=false
 
 class Trainer(EnforceOverrides):
     def __init__(self, conf_train:Config, model:nn.Module,
@@ -45,7 +46,7 @@ class Trainer(EnforceOverrides):
 
         logger.pushd(self._title + '__init__')
 
-        self._apex = ApexUtils(conf_apex)
+        self._apex = ApexUtils(conf_apex, logger)
 
         self._checkpoint = checkpoint
         self.model = model

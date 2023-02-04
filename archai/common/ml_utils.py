@@ -3,25 +3,14 @@
 
 import gc
 import math
-from collections import Counter, OrderedDict, defaultdict
-from typing import (
-    Any,
-    Iterable,
-    List,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-)
+from collections import Counter
+from typing import List, Optional, Tuple
 
 import numpy as np
 import statopt
 import torch
-import torch.nn.functional as F
 from torch import Tensor, nn
-from torch.nn.modules.loss import _Loss, _WeightedLoss
+from torch.nn.modules.loss import _Loss
 from torch.optim import SGD, Adam, lr_scheduler
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
@@ -34,9 +23,9 @@ from archai.trainers.losses import SmoothCrossEntropyLoss
 
 def create_optimizer(conf_opt: Config, params) -> Optimizer:
     optim_type = conf_opt["type"]
-    lr = conf_opt.get_val("lr", math.nan)
-    decay = conf_opt.get_val("decay", math.nan)
-    decay_bn = conf_opt.get_val("decay_bn", math.nan)  # some optim may not support weight decay
+    lr = conf_opt.get("lr", math.nan)
+    decay = conf_opt.get("decay", math.nan)
+    decay_bn = conf_opt.get("decay_bn", math.nan)  # some optim may not support weight decay
 
     if not math.isnan(decay_bn):
         bn_params = [v for n, v in params if "bn" in n]
@@ -98,7 +87,7 @@ def create_lr_scheduler(
     # epoch_or_step - apply every epoch or every step
     scheduler, epoch_or_step = None, True  # by default sched step on epoch
 
-    conf_warmup = conf_lrs.get_val("warmup", None)
+    conf_warmup = conf_lrs.get("warmup", None)
     warmup_epochs = 0
     if conf_warmup is not None and "epochs" in conf_warmup:
         warmup_epochs = conf_warmup["epochs"]
@@ -138,7 +127,7 @@ def create_lr_scheduler(
         if warmup_epochs:
             scheduler = GradualWarmupScheduler(
                 optimizer,
-                multiplier=conf_lrs["warmup"].get_val("multiplier", 1.0),
+                multiplier=conf_lrs["warmup"].get("multiplier", 1.0),
                 total_epoch=warmup_epochs,
                 after_scheduler=scheduler,
             )
@@ -175,12 +164,10 @@ def param_size(module: nn.Module, ignore_aux=True, only_req_grad=False):
 
 
 def save_model(model, model_path):
-    # logger.info('saved to model: {}'.format(model_path))
     torch.save(model.state_dict(), model_path)
 
 
 def load_model(model, model_path):
-    # logger.info('load from model: {}'.format(model_path))
     model.load_state_dict(torch.load(model_path))
 
 

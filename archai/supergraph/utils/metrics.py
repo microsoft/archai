@@ -1,23 +1,22 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import copy
-import math
-import pathlib
-import statistics
 import time
-from collections import defaultdict
+import copy
 from typing import List, Mapping, Optional, Tuple
+import pathlib
+import math
+import statistics
 
-import yaml
+from collections import defaultdict
 from torch import Tensor
 
-from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.utils import ml_utils, utils
-from archai.supergraph.utils.apex_utils import ApexUtils
-from archai.supergraph.utils.common import get_tb_writer
+import yaml
 
-logger = get_global_logger()
+from archai.common import utils
+from archai.supergraph.utils import ml_utils
+from archai.common.common import logger, get_tb_writer
+from archai.common.apex_utils import ApexUtils
 
 
 class Metrics:
@@ -51,7 +50,7 @@ class Metrics:
     def _reset_run(self)->None:
         self.run_metrics = RunMetrics()
         self.global_step = -1
-        self._tb_path = logger.current_path
+        self._tb_path = logger.path()
 
     def pre_run(self)->None:
         self._reset_run()

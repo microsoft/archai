@@ -2,30 +2,31 @@
 # Licensed under the MIT license.
 
 import contextlib
+from typing import Optional, Sequence, Tuple, List
 import os
-from typing import Optional
+import argparse
 
-import psutil
-import ray
 import torch
-import torch.distributed as dist
+from torch.optim.optimizer import Optimizer
 from torch import Tensor, nn
 from torch.backends import cudnn
+import torch.distributed as dist
 from torch.cuda.amp import GradScaler
 from torch.nn import SyncBatchNorm
 from torch.nn.parallel import DistributedDataParallel
-from torch.optim.optimizer import Optimizer
+
+import ray
+
+import psutil
 
 from archai.common.config import Config
-from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.utils import ml_utils, utils
+from archai.common import utils
+from archai.supergraph.utils import ml_utils
+from archai.common.ordereddict_logger import OrderedDictLogger
 from archai.supergraph.utils.multi_optim import MultiOptim
 
-logger = get_global_logger()
-
-
 class ApexUtils:
-    def __init__(self, apex_config:Config)->None:
+    def __init__(self, apex_config:Config, logger:Optional[OrderedDictLogger])->None:
         # region conf vars
         self._enabled = apex_config['enabled'] # global switch to disable anything apex
         self._distributed_enabled = apex_config['distributed_enabled'] # enable/disable distributed mode
@@ -46,6 +47,9 @@ class ApexUtils:
         self.ray_enabled = conf_ray['enabled']
         self.ray_local_mode = conf_ray['local_mode']
         # endregion
+
+        # to avoid circular references= with common, logger is passed from outside
+        self.logger = logger
 
         self._scaler = None
 
@@ -180,8 +184,8 @@ class ApexUtils:
         return self.ray_enabled
 
     def _log_info(self, d:dict)->None:
-        if logger is not None:
-            logger.info(d, override_key=True)
+        if self.logger is not None:
+            self.logger.info(d)
 
     def sync_devices(self)->None:
         if self.is_dist():
