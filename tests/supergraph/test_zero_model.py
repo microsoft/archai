@@ -7,7 +7,7 @@ import torch
 
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils.common import common_init
+from archai.common.common import common_init
 
 
 def requires_gpu(test_fn: Callable):
