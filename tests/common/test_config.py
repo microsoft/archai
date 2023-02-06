@@ -19,7 +19,7 @@ def test_config():
 
     # Assert that additional arguments can be loaded as keys
     config = Config(
-        args=["--arg1", "value1", "--arg2", "value2"],
+        param_args=["--arg1", "value1", "--arg2", "value2"],
     )
     assert config["arg1"] == "value1"
     assert config["arg2"] == "value2"
