@@ -10,6 +10,7 @@ from archai.discrete_search.evaluators.pt_profiler import (
     TorchLatency,
     TorchMacs,
     TorchNumParameters,
+    TorchPeakCPUMemory
 )
 from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import (
     TransformerFlexSearchSpace,
@@ -76,3 +77,13 @@ def test_torch_peak_memory(models, sample_input):
 
     peak_memory = [torch_peak_memory.evaluate(model, None, None) for model in models]
     assert all((m > 0 if device == "cuda" else m == 0) for m in peak_memory)
+
+
+def test_torch_peak_cpu_memory(models, sample_input):
+    torch_peak_memory = TorchPeakCPUMemory(sample_inputs=sample_input.to('cpu'))
+
+    for model in models:
+        model.arch.to('cpu')
+
+    peak_memory = [torch_peak_memory.evaluate(model, None, None) for model in models]
+    assert all(m > 0 for m in peak_memory)
