@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import torch
 from overrides import overrides
@@ -206,3 +206,37 @@ class TorchCudaPeakMemory(ModelEvaluator):
             use_median=self.use_median,
             ignore_layers=self.ignore_layers,
         )["peak_memory"]
+
+
+class TorchPeakCPUMemory(ModelEvaluator):
+    def __init__(self, sample_inputs: Union[torch.Tensor, List[torch.Tensor], Dict[str, torch.Tensor]]):
+        self.inputs = (
+            [sample_inputs] if isinstance(sample_inputs, torch.Tensor) else sample_inputs
+        )
+
+    @overrides
+    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider,
+                 budget: Optional[float] = None):
+        model.arch.to('cpu')
+        is_training = model.arch.training
+        model.arch.eval()
+        
+        run_model = lambda m: m(*self.inputs) if isinstance(self.inputs, list) else m(**self.inputs)
+
+        with torch.profiler.profile(
+            activities=[torch.profiler.ProfilerActivity.CPU],
+            record_shapes=True, profile_memory=True
+        ) as prof:
+
+            with torch.profiler.record_function('model_inference'):
+                run_model(model)
+
+        event_list = prof.key_averages()
+        
+        peak_memory = max(event.cpu_memory_usage for event in event_list)
+        peak_memory = peak_memory / (1024**3) # GBs
+
+        if is_training:
+            model.arch.train()
+
+        return peak_memory
