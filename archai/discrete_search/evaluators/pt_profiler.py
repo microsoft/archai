@@ -229,7 +229,7 @@ class TorchPeakCPUMemory(ModelEvaluator):
         ) as prof:
 
             with torch.profiler.record_function('model_inference'):
-                run_model(model)
+                run_model(model.arch)
 
         event_list = prof.key_averages()
         
