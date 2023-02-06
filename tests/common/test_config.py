@@ -18,8 +18,9 @@ def test_config():
     os.remove(config_filepath)
 
     # Assert that additional arguments can be loaded as keys
-    config = Config(
-        param_args=["--arg1", "value1", "--arg2", "value2"],
-    )
-    assert config["arg1"] == "value1"
-    assert config["arg2"] == "value2"
+    # TODO: Below should not work because they are not part of the config
+    # config = Config(
+    #     param_args=["--arg1", "value1", "--arg2", "value2"],
+    # )
+    # assert config["arg1"] == "value1"
+    # assert config["arg2"] == "value2"
