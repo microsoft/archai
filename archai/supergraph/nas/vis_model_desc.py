@@ -1,14 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-""" Network architecture visualizer using graphviz """
-import sys
-from graphviz import Digraph
-from typing import Union, List, Tuple, Optional
+from typing import Optional, Tuple
 
-from .model_desc import CellDesc, CellType, ModelDesc
+from graphviz import Digraph
+
+from archai.common.ordered_dict_logger import get_global_logger
 from archai.common.utils import first_or_default
-from archai.common.common import logger
+from archai.supergraph.nas.model_desc import CellDesc, CellType, ModelDesc
+
+logger = get_global_logger()
+
 
 def draw_model_desc(model_desc:ModelDesc, filepath:str=None, caption:str=None)\
         ->Tuple[Optional[Digraph],Optional[Digraph]]:

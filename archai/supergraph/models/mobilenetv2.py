@@ -1,6 +1,7 @@
+import os
+
 import torch
 import torch.nn as nn
-import os
 
 __all__ = ['MobileNetV2', 'mobilenet_v2']
 
@@ -50,7 +51,7 @@ class MobileNetV2(nn.Module):
         block = InvertedResidual
         input_channel = 32
         last_channel = 1280
-        
+
         ## CIFAR10
         inverted_residual_setting = [
             # t, c, n, s
@@ -67,11 +68,11 @@ class MobileNetV2(nn.Module):
         # building first layer
         input_channel = int(input_channel * width_mult)
         self.last_channel = int(last_channel * max(1.0, width_mult))
-        
+
         # CIFAR10: stride 2 -> 1
         features = [ConvBNReLU(3, input_channel, stride=1)]
         # END
-        
+
         # building inverted residual blocks
         for t, c, n, s in inverted_residual_setting:
             output_channel = int(c * width_mult)

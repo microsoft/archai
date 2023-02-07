@@ -3,11 +3,9 @@
 # https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/LanguageModeling/Transformer-XL/pytorch/utils/distributed.py
 
 import os
-import random
 from contextlib import contextmanager
 from typing import Generator, Optional, Union
 
-import numpy as np
 import torch
 
 
@@ -19,7 +17,7 @@ def init_distributed(use_cuda: bool) -> None:
     CUDA/NCCL backend. Otherwise, it uses the Gloo backend.
 
     Args:
-        use_cuda (bool): Whether to initialize the distributed mode using the CUDA/NCCL backend.
+        use_cuda: Whether to initialize the distributed mode using the CUDA/NCCL backend.
 
     Raises:
         AssertionError: If the distributed mode is not initialized successfully.
@@ -50,7 +48,7 @@ def barrier() -> None:
 
 
 def get_rank() -> int:
-    """Return the rank of the current process in the distributed backend.
+    """Get the rank of the current process in the distributed backend.
 
     Returns:
         The rank of the current process in the distributed backend. If the distributed mode
@@ -65,7 +63,7 @@ def get_rank() -> int:
 
 
 def get_world_size() -> int:
-    """Return the total number of processes in the distributed backend.
+    """Get the total number of processes in the distributed backend.
 
     Returns:
         The total number of processes in the distributed backend. If the distributed mode
@@ -152,37 +150,3 @@ def sync_workers() -> Generator[int, None, None]:
     yield rank
 
     barrier()
-
-
-def get_cuda_device_name() -> str:
-    """Get the name of the CUDA devices.
-
-    Returns:
-        Name of the CUDA devices.
-
-    """
-
-    return ", ".join([torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())])
-
-
-def init_cuda(seed: int, local_rank: Optional[int] = 0) -> None:
-    """Setup CUDA for distributed training.
-
-    Args:
-        seed: The seed to use for initializing the random number generator.
-        local_rank: The local rank of the current process in the distributed backend.
-
-    """
-
-    seed = seed + local_rank
-
-    # Set the seed for generating random numbers
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    np.random.seed(seed)
-    random.seed(seed)
-
-    # Set CUDNN-related options
-    torch.backends.cudnn.enabled = True
-    torch.backends.cudnn.benchmark = True  # Set to false if deterministic
-    torch.set_printoptions(precision=10)

@@ -5,9 +5,9 @@
 
 import threading
 import time
-
-from enum import Enum
 from collections import defaultdict
+from enum import Enum
+
 
 class _ClockState(Enum):
     PAUSE = 0

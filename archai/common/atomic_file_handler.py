@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from typing import List
-from logging import StreamHandler, Handler
+from logging import Handler
 import os
 import time
 

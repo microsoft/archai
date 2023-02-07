@@ -1,26 +1,26 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterator, Mapping, Type, Optional, Tuple, List
-from enum import Enum
-import os
-import math
-import random
-
 import bisect
-import numpy as np
+import math
+import os
+import random
+from enum import Enum
+from typing import List, Optional, Tuple
 
-import tensorwatch as tw
-from tensorwatch import ModelStats
-import yaml
 import matplotlib.pyplot as plt
+import numpy as np
+import tensorwatch as tw
+import yaml
+from tensorwatch import ModelStats
 
-from archai.supergraph.nas.model_desc import ConvMacroParams, CellDesc, CellType, OpDesc, \
-                                  EdgeDesc, TensorShape, TensorShapes, NodeDesc, ModelDesc
+from archai.common import utils
+from archai.common.ordered_dict_logger import get_global_logger
+from archai.supergraph.nas.model_desc import ModelDesc
 from archai.supergraph.utils.metrics import Metrics
 
-from archai.common.common import logger
-from archai.common import utils
+logger = get_global_logger()
+
 
 class JobStage(Enum):
     # below values must be assigned in sequence so getting next job stage enum is easy
@@ -266,6 +266,7 @@ def _convex_hull_insert(hull_xs, hull_ys, x, y, eps=0.0, eg_xs=[], eg_ys=[]):
 
 def _test_convex_hull_insert():
     import argparse
+
     import matplotlib.pyplot as plt
     plt.close('all')
     parser = argparse.ArgumentParser()

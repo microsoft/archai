@@ -9,19 +9,16 @@ guaranteed non-decreasing). Tensors flowing out of the input as always
 projected instead.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
+
+import logging
+import math
 
 import numpy as np
-import math
-import logging
-
-from archai.supergraph.algos.nasbench101.base_ops import *
-
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+
+from archai.supergraph.algos.nasbench101.base_ops import *
 
 
 class Network(nn.Module):

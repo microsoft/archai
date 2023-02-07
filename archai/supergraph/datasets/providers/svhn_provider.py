@@ -1,18 +1,19 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Tuple, Union, Optional
-
-from overrides import overrides, EnforceOverrides
-from torch.utils.data.dataset import Dataset
-
 import torchvision
-from torchvision.transforms import transforms
+from overrides import overrides
 from torch.utils.data import ConcatDataset
+from torchvision.transforms import transforms
 
-from archai.supergraph.datasets.dataset_provider import DatasetProvider, ImgSize, register_dataset_provider, TrainTestDatasets
-from archai.common.config import Config
 from archai.common import utils
+from archai.common.config import Config
+from archai.supergraph.datasets.dataset_provider import (
+    DatasetProvider,
+    ImgSize,
+    TrainTestDatasets,
+    register_dataset_provider,
+)
 
 
 class SvhnProvider(DatasetProvider):

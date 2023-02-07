@@ -1,25 +1,26 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-
-
-from enum import Enum
-from typing import Mapping, Optional, List, Tuple, Union
-import pathlib
-import os
-import torch
-import copy
-
-import yaml
-
-from archai.common import utils
-from archai.common.common import logger
-from archai.common.config import Config
-
 """
 Note: All classes in this file needs to be deepcopy compatible because
       descs are used as template to create copies by macro builder.
 """
+
+import copy
+import os
+import pathlib
+from enum import Enum
+from typing import List, Mapping, Optional, Union
+
+import torch
+import yaml
+
+from archai.common import utils
+from archai.common.config import Config
+from archai.common.ordered_dict_logger import get_global_logger
+
+logger = get_global_logger()
+
 
 # Each tensor shape is list
 # A layer can output multiple tensors so its shapes are TensorShapes

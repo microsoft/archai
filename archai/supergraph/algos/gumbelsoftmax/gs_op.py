@@ -1,19 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterable, Optional, Tuple, List, Iterator
+from typing import Iterator, Optional, Tuple
 
 import torch
-from torch import nn
-from torch import Tensor
-import torch.nn.functional as F
-
 from overrides import overrides
+from torch import Tensor, nn
 
+from archai.common.utils import zip_eq
+from archai.supergraph.nas.arch_params import ArchParams
 from archai.supergraph.nas.model_desc import OpDesc
 from archai.supergraph.nas.operations import Op
-from archai.supergraph.nas.arch_params import ArchParams
-from archai.common.utils import zip_eq
 
 # TODO: reduction cell might have output reduced by 2^1=2X due to
 #   stride 2 through input nodes however FactorizedReduce does only

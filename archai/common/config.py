@@ -2,19 +2,17 @@
 # Licensed under the MIT license.
 
 import argparse
-from typing import Callable, List, Type, Optional, Any, Union
+from typing import Callable, List, Optional, Any
 from collections import UserDict
 from typing import Sequence
-from argparse import ArgumentError
 from collections.abc import Mapping, MutableMapping
 import os
 from distutils.util import strtobool
 import copy
-from os import stat
 
 import yaml
 
-from . import yaml_utils
+from archai.common import yaml_utils
 
 # global config instance
 _config:Optional['Config'] = None
