@@ -1,0 +1,408 @@
+{
+    "stem_stride": 2,
+    "base_ch": 24,
+    "nan": 0,
+    "hourglasses": {
+        "_config_type": "config_list",
+        "_share_arch": false,
+        "_repeat_times": 2,
+        "_configs": {
+            "0": {
+                "downsample_blocks": {
+                    "_config_type": "config_list",
+                    "_share_arch": false,
+                    "_repeat_times": 5,
+                    "_configs": {
+                        "0": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    },
+                                    "1": {
+                                        "op": "bla"
+                                    }
+                                }
+                            },
+                            "ch_expansion_factor": 3
+                        },
+                        "1": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            },
+                            "ch_expansion_factor": 1.6
+                        },
+                        "2": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            },
+                            "ch_expansion_factor": 1.4
+                        },
+                        "3": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            },
+                            "ch_expansion_factor": 1.6
+                        },
+                        "4": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 3,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    },
+                                    "1": {
+                                        "op": "conv3x3"
+                                    },
+                                    "2": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            },
+                            "ch_expansion_factor": 1.2
+                        }
+                    }
+                },
+                "skip_blocks": {
+                    "_config_type": "config_list",
+                    "_share_arch": false,
+                    "_repeat_times": 4,
+                    "_configs": {
+                        "0": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "1": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "2": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "3": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "upsample_blocks": {
+                    "_config_type": "config_list",
+                    "_share_arch": false,
+                    "_repeat_times": 4,
+                    "_configs": {
+                        "0": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "1": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "2": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "3": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "1": {
+                "downsample_blocks": {
+                    "_config_type": "config_list",
+                    "_share_arch": false,
+                    "_repeat_times": 5,
+                    "_configs": {
+                        "0": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            },
+                            "ch_expansion_factor": 3
+                        },
+                        "1": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            },
+                            "ch_expansion_factor": 1.6
+                        },
+                        "2": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            },
+                            "ch_expansion_factor": 1.4
+                        },
+                        "3": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            },
+                            "ch_expansion_factor": 1.6
+                        },
+                        "4": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 3,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    },
+                                    "1": {
+                                        "op": "conv3x3"
+                                    },
+                                    "2": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            },
+                            "ch_expansion_factor": 1.2
+                        }
+                    }
+                },
+                "skip_blocks": {
+                    "_config_type": "config_list",
+                    "_share_arch": false,
+                    "_repeat_times": 4,
+                    "_configs": {
+                        "0": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "1": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "2": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "3": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "upsample_blocks": {
+                    "_config_type": "config_list",
+                    "_share_arch": false,
+                    "_repeat_times": 4,
+                    "_configs": {
+                        "0": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "1": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "2": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        },
+                        "3": {
+                            "layers": {
+                                "_config_type": "config_list",
+                                "_share_arch": false,
+                                "_repeat_times": 1,
+                                "_configs": {
+                                    "0": {
+                                        "op": "conv3x3"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "post_upsample_layers": {
+        "_config_type": "config_list",
+        "_share_arch": false,
+        "_repeat_times": 1,
+        "_configs": {
+            "0": {
+                "op": "conv3x3"
+            },
+            "1": {
+                "op": "conv3x3"
+            }
+        }
+    }
+}
