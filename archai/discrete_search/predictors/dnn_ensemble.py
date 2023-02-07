@@ -27,6 +27,7 @@ class PredictiveDNNEnsemble(Predictor):
         width: Optional[int] = 64,
         lr: Optional[float] = 1e-4,
         num_tr_steps: Optional[int] = 2_000,
+        replace_nan_value: float = -1.0,
         device: Optional[str] = "cuda",
     ) -> None:
         """Initialize the predictor.
@@ -37,6 +38,9 @@ class PredictiveDNNEnsemble(Predictor):
             width: Number of neurons in each hidden layer.
             lr: Learning rate of each ensemble mmember.
             num_tr_steps: Number of training steps of each member.
+            replace_nan_value: Value to replace NaNs (often used to represent an unused 
+                architecture parameters). Default to -1.0.
+
             device: Device to use for training.
 
         """
@@ -46,6 +50,7 @@ class PredictiveDNNEnsemble(Predictor):
         self.width = width
         self.lr = lr
         self.num_tr_steps = num_tr_steps
+        self.replace_nan_value = replace_nan_value
 
         self.is_fit = False
         self.device = device
@@ -73,6 +78,8 @@ class PredictiveDNNEnsemble(Predictor):
 
         _, num_features = X.shape
         _, num_objectives = y.shape
+
+        X = np.nan_to_num(X, nan=self.replace_nan_value)
 
         self.X_meansd = np.mean(X, axis=0), np.std(X, axis=0)
         self.y_meansd = np.mean(y, axis=0), np.std(y, axis=0)
