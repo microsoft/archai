@@ -1,15 +1,17 @@
 # Face Segmentation
 
 ## Face Synthetics
+
+
+This example is based on the [FaceSynthetics](https://github.com/microsoft/FaceSynthetics) dataset, which consists on 100,000 512 x 512 images of syntetic face images with semantic segmentation labels and facial landmark annotations. We will use this dataset to train face segmentation models according to the 19 per-pixel labels available (background, skin, nose, right_eye, left_eye, right_brow, left_brow, right_ear, left_ear, mouth_interior, top_lip, bottom_lip, neck, hair, beard, clothing, glasses, headwear, facewear).
+
 ![Face Synthetics](assets/face_synthetics.png)
 
 ## Search Space
 
-The search space used for this example is based on the [Stacked HourglassNet architecture](https://arxiv.org/abs/1603.06937). 
+The search space used for this example is based on the [Stacked HourglassNet architecture](https://arxiv.org/abs/1603.06937). The search space consists in 
 
 ![HourglassNet search space](assets/search_space.png)
-
-
 
 ## Search
 
