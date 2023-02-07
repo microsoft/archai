@@ -28,7 +28,7 @@ def models(search_space):
 
 @pytest.fixture
 def sample_input() -> Tuple[torch.Tensor]:
-    return (torch.zeros(1, 1, 192, dtype=torch.long),)
+    return torch.zeros(1, 1, 192, dtype=torch.long)
 
 
 def test_eval_all_objs(models):
@@ -62,7 +62,7 @@ def test_eval_subsets(sample_input, models):
     search_objectives = SearchObjectives(cache_objective_evaluation=False)
     search_objectives.add_objective(
         "Flops",
-        TorchFlops(sample_args=sample_input),
+        TorchFlops(forward_args=sample_input),
         higher_is_better=False,
         compute_intensive=False,
         constraint=(0.0, float("inf")),
@@ -97,7 +97,7 @@ def test_eval_cache(sample_input, models):
     search_objectives = SearchObjectives(cache_objective_evaluation=True)
     search_objectives.add_objective(
         "Flops",
-        TorchFlops(sample_args=sample_input),
+        TorchFlops(forward_args=sample_input),
         higher_is_better=False,
         compute_intensive=False,
         constraint=(0.0, float("inf")),
