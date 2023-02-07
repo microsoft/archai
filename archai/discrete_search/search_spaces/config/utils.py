@@ -74,12 +74,12 @@ def replace_ptree_choices(
 def replace_ptree_pair_choices(
     query_tree: Union[Dict, DiscreteChoice], aux_tree: Union[Dict, Any], repl_fn: Callable[[DiscreteChoice, Any], Any]
 ) -> OrderedDict:
-    """Replace all DiscreteChoice nodes in a tree with the output of a function.
+    """Replace all DiscreteChoice nodes in a tree with the output of a function and an auxilary tree.
 
     Args:
         query_tree: Tree with DiscreteChoice nodes.
         aux_tree: Auxiliary tree with DiscreteChoice nodes.
-        repl_fn: Function to replace DiscreteChoice nodes.
+        repl_fn: Function that takes a `query_node` and an `aux_node` and returns a replacement for `query_node`.
 
     Returns:
         Replaced tree.
