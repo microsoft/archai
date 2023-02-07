@@ -2,14 +2,13 @@
 # Licensed under the MIT license.
 
 from abc import ABC
-from typing import Iterable, List, Optional, Tuple, Iterator
+from typing import Iterable, Iterator, Optional, Tuple
 
+from overrides import EnforceOverrides
 from torch import nn
 
-from overrides import overrides, EnforceOverrides
-
 from archai.supergraph.nas.arch_params import ArchParams, NNTypes
-from archai.common import utils
+
 
 class ArchModule(nn.Module, ABC, EnforceOverrides):
     """ArchModule enahnces nn.Module by making a clear separation between regular

@@ -1,33 +1,22 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Tuple, Union, Optional
+from typing import Optional, Tuple
 
-import os
-import sys
-import math
+from torch.utils.data import DataLoader, Dataset, Sampler
 
-import torch
-import torchvision
-from PIL import Image
-
-from torch.utils.data import \
-    SubsetRandomSampler, Sampler, Subset, ConcatDataset, Dataset, random_split,\
-    DataLoader
-from torchvision.transforms import transforms
-from sklearn.model_selection import StratifiedShuffleSplit
-from torch.utils.data.distributed import DistributedSampler
-
-from filelock import FileLock
-
-from .augmentation import add_named_augs
-from archai.common import common
-from archai.common.common import logger
-from archai.common import utils, apex_utils
-from archai.supergraph.datasets.dataset_provider import DatasetProvider, get_provider_type
+from archai.common import apex_utils, utils
 from archai.common.config import Config
-from archai.supergraph.datasets.limit_dataset import LimitDataset, DatasetLike
-from archai.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
+from archai.common.ordered_dict_logger import get_global_logger
+from archai.supergraph.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
+from archai.supergraph.datasets.augmentation import add_named_augs
+from archai.supergraph.datasets.dataset_provider import (
+    DatasetProvider,
+    get_provider_type,
+)
+from archai.supergraph.datasets.limit_dataset import DatasetLike
+
+logger = get_global_logger()
 
 
 class DataLoaders:
@@ -62,7 +51,7 @@ def get_data(conf_loader:Config)->DataLoaders:
 
     ds_provider = create_dataset_provider(conf_dataset)
 
-    apex = apex_utils.ApexUtils(conf_apex, logger)
+    apex = apex_utils.ApexUtils(conf_apex)
 
     train_dl, val_dl, test_dl = get_dataloaders(ds_provider,
         load_train=load_train, train_batch_size=train_batch,
@@ -220,12 +209,12 @@ def _get_sampler(dataset:Dataset, val_ratio:Optional[float], shuffle:bool,
 
     # we cannot not shuffle just for train or just val because of in distributed mode both must come from same shrad
     train_sampler = DistributedStratifiedSampler(dataset,
-                        val_ratio=val_ratio, is_val=False, shuffle=shuffle,
-                        max_items=max_items, world_size=world_size, rank=global_rank)
+                        val_ratio=val_ratio, is_val_split=False, shuffle=shuffle,
+                        max_samples=max_items, world_size=world_size, rank=global_rank)
 
     valid_sampler = DistributedStratifiedSampler(dataset,
-                        val_ratio=val_ratio, is_val=True, shuffle=shuffle,
-                        max_items=max_items, world_size=world_size, rank=global_rank) \
+                        val_ratio=val_ratio, is_val_split=True, shuffle=shuffle,
+                        max_samples=max_items, world_size=world_size, rank=global_rank) \
                     if val_ratio is not None else None
 
     return train_sampler, valid_sampler

@@ -1,11 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import List, Tuple, Union, Optional
+from typing import Optional, Union
 
-import torch
-from torch.utils.data import \
-    SubsetRandomSampler, Sampler, Subset, ConcatDataset, Dataset, random_split
+from torch.utils.data import ConcatDataset, Dataset, Subset
+
 
 class LimitDataset(Dataset):
     def __init__(self, dataset, n):

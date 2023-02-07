@@ -1,28 +1,24 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Iterator, Mapping, Type, Optional, Tuple, List
 import math
-import copy
-import random
 import os
+from typing import Iterator, Optional, Tuple
 
-import torch
-import tensorwatch as tw
-from torch.utils.data.dataloader import DataLoader
 import yaml
-
 from overrides import overrides
 
-from archai.common.common import logger
-from archai.common.config import Config
-from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.nas.arch_trainer import TArchTrainer
-from archai.supergraph.nas import nas_utils
-from archai.supergraph.utils.metrics import Metrics
 from archai.common import utils
+from archai.common.config import Config
+from archai.common.ordered_dict_logger import get_global_logger
+from archai.supergraph.nas import nas_utils
+from archai.supergraph.nas.arch_trainer import TArchTrainer
 from archai.supergraph.nas.finalizers import Finalizers
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.supergraph.nas.searcher import ModelMetrics, Searcher, SearchResult
+from archai.supergraph.utils.metrics import Metrics
+
+logger = get_global_logger()
 
 
 class SearchCombinations(Searcher):

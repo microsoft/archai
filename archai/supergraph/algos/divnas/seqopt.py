@@ -1,15 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from typing import List
+
 import numpy as np
-from typing import List, Optional, Set, Dict
 
 from archai.supergraph.algos.divnas.wmr import Wmr
 
 
 class SeqOpt:
-    """ Implements SeqOpt 
-        TODO: Later on we might want to refactor this class 
+    """ Implements SeqOpt
+        TODO: Later on we might want to refactor this class
         to be able to handle bandit feedback """
 
     def __init__(self, num_items:int, eps:float):
@@ -35,7 +36,7 @@ class SeqOpt:
                 while item_id in sel_set and counter < counter_limit:
                     item_id = self._expert_algos[i].sample()
                     counter += 1
-                    
+
                 if counter >= counter_limit:
                     print('Got caught in infinite loop for a while')
 
@@ -63,7 +64,7 @@ class SeqOpt:
         return scaled
 
     def update(self, sel_list:List[int], compute_marginal_gain_func)->None:
-        """ In the full information case we will update 
+        """ In the full information case we will update
         all expert copies according to the marginal benefits """
 
         # mother set
@@ -71,18 +72,18 @@ class SeqOpt:
 
         reward_storage = []
 
-        # for each slot    
+        # for each slot
         for slot_id in range(self._num_items):
             # for each action in the slot
             sub_sel = set(sel_list[:slot_id])
             reward_vector = []
-            for item in range(self._num_items):                
-                # the function passed in 
-                # must already be bound to the 
+            for item in range(self._num_items):
+                # the function passed in
+                # must already be bound to the
                 # covariance function needed
                 reward = compute_marginal_gain_func(item, sub_sel, S)
                 reward_vector.append(reward)
-            
+
             # update the expert algo copy for this slot
             scaled_rewards = self._scale_minus_one_to_one(np.array(reward_vector))
             self._expert_algos[slot_id].update(scaled_rewards)
@@ -97,9 +98,9 @@ class SeqOpt:
         # is_descending = self._check_marg_gains(reward_storage)
         # if not is_descending:
         #     print('WARNING marginal gains are not diminishing')
-                
-            
-        
+
+
+
 
 
 

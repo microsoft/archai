@@ -2,22 +2,13 @@
 # Licensed under the MIT license.
 
 from collections import defaultdict
-from typing import Callable, Iterable, List, Optional, Tuple, Dict
-from abc import ABC, abstractmethod
-
-from overrides import overrides, EnforceOverrides
+from typing import Dict, List
 
 import numpy as np
 
-import torch
-from torch import nn, tensor
-from overrides import overrides, EnforceOverrides
-
 import archai.supergraph.algos.divnas.analyse_activations as aa
-
 from archai.supergraph.nas.cell import Cell
-from archai.supergraph.nas.operations import Zero
-from archai.supergraph.nas.operations import Op
+from archai.supergraph.nas.operations import Op, Zero
 
 
 class Divnas_Cell():

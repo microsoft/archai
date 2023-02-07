@@ -1,22 +1,21 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import torch
-from torch import nn, Tensor
+from overrides import EnforceOverrides
+from torch import Tensor, nn
 from torch.utils.data import DataLoader
 
-from overrides import EnforceOverrides
-
-from archai.supergraph.utils.metrics import Metrics
-from archai.common.config import Config
-from archai.common import utils
-from archai.supergraph.utils import ml_utils
-from archai.common.common import logger
+from archai.common import ml_utils
 from archai.common.apex_utils import ApexUtils
+from archai.common.config import Config
+from archai.common.ordered_dict_logger import get_global_logger
+from archai.supergraph.utils.metrics import Metrics
 
-# pyright: reportOptionalMemberAccess=false
+logger = get_global_logger()
+
 
 class Tester(EnforceOverrides):
     def __init__(self, conf_val:Config, model:nn.Module, apex:ApexUtils)->None:

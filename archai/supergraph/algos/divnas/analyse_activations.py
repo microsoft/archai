@@ -1,19 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import numpy as np
-import pdb
-from collections import defaultdict
-from itertools import combinations_with_replacement
-import matplotlib.pyplot as plt
-import seaborn as sns
 import math as ma
-import h5py
 import os
+from collections import defaultdict
 from copy import deepcopy
-from typing import List, Set, Dict, Tuple, Any, Callable
+from itertools import combinations
+from typing import Any, Callable, Dict, List, Set, Tuple
+
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 from tqdm import tqdm
-from itertools import permutations, combinations
 
 from archai.supergraph.algos.divnas.seqopt import SeqOpt
 
@@ -63,7 +62,7 @@ def compute_brute_force_sol(cov_kernel:np.array, budget:int)->Tuple[Tuple[Any], 
     assert budget > 0 and budget <= cov_kernel.shape[0]
 
     V = set(range(cov_kernel.shape[0]))
-    
+
     # for each combination of budgeted items compute its mutual
     # information with the complement set
     mis = []
@@ -105,7 +104,7 @@ def compute_covariance_offline(feature_list:List[np.array])->np.array:
 
 
 def compute_rbf_kernel_covariance(feature_list:List[np.array], sigma=0.1)->np.array:
-    """ Compute rbf kernel covariance for high dimensional features. 
+    """ Compute rbf kernel covariance for high dimensional features.
     feature_list: List of features each of shape: (num_samples, feature_dim)
     sigma: sigma of the rbf kernel """
     num_features = len(feature_list)
@@ -118,21 +117,21 @@ def compute_rbf_kernel_covariance(feature_list:List[np.array], sigma=0.1)->np.ar
                 continue
 
             # NOTE: one could try to take all pairs rbf responses
-            # but that is too much computation and probably does 
+            # but that is too much computation and probably does
             # not add much information
             feats_i = feature_list[i]
             feats_j = feature_list[j]
             assert feats_i.shape == feats_j.shape
-                        
+
             rbfs = np.exp(-np.sum(np.square(feats_i - feats_j), axis=1) / (2*sigma*sigma))
             avg_cov = np.sum(rbfs)/feats_i.shape[0]
             covariance[i][j] = covariance[j][i] = avg_cov
 
     return covariance
 
-    
+
 def compute_euclidean_dist_quantiles(feature_list:List[np.array], subsamplefactor=1)->List[Tuple[float, float]]:
-    """ Compute quantile distances between feature pairs 
+    """ Compute quantile distances between feature pairs
     feature_list: List of features each of shape: (num_samples, feature_dim)
     """
     num_features = len(feature_list)
@@ -145,7 +144,7 @@ def compute_euclidean_dist_quantiles(feature_list:List[np.array], subsamplefacto
     distances = []
     for i in range(num_features):
         for j in range(num_features):
-            if i == j:                
+            if i == j:
                 continue
 
             for k in range(0, num_samples, subsamplefactor):
@@ -174,7 +173,7 @@ def greedy_op_selection(covariance:np.array, k:int)->List[int]:
     S = set()
     for i in range(covariance.shape[0]):
         S.add(i)
-    
+
     for i in tqdm(range(k)):
         marginal_gains = []
         marginal_gain_ids = []
@@ -189,7 +188,7 @@ def greedy_op_selection(covariance:np.array, k:int)->List[int]:
             if marg_gain > val:
                 val = marg_gain
                 argmax = marg_gain_id
-        
+
         A.add(argmax)
         A_list.append(argmax)
 
@@ -230,7 +229,7 @@ def compute_marginal_gain(y:int, A:Set[int], S:Set[int], covariance:np.array)->f
 def collect_features(rootfolder:str, subsampling_factor:int = 1)->Dict[str, List[np.array]]:
     """ Walks the rootfolder for h5py files and loads them into the format
     required for analysis.
-    
+
     Inputs:
 
     rootfolder: full path to folder containing h5 files which have activations
@@ -243,12 +242,12 @@ def collect_features(rootfolder:str, subsampling_factor:int = 1)->Dict[str, List
 
     assert subsampling_factor > 0
 
-    # gather all h5 files 
+    # gather all h5 files
     h5files = [os.path.join(rootfolder, f) for f in os.listdir(rootfolder) if os.path.isfile(os.path.join(rootfolder, f)) and '.h5' in f]
     assert h5files
 
 
-    # storage for holding activations for all edges 
+    # storage for holding activations for all edges
     all_edges_activs = defaultdict(list)
 
     for h5file in h5files:
@@ -282,8 +281,8 @@ def collect_features(rootfolder:str, subsampling_factor:int = 1)->Dict[str, List
 
             # removing none and skip_connect
             del feature_list[-1]
-            del feature_list[2] 
-        
+            del feature_list[2]
+
             all_edges_activs[edge_name] = feature_list
 
     return all_edges_activs
@@ -313,7 +312,7 @@ def main():
         'sep_conv_3x3',
         'sep_conv_5x5',
         'dil_conv_3x3',
-        'dil_conv_5x5',        
+        'dil_conv_5x5',
     ]
 
     # # Use all edges
@@ -322,7 +321,7 @@ def main():
     # for i in all_edges_activs.keys():
     #     all_edges_list.extend(all_edges_activs[i])
     #     for prim in PRIMITIVES:
-    #         all_names_list.append(i + '_' + prim) 
+    #         all_names_list.append(i + '_' + prim)
 
     # Use specific edges
     all_edges_list = []
@@ -336,9 +335,9 @@ def main():
     for name in edge_list:
         all_edges_list.extend(all_edges_activs[name])
         for prim in PRIMITIVES:
-            all_names_list.append(name + '_' + prim) 
+            all_names_list.append(name + '_' + prim)
 
-        
+
     # compute covariance like usual
     # cov = compute_covariance_offline(all_edges_list)
     # corr = compute_correlation(cov)
@@ -424,7 +423,7 @@ def main():
     #     print(f'Computing kernel covariance for quantile {quantile}')
     #     cov_kernel = compute_rbf_kernel_covariance(all_edges_list, sigma=val)
     #     covs_kernel[quantile] = cov_kernel
-    
+
     # # compute greedy sequence of ops on one of the kernels
     # print('Greedy selection')
     # greedy_ops = greedy_op_selection(covs_kernel[0.5], 3)
@@ -438,7 +437,7 @@ def main():
     # plt.show()
 
 
-        
+
 
 
 

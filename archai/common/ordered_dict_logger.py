@@ -18,7 +18,22 @@ from archai.common.ordered_dict_logger_utils import get_logger
 
 
 class OrderedDictLogger:
-    """Log and save data in a hierarchical YAML structure."""
+    """Log and save data in a hierarchical YAML structure.
+    
+    The purpose of the structured logging is to store logs as key value pair.
+    However, when you have loop and sub routine calls, what you need is hierarchical
+    dictionaries where the value for a key could be a dictionary. The idea is that you
+    set one of the nodes in tree as current node and start logging your values. You can
+    then use pushd to create and go to child node and popd to come back to parent.
+    
+    To implement this mechanism we use two main variables: _stack allows us to push each node
+    on stack when pushd is called. The node is OrderedDictionary. As a convinience, we let
+    specify child path in pushd in which case child hierarchy is created and current node
+    will be set to the last node in specified path. When popd is called, we go back to
+    original parent instead of parent of current node. To implement this we use _paths 
+    variable which stores subpath when each pushd call was made.
+
+    """
 
     def __init__(
         self, source: Optional[str] = None, file_path: Optional[str] = None, delay: Optional[float] = 60.0

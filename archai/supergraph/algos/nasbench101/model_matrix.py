@@ -1,6 +1,7 @@
-from typing import List, Sequence
-import numpy as np
 import copy
+from typing import List
+
+import numpy as np
 
 
 def prune(model_matrix:np.ndarray, vertex_ops:List[str]):

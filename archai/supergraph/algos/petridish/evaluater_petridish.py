@@ -1,44 +1,35 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Optional, List, Tuple
-import importlib
-import pathlib
-import sys
-import string
-import os
 import copy
+import glob
 import math
+import os
+import pathlib
+from typing import Optional
 
 # only works on linux
 import ray
-
+import yaml
 from overrides import overrides
 
-import tensorwatch as tw
-
-import torch
-from torch import nn
-import tensorwatch as tw
-import yaml
-import matplotlib.pyplot as plt
-import glob
-from archai.supergraph.utils import ml_utils
-
-from archai.supergraph.utils.trainer import Trainer
+from archai.common import common, ml_utils, utils
 from archai.common.config import Config
-from archai.common.common import get_expdir, logger
-from archai.supergraph.datasets import data
-from archai.supergraph.nas.model_desc import CellType, ModelDesc
-from archai.supergraph.nas.model import Model
-from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+from archai.common.ordered_dict_logger import get_global_logger
+from archai.supergraph.algos.petridish.petridish_utils import (
+    ConvexHullPoint,
+    ExperimentStage,
+    JobStage,
+    plot_pool,
+    save_hull,
+)
 from archai.supergraph.nas import nas_utils
-from archai.common import common
-from archai.common import utils
-from archai.supergraph.utils.metrics import Metrics
-from archai.supergraph.nas.evaluater import Evaluater, EvalResult
-from archai.supergraph.algos.petridish.petridish_utils import ConvexHullPoint, ExperimentStage, JobStage, \
-    save_hull, plot_pool
+from archai.supergraph.nas.evaluater import EvalResult, Evaluater
+from archai.supergraph.nas.model_desc import CellType, ModelDesc
+from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
+
+logger = get_global_logger()
+
 
 def filepath_ext(filepath:str)->str:
     """Returns '.f' for '/a/b/c/d.e.f' """

@@ -1,15 +1,16 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Callable, Iterable, List, Optional, Tuple
+from typing import Iterable, List, Optional
 
-from torch import nn, tensor
-from overrides import overrides, EnforceOverrides
+from overrides import EnforceOverrides, overrides
+from torch import nn
 
+from archai.supergraph.nas.arch_module import ArchModule
 from archai.supergraph.nas.dag_edge import DagEdge
 from archai.supergraph.nas.model_desc import CellDesc, NodeDesc
 from archai.supergraph.nas.operations import Op
-from archai.supergraph.nas.arch_module import ArchModule
+
 
 class Cell(ArchModule, EnforceOverrides):
     def __init__(self, desc:CellDesc,
