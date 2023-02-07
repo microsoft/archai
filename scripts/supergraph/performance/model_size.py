@@ -1,13 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from archai.common.common import common_init
+from archai.common.model_summary import summary
 from archai.supergraph.algos.petridish.petridish_model_desc_builder import (
     PetridishModelBuilder,
 )
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.model_desc import ModelDesc
-from archai.common.common import common_init
-from archai.supergraph.utils.model_summary import summary
 
 conf = common_init(
     config_filepath="confs/petridish_cifar.yaml", param_args=["--common.experiment_name", "petridish_run2_seed42_eval"]

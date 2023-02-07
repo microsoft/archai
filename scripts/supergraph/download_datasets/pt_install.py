@@ -5,8 +5,8 @@ import argparse
 import os
 import pathlib
 
-from archai.common.config import Config
 from archai.common import utils
+from archai.common.config import Config
 
 # To upload dataset on Azure, tar the folder and use command like
 # azcopy copy "H:\dataroot_cloud\ImageNet.tar" "https://archai.blob.core.windows.net/phillytools/dataroot/ImageNet.tar"

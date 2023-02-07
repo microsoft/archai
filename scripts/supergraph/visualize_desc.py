@@ -4,9 +4,9 @@
 import argparse
 import pathlib
 
+from archai.common import utils
 from archai.supergraph.nas.model_desc import ModelDesc
 from archai.supergraph.nas.vis_model_desc import draw_model_desc
-from archai.common import utils
 
 
 def main():

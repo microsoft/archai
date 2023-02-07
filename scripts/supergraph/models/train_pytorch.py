@@ -15,9 +15,9 @@ from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
+from archai.common import utils
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph import models
-from archai.common import utils
 
 logger = get_global_logger()
 
