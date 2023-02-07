@@ -13,7 +13,7 @@ from archai.discrete_search.api.search_space import (
 )
 
 __all__ = [
-    'ArchaiModel', 'ModelEvaluator', 'AsyncModelEvaluator', 'MeanVar', 
+    'DatasetProvider', 'ArchaiModel', 'ModelEvaluator', 'AsyncModelEvaluator', 'MeanVar', 
     'Predictor', 'SearchObjectives', 'Searcher', 'DiscreteSearchSpace',
     'EvolutionarySearchSpace', 'BayesOptSearchSpace'
 ]
