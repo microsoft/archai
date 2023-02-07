@@ -208,7 +208,7 @@ class TorchCudaPeakMemory(ModelEvaluator):
         )["peak_memory"]
 
 
-class TorchPeakCPUMemory(ModelEvaluator):
+class TorchCpuPeakmemory(ModelEvaluator):
     def __init__(self, sample_inputs: Union[torch.Tensor, List[torch.Tensor], Dict[str, torch.Tensor]]):
         self.inputs = (
             [sample_inputs] if isinstance(sample_inputs, torch.Tensor) else sample_inputs
