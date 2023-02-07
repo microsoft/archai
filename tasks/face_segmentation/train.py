@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 
 import torch
 from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import ModelCheckpoint
 
 from archai.datasets.cv.face_synthetics import FaceSyntheticsDatasetProvider
 from archai.discrete_search.search_spaces.config import ArchConfig
@@ -38,10 +39,20 @@ if __name__ == '__main__':
         dataset_prov.get_val_dataset(), batch_size=args.batch_size, num_workers=8
     )
 
+    callbacks = [
+        ModelCheckpoint(
+            dirpath=str(args.output_dir / 'checkpoints'),
+            monitor='validation_loss', mode='min',
+            save_last=True, save_top_k=1, verbose=True,
+            filename='{epoch}-{step}-{validation_loss:.2f}'
+        )
+    ]
+
     trainer = Trainer(
         default_root_dir=str(args.output_dir), gpus=1, 
         val_check_interval=args.val_check_interval,
-        max_epochs=args.epochs
+        max_epochs=args.epochs,
+        callbacks=callbacks
     )
 
     trainer.fit(pl_model, tr_dl, val_dl)
