@@ -9,8 +9,7 @@ from .metrics import get_confusion_matrix, get_iou, get_f1_scores
 
 
 class SegmentationTrainingLoop(pl.LightningModule):
-    def __init__(self, model: nn.Module, lr: float = 2e-4, batch_size: int = 32,
-                 ignore_mask_value: int = 255):
+    def __init__(self, model: nn.Module, lr: float = 2e-4, ignore_mask_value: int = 255):
         super().__init__()
         
         self.model = model
