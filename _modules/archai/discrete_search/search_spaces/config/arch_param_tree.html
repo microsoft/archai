@@ -865,7 +865,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
@@ -877,10 +877,7 @@ title="Open an issue"
     <span class="n">build_arch_config</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.config.discrete_choice</span> <span class="kn">import</span> <span class="n">DiscreteChoice</span>
-<span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.config.utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">flatten_dict</span><span class="p">,</span>
-    <span class="n">replace_ptree_choices</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.config.utils</span> <span class="kn">import</span> <span class="n">flatten_dict</span><span class="p">,</span> <span class="n">replace_ptree_choices</span>
 
 
 <div class="viewcode-block" id="ArchParamTree"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html#archai.discrete_search.search_spaces.config.arch_param_tree.ArchParamTree">[docs]</a><span class="k">class</span> <span class="nc">ArchParamTree</span><span class="p">:</span>
@@ -904,7 +901,7 @@ title="Open an issue"
         <span class="n">param_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">deduplicate_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_constants</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">num_options</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">choices</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">param_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
 
-        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="n">num_options</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span><span class="o">*</span><span class="n">b</span><span class="p">,</span> <span class="n">num_options</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_init_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_tree</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">OrderedDict</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">]:</span>
         <span class="n">params</span><span class="p">,</span> <span class="n">constants</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(),</span> <span class="n">OrderedDict</span><span class="p">()</span>
@@ -990,7 +987,7 @@ title="Open an issue"
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">rng</span> <span class="o">=</span> <span class="n">rng</span> <span class="ow">or</span> <span class="n">Random</span><span class="p">()</span>
-        <span class="n">choices_dict</span> <span class="o">=</span> <span class="n">replace_ptree_choices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">choices</span><span class="p">))</span>
+        <span class="n">choices_dict</span> <span class="o">=</span> <span class="n">replace_ptree_choices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(</span><span class="n">rng</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">build_arch_config</span><span class="p">(</span><span class="n">choices_dict</span><span class="p">)</span></div>
 
@@ -1021,21 +1018,26 @@ title="Open an issue"
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">deduped_features</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">deduplicate_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_constants</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">deduped_features</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">deduplicate_params</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_constants</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">flat_config</span> <span class="o">=</span> <span class="n">flatten_dict</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">_config_dict</span><span class="p">)</span>
         <span class="n">flat_used_params</span> <span class="o">=</span> <span class="n">flatten_dict</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get_used_params</span><span class="p">())</span>
 
         <span class="c1"># Build feature array</span>
-        <span class="n">features</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">flat_config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">deduped_features</span><span class="p">])</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([</span>
+            <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">deduped_features</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> 
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">flat_config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> 
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">deduped_features</span>
+        <span class="p">])</span>
 
         <span class="c1"># Replaces unused params with NaNs if necessary</span>
         <span class="k">if</span> <span class="n">track_unused_params</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">feature_name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">features</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">feature_name</span><span class="p">,</span> <span class="n">enc_param</span> <span class="ow">in</span> <span class="n">features</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">flat_used_params</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]:</span>
-                    <span class="n">features</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
+                    <span class="n">features</span><span class="p">[</span><span class="n">feature_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">enc_param</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div></div>
+        <span class="c1"># Flattens the feature array</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">features</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span></div></div>
 </pre></div>
 
               </div>

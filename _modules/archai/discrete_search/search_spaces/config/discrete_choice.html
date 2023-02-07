@@ -865,20 +865,40 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">Random</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 
 
 <div class="viewcode-block" id="DiscreteChoice"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html#archai.discrete_search.search_spaces.config.discrete_choice.DiscreteChoice">[docs]</a><span class="k">class</span> <span class="nc">DiscreteChoice</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Discrete choice class for search space configuration.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the discrete choices.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+                 <span class="n">probabilities</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">encode_strategy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Stores a discrete choice of numeric or non-numeric values.</span>
+<span class="sd">        The choice can be encoded as a numeric value or using one-hot encoding depending on the</span>
+<span class="sd">        value passed to `encode_strategy`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            choices: List of choices.</span>
+<span class="sd">            choices (List[Union[int, float, str]]): List of choices. Choices can be integers, </span>
+<span class="sd">                floats or strings.</span>
+<span class="sd">            probabilities (Optional[List[float]], optional): Probability distribution of each choice</span>
+<span class="sd">                used during sampling. If `None`, a uniform distribution is used.</span>
+<span class="sd">            encode_strategy (str, optional): Encoding strategy to use [&#39;one_hot&#39;, &#39;numeric&#39;]. If</span>
+<span class="sd">                &#39;auto&#39;, the encoding strategy is chosen based on the type of the choices.</span>
+<span class="sd">                Defaults to &#39;auto&#39;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="n">choices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">probabilities</span> <span class="o">=</span> <span class="n">probabilities</span>
+
+        <span class="k">if</span> <span class="n">encode_strategy</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+            <span class="n">encode_strategy</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;numeric&#39;</span> <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">)</span> 
+                <span class="k">else</span> <span class="s1">&#39;one_hot&#39;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">encode_strategy</span> <span class="o">=</span> <span class="n">encode_strategy</span>
 
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
@@ -890,7 +910,35 @@ title="Open an issue"
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DiscreteChoice.encode"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html#archai.discrete_search.search_spaces.config.discrete_choice.DiscreteChoice.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Encodes the option into a numeric value or a one-hot encoding.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            option (Any): Option to encode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List[float]: Encoded option.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode_strategy</span> <span class="o">==</span> <span class="s1">&#39;one_hot&#39;</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Invalid option: </span><span class="si">{</span><span class="n">option</span><span class="si">}</span><span class="s1">. Valid options: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">choice</span> <span class="o">==</span> <span class="n">option</span><span class="p">)</span> <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">option</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="DiscreteChoice.random_sample"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html#archai.discrete_search.search_spaces.config.discrete_choice.DiscreteChoice.random_sample">[docs]</a>    <span class="k">def</span> <span class="nf">random_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rng</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Random</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Randomly samples a choice from the discrete set. </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            rng (Optional[Random], optional): Random number generator.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Any: Randomly sampled choice.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">rng</span> <span class="ow">or</span> <span class="n">Random</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">rng</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div></div>
 </pre></div>
 
               </div>

@@ -880,17 +880,17 @@ title="Edit this page"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.nlp.parameters">
+  <a class="reference internal nav-link" href="#parameters">
    Parameters
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.nlp.transformer_flex_latency">
+  <a class="reference internal nav-link" href="#transformer-flex-latency">
    Transformer-Flex Latency
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.nlp.transformer_flex_memory">
+  <a class="reference internal nav-link" href="#transformer-flex-memory">
    Transformer-Flex Memory
   </a>
  </li>
@@ -914,17 +914,17 @@ title="Edit this page"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.nlp.parameters">
+  <a class="reference internal nav-link" href="#parameters">
    Parameters
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.nlp.transformer_flex_latency">
+  <a class="reference internal nav-link" href="#transformer-flex-latency">
    Transformer-Flex Latency
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.nlp.transformer_flex_memory">
+  <a class="reference internal nav-link" href="#transformer-flex-memory">
    Transformer-Flex Memory
   </a>
  </li>
@@ -940,95 +940,14 @@ title="Edit this page"
                 
   <section id="natural-language-processing">
 <h1>Natural Language Processing<a class="headerlink" href="#natural-language-processing" title="Permalink to this headline">#</a></h1>
-<section id="module-archai.discrete_search.evaluators.nlp.parameters">
-<span id="parameters"></span><h2>Parameters<a class="headerlink" href="#module-archai.discrete_search.evaluators.nlp.parameters" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.evaluators.nlp.parameters.NonEmbeddingParamsProxy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.nlp.parameters.</span></span><span class="sig-name descname"><span class="pre">NonEmbeddingParamsProxy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclude_cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/nlp/parameters.html#NonEmbeddingParamsProxy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.nlp.parameters.NonEmbeddingParamsProxy" title="Permalink to this definition">#</a></dt>
-<dd><p>Total number of non-embedding parameters.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.evaluators.nlp.parameters.NonEmbeddingParamsProxy.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/nlp/parameters.html#NonEmbeddingParamsProxy.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.nlp.parameters.NonEmbeddingParamsProxy.evaluate" title="Permalink to this definition">#</a></dt>
-<dd><p>Evaluate an <cite>ArchaiModel</cite> instance, optionally using a <cite>DatasetProvider</cite> and budget value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arch</strong> – Model to be evaluated.</p></li>
-<li><p><strong>dataset</strong> – A dataset provider object.</p></li>
-<li><p><strong>budget</strong> – A budget multiplier value, used by search algorithms like <cite>SucessiveHalving</cite>
-to specify how much compute should be spent in this evaluation. In order to use
-this type of search algorithm, the implementation of <cite>evaluate()</cite> must use the
-passed <cite>budget</cite> value accordingly.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluation result.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">#</a></h2>
 </section>
-<section id="module-archai.discrete_search.evaluators.nlp.transformer_flex_latency">
-<span id="transformer-flex-latency"></span><h2>Transformer-Flex Latency<a class="headerlink" href="#module-archai.discrete_search.evaluators.nlp.transformer_flex_latency" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.evaluators.nlp.transformer_flex_latency.TransformerFlexOnnxLatency">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.nlp.transformer_flex_latency.</span></span><span class="sig-name descname"><span class="pre">TransformerFlexOnnxLatency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.transformer_flex.html#archai.discrete_search.search_spaces.nlp.transformer_flex.search_space.TransformerFlexSearchSpace" title="archai.discrete_search.search_spaces.nlp.transformer_flex.search_space.TransformerFlexSearchSpace"><span class="pre">archai.discrete_search.search_spaces.nlp.transformer_flex.search_space.TransformerFlexSearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">providers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seq_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">past_seq_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_trials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_median</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_past</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_ort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/nlp/transformer_flex_latency.html#TransformerFlexOnnxLatency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.nlp.transformer_flex_latency.TransformerFlexOnnxLatency" title="Permalink to this definition">#</a></dt>
-<dd><p>Measure the average latency of models from the Transformer-Flex search space.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.evaluators.nlp.transformer_flex_latency.TransformerFlexOnnxLatency.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/nlp/transformer_flex_latency.html#TransformerFlexOnnxLatency.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.nlp.transformer_flex_latency.TransformerFlexOnnxLatency.evaluate" title="Permalink to this definition">#</a></dt>
-<dd><p>Evaluate an <cite>ArchaiModel</cite> instance, optionally using a <cite>DatasetProvider</cite> and budget value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arch</strong> – Model to be evaluated.</p></li>
-<li><p><strong>dataset</strong> – A dataset provider object.</p></li>
-<li><p><strong>budget</strong> – A budget multiplier value, used by search algorithms like <cite>SucessiveHalving</cite>
-to specify how much compute should be spent in this evaluation. In order to use
-this type of search algorithm, the implementation of <cite>evaluate()</cite> must use the
-passed <cite>budget</cite> value accordingly.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluation result.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="transformer-flex-latency">
+<h2>Transformer-Flex Latency<a class="headerlink" href="#transformer-flex-latency" title="Permalink to this headline">#</a></h2>
 </section>
-<section id="module-archai.discrete_search.evaluators.nlp.transformer_flex_memory">
-<span id="transformer-flex-memory"></span><h2>Transformer-Flex Memory<a class="headerlink" href="#module-archai.discrete_search.evaluators.nlp.transformer_flex_memory" title="Permalink to this headline">#</a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="archai.discrete_search.evaluators.nlp.transformer_flex_memory.TransformerFlexOnnxMemory">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.nlp.transformer_flex_memory.</span></span><span class="sig-name descname"><span class="pre">TransformerFlexOnnxMemory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">search_space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.transformer_flex.html#archai.discrete_search.search_spaces.nlp.transformer_flex.search_space.TransformerFlexSearchSpace" title="archai.discrete_search.search_spaces.nlp.transformer_flex.search_space.TransformerFlexSearchSpace"><span class="pre">archai.discrete_search.search_spaces.nlp.transformer_flex.search_space.TransformerFlexSearchSpace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_past</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_ort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/nlp/transformer_flex_memory.html#TransformerFlexOnnxMemory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.nlp.transformer_flex_memory.TransformerFlexOnnxMemory" title="Permalink to this definition">#</a></dt>
-<dd><p>Measure the memory usage of models from the Transformer-Flex search space.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="archai.discrete_search.evaluators.nlp.transformer_flex_memory.TransformerFlexOnnxMemory.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/nlp/transformer_flex_memory.html#TransformerFlexOnnxMemory.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.nlp.transformer_flex_memory.TransformerFlexOnnxMemory.evaluate" title="Permalink to this definition">#</a></dt>
-<dd><p>Evaluate an <cite>ArchaiModel</cite> instance, optionally using a <cite>DatasetProvider</cite> and budget value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arch</strong> – Model to be evaluated.</p></li>
-<li><p><strong>dataset</strong> – A dataset provider object.</p></li>
-<li><p><strong>budget</strong> – A budget multiplier value, used by search algorithms like <cite>SucessiveHalving</cite>
-to specify how much compute should be spent in this evaluation. In order to use
-this type of search algorithm, the implementation of <cite>evaluate()</cite> must use the
-passed <cite>budget</cite> value accordingly.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Evaluation result.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="transformer-flex-memory">
+<h2>Transformer-Flex Memory<a class="headerlink" href="#transformer-flex-memory" title="Permalink to this headline">#</a></h2>
 </section>
 </section>
 

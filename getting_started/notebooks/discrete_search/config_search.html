@@ -1262,7 +1262,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
@@ -1275,7 +1275,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
@@ -1288,7 +1288,7 @@ div.rendered_html tbody tr:hover {
 <p>As seen before, discrete search spaces in Archai are defined using the <code class="docutils literal notranslate"><span class="pre">DiscreteSearchSpace</span></code> abstract class. This tutorial shows how to use the Config Search Space API, which allows building search spaces automatically without having to subclass <code class="docutils literal notranslate"><span class="pre">DiscreteSearchSpace</span></code> .</p>
 <p>Let’s first start with a simple Pytorch model</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyConvBlock</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
@@ -1325,7 +1325,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">MyModel</span><span class="p">()</span>
@@ -1333,7 +1333,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
@@ -1342,7 +1342,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1354,7 +1354,7 @@ torch.Size([2, 32, 16, 16])
 <h2>Creating an <code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code><a class="headerlink" href="#Creating-an-ArchParamTree" title="Permalink to this headline">#</a></h2>
 <p>To turn this model into a search space, first we need to define an <code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code> with the architecture parameters we want to search</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.config</span> <span class="kn">import</span> <span class="n">ArchParamTree</span><span class="p">,</span> <span class="n">ArchConfig</span><span class="p">,</span> <span class="n">DiscreteChoice</span>
@@ -1372,7 +1372,7 @@ torch.Size([2, 32, 16, 16])
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code> are used to generate <code class="docutils literal notranslate"><span class="pre">ArchConfig</span></code> objects, that specify the choosen architecture configuration. We can sample a configuration using <code class="docutils literal notranslate"><span class="pre">arch_param_tree.sample_config()</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_config</span> <span class="o">=</span> <span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">()</span>
@@ -1381,21 +1381,21 @@ torch.Size([2, 32, 16, 16])
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 ArchConfig({
-    &#34;conv_kernel_size&#34;: 3,
+    &#34;conv_kernel_size&#34;: 5,
     &#34;num_ch&#34;: 8,
-    &#34;num_layers&#34;: 3
+    &#34;num_layers&#34;: 5
 })
 </pre></div></div>
 </div>
 <p>ArchConfig objects behave like dictionaries. To get the value of an arch parameter, just call <code class="docutils literal notranslate"><span class="pre">arch_config.pick(parameter_name)</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_config</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;conv_kernel_size&#39;</span><span class="p">)</span>
@@ -1403,16 +1403,16 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-3
+5
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_config</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;num_ch&#39;</span><span class="p">)</span>
@@ -1420,7 +1420,7 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1429,7 +1429,7 @@ ArchConfig({
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_config</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
@@ -1437,17 +1437,17 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-OrderedDict([(&#39;conv_kernel_size&#39;, 3), (&#39;num_ch&#39;, 8), (&#39;num_layers&#39;, 3)])
+OrderedDict([(&#39;conv_kernel_size&#39;, 5), (&#39;num_ch&#39;, 8), (&#39;num_layers&#39;, 5)])
 </pre></div></div>
 </div>
 <p>Let’s use this in our Pytorch Model definition:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
@@ -1477,7 +1477,7 @@ OrderedDict([(&#39;conv_kernel_size&#39;, 3), (&#39;num_ch&#39;, 8), (&#39;num_l
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">MyModel</span><span class="p">(</span><span class="n">arch_config</span><span class="p">)</span>
@@ -1486,7 +1486,7 @@ OrderedDict([(&#39;conv_kernel_size&#39;, 3), (&#39;num_ch&#39;, 8), (&#39;num_l
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1500,21 +1500,35 @@ MyModel(
   (layers): Sequential(
     (0): MyConvBlock(
       (op): Sequential(
-        (0): Conv2d(8, 8, kernel_size=(3, 3), stride=(1, 1), padding=same)
+        (0): Conv2d(8, 8, kernel_size=(5, 5), stride=(1, 1), padding=same)
         (1): BatchNorm2d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         (2): ReLU()
       )
     )
     (1): MyConvBlock(
       (op): Sequential(
-        (0): Conv2d(8, 8, kernel_size=(3, 3), stride=(1, 1), padding=same)
+        (0): Conv2d(8, 8, kernel_size=(5, 5), stride=(1, 1), padding=same)
         (1): BatchNorm2d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         (2): ReLU()
       )
     )
     (2): MyConvBlock(
       (op): Sequential(
-        (0): Conv2d(8, 8, kernel_size=(3, 3), stride=(1, 1), padding=same)
+        (0): Conv2d(8, 8, kernel_size=(5, 5), stride=(1, 1), padding=same)
+        (1): BatchNorm2d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+      )
+    )
+    (3): MyConvBlock(
+      (op): Sequential(
+        (0): Conv2d(8, 8, kernel_size=(5, 5), stride=(1, 1), padding=same)
+        (1): BatchNorm2d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+      )
+    )
+    (4): MyConvBlock(
+      (op): Sequential(
+        (0): Conv2d(8, 8, kernel_size=(5, 5), stride=(1, 1), padding=same)
         (1): BatchNorm2d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         (2): ReLU()
       )
@@ -1525,7 +1539,7 @@ MyModel(
 </div>
 <p>To get an Archai DiscreteSearchSpace, we just pass <code class="docutils literal notranslate"><span class="pre">MyModel</span></code> and <code class="docutils literal notranslate"><span class="pre">search_param_tree</span></code> to <code class="docutils literal notranslate"><span class="pre">ConfigSearchSpace</span></code>:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.config</span> <span class="kn">import</span> <span class="n">ConfigSearchSpace</span>
@@ -1536,7 +1550,7 @@ MyModel(
 </div>
 <p>All the methods from <code class="docutils literal notranslate"><span class="pre">DiscreteSearchSpace</span></code>, <code class="docutils literal notranslate"><span class="pre">EvolutionarySearchSpace</span></code> and <code class="docutils literal notranslate"><span class="pre">BayesOptSearchSpace</span></code> are automatically implemented.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Randomly samples a model</span>
@@ -1561,15 +1575,15 @@ MyModel(
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-(3, 32, 1)
-(5, 32, 1)
-(5, 8, 4)
-[5 8 4]
+afa5ee2825d139f6d046e75f38bf37280afdde33
+afa5ee2825d139f6d046e75f38bf37280afdde33
+3c6004dc7bfd9e56f8a0bfa0e13267e8b9be1e39
+[5. 8. 4.]
 </pre></div></div>
 </div>
 <p>Saving and loading</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">search_space</span><span class="o">.</span><span class="n">save_arch</span><span class="p">(</span><span class="n">m3</span><span class="p">,</span> <span class="s1">&#39;arch.json&#39;</span><span class="p">)</span>
@@ -1578,7 +1592,7 @@ MyModel(
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>cat<span class="w"> </span>arch.json
@@ -1604,7 +1618,7 @@ MyModel(
 <section id="Nesting-dictionaries-inside-an-ArchParamTree">
 <h3>Nesting dictionaries inside an <code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code><a class="headerlink" href="#Nesting-dictionaries-inside-an-ArchParamTree" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_param_tree</span> <span class="o">=</span> <span class="p">{</span>
@@ -1622,7 +1636,7 @@ MyModel(
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">()</span>
@@ -1631,7 +1645,7 @@ MyModel(
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1640,14 +1654,14 @@ ArchConfig({
     &#34;stem_config&#34;: {
         &#34;kernel_size&#34;: 7
     },
-    &#34;conv_kernel_size&#34;: 5,
+    &#34;conv_kernel_size&#34;: 3,
     &#34;num_ch&#34;: 32
 })
 </pre></div></div>
 </div>
 <p>Calling <code class="docutils literal notranslate"><span class="pre">c.pick</span></code> for a parameter containing a dictionary returns a new <code class="docutils literal notranslate"><span class="pre">ArchConfig</span></code> object for that dictionary</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;stem_config&#39;</span><span class="p">)</span>
@@ -1655,7 +1669,7 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1666,7 +1680,7 @@ ArchConfig({
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;stem_config&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;kernel_size&#39;</span><span class="p">)</span>
@@ -1674,7 +1688,7 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1687,7 +1701,7 @@ ArchConfig({
 <h3>Sharing architecture parameters<a class="headerlink" href="#Sharing-architecture-parameters" title="Permalink to this headline">#</a></h3>
 <p>We can share configuration of different parts of the architecture by re-using references</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kernel_size_choice</span> <span class="o">=</span> <span class="n">DiscreteChoice</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">])</span>
@@ -1707,7 +1721,7 @@ ArchConfig({
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">conv_kernel_size</span></code> is now always equal to <code class="docutils literal notranslate"><span class="pre">stem_config.kernel_size</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">()</span>
@@ -1715,22 +1729,22 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 ArchConfig({
     &#34;stem_config&#34;: {
-        &#34;kernel_size&#34;: 3
+        &#34;kernel_size&#34;: 5
     },
-    &#34;conv_kernel_size&#34;: 3,
+    &#34;conv_kernel_size&#34;: 5,
     &#34;num_ch&#34;: 16
 })
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">()</span>
@@ -1738,23 +1752,23 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 ArchConfig({
     &#34;stem_config&#34;: {
-        &#34;kernel_size&#34;: 3
+        &#34;kernel_size&#34;: 7
     },
-    &#34;conv_kernel_size&#34;: 3,
-    &#34;num_ch&#34;: 16
+    &#34;conv_kernel_size&#34;: 7,
+    &#34;num_ch&#34;: 32
 })
 </pre></div></div>
 </div>
 <p>Re-using references of entire dictionaries also works</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stem_config</span> <span class="o">=</span> <span class="p">{</span>
@@ -1773,7 +1787,7 @@ ArchConfig({
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">()</span>
@@ -1781,7 +1795,7 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1807,7 +1821,7 @@ ArchConfig({
 <h3>Repeating configs a variable number of times<a class="headerlink" href="#Repeating-configs-a-variable-number-of-times" title="Permalink to this headline">#</a></h3>
 <p>We can repeat a block of arch parameters using the <code class="docutils literal notranslate"><span class="pre">repeat_config</span></code> function</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.config</span> <span class="kn">import</span> <span class="n">repeat_config</span>
@@ -1824,7 +1838,7 @@ ArchConfig({
 </div>
 <p>ArchParamTree will stack 0, 1, 2 or 3 configs inside <code class="docutils literal notranslate"><span class="pre">layers</span></code> in an <code class="docutils literal notranslate"><span class="pre">ArchConfigList</span></code> object</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="n">Random</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
@@ -1833,7 +1847,7 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1844,7 +1858,7 @@ ArchConfig({
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;layers&#39;</span><span class="p">)))</span>
@@ -1860,36 +1874,36 @@ ArchConfig({
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="n">Random</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <span class="n">c</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;layers&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 ArchConfigList([
     {
-        &#34;kernel_size&#34;: 5,
-        &#34;residual&#34;: true,
+        &#34;kernel_size&#34;: 7,
+        &#34;residual&#34;: false,
         &#34;act_fn&#34;: &#34;relu&#34;
     },
     {
         &#34;kernel_size&#34;: 7,
-        &#34;residual&#34;: false,
-        &#34;act_fn&#34;: &#34;relu&#34;
+        &#34;residual&#34;: true,
+        &#34;act_fn&#34;: &#34;gelu&#34;
     }
 ])
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;layers&#39;</span><span class="p">)))</span>
@@ -1906,7 +1920,7 @@ ArchConfigList([
 </div>
 <p>We can select a config from an <code class="docutils literal notranslate"><span class="pre">ArchConfigList</span></code> by selecting the index of the layer we want</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Picks the config of the second layer</span>
@@ -1925,15 +1939,15 @@ ArchConfigList([
 <div class="highlight"><pre>
 ArchConfig({
     &#34;kernel_size&#34;: 7,
-    &#34;residual&#34;: false,
-    &#34;act_fn&#34;: &#34;relu&#34;
+    &#34;residual&#34;: true,
+    &#34;act_fn&#34;: &#34;gelu&#34;
 })
 kernel_size = 7
 </pre></div></div>
 </div>
 <p>We can also iterate on an <code class="docutils literal notranslate"><span class="pre">ArchConfigList</span></code> object</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">(</span><span class="n">rng</span><span class="o">=</span><span class="n">Random</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
@@ -1946,7 +1960,7 @@ kernel_size = 7
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">modules</span>
@@ -1954,18 +1968,17 @@ kernel_size = 7
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[Conv2d(16, 16, kernel_size=(5, 5), stride=(1, 1)),
- Conv2d(16, 16, kernel_size=(7, 7), stride=(1, 1))]
+[Conv2d(16, 16, kernel_size=(5, 5), stride=(1, 1))]
 </pre></div></div>
 </div>
 <p>We can make the architectures parameters the same for each layer by setting <code class="docutils literal notranslate"><span class="pre">share_arch=True</span></code>,</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_param_tree</span> <span class="o">=</span> <span class="n">ArchParamTree</span><span class="p">({</span>
@@ -1981,7 +1994,7 @@ kernel_size = 7
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1989,12 +2002,12 @@ kernel_size = 7
 ArchConfig({
     &#34;layers&#34;: [
         {
-            &#34;kernel_size&#34;: 1,
+            &#34;kernel_size&#34;: 5,
             &#34;residual&#34;: true,
             &#34;act_fn&#34;: &#34;gelu&#34;
         },
         {
-            &#34;kernel_size&#34;: 1,
+            &#34;kernel_size&#34;: 5,
             &#34;residual&#34;: true,
             &#34;act_fn&#34;: &#34;gelu&#34;
         }
@@ -2010,7 +2023,7 @@ ArchConfig({
 <p><img alt="Image classification ss" src="../../../_images/ss_example.png" /></p>
 <p>We can build this succinctly using the <code class="docutils literal notranslate"><span class="pre">repeat_config</span></code> function</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_param_tree</span> <span class="o">=</span> <span class="n">ArchParamTree</span><span class="p">({</span>
@@ -2034,7 +2047,7 @@ ArchConfig({
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyConvBlock</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
@@ -2093,7 +2106,7 @@ ArchConfig({
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">()</span>
@@ -2101,7 +2114,7 @@ ArchConfig({
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">MyModel</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">stem_stride</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -2110,17 +2123,17 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-torch.Size([10, 16, 60, 60])
+torch.Size([10, 219, 4, 4])
 </pre></div></div>
 </div>
 <p>We can check the search space size by calling <code class="docutils literal notranslate"><span class="pre">arch_param_tree.num_archs</span></code></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_param_tree</span><span class="o">.</span><span class="n">num_archs</span>
@@ -2128,7 +2141,7 @@ torch.Size([10, 16, 60, 60])
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2138,7 +2151,7 @@ torch.Size([10, 16, 60, 60])
 </div>
 <p>Now let’s turn <code class="docutils literal notranslate"><span class="pre">MyModel</span></code> into a search space object that can be used in Archai</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span> <span class="o">=</span> <span class="n">ConfigSearchSpace</span><span class="p">(</span>
@@ -2149,7 +2162,7 @@ torch.Size([10, 16, 60, 60])
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
@@ -2160,7 +2173,7 @@ torch.Size([10, 16, 60, 60])
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">archid</span><span class="p">)</span>
@@ -2172,7 +2185,7 @@ torch.Size([10, 16, 60, 60])
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-(16, 3, 2, 1.4, 1, 5, &#39;gelu&#39;, nan, nan, nan, nan, nan, nan, nan, nan, 2, 2.0, 3, 5, &#39;relu&#39;, 7, &#39;relu&#39;, 5, &#39;relu&#39;, nan, nan, nan, nan, 3, 2.0, 2, 7, &#39;relu&#39;, 7, &#39;relu&#39;, nan, nan, nan, nan, nan, nan)
+6ca0b41041207be2c5b27ba1106f5d064387ac80
 </pre></div></div>
 </div>
 </section>
@@ -2180,7 +2193,7 @@ torch.Size([10, 16, 60, 60])
 <h2>Tracking used architecture parameters for model de-duplication<a class="headerlink" href="#Tracking-used-architecture-parameters-for-model-de-duplication" title="Permalink to this headline">#</a></h2>
 <p>Consider the following example:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">arch_param_tree</span> <span class="o">=</span> <span class="n">ArchParamTree</span><span class="p">({</span>
@@ -2191,7 +2204,7 @@ torch.Size([10, 16, 60, 60])
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyOperation</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
@@ -2224,7 +2237,7 @@ torch.Size([10, 16, 60, 60])
 <p>To avoid that, each <code class="docutils literal notranslate"><span class="pre">ArchConfig</span></code> object automatically tracks when an architecture parameter was used with the <code class="docutils literal notranslate"><span class="pre">.pick</span></code> method.</p>
 <p>For instance:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[65]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="n">arch_param_tree</span><span class="o">.</span><span class="n">sample_config</span><span class="p">()</span>
@@ -2233,20 +2246,20 @@ torch.Size([10, 16, 60, 60])
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[65]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 ArchConfig({
     &#34;op_type&#34;: &#34;identity&#34;,
-    &#34;conv_kernel_size&#34;: 7
+    &#34;conv_kernel_size&#34;: 3
 })
 </pre></div></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">ArchConfig.get_used_params()</span></code> returns the usage dictionary of this <code class="docutils literal notranslate"><span class="pre">ArchConfig</span></code> object.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[66]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="o">.</span><span class="n">get_used_params</span><span class="p">()</span>
@@ -2254,7 +2267,7 @@ ArchConfig({
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[66]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2264,7 +2277,7 @@ OrderedDict([(&#39;op_type&#39;, False), (&#39;conv_kernel_size&#39;, False)])
 </div>
 <p>Let’s pick a parameter now</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[67]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;op_type&#39;</span><span class="p">)</span>
@@ -2272,7 +2285,7 @@ OrderedDict([(&#39;op_type&#39;, False), (&#39;conv_kernel_size&#39;, False)])
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[67]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2281,7 +2294,7 @@ OrderedDict([(&#39;op_type&#39;, False), (&#39;conv_kernel_size&#39;, False)])
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[68]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="o">.</span><span class="n">get_used_params</span><span class="p">()</span>
@@ -2289,7 +2302,7 @@ OrderedDict([(&#39;op_type&#39;, False), (&#39;conv_kernel_size&#39;, False)])
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[68]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2299,58 +2312,69 @@ OrderedDict([(&#39;op_type&#39;, True), (&#39;conv_kernel_size&#39;, False)])
 </div>
 <p>This is automatically handled by the ConfigSearchSpace object when generating architecture ids, which allows deduplicating architectures</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[113]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span> <span class="o">=</span> <span class="n">ConfigSearchSpace</span><span class="p">(</span><span class="n">MyOperation</span><span class="p">,</span> <span class="n">arch_param_tree</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;in_ch&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">})</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span> <span class="o">=</span> <span class="n">ConfigSearchSpace</span><span class="p">(</span>
+    <span class="n">MyOperation</span><span class="p">,</span> <span class="n">arch_param_tree</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;in_ch&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">},</span> <span class="n">seed</span><span class="o">=</span><span class="mi">8</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>By default, non-used parameters appear as NaN values.</p>
+<p>Non-used architecture parameters will be encoded using the value passed to <code class="docutils literal notranslate"><span class="pre">unused_param_value</span></code> (NaN, in our case)</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[114]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m1</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
-<span class="n">m1</span><span class="o">.</span><span class="n">archid</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;m1 config = </span><span class="si">{</span><span class="n">m1</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;m1 archid = </span><span class="si">{</span><span class="n">m1</span><span class="o">.</span><span class="n">archid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#34;(&#39;identity&#39;, nan)&#34;
+m1 config = ArchConfig({
+    &#34;op_type&#34;: &#34;identity&#34;,
+    &#34;conv_kernel_size&#34;: 7
+})
+m1 archid = 260c332c6fc8c6c976736a379f3ae1ac439afd74
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[115]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m2</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
-<span class="n">m2</span><span class="o">.</span><span class="n">archid</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;m2 config = </span><span class="si">{</span><span class="n">m2</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;m2 archid = </span><span class="si">{</span><span class="n">m2</span><span class="o">.</span><span class="n">archid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#34;(&#39;conv&#39;, 1)&#34;
+m2 config = ArchConfig({
+    &#34;op_type&#34;: &#34;identity&#34;,
+    &#34;conv_kernel_size&#34;: 5
+})
+m2 archid = 260c332c6fc8c6c976736a379f3ae1ac439afd74
 </pre></div></div>
 </div>
+<p>Notice how <code class="docutils literal notranslate"><span class="pre">m1</span></code> and <code class="docutils literal notranslate"><span class="pre">m2</span></code> have different value for <code class="docutils literal notranslate"><span class="pre">conv_kernel_size</span></code>, but since <code class="docutils literal notranslate"><span class="pre">op_type='identity'</span></code> both are mapped to the same architecture id.</p>
 <p>To turn this feature off, you can either</p>
 <ul class="simple">
 <li><p>Selectively call <code class="docutils literal notranslate"><span class="pre">config.pick(param_name,</span> <span class="pre">record_usage=False)</span></code></p></li>
 <li><p>or set <code class="docutils literal notranslate"><span class="pre">ConfigSearchSpace(...,</span> <span class="pre">track_unused_params=False)</span></code></p></li>
 </ul>
-<p>This feature is also used when generating architecture encodings for surrogate models</p>
+<p>This feature is also automatically used when generating architecture encodings for surrogate models, to make sure equivalent architectures are correctly mapped to the same representation:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[116]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span>
@@ -2358,16 +2382,16 @@ OrderedDict([(&#39;op_type&#39;, True), (&#39;conv_kernel_size&#39;, False)])
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[116]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([&#39;identity&#39;, &#39;nan&#39;], dtype=&#39;&lt;U32&#39;)
+array([ 1.,  0., -1.])
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[117]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">m2</span><span class="p">)</span>
@@ -2375,12 +2399,12 @@ array([&#39;identity&#39;, &#39;nan&#39;], dtype=&#39;&lt;U32&#39;)
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[117]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([&#39;conv&#39;, &#39;1&#39;], dtype=&#39;&lt;U21&#39;)
+array([ 1.,  0., -1.])
 </pre></div></div>
 </div>
 </section>

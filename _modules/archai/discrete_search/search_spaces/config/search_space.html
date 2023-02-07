@@ -894,7 +894,7 @@ title="Open an issue"
         <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mutation_prob</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>
         <span class="n">track_unused_params</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">unused_param_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">),</span>
+        <span class="n">unused_param_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span>
         <span class="n">hash_archid</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">model_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">builder_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1022,9 +1022,14 @@ title="Open an issue"
 
 <div class="viewcode-block" id="ConfigSearchSpace.encode"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html#archai.discrete_search.search_spaces.config.search_space.ConfigSearchSpace.encode">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">arch_param_tree</span><span class="o">.</span><span class="n">encode_config</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">],</span> <span class="n">track_unused_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">track_unused_params</span><span class="p">)</span>
-        <span class="p">)</span></div></div>
+        <span class="n">encoded_config</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">arch_param_tree</span><span class="o">.</span><span class="n">encode_config</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">],</span>
+                <span class="n">track_unused_params</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">track_unused_params</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">encoded_config</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unused_param_value</span><span class="p">)</span></div></div>
 </pre></div>
 
               </div>

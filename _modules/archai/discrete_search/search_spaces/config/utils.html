@@ -938,12 +938,12 @@ title="Open an issue"
 <div class="viewcode-block" id="replace_ptree_pair_choices"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html#archai.discrete_search.search_spaces.config.utils.replace_ptree_pair_choices">[docs]</a><span class="k">def</span> <span class="nf">replace_ptree_pair_choices</span><span class="p">(</span>
     <span class="n">query_tree</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">DiscreteChoice</span><span class="p">],</span> <span class="n">aux_tree</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">repl_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">DiscreteChoice</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replace all DiscreteChoice nodes in a tree with the output of a function.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replace all DiscreteChoice nodes in a tree with the output of a function and an auxilary tree.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        query_tree: Tree with DiscreteChoice nodes.</span>
 <span class="sd">        aux_tree: Auxiliary tree with DiscreteChoice nodes.</span>
-<span class="sd">        repl_fn: Function to replace DiscreteChoice nodes.</span>
+<span class="sd">        repl_fn: Function that takes a `query_node` and an `aux_node` and returns a replacement for `query_node`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Replaced tree.</span>
