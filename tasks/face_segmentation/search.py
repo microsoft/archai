@@ -38,6 +38,7 @@ parser.add_argument('--search_config', type=Path, help='Search config file.', de
 parser.add_argument('--serial_training', help='Search config file.', action='store_true')
 parser.add_argument('--gpus_per_job', type=float, help='Number of GPUs used per job (if `serial_training` flag is disabled)',
                     default=0.5)
+parser.add_argument('--partial_tr_epochs', type=float, help='Number of epochs to run partial training', default=1.0)
 parser.add_argument('--seed', type=int, help='Random seed', default=42)
 
 
@@ -78,7 +79,10 @@ if __name__ == '__main__':
         constraint=[0, 5]
     )
 
-    partial_tr_obj = PartialTrainingValIOU(output_dir=args.output_dir / 'partial_training_logs')
+    partial_tr_obj = PartialTrainingValIOU(
+        tr_epochs=args.partial_tr_epochs,
+        output_dir=args.output_dir / 'partial_training_logs'
+    )
 
     if not args.serial_training:
         partial_tr_obj = RayParallelEvaluator(
