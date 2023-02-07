@@ -865,7 +865,7 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
@@ -917,29 +917,29 @@ title="Open an issue"
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">sample_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">sample_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forward_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forward_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">ignore_layers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the evaluator.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sample_args: `model.forward()` arguments used for profilling.</span>
-<span class="sd">            sample_kwargs: `model.forward()` keyword arguments used for profilling.</span>
+<span class="sd">            forward_args: `model.forward()` arguments used for profilling.</span>
+<span class="sd">            forward_kwargs: `model.forward()` keyword arguments used for profilling.</span>
 <span class="sd">            ignore_layers: List of layer names that should be ignored during the stat calculation.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_args</span> <span class="o">=</span> <span class="n">sample_args</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_kwargs</span> <span class="o">=</span> <span class="n">sample_kwargs</span>
+        <span class="n">forward_args</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">forward_args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">forward_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">forward_args</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">forward_args</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">forward_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_kwargs</span> <span class="o">=</span> <span class="n">forward_kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_layers</span> <span class="o">=</span> <span class="n">ignore_layers</span>
 
 <div class="viewcode-block" id="TorchFlops.evaluate"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.pt_profiler.TorchFlops.evaluate">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">profile</span><span class="p">(</span>
             <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sample_args</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sample_kwargs</span><span class="p">,</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forward_args</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forward_kwargs</span><span class="p">,</span>
             <span class="n">num_warmups</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="n">num_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">ignore_layers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_layers</span><span class="p">,</span>
@@ -951,29 +951,29 @@ title="Open an issue"
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">sample_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">sample_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forward_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forward_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">ignore_layers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the evaluator.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sample_args: `model.forward()` arguments used for profilling.</span>
-<span class="sd">            sample_kwargs: `model.forward()` keyword arguments used for profilling.</span>
+<span class="sd">            forward_args: `model.forward()` arguments used for profilling.</span>
+<span class="sd">            forward_kwargs: `model.forward()` keyword arguments used for profilling.</span>
 <span class="sd">            ignore_layers: List of layer names that should be ignored during the stat calculation.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_args</span> <span class="o">=</span> <span class="n">sample_args</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_kwargs</span> <span class="o">=</span> <span class="n">sample_kwargs</span>
+        <span class="n">forward_args</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">forward_args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">forward_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">forward_args</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">forward_args</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">forward_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_kwargs</span> <span class="o">=</span> <span class="n">forward_kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_layers</span> <span class="o">=</span> <span class="n">ignore_layers</span>
 
 <div class="viewcode-block" id="TorchMacs.evaluate"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.pt_profiler.TorchMacs.evaluate">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">profile</span><span class="p">(</span>
             <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sample_args</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sample_kwargs</span><span class="p">,</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forward_args</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forward_kwargs</span><span class="p">,</span>
             <span class="n">num_warmups</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="n">num_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="n">ignore_layers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_layers</span><span class="p">,</span>
@@ -985,8 +985,8 @@ title="Open an issue"
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">sample_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">sample_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forward_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forward_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_warmups</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">num_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">use_median</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -995,17 +995,17 @@ title="Open an issue"
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the evaluator.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sample_args: `model.forward()` arguments used for profilling.</span>
-<span class="sd">            sample_kwargs: `model.forward()` keyword arguments used for profilling.</span>
+<span class="sd">            forward_args: `model.forward()` arguments used for profilling.</span>
+<span class="sd">            forward_kwargs: `model.forward()` keyword arguments used for profilling.</span>
 <span class="sd">            num_warmups: Number of warmup runs before profilling.</span>
 <span class="sd">            num_samples: Number of runs after warmup.</span>
 <span class="sd">            use_median: Whether to use median instead of mean to average memory and latency.</span>
 <span class="sd">            ignore_layers: List of layer names that should be ignored during the stat calculation.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_args</span> <span class="o">=</span> <span class="n">sample_args</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_kwargs</span> <span class="o">=</span> <span class="n">sample_kwargs</span>
+        <span class="n">forward_args</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">forward_args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">forward_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">forward_args</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">forward_args</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">forward_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_kwargs</span> <span class="o">=</span> <span class="n">forward_kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_warmups</span> <span class="o">=</span> <span class="n">num_warmups</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="n">num_samples</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_median</span> <span class="o">=</span> <span class="n">use_median</span>
@@ -1015,8 +1015,8 @@ title="Open an issue"
     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">profile</span><span class="p">(</span>
             <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sample_args</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sample_kwargs</span><span class="p">,</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forward_args</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forward_kwargs</span><span class="p">,</span>
             <span class="n">num_warmups</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_warmups</span><span class="p">,</span>
             <span class="n">num_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="p">,</span>
             <span class="n">use_median</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_median</span><span class="p">,</span>
@@ -1024,17 +1024,16 @@ title="Open an issue"
         <span class="p">)[</span><span class="s2">&quot;latency&quot;</span><span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="TorchCudaPeakMemory"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.pt_profiler.TorchCudaPeakMemory">[docs]</a><span class="k">class</span> <span class="nc">TorchCudaPeakMemory</span><span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Average/median CUDA peak memory (in bytes) of a PyTorch model using a sample input.</span>
+<div class="viewcode-block" id="TorchPeakCudaMemory"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.pt_profiler.TorchPeakCudaMemory">[docs]</a><span class="k">class</span> <span class="nc">TorchPeakCudaMemory</span><span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Measures CUDA peak memory (in bytes) of a PyTorch model using a sample input.</span>
 
 <span class="sd">    All inputs passed must be on the same CUDA device as the model.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">sample_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">sample_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forward_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forward_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_warmups</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">num_samples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">use_median</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1043,33 +1042,74 @@ title="Open an issue"
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the evaluator.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            sample_args: `model.forward()` arguments used for profilling.</span>
-<span class="sd">            sample_kwargs: `model.forward()` keyword arguments used for profilling.</span>
+<span class="sd">            forward_args: `model.forward()` arguments used for profilling.</span>
+<span class="sd">            forward_kwargs: `model.forward()` keyword arguments used for profilling.</span>
 <span class="sd">            num_warmups: Number of warmup runs before profilling.</span>
 <span class="sd">            num_samples: Number of runs after warmup.</span>
 <span class="sd">            use_median: Whether to use median instead of mean to average memory and latency.</span>
 <span class="sd">            ignore_layers: List of layer names that should be ignored during the stat calculation.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_args</span> <span class="o">=</span> <span class="n">sample_args</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_kwargs</span> <span class="o">=</span> <span class="n">sample_kwargs</span>
+        <span class="n">forward_args</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">forward_args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">forward_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">forward_args</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">forward_args</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">forward_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_kwargs</span> <span class="o">=</span> <span class="n">forward_kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_warmups</span> <span class="o">=</span> <span class="n">num_warmups</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="n">num_samples</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_median</span> <span class="o">=</span> <span class="n">use_median</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_layers</span> <span class="o">=</span> <span class="n">ignore_layers</span>
 
-<div class="viewcode-block" id="TorchCudaPeakMemory.evaluate"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.pt_profiler.TorchCudaPeakMemory.evaluate">[docs]</a>    <span class="nd">@overrides</span>
+<div class="viewcode-block" id="TorchPeakCudaMemory.evaluate"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.pt_profiler.TorchPeakCudaMemory.evaluate">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">profile</span><span class="p">(</span>
             <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sample_args</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sample_kwargs</span><span class="p">,</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forward_args</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">forward_kwargs</span><span class="p">,</span>
             <span class="n">num_warmups</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_warmups</span><span class="p">,</span>
             <span class="n">num_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="p">,</span>
             <span class="n">use_median</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_median</span><span class="p">,</span>
             <span class="n">ignore_layers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_layers</span><span class="p">,</span>
         <span class="p">)[</span><span class="s2">&quot;peak_memory&quot;</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="TorchPeakCpuMemory"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.pt_profiler.TorchPeakCpuMemory">[docs]</a><span class="k">class</span> <span class="nc">TorchPeakCpuMemory</span><span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Measures CPU peak memory (in bytes) of a PyTorch model using a sample input.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forward_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">forward_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the evaluator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            forward_args (Optional[Union[torch.Tensor, List[torch.Tensor]]], optional): `model.forward()` positional</span>
+<span class="sd">                arguments used during profiling. Can be either a single tensor or a list of tensors. Defaults to None.</span>
+<span class="sd">            forward_kwargs (Optional[Dict[str, torch.Tensor]], optional): `model.forward` named arguments.</span>
+<span class="sd">                Defaults to None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">forward_args</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">forward_args</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">forward_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">forward_args</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">forward_args</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">forward_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forward_kwargs</span> <span class="o">=</span> <span class="n">forward_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="TorchPeakCpuMemory.evaluate"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.pt_profiler.TorchPeakCpuMemory.evaluate">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span>
+                 <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+        <span class="n">is_training</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">training</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span>
+            <span class="n">activities</span><span class="o">=</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">ProfilerActivity</span><span class="o">.</span><span class="n">CPU</span><span class="p">],</span>
+            <span class="n">record_shapes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">profile_memory</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">prof</span><span class="p">:</span>
+
+            <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">record_function</span><span class="p">(</span><span class="s1">&#39;model_inference&#39;</span><span class="p">):</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">forward_args</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">forward_kwargs</span><span class="p">)</span>
+
+        <span class="n">event_list</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">key_averages</span><span class="p">()</span>
+        <span class="n">peak_memory</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">cpu_memory_usage</span> <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">event_list</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_training</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">peak_memory</span></div></div>
 </pre></div>
 
               </div>
@@ -1089,7 +1129,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 03, 2023.<br/>
+    Last updated on Feb 07, 2023.<br/>
 </p>
         </footer>
     </div>
