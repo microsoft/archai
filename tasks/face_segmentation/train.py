@@ -24,20 +24,18 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     arch_config = ArchConfig.from_file(args.arch)
-    #model = StackedHourglass(arch_config, num_classes=18)
-    model = StackedHgModel()
-    model.num_classes = 18
+    model = StackedHourglass(arch_config, num_classes=18)
 
     pl_model = SegmentationTrainingLoop(model, lr=args.lr)
-    dataset_prov = FaceSyntheticsDatasetProvider('/data/face_synthetics/')
+    dataset_prov = FaceSyntheticsDatasetProvider(args.dataset_dir)
 
     tr_dl = torch.utils.data.DataLoader(
-        dataset_prov.get_train_dataset(), batch_size=16, num_workers=8,
+        dataset_prov.get_train_dataset(), batch_size=args.batch_size, num_workers=8,
         shuffle=True
     )
 
     val_dl = torch.utils.data.DataLoader(
-        dataset_prov.get_val_dataset(), batch_size=16, num_workers=8
+        dataset_prov.get_val_dataset(), batch_size=args.batch_size, num_workers=8
     )
 
     trainer = Trainer(
@@ -50,3 +48,5 @@ if __name__ == '__main__':
 
     val_result = trainer.validate(trainer.model, val_dl)
     print(val_result)
+
+    trainer.save_checkpoint(args.output_dir / 'final_model.ckpt')
