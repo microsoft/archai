@@ -53,29 +53,29 @@ class TorchFlops(ModelEvaluator):
 
     def __init__(
         self,
-        sample_args: Optional[Tuple[torch.Tensor]] = None,
-        sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
+        forward_args: Optional[Union[torch.Tensor, List[torch.Tensor]]] = None,
+        forward_kwargs: Optional[Dict[str, torch.Tensor]] = None,
         ignore_layers: Optional[List[str]] = None,
     ) -> None:
         """Initialize the evaluator.
 
         Args:
-            sample_args: `model.forward()` arguments used for profilling.
-            sample_kwargs: `model.forward()` keyword arguments used for profilling.
+            forward_args: `model.forward()` arguments used for profilling.
+            forward_kwargs: `model.forward()` keyword arguments used for profilling.
             ignore_layers: List of layer names that should be ignored during the stat calculation.
 
         """
-
-        self.sample_args = sample_args
-        self.sample_kwargs = sample_kwargs
+        forward_args = [] if forward_args is None else forward_args
+        self.forward_args = [forward_args] if isinstance(forward_args, torch.Tensor) else forward_args
+        self.forward_kwargs = forward_kwargs
         self.ignore_layers = ignore_layers
 
     @overrides
     def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> float:
         return profile(
             model.arch,
-            self.sample_args,
-            self.sample_kwargs,
+            tuple(self.forward_args),
+            self.forward_kwargs,
             num_warmups=0,
             num_samples=1,
             ignore_layers=self.ignore_layers,
@@ -87,29 +87,29 @@ class TorchMacs(ModelEvaluator):
 
     def __init__(
         self,
-        sample_args: Optional[Tuple[torch.Tensor]] = None,
-        sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
+        forward_args: Optional[Union[torch.Tensor, List[torch.Tensor]]] = None,
+        forward_kwargs: Optional[Dict[str, torch.Tensor]] = None,
         ignore_layers: Optional[List[str]] = None,
     ) -> None:
         """Initialize the evaluator.
 
         Args:
-            sample_args: `model.forward()` arguments used for profilling.
-            sample_kwargs: `model.forward()` keyword arguments used for profilling.
+            forward_args: `model.forward()` arguments used for profilling.
+            forward_kwargs: `model.forward()` keyword arguments used for profilling.
             ignore_layers: List of layer names that should be ignored during the stat calculation.
 
         """
-
-        self.sample_args = sample_args
-        self.sample_kwargs = sample_kwargs
+        forward_args = [] if forward_args is None else forward_args
+        self.forward_args = [forward_args] if isinstance(forward_args, torch.Tensor) else forward_args
+        self.forward_kwargs = forward_kwargs
         self.ignore_layers = ignore_layers
 
     @overrides
     def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> float:
         return profile(
             model.arch,
-            self.sample_args,
-            self.sample_kwargs,
+            tuple(self.forward_args),
+            self.forward_kwargs,
             num_warmups=0,
             num_samples=1,
             ignore_layers=self.ignore_layers,
@@ -121,8 +121,8 @@ class TorchLatency(ModelEvaluator):
 
     def __init__(
         self,
-        sample_args: Optional[Tuple[torch.Tensor]] = None,
-        sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
+        forward_args: Optional[Union[torch.Tensor, List[torch.Tensor]]] = None,
+        forward_kwargs: Optional[Dict[str, torch.Tensor]] = None,
         num_warmups: Optional[int] = 1,
         num_samples: Optional[int] = 1,
         use_median: Optional[bool] = False,
@@ -131,17 +131,17 @@ class TorchLatency(ModelEvaluator):
         """Initialize the evaluator.
 
         Args:
-            sample_args: `model.forward()` arguments used for profilling.
-            sample_kwargs: `model.forward()` keyword arguments used for profilling.
+            forward_args: `model.forward()` arguments used for profilling.
+            forward_kwargs: `model.forward()` keyword arguments used for profilling.
             num_warmups: Number of warmup runs before profilling.
             num_samples: Number of runs after warmup.
             use_median: Whether to use median instead of mean to average memory and latency.
             ignore_layers: List of layer names that should be ignored during the stat calculation.
 
         """
-
-        self.sample_args = sample_args
-        self.sample_kwargs = sample_kwargs
+        forward_args = [] if forward_args is None else forward_args
+        self.forward_args = [forward_args] if isinstance(forward_args, torch.Tensor) else forward_args
+        self.forward_kwargs = forward_kwargs
         self.num_warmups = num_warmups
         self.num_samples = num_samples
         self.use_median = use_median
@@ -151,8 +151,8 @@ class TorchLatency(ModelEvaluator):
     def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> float:
         return profile(
             model.arch,
-            self.sample_args,
-            self.sample_kwargs,
+            tuple(self.forward_args),
+            self.forward_kwargs,
             num_warmups=self.num_warmups,
             num_samples=self.num_samples,
             use_median=self.use_median,
@@ -161,16 +161,15 @@ class TorchLatency(ModelEvaluator):
 
 
 class TorchPeakCudaMemory(ModelEvaluator):
-    """Average/median CUDA peak memory (in bytes) of a PyTorch model using a sample input.
+    """Measures CUDA peak memory (in bytes) of a PyTorch model using a sample input.
 
     All inputs passed must be on the same CUDA device as the model.
-
     """
 
     def __init__(
         self,
-        sample_args: Optional[Tuple[torch.Tensor]] = None,
-        sample_kwargs: Optional[Dict[str, torch.Tensor]] = None,
+        forward_args: Optional[Union[torch.Tensor, List[torch.Tensor]]] = None,
+        forward_kwargs: Optional[Dict[str, torch.Tensor]] = None,
         num_warmups: Optional[int] = 1,
         num_samples: Optional[int] = 1,
         use_median: Optional[bool] = False,
@@ -179,17 +178,17 @@ class TorchPeakCudaMemory(ModelEvaluator):
         """Initialize the evaluator.
 
         Args:
-            sample_args: `model.forward()` arguments used for profilling.
-            sample_kwargs: `model.forward()` keyword arguments used for profilling.
+            forward_args: `model.forward()` arguments used for profilling.
+            forward_kwargs: `model.forward()` keyword arguments used for profilling.
             num_warmups: Number of warmup runs before profilling.
             num_samples: Number of runs after warmup.
             use_median: Whether to use median instead of mean to average memory and latency.
             ignore_layers: List of layer names that should be ignored during the stat calculation.
 
         """
-
-        self.sample_args = sample_args
-        self.sample_kwargs = sample_kwargs
+        forward_args = [] if forward_args is None else forward_args
+        self.forward_args = [forward_args] if isinstance(forward_args, torch.Tensor) else forward_args
+        self.forward_kwargs = forward_kwargs
         self.num_warmups = num_warmups
         self.num_samples = num_samples
         self.use_median = use_median
@@ -199,8 +198,8 @@ class TorchPeakCudaMemory(ModelEvaluator):
     def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> float:
         return profile(
             model.arch,
-            self.sample_args,
-            self.sample_kwargs,
+            tuple(self.forward_args),
+            self.forward_kwargs,
             num_warmups=self.num_warmups,
             num_samples=self.num_samples,
             use_median=self.use_median,
@@ -209,10 +208,21 @@ class TorchPeakCudaMemory(ModelEvaluator):
 
 
 class TorchPeakCpuMemory(ModelEvaluator):
-    def __init__(self, sample_inputs: Union[torch.Tensor, List[torch.Tensor], Dict[str, torch.Tensor]]):
-        self.inputs = (
-            [sample_inputs] if isinstance(sample_inputs, torch.Tensor) else sample_inputs
-        )
+    """Measures CPU peak memory (in bytes) of a PyTorch model using a sample input."""
+
+    def __init__(self, forward_args: Optional[Union[torch.Tensor, List[torch.Tensor]]] = None, 
+                 forward_kwargs: Optional[Dict[str, torch.Tensor]] = None):
+        """Initialize the evaluator.
+
+        Args:
+            forward_args (Optional[Union[torch.Tensor, List[torch.Tensor]]], optional): `model.forward()` positional
+                arguments used during profiling. Can be either a single tensor or a list of tensors. Defaults to None.
+            forward_kwargs (Optional[Dict[str, torch.Tensor]], optional): `model.forward` named arguments.
+                Defaults to None.
+        """
+        forward_args = [] if forward_args is None else forward_args
+        self.forward_args = [forward_args] if isinstance(forward_args, torch.Tensor) else forward_args
+        self.forward_kwargs = forward_kwargs or {}
 
     @overrides
     def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider,
@@ -220,8 +230,6 @@ class TorchPeakCpuMemory(ModelEvaluator):
         model.arch.to('cpu')
         is_training = model.arch.training
         model.arch.eval()
-        
-        run_model = lambda m: m(*self.inputs) if isinstance(self.inputs, list) else m(**self.inputs)
 
         with torch.profiler.profile(
             activities=[torch.profiler.ProfilerActivity.CPU],
@@ -229,12 +237,10 @@ class TorchPeakCpuMemory(ModelEvaluator):
         ) as prof:
 
             with torch.profiler.record_function('model_inference'):
-                run_model(model.arch)
+                model.arch(*self.forward_args, **self.forward_kwargs)
 
         event_list = prof.key_averages()
-        
         peak_memory = max(event.cpu_memory_usage for event in event_list)
-        peak_memory = peak_memory / (1024**3) # GBs
 
         if is_training:
             model.arch.train()
