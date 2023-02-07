@@ -160,7 +160,7 @@ class TorchLatency(ModelEvaluator):
         )["latency"]
 
 
-class TorchCudaPeakMemory(ModelEvaluator):
+class TorchPeakCudaMemory(ModelEvaluator):
     """Average/median CUDA peak memory (in bytes) of a PyTorch model using a sample input.
 
     All inputs passed must be on the same CUDA device as the model.
@@ -208,7 +208,7 @@ class TorchCudaPeakMemory(ModelEvaluator):
         )["peak_memory"]
 
 
-class TorchCpuPeakmemory(ModelEvaluator):
+class TorchPeakCpuMemory(ModelEvaluator):
     def __init__(self, sample_inputs: Union[torch.Tensor, List[torch.Tensor], Dict[str, torch.Tensor]]):
         self.inputs = (
             [sample_inputs] if isinstance(sample_inputs, torch.Tensor) else sample_inputs
