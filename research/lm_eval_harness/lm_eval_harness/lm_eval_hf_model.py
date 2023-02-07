@@ -24,7 +24,7 @@ class HFEvalModel(BaseLM):
         if torch.cuda.is_available():
             self._device = torch.device("cuda")
 
-        self.model = model
+        self.model = model.to(self.device)
         self.tokenizer = tokenizer
         self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
 
@@ -60,6 +60,8 @@ class HFEvalModel(BaseLM):
         return self.tokenizer.decode(tokens)
 
     def _model_call(self, inps: torch.Tensor) -> torch.Tensor:
+        inps = inps.to(self.device)
+
         kwargs = {}
         if self.force_attention_mask:
             kwargs["attention_mask"] = torch.zeros(inps.shape, dtype=torch.long, device=inps.device)
