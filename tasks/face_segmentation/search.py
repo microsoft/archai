@@ -34,7 +34,7 @@ confs_path = Path(__file__).absolute().parent / 'confs'
 parser = ArgumentParser()
 parser.add_argument('--dataset_dir', type=Path, help='Face Synthetics dataset directory.', required=True)
 parser.add_argument('--output_dir', type=Path, help='Output directory.', required=True)
-parser.add_argument('--search_config', type=Path, help='Search config file.', default=confs_path / 'search_config.yaml')
+parser.add_argument('--search_config', type=Path, help='Search config file.', default=confs_path / 'evolution_pareto_config.yaml')
 parser.add_argument('--serial_training', help='Search config file.', action='store_true')
 parser.add_argument('--gpus_per_job', type=float, help='Number of GPUs used per job (if `serial_training` flag is disabled)',
                     default=0.5)
