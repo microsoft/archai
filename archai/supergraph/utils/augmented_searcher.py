@@ -15,8 +15,10 @@ from ray.tune.suggest import HyperOptSearch
 from ray.tune.trial import Trial
 from tqdm import tqdm
 
+from archai.common.common import expdir_abspath
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
+from archai.common.stopwatch import StopWatch
 from archai.supergraph.datasets.augmentation import (
     augment_list,
     policy_decoder,
@@ -25,9 +27,7 @@ from archai.supergraph.datasets.augmentation import (
 from archai.supergraph.datasets.data import get_dataloaders
 from archai.supergraph.models import get_model, num_class
 from archai.supergraph.utils.augmented_trainer import train_and_eval
-from archai.supergraph.utils.common import expdir_abspath
 from archai.supergraph.utils.metrics import Accumulator
-from archai.supergraph.utils.stopwatch import StopWatch
 
 logger = get_global_logger()
 

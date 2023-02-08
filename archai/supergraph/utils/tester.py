@@ -8,10 +8,10 @@ from overrides import EnforceOverrides
 from torch import Tensor, nn
 from torch.utils.data import DataLoader
 
+from archai.common import ml_utils
+from archai.common.apex_utils import ApexUtils
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.utils import ml_utils
-from archai.supergraph.utils.apex_utils import ApexUtils
 from archai.supergraph.utils.metrics import Metrics
 
 logger = get_global_logger()

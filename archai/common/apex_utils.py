@@ -3,7 +3,6 @@
 
 import contextlib
 import os
-from typing import Optional
 
 import psutil
 import ray
@@ -16,9 +15,9 @@ from torch.nn import SyncBatchNorm
 from torch.nn.parallel import DistributedDataParallel
 from torch.optim.optimizer import Optimizer
 
+from archai.common import ml_utils, utils
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.utils import ml_utils, utils
 from archai.supergraph.utils.multi_optim import MultiOptim
 
 logger = get_global_logger()

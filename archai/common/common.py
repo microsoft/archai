@@ -10,10 +10,10 @@ import yaml
 from send2trash import send2trash
 from torch.utils.tensorboard.writer import SummaryWriter
 
+from archai.common import utils
+from archai.common.apex_utils import ApexUtils
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.utils import utils
-from archai.supergraph.utils.apex_utils import ApexUtils
 
 logger = get_global_logger()
 
@@ -119,9 +119,9 @@ def create_conf(config_filepath: Optional[str]=None,
     if 'default_dataroot' not in os.environ:
         os.environ['default_dataroot'] = default_dataroot()
 
-    conf = Config(file_path=config_filepath,
-                  args=param_overrides,
-                  parse_cl_args=use_args)
+    conf = Config(config_filepath=config_filepath,
+                  param_args=param_overrides,
+                  use_args=use_args)
     _update_conf(conf)
 
     return conf

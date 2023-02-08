@@ -10,11 +10,11 @@ from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 from torch.utils.data import DataLoader
 
+from archai.common import ml_utils
+from archai.common.apex_utils import ApexUtils
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.datasets import data
-from archai.supergraph.utils import ml_utils
-from archai.supergraph.utils.apex_utils import ApexUtils
 from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.utils.multi_optim import MultiOptim, OptimSched

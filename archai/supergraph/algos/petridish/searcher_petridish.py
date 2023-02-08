@@ -8,6 +8,8 @@ from typing import List
 import ray
 from overrides import overrides
 
+from archai.common import common
+from archai.common.common import CommonState
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.algos.petridish.petridish_utils import (
@@ -34,8 +36,6 @@ from archai.supergraph.nas.model_desc import (
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
 from archai.supergraph.nas.search_combinations import SearchCombinations
 from archai.supergraph.nas.searcher import SearchResult
-from archai.supergraph.utils import common
-from archai.supergraph.utils.common import CommonState
 
 logger = get_global_logger()
 

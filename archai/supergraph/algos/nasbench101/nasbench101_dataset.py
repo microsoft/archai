@@ -21,9 +21,9 @@ from typing import List, Optional, OrderedDict
 import numpy as np
 from torch import nn
 
+from archai.common import utils
 from archai.supergraph.algos.nasbench101 import config, model_builder
 from archai.supergraph.algos.nasbench101 import model_spec as _model_spec
-from archai.supergraph.utils import utils
 
 # Bring ModelSpec to top-level for convenience. See lib/model_spec.py.
 ModelSpec = _model_spec.ModelSpec

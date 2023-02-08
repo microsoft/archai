@@ -5,8 +5,8 @@ from typing import Dict
 
 import numpy as np
 
+from archai.common import utils
 from archai.supergraph.algos.nasbench101 import model_metrics_pb2
-from archai.supergraph.utils import utils
 
 
 def eval_to_dict(e) -> dict:

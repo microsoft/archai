@@ -15,9 +15,9 @@ from typing import List, Mapping, Optional, Union
 import torch
 import yaml
 
+from archai.common import utils
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.utils import utils
 
 logger = get_global_logger()
 

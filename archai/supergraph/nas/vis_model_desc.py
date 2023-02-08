@@ -6,8 +6,8 @@ from typing import Optional, Tuple
 from graphviz import Digraph
 
 from archai.common.ordered_dict_logger import get_global_logger
+from archai.common.utils import first_or_default
 from archai.supergraph.nas.model_desc import CellDesc, CellType, ModelDesc
-from archai.supergraph.utils.utils import first_or_default
 
 logger = get_global_logger()
 

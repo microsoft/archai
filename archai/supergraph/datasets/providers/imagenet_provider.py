@@ -8,6 +8,7 @@ from PIL import Image
 from torchvision import datasets
 from torchvision.transforms import transforms
 
+from archai.common import utils
 from archai.common.config import Config
 from archai.supergraph.datasets.dataset_provider import (
     DatasetProvider,
@@ -15,7 +16,6 @@ from archai.supergraph.datasets.dataset_provider import (
     TrainTestDatasets,
     register_dataset_provider,
 )
-from archai.supergraph.utils import utils
 
 
 class ImagenetProvider(DatasetProvider):

@@ -13,6 +13,7 @@ import ray
 import yaml
 from overrides import overrides
 
+from archai.common import common, ml_utils, utils
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.algos.petridish.petridish_utils import (
@@ -26,7 +27,6 @@ from archai.supergraph.nas import nas_utils
 from archai.supergraph.nas.evaluater import EvalResult, Evaluater
 from archai.supergraph.nas.model_desc import CellType, ModelDesc
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils import common, ml_utils, utils
 
 logger = get_global_logger()
 

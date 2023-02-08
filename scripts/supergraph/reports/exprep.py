@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 def main():

@@ -1,6 +1,6 @@
-from typing import List, Optional
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 
-import torch
 from torch.utils.data import Dataset
 
 
@@ -18,4 +18,3 @@ class MetaDataset(Dataset):
     def __getitem__(self, idx):
         x, y = self._source[idx]
         return (self.transform(x), self.target_transform(y), self._meta[idx])
-

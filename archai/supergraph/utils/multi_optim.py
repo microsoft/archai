@@ -6,7 +6,7 @@ from typing import Iterator, List, Optional
 from torch.optim.lr_scheduler import _LRScheduler
 from torch.optim.optimizer import Optimizer
 
-from archai.supergraph.utils.utils import zip_eq
+from archai.common.utils import zip_eq
 
 
 class OptimSched:

@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 class A:

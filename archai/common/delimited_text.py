@@ -1,6 +1,9 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Iterable, List, Mapping, OrderedDict
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 class DelimitedText:

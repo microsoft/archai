@@ -13,7 +13,7 @@ import dataset_utils
 import pyunpack
 from torchvision.datasets import utils as tvutils
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 def load_csv_data(filename: str) -> Dict[str, List[str]]:

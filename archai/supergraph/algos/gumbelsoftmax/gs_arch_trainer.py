@@ -9,12 +9,12 @@ from overrides import overrides
 from torch import Tensor, nn
 from torch.optim.optimizer import Optimizer
 
+from archai.common import ml_utils
+from archai.common.common import get_conf
 from archai.common.config import Config
 from archai.supergraph.algos.gumbelsoftmax.gs_op import GsOp
 from archai.supergraph.nas.arch_trainer import ArchTrainer
-from archai.supergraph.utils import ml_utils
 from archai.supergraph.utils.checkpoint import CheckPoint
-from archai.supergraph.utils.common import get_conf
 
 
 class GsArchTrainer(ArchTrainer):
