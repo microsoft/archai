@@ -19,8 +19,8 @@ from archai.api.dataset_provider import DatasetProvider
 from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.datasets.nlp.fast_hf_dataset_provider_utils import (
     FastHfDataset,
-    process_in_disk,
-    process_in_shared_memory,
+    process_with_disk,
+    process_with_shared_memory,
 )
 from archai.datasets.nlp.hf_dataset_provider_utils import tokenize_concatenated_dataset
 
@@ -78,33 +78,16 @@ class FastHfDatasetProvider(DatasetProvider):
         self.use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
 
         self.cache_dir = Path(cache_dir) / self.fingerprint
-        if self.cache_dir.is_dir():
-            # If the cache directory exists, load the dataset from it
-            self._load_from_cache()
-        else:
-            # Otherwise, encode the dataset and save it to the cache directory
+        if not self.cache_dir.is_dir():
+            # Encode the dataset and save it to the cache directory
             self.cache_dir.mkdir(parents=True, exist_ok=True)
             self._encode_dataset()
-            self._save_to_cache()
 
     @property
     def fingerprint(self) -> str:
         """Return a unique fingerprint for the dataset provider."""
 
         return sha1(f"{self.dataset}-{self.subset}-{self.tokenizer}".encode("ascii")).hexdigest()
-
-    def _load_from_cache(self) -> None:
-        logger.info(f"Loading dataset from: {self.cache_dir}")
-
-        self.dataset_dict = {
-            split: np.load(self.cache_dir / f"{split}.npy", mmap_mode="r") for split in ["train", "validation", "test"]
-        }
-
-    def _save_to_cache(self) -> None:
-        logger.info(f"Saving dataset to: {self.cache_dir}")
-
-        for split, dataset in self.dataset_dict.items():
-            np.save(self.cache_dir / f"{split}.npy", dataset)
 
     def _encode_dataset(self) -> None:
         logger.info("Encoding dataset ...")
@@ -128,18 +111,37 @@ class FastHfDatasetProvider(DatasetProvider):
         )
 
         if self.use_shared_memory:
-            self.dataset_dict = process_in_shared_memory(encoded_dataset, dtype, num_proc=self.num_workers)
+            dataset_dict = process_with_shared_memory(encoded_dataset, dtype, num_proc=self.num_workers)
         else:
-            self.dataset_dict = process_in_disk(encoded_dataset, self.cache_dir, dtype, num_proc=self.num_workers)
+            dataset_dict = process_with_disk(encoded_dataset, self.cache_dir, dtype, num_proc=self.num_workers)
+
+        logger.info(f"Saving dataset to: {self.cache_dir}")
+        for split, dataset in dataset_dict.items():
+            np.save(self.cache_dir / f"{split}.npy", dataset)
+
+            # If not using shared memory, datasets need to be deleted to free memory
+            # because they have already been cached to disk
+            if not self.use_shared_memory:
+                dataset._mmap.close()
+                Path(self.cache_dir / f"{split}.bin").unlink()
 
     @overrides
     def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        return FastHfDataset(self.dataset_dict["train"], seq_len=seq_len)
+        assert self.cache_dir.is_dir()
+        input_ids = np.load(self.cache_dir / "train.npy", mmap_mode="r")
+
+        return FastHfDataset(input_ids, seq_len=seq_len)
 
     @overrides
     def get_val_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        return FastHfDataset(self.dataset_dict["validation"], seq_len=seq_len)
+        assert self.cache_dir.is_dir()
+        input_ids = np.load(self.cache_dir / "validation.npy", mmap_mode="r")
+
+        return FastHfDataset(input_ids, seq_len=seq_len)
 
     @overrides
     def get_test_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        return FastHfDataset(self.dataset_dict["test"], seq_len=seq_len)
+        assert self.cache_dir.is_dir()
+        input_ids = np.load(self.cache_dir / "test.npy", mmap_mode="r")
+
+        return FastHfDataset(input_ids, seq_len=seq_len)

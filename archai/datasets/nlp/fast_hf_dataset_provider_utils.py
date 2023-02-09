@@ -71,12 +71,12 @@ class SHMArray(np.ndarray):
         self.shm = getattr(obj, "shm", None)
 
 
-def process_in_shared_memory(
+def process_with_shared_memory(
     dataset_dict: DatasetDict, dtype: np.dtype, num_proc: Optional[int] = 1
 ) -> Dict[str, SHMArray]:
     """ """
 
-    def _process_in_shared_memory(example: Dict[str, Any], name, length: int) -> None:
+    def _process_with_shared_memory(example: Dict[str, Any], name, length: int) -> None:
         shared_memory = SharedMemory(name=name)
 
         shared_memory_array = np.ndarray((length,), dtype=dtype, buffer=shared_memory.buf)
@@ -94,7 +94,7 @@ def process_in_shared_memory(
         shared_memory_name = shared_memory.name
 
         dataset_dict[name].map(
-            _process_in_shared_memory,
+            _process_with_shared_memory,
             fn_kwargs={"name": shared_memory_name, "length": length},
             batched=False,
             num_proc=num_proc,
@@ -106,12 +106,12 @@ def process_in_shared_memory(
     return processed_dataset_dict
 
 
-def process_in_disk(
+def process_with_disk(
     dataset_dict: DatasetDict, cache_dir: str, dtype: np.dtype, num_proc: Optional[int] = 1
 ) -> Dict[str, np.ndarray]:
     """ """
 
-    def _process_in_disk(example: Dict[str, Any], file_path: str) -> None:
+    def _process_with_disk(example: Dict[str, Any], file_path: str) -> None:
         with open(file_path, "r+b") as f:
             memory_map = mmap.mmap(f.fileno(), 0)
 
@@ -135,7 +135,7 @@ def process_in_disk(
             f.truncate(length * np.dtype(dtype).itemsize)
 
         dataset_dict[split].map(
-            _process_in_disk,
+            _process_with_disk,
             fn_kwargs={"file_path": file_path},
             batched=False,
             num_proc=num_proc,
