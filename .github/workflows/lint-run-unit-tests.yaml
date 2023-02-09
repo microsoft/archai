@@ -1,4 +1,4 @@
-name: Linter and Unitary Tests Runner
+name: Linter and Unit Tests Runner
 
 on:
   push:
@@ -16,7 +16,7 @@ on:
 
 jobs:
   lint-run-tests:
-    name: Lints with Flake8 and run unitary tests with Pytest
+    name: Lints with Flake8 and run unit tests with Pytest
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -47,7 +47,7 @@ jobs:
         run: |
           # Exit-zero treats all errors as warnings (GitHub editor is 127 chars wide)
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Runs unitary tests
+      - name: Runs unit tests
         shell: bash -l {0}
         run: |
           pytest tests
