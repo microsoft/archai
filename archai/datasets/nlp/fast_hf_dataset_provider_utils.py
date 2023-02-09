@@ -5,6 +5,8 @@
 # Licensed under the BSD-3-Clause license.
 # https://github.com/HazyResearch/flash-attention/blob/main/training/src/datamodules
 
+import mmap
+import subprocess
 from typing import Optional, Tuple
 
 import numpy as np
@@ -39,3 +41,50 @@ class FastHfDataset(Dataset):
         labels = input_ids[1:].clone()
 
         return input_ids, labels
+
+
+def process_in_shared_memory():
+    pass
+
+
+def process_in_disk(dataset_dict, cache_dir, dtype):
+    def _process_in_disk(examples, file_path):
+        with open(file_path, "r+b") as f:
+            mm = mmap.mmap(f.fileno(), 0)
+            start_idx = examples["offset"] - len(examples["input_ids"])
+            array_len = len(examples["input_ids"])
+            arr = np.ndarray((array_len,), dtype=dtype, buffer=mm, offset=np.dtype(dtype).itemsize * start_idx)
+            arr[:] = examples["input_ids"]
+            mm.flush()
+
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    input_ids_dict = {}
+
+    for split, dataset in dataset_dict.items():
+        print(split)
+        dataset_dict[split] = dataset.add_column("offset", np.cumsum(dataset["length"]))
+        array_len = dataset_dict[split][-1]["offset"]
+
+        print(array_len)
+
+        file_path = cache_dir / f"{split}.bin"
+        print(array_len * np.dtype(dtype).itemsize)
+        with open(file_path.as_posix(), "wb") as f:
+            f.truncate(array_len * np.dtype(dtype).itemsize)
+        # subprocess.run(['truncate', '-s', str(array_len * np.dtype(dtype).itemsize),
+        #                 str(file_path)], check=True)
+
+        print(file_path)
+
+        dataset_dict[split].map(
+            _process_in_disk,
+            fn_kwargs={"file_path": file_path},
+            batched=False,
+            num_proc=1,
+        )
+
+        input_ids_dict[split] = np.memmap(file_path, dtype=dtype, mode="r", shape=(array_len,))
+
+    print(input_ids_dict)
+
+    return input_ids_dict
