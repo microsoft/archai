@@ -69,7 +69,7 @@ def tokenize_concatenated_dataset(
     examples: List[str],
     tokenizer: Optional[AutoTokenizer] = None,
     mapping_column_name: Optional[List[str]] = None,
-    dtype=None,
+    dtype: Optional[np.dtype] = None,
     **kwargs,
 ) -> Dict[str, Any]:
     """Tokenize a list of examples using a specified tokenizer and
@@ -79,9 +79,10 @@ def tokenize_concatenated_dataset(
         examples: A list of examples to be tokenized.
         tokenizer: The tokenizer to use.
         mapping_column_name: The columns in `examples` that should be tokenized.
+        dtype: Numpy data type of the tokenized examples.
 
     Returns:
-        Concatenated and tokenized examples.
+        Concatenated tokenized examples.
 
     """
 

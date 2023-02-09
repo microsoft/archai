@@ -5,13 +5,20 @@
 # Licensed under the BSD-3-Clause license.
 # https://github.com/HazyResearch/flash-attention/blob/main/training/src/datamodules
 
+from __future__ import annotations
+
 import mmap
-import subprocess
-from typing import Optional, Tuple
+import sys
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+from datasets.dataset_dict import DatasetDict
 from torch.utils.data import Dataset
+
+# `multiprocessing.shared_memory` is only available in Python 3.8+`
+if sys.version_info.major == 3 and sys.version_info.minor >= 8:
+    from multiprocessing.shared_memory import SharedMemory
 
 
 class FastHfDataset(Dataset):
@@ -43,48 +50,97 @@ class FastHfDataset(Dataset):
         return input_ids, labels
 
 
-def process_in_shared_memory():
-    pass
+class SHMArray(np.ndarray):
+    """Numpy array compatible with SharedMemory from `multiprocessing.shared_memory`.
+
+    Reference:
+        https://numpy.org/doc/stable/user/basics.subclassing.html#slightly-more-realistic-example-attribute-added-to-existing-array
+
+    """
+
+    def __new__(cls: SHMArray, input_array: np.ndarray, shm: Optional[SharedMemory] = None) -> SHMArray:
+        obj = np.asarray(input_array).view(cls)
+        obj.shm = shm
+
+        return obj
+
+    def __array_finalize__(self, obj: SHMArray) -> None:
+        if obj is None:
+            return
+
+        self.shm = getattr(obj, "shm", None)
 
 
-def process_in_disk(dataset_dict, cache_dir, dtype):
-    def _process_in_disk(examples, file_path):
+def process_in_shared_memory(
+    dataset_dict: DatasetDict, dtype: np.dtype, num_proc: Optional[int] = 1
+) -> Dict[str, SHMArray]:
+    """ """
+
+    def _process_in_shared_memory(example: Dict[str, Any], name, length: int) -> None:
+        shared_memory = SharedMemory(name=name)
+
+        shared_memory_array = np.ndarray((length,), dtype=dtype, buffer=shared_memory.buf)
+        start_idx = example["offset"] - len(example["input_ids"])
+        shared_memory_array[start_idx : example["offset"]] = example["input_ids"]
+
+        shared_memory.close()
+
+    processed_dataset_dict = {}
+    for name, ds in dataset_dict.items():
+        dataset_dict[name] = ds.add_column("offset", np.cumsum(ds["length"]))
+        length = dataset_dict[name][-1]["offset"]
+
+        shared_memory = SharedMemory(create=True, size=length * np.dtype(dtype).itemsize)
+        shared_memory_name = shared_memory.name
+
+        dataset_dict[name].map(
+            _process_in_shared_memory,
+            fn_kwargs={"name": shared_memory_name, "length": length},
+            batched=False,
+            num_proc=num_proc,
+        )
+
+        shared_memory_array = np.ndarray((length,), dtype=dtype, buffer=shared_memory.buf)
+        processed_dataset_dict[name] = SHMArray(shared_memory_array, shm=shared_memory)
+
+    return processed_dataset_dict
+
+
+def process_in_disk(
+    dataset_dict: DatasetDict, cache_dir: str, dtype: np.dtype, num_proc: Optional[int] = 1
+) -> Dict[str, np.ndarray]:
+    """ """
+
+    def _process_in_disk(example: Dict[str, Any], file_path: str) -> None:
         with open(file_path, "r+b") as f:
-            mm = mmap.mmap(f.fileno(), 0)
-            start_idx = examples["offset"] - len(examples["input_ids"])
-            array_len = len(examples["input_ids"])
-            arr = np.ndarray((array_len,), dtype=dtype, buffer=mm, offset=np.dtype(dtype).itemsize * start_idx)
-            arr[:] = examples["input_ids"]
-            mm.flush()
+            memory_map = mmap.mmap(f.fileno(), 0)
 
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    input_ids_dict = {}
+            start_idx = example["offset"] - len(example["input_ids"])
+            length = len(example["input_ids"])
 
+            memory_map_array = np.ndarray(
+                (length,), dtype=dtype, buffer=memory_map, offset=np.dtype(dtype).itemsize * start_idx
+            )
+            memory_map_array[:] = example["input_ids"]
+
+            memory_map.flush()
+
+    processed_dataset_dict = {}
     for split, dataset in dataset_dict.items():
-        print(split)
         dataset_dict[split] = dataset.add_column("offset", np.cumsum(dataset["length"]))
-        array_len = dataset_dict[split][-1]["offset"]
-
-        print(array_len)
+        length = dataset_dict[split][-1]["offset"]
 
         file_path = cache_dir / f"{split}.bin"
-        print(array_len * np.dtype(dtype).itemsize)
         with open(file_path.as_posix(), "wb") as f:
-            f.truncate(array_len * np.dtype(dtype).itemsize)
-        # subprocess.run(['truncate', '-s', str(array_len * np.dtype(dtype).itemsize),
-        #                 str(file_path)], check=True)
-
-        print(file_path)
+            f.truncate(length * np.dtype(dtype).itemsize)
 
         dataset_dict[split].map(
             _process_in_disk,
             fn_kwargs={"file_path": file_path},
             batched=False,
-            num_proc=1,
+            num_proc=num_proc,
         )
 
-        input_ids_dict[split] = np.memmap(file_path, dtype=dtype, mode="r", shape=(array_len,))
+        processed_dataset_dict[split] = np.memmap(file_path, dtype=dtype, mode="r", shape=(length,))
 
-    print(input_ids_dict)
-
-    return input_ids_dict
+    return processed_dataset_dict

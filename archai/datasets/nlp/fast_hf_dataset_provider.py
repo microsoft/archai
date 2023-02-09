@@ -5,9 +5,10 @@
 # Licensed under the BSD-3-Clause license.
 # https://github.com/HazyResearch/flash-attention/blob/main/training/src/datamodules
 
+import sys
 from hashlib import sha1
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import numpy as np
 from datasets import load_dataset as hf_load_dataset
@@ -25,6 +26,12 @@ from archai.datasets.nlp.hf_dataset_provider_utils import tokenize_concatenated_
 
 logger = OrderedDictLogger(source=__name__)
 
+if sys.version_info.major == 3 and sys.version_info.minor >= 8:
+    ALLOW_SHARED_MEMORY = True
+else:
+    logger.warn("Shared memory is not available in Python < 3.8.")
+    ALLOW_SHARED_MEMORY = False
+
 
 class FastHfDatasetProvider(DatasetProvider):
     """Fast Hugging Face-based dataset provider."""
@@ -34,16 +41,27 @@ class FastHfDatasetProvider(DatasetProvider):
         dataset: Optional[str] = "wikitext",
         subset: Optional[str] = "wikitext-2-raw-v1",
         tokenizer: Optional[str] = "gpt2",
+        mapping_column_name: Optional[List[str]] = None,
         cache_dir: Optional[str] = "cache",
-        use_shared_memory: Optional[bool] = False,
+        validation_split: Optional[float] = 0.1,
+        seed: Optional[int] = 42,
+        num_workers: Optional[int] = 1,
+        use_shared_memory: Optional[bool] = True,
     ) -> None:
-        """Initialize Hugging Face Hub dataset provider.
+        """Initialize Fast Hugging Face-based dataset provider.
+
+        The initialization consists in pre-loading the dataset, encoding it
+        using the specified tokenizer, and saving it to the cache directory.
 
         Args:
             dataset: Name of the dataset.
             subset: Name of the dataset configuration.
             tokenizer: Name of the tokenizer.
+            mapping_column_name: The columns in `dataset` that should be tokenized.
             cache_dir: Path to the read/write cache directory.
+            validation_split: Fraction of the dataset to use for validation.
+            seed: Random seed.
+            num_workers: Number of workers to use for encoding.
             use_shared_memory: Whether to use shared memory for caching.
 
         """
@@ -53,34 +71,42 @@ class FastHfDatasetProvider(DatasetProvider):
         self.dataset = dataset
         self.subset = subset
         self.tokenizer = tokenizer
-        self.use_shared_memory = use_shared_memory
+        self.mapping_column_name = mapping_column_name
+        self.validation_split = validation_split
+        self.seed = seed
+        self.num_workers = num_workers
+        self.use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
 
         self.cache_dir = Path(cache_dir) / self.fingerprint
         if self.cache_dir.is_dir():
+            # If the cache directory exists, load the dataset from it
             self._load_from_cache()
         else:
+            # Otherwise, encode the dataset and save it to the cache directory
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
             self._encode_dataset()
             self._save_to_cache()
 
     @property
     def fingerprint(self) -> str:
-        return sha1(f"{self.tokenizer}-{self.dataset}-{self.subset}".encode("ascii")).hexdigest()
+        """Return a unique fingerprint for the dataset provider."""
+
+        return sha1(f"{self.dataset}-{self.subset}-{self.tokenizer}".encode("ascii")).hexdigest()
 
     def _load_from_cache(self) -> None:
         logger.info(f"Loading dataset from: {self.cache_dir}")
 
-        self.input_ids_dict = {
+        self.dataset_dict = {
             split: np.load(self.cache_dir / f"{split}.npy", mmap_mode="r") for split in ["train", "validation", "test"]
         }
 
     def _save_to_cache(self) -> None:
         logger.info(f"Saving dataset to: {self.cache_dir}")
 
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        for split, input_ids in self.input_ids_dict.items():
-            np.save(self.cache_dir / f"{split}.npy", input_ids)
+        for split, dataset in self.dataset_dict.items():
+            np.save(self.cache_dir / f"{split}.npy", dataset)
 
-    def _encode_dataset(self):
+    def _encode_dataset(self) -> None:
         logger.info("Encoding dataset ...")
 
         tokenizer = AutoTokenizer.from_pretrained(self.tokenizer)
@@ -93,29 +119,27 @@ class FastHfDatasetProvider(DatasetProvider):
             tokenize_concatenated_dataset,
             fn_kwargs={
                 "tokenizer": tokenizer,
-                "mapping_column_name": ["text"],
+                "mapping_column_name": self.mapping_column_name,
                 "dtype": dtype,
             },
             batched=True,
-            num_proc=1,
+            num_proc=self.num_workers,
             remove_columns=column_names,
         )
 
         if self.use_shared_memory:
-            input_ids_dict = process_in_shared_memory(encoded_dataset)
+            self.dataset_dict = process_in_shared_memory(encoded_dataset, dtype, num_proc=self.num_workers)
         else:
-            input_ids_dict = process_in_disk(encoded_dataset, self.cache_dir, dtype)
-
-        self.input_ids_dict = input_ids_dict
+            self.dataset_dict = process_in_disk(encoded_dataset, self.cache_dir, dtype, num_proc=self.num_workers)
 
     @overrides
-    def get_train_dataset(self) -> FastHfDataset:
-        return FastHfDataset(self.input_ids_dict["train"], seq_len=1)
+    def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
+        return FastHfDataset(self.dataset_dict["train"], seq_len=seq_len)
 
     @overrides
-    def get_val_dataset(self) -> FastHfDataset:
-        return FastHfDataset(self.input_ids_dict["validation"], seq_len=1)
+    def get_val_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
+        return FastHfDataset(self.dataset_dict["validation"], seq_len=seq_len)
 
     @overrides
-    def get_test_dataset(self) -> FastHfDataset:
-        return FastHfDataset(self.input_ids_dict["test"], seq_len=1)
+    def get_test_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
+        return FastHfDataset(self.dataset_dict["test"], seq_len=seq_len)
