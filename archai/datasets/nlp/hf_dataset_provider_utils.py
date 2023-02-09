@@ -5,6 +5,7 @@ import random
 from itertools import chain
 from typing import Any, Callable, Dict, List, Optional, Union
 
+import numpy as np
 from datasets.arrow_dataset import Dataset
 from datasets.dataset_dict import DatasetDict, IterableDatasetDict
 from datasets.download.download_manager import DownloadMode
@@ -62,6 +63,34 @@ def tokenize_dataset(
     examples_mapping = tuple(examples[column_name] for column_name in mapping_column_name)
 
     return tokenizer(*examples_mapping, truncation=truncate, padding=padding)
+
+
+def tokenize_concatenated_dataset(
+    examples: List[str],
+    tokenizer: Optional[AutoTokenizer] = None,
+    mapping_column_name: Optional[List[str]] = None,
+    dtype=None,
+    **kwargs,
+) -> Dict[str, Any]:
+    """Tokenize a list of examples using a specified tokenizer and
+    with concatenated batches (no truncation nor padding).
+
+    Args:
+        examples: A list of examples to be tokenized.
+        tokenizer: The tokenizer to use.
+        mapping_column_name: The columns in `examples` that should be tokenized.
+
+    Returns:
+        Concatenated and tokenized examples.
+
+    """
+
+    examples = tokenize_dataset(
+        examples, mapping_column_name=mapping_column_name, tokenizer=tokenizer, truncate=False, padding=False
+    )
+    tokenized_examples = np.fromiter(chain(*examples["input_ids"]), dtype=dtype)
+
+    return {"input_ids": [tokenized_examples], "length": [len(tokenized_examples)]}
 
 
 def tokenize_contiguous_dataset(
