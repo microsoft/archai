@@ -1,9 +1,5 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
-#
-# Copyright (c) Hazy Research.
-# Licensed under the BSD-3-Clause license.
-# https://github.com/HazyResearch/flash-attention/blob/main/training/src/datamodules
 
 import sys
 from hashlib import sha1
@@ -19,7 +15,7 @@ from archai.api.dataset_provider import DatasetProvider
 from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.datasets.nlp.fast_hf_dataset_provider_utils import (
     FastHfDataset,
-    process_with_disk,
+    process_with_memory_map_files,
     process_with_shared_memory,
 )
 from archai.datasets.nlp.hf_dataset_provider_utils import tokenize_concatenated_dataset
@@ -76,10 +72,10 @@ class FastHfDatasetProvider(DatasetProvider):
         self.seed = seed
         self.num_workers = num_workers
         self.use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
-
         self.cache_dir = Path(cache_dir) / self.fingerprint
+
+        # If cache is not available, encode the dataset and save it to cache
         if not self.cache_dir.is_dir():
-            # Encode the dataset and save it to the cache directory
             self.cache_dir.mkdir(parents=True, exist_ok=True)
             self._encode_dataset()
 
@@ -113,7 +109,9 @@ class FastHfDatasetProvider(DatasetProvider):
         if self.use_shared_memory:
             dataset_dict = process_with_shared_memory(encoded_dataset, dtype, num_proc=self.num_workers)
         else:
-            dataset_dict = process_with_disk(encoded_dataset, self.cache_dir, dtype, num_proc=self.num_workers)
+            dataset_dict = process_with_memory_map_files(
+                encoded_dataset, self.cache_dir, dtype, num_proc=self.num_workers
+            )
 
         logger.info(f"Saving dataset to: {self.cache_dir}")
         for split, dataset in dataset_dict.items():

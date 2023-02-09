@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import mmap
 import sys
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 import torch
@@ -24,13 +24,18 @@ if sys.version_info.major == 3 and sys.version_info.minor >= 8:
 class FastHfDataset(Dataset):
     """"""
 
-    def __init__(self, input_ids: torch.Tensor, seq_len: Optional[int] = 1, drop_last: Optional[bool] = True) -> None:
-        """"""
+    def __init__(self, input_ids: torch.Tensor, seq_len: Optional[int] = 1) -> None:
+        """Initialize the dataset.
+
+        Args:
+            input_ids: Tensor with the inputs (encoded data).
+            seq_len: Sequence length.
+
+        """
 
         super().__init__()
 
-        if drop_last:
-            self.n_input_ids = ((len(input_ids) - 1) // seq_len) * seq_len + 1
+        self.n_input_ids = ((len(input_ids) - 1) // seq_len) * seq_len + 1
         self.seq_len = seq_len
 
         # `input_ids` should not be sliced since they could be memory mapped
@@ -74,7 +79,17 @@ class SHMArray(np.ndarray):
 def process_with_shared_memory(
     dataset_dict: DatasetDict, dtype: np.dtype, num_proc: Optional[int] = 1
 ) -> Dict[str, SHMArray]:
-    """ """
+    """Process the dataset with a shared memory.
+
+    Args:
+        dataset_dict: Dataset dictionary.
+        dtype: Numpy data type.
+        num_proc: Number of processes.
+
+    Returns:
+        Dictionary with shared memory-processed datasets.
+
+    """
 
     def _process_with_shared_memory(example: Dict[str, Any], name, length: int) -> None:
         shared_memory = SharedMemory(name=name)
@@ -106,12 +121,23 @@ def process_with_shared_memory(
     return processed_dataset_dict
 
 
-def process_with_disk(
+def process_with_memory_map_files(
     dataset_dict: DatasetDict, cache_dir: str, dtype: np.dtype, num_proc: Optional[int] = 1
 ) -> Dict[str, np.ndarray]:
-    """ """
+    """Process the dataset with memory map files.
 
-    def _process_with_disk(example: Dict[str, Any], file_path: str) -> None:
+    Args:
+        dataset_dict: Dataset dictionary.
+        cache_dir: Cache directory.
+        dtype: Numpy data type.
+        num_proc: Number of processes.
+
+    Returns:
+        Dictionary with memory map file-processed datasets.
+
+    """
+
+    def _process_with_memory_map_files(example: Dict[str, Any], file_path: str) -> None:
         with open(file_path, "r+b") as f:
             memory_map = mmap.mmap(f.fileno(), 0)
 
@@ -135,7 +161,7 @@ def process_with_disk(
             f.truncate(length * np.dtype(dtype).itemsize)
 
         dataset_dict[split].map(
-            _process_with_disk,
+            _process_with_memory_map_files,
             fn_kwargs={"file_path": file_path},
             batched=False,
             num_proc=num_proc,
