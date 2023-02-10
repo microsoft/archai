@@ -8,6 +8,7 @@ from typing import List, Optional
 
 import numpy as np
 from datasets import load_dataset as hf_load_dataset
+from datasets.dataset_dict import DatasetDict
 from overrides import overrides
 from transformers import AutoTokenizer
 
@@ -86,14 +87,34 @@ class FastHfDatasetProvider(DatasetProvider):
         return sha1(f"{self.dataset}-{self.subset}-{self.tokenizer}".encode("ascii")).hexdigest()
 
     def _encode_dataset(self) -> None:
-        logger.info("Encoding dataset ...")
-
         tokenizer = AutoTokenizer.from_pretrained(self.tokenizer)
         dtype = np.uint16 if tokenizer.vocab_size < 64 * 1024 else np.int32
 
+        # Ensures that the loaded dataset is always a dictionary
+        logger.info(f"Loading dataset: {self.dataset}/{self.subset}")
         raw_dataset = hf_load_dataset(self.dataset, self.subset)
-        column_names = raw_dataset["train"].column_names
+        if not isinstance(raw_dataset, DatasetDict):
+            raw_dataset = DatasetDict({"train": raw_dataset})
 
+        # Ensures that `validation` and `test` splits are present
+        if "validation" not in raw_dataset:
+            logger.info("Creating validation split ...")
+
+            tmp_dataset_dict = raw_dataset["train"].train_test_split(
+                test_size=self.validation_split, shuffle=True, seed=self.seed
+            )
+            raw_dataset["train"] = tmp_dataset_dict["train"]
+            raw_dataset["validation"] = tmp_dataset_dict["test"]
+
+        if "test" not in raw_dataset:
+            logger.info("Creating test split ...")
+
+            tmp_dataset_dict = raw_dataset["validation"].train_test_split(test_size=0.25, shuffle=True, seed=self.seed)
+            raw_dataset["validation"] = tmp_dataset_dict["train"]
+            raw_dataset["test"] = tmp_dataset_dict["test"]
+
+        logger.info("Encoding dataset ...")
+        column_names = raw_dataset["train"].column_names
         encoded_dataset = raw_dataset.map(
             tokenize_concatenated_dataset,
             fn_kwargs={
