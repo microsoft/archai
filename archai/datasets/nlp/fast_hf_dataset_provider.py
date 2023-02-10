@@ -138,8 +138,13 @@ class FastHfDatasetProvider(DatasetProvider):
         for split, dataset in dataset_dict.items():
             np.save(self.cache_dir / f"{split}.npy", dataset)
 
-            # If not using shared memory, datasets need to be deleted to free memory
-            # because they have already been cached to disk
+            # If using shared memory, dataset needs to have its shared memory
+            # unlinked to prevent memory leak
+            if self.use_shared_memory:
+                dataset.shm.unlink()
+
+            # If not using shared memory, dataset needs to have its memory map
+            # closed to prevent an additional .bin file
             if not self.use_shared_memory:
                 dataset._mmap.close()
                 Path(self.cache_dir / f"{split}.bin").unlink()
