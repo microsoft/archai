@@ -52,7 +52,7 @@ class FastHfDataset(Dataset):
         input_ids = torch.as_tensor(self.input_ids[start_idx : (start_idx + seq_len + 1)].astype(np.int64))
         labels = input_ids[1:].clone()
 
-        return input_ids, labels
+        return input_ids[:-1], labels
 
 
 class SHMArray(np.ndarray):
