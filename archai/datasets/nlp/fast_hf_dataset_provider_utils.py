@@ -22,7 +22,7 @@ if sys.version_info.major == 3 and sys.version_info.minor >= 8:
 
 
 class FastHfDataset(Dataset):
-    """"""
+    """Fast Hugging Face dataset."""
 
     def __init__(self, input_ids: torch.Tensor, seq_len: Optional[int] = 1) -> None:
         """Initialize the dataset.
