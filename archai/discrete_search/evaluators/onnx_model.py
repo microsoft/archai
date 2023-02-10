@@ -1,7 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import io
+import tempfile
+import os
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import onnxruntime as rt
@@ -65,25 +66,26 @@ class AvgOnnxLatency(ModelEvaluator):
         model.arch.to("cpu")
 
         # Exports model to ONNX
-        exported_model_buffer = io.BytesIO()
-        torch.onnx.export(
-            model.arch,
-            self.sample_input,
-            exported_model_buffer,
-            input_names=[f"input_{i}" for i in range(len(self.sample_input))],
-            **self.export_kwargs,
-        )
+        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+            torch.onnx.export(
+                model.arch,
+                self.sample_input,
+                tmp_file.name,
+                input_names=[f"input_{i}" for i in range(len(self.sample_input))],
+                **self.export_kwargs,
+            )
 
-        exported_model_buffer.seek(0)
+            # Benchmarks ONNX model
+            onnx_session = rt.InferenceSession(tmp_file.name, **self.inf_session_kwargs)
+            sample_input = {f"input_{i}": inp.numpy() for i, inp in enumerate(self.sample_input)}
+            inf_times = []
 
-        # Benchmarks ONNX model
-        onnx_session = rt.InferenceSession(exported_model_buffer.read(), **self.inf_session_kwargs)
-        sample_input = {f"input_{i}": inp.numpy() for i, inp in enumerate(self.sample_input)}
-        inf_times = []
-
-        for _ in range(self.num_trials):
-            with MeasureBlockTime("onnx_inference") as t:
-                onnx_session.run(None, input_feed=sample_input)
-            inf_times.append(t.elapsed)
-
+            for _ in range(self.num_trials):
+                with MeasureBlockTime("onnx_inference") as t:
+                    onnx_session.run(None, input_feed=sample_input)
+                inf_times.append(t.elapsed)
+        
+        # Manually delete tempfile for windows compatibility
+        os.remove(tmp_file.name)
+        
         return sum(inf_times) / self.num_trials
