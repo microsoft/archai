@@ -2,9 +2,10 @@
 # Licensed under the MIT license.
 
 import sys
+import json
 from hashlib import sha1
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from datasets import load_dataset as hf_load_dataset
@@ -73,12 +74,28 @@ class FastHfDatasetProvider(DatasetProvider):
         self.seed = seed
         self.num_workers = num_workers
         self.use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
-        self.cache_dir = Path(cache_dir) / self.fingerprint
+        self.cache_dir = Path(cache_dir) / self.dataset / self.subset / self.fingerprint
 
         # If cache is not available, encode the dataset and save it to cache
         if not self.cache_dir.is_dir():
             self.cache_dir.mkdir(parents=True, exist_ok=True)
             self._encode_dataset()
+
+    @property
+    def config(self) -> Dict[str, Any]:
+        """Return the configuration of the dataset provider."""
+
+        return {
+            "dataset": self.dataset,
+            "subset": self.subset,
+            "tokenizer": self.tokenizer,
+            "mapping_column_name": self.mapping_column_name,
+            "validation_split": self.validation_split,
+            "seed": self.seed,
+            "num_workers": self.num_workers,
+            "use_shared_memory": self.use_shared_memory,
+            "cache_dir": self.cache_dir.as_posix(),
+        }
 
     @property
     def fingerprint(self) -> str:
@@ -148,6 +165,9 @@ class FastHfDatasetProvider(DatasetProvider):
             if not self.use_shared_memory:
                 dataset._mmap.close()
                 Path(self.cache_dir / f"{split}.bin").unlink()
+
+        with open(self.cache_dir / "config.json", "w") as f:
+            json.dump(self.config, f)
 
     @overrides
     def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
