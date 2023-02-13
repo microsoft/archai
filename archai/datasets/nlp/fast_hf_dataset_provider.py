@@ -1,8 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import sys
 import json
+import sys
 from hashlib import sha1
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -36,9 +36,10 @@ class FastHfDatasetProvider(DatasetProvider):
 
     def __init__(
         self,
-        dataset: Optional[str] = "wikitext",
-        subset: Optional[str] = "wikitext-2-raw-v1",
-        tokenizer: Optional[str] = "gpt2",
+        dataset_name: str,
+        dataset_config_name: Optional[str] = None,
+        data_dir: Optional[str] = None,
+        tokenizer_name: Optional[str] = "gpt2",
         mapping_column_name: Optional[List[str]] = None,
         cache_dir: Optional[str] = "cache",
         validation_split: Optional[float] = 0.1,
@@ -52,9 +53,10 @@ class FastHfDatasetProvider(DatasetProvider):
         using the specified tokenizer, and saving it to the cache directory.
 
         Args:
-            dataset: Name of the dataset.
-            subset: Name of the dataset configuration.
-            tokenizer: Name of the tokenizer.
+            dataset_name: Name of the dataset.
+            dataset_config_name: Name of the dataset configuration.
+            data_dir: Path to the data directory.
+            tokenizer_name: Name of the tokenizer.
             mapping_column_name: The columns in `dataset` that should be tokenized.
             cache_dir: Path to the read/write cache directory.
             validation_split: Fraction of the dataset to use for validation.
@@ -66,15 +68,22 @@ class FastHfDatasetProvider(DatasetProvider):
 
         super().__init__()
 
-        self.dataset = dataset
-        self.subset = subset
-        self.tokenizer = tokenizer
+        self.dataset_name = dataset_name
+        self.dataset_config_name = dataset_config_name
+        self.data_dir = data_dir
+        self.tokenizer_name = tokenizer_name
         self.mapping_column_name = mapping_column_name
         self.validation_split = validation_split
         self.seed = seed
         self.num_workers = num_workers
         self.use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
-        self.cache_dir = Path(cache_dir) / self.dataset / self.subset / self.fingerprint
+        self.cache_dir = (
+            Path(cache_dir)
+            / self.dataset_name
+            / (self.dataset_config_name or "")
+            / (self.data_dir or "")
+            / self.fingerprint
+        )
 
         # If cache is not available, encode the dataset and save it to cache
         if not self.cache_dir.is_dir():
@@ -82,34 +91,38 @@ class FastHfDatasetProvider(DatasetProvider):
             self._encode_dataset()
 
     @property
+    def fingerprint(self) -> str:
+        """Return a unique fingerprint for the dataset provider."""
+
+        return sha1(
+            f"{self.tokenizer_name}-{self.mapping_column_name}-{self.validation_split}-{self.seed}".encode("ascii")
+        ).hexdigest()
+
+    @property
     def config(self) -> Dict[str, Any]:
         """Return the configuration of the dataset provider."""
 
         return {
-            "dataset": self.dataset,
-            "subset": self.subset,
-            "tokenizer": self.tokenizer,
+            "dataset_name": self.dataset_name,
+            "dataset_config_name": self.dataset_config_name,
+            "data_dir": self.data_dir,
+            "tokenizer_name": self.tokenizer_name,
             "mapping_column_name": self.mapping_column_name,
             "validation_split": self.validation_split,
             "seed": self.seed,
             "num_workers": self.num_workers,
             "use_shared_memory": self.use_shared_memory,
+            "fingerprint": self.fingerprint,
             "cache_dir": self.cache_dir.as_posix(),
         }
 
-    @property
-    def fingerprint(self) -> str:
-        """Return a unique fingerprint for the dataset provider."""
-
-        return sha1(f"{self.dataset}-{self.subset}-{self.tokenizer}".encode("ascii")).hexdigest()
-
     def _encode_dataset(self) -> None:
-        tokenizer = AutoTokenizer.from_pretrained(self.tokenizer)
+        tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
         dtype = np.uint16 if tokenizer.vocab_size < 64 * 1024 else np.int32
 
         # Ensures that the loaded dataset is always a dictionary
-        logger.info(f"Loading dataset: {self.dataset}/{self.subset}")
-        raw_dataset = hf_load_dataset(self.dataset, self.subset)
+        logger.info("Downloading dataset ...")
+        raw_dataset = hf_load_dataset(self.dataset_name, name=self.dataset_config_name, data_dir=self.data_dir)
         if not isinstance(raw_dataset, DatasetDict):
             raw_dataset = DatasetDict({"train": raw_dataset})
 
