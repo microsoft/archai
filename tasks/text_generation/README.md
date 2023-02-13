@@ -47,7 +47,7 @@ The points to the bottom-left of the plot indicate the best architectures in ter
 
 The points to the bottom-left of the plot represent the best architectures in terms of non-embedding parameters and ONNX-based memory.
 
-![Non-Embedding Parameters x ONNX Memory Plot](assets/pareto_non_embedding_params_vs_onnx_latency.png)
+![Non-Embedding Parameters x ONNX Memory Plot](assets/pareto_non_embedding_params_vs_onnx_memory.png)
 
 ## Training the Architectures
 
