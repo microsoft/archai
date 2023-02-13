@@ -44,7 +44,6 @@ dependencies = [
     "torchvision",
     "tqdm",
     "transformers>=4.25.1",
-    "plotly",
     "nbimporter"
 ]
 dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)?$)", x)[0] for x in dependencies)}
