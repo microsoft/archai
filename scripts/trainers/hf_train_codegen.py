@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-    dataset_provider = HfHubDatasetProvider(dataset=args.dataset_name, subset=args.dataset_config_name)
+    dataset_provider = HfHubDatasetProvider(args.dataset_name, dataset_config_name=args.dataset_config_name)
     train_dataset = dataset_provider.get_train_dataset()
     eval_dataset = dataset_provider.get_val_dataset()
 
