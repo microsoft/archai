@@ -879,8 +879,10 @@ title="Open an issue"
 <span class="kn">from</span> <span class="nn">ray.tune.trial</span> <span class="kn">import</span> <span class="n">Trial</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">expdir_abspath</span>
 <span class="kn">from</span> <span class="nn">archai.common.config</span> <span class="kn">import</span> <span class="n">Config</span>
 <span class="kn">from</span> <span class="nn">archai.common.ordered_dict_logger</span> <span class="kn">import</span> <span class="n">get_global_logger</span>
+<span class="kn">from</span> <span class="nn">archai.common.stopwatch</span> <span class="kn">import</span> <span class="n">StopWatch</span>
 <span class="kn">from</span> <span class="nn">archai.supergraph.datasets.augmentation</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">augment_list</span><span class="p">,</span>
     <span class="n">policy_decoder</span><span class="p">,</span>
@@ -889,9 +891,7 @@ title="Open an issue"
 <span class="kn">from</span> <span class="nn">archai.supergraph.datasets.data</span> <span class="kn">import</span> <span class="n">get_dataloaders</span>
 <span class="kn">from</span> <span class="nn">archai.supergraph.models</span> <span class="kn">import</span> <span class="n">get_model</span><span class="p">,</span> <span class="n">num_class</span>
 <span class="kn">from</span> <span class="nn">archai.supergraph.utils.augmented_trainer</span> <span class="kn">import</span> <span class="n">train_and_eval</span>
-<span class="kn">from</span> <span class="nn">archai.supergraph.utils.common</span> <span class="kn">import</span> <span class="n">expdir_abspath</span>
 <span class="kn">from</span> <span class="nn">archai.supergraph.utils.metrics</span> <span class="kn">import</span> <span class="n">Accumulator</span>
-<span class="kn">from</span> <span class="nn">archai.supergraph.utils.stopwatch</span> <span class="kn">import</span> <span class="n">StopWatch</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_global_logger</span><span class="p">()</span>
 
@@ -1284,7 +1284,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 07, 2023.<br/>
+    Last updated on Feb 13, 2023.<br/>
 </p>
         </footer>
     </div>

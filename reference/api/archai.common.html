@@ -885,7 +885,7 @@ title="Edit this page"
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.common.config_utils">
+  <a class="reference internal nav-link" href="#configuration-utilities">
    Configuration (Utilities)
   </a>
  </li>
@@ -944,7 +944,7 @@ title="Edit this page"
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#module-archai.common.config_utils">
+  <a class="reference internal nav-link" href="#configuration-utilities">
    Configuration (Utilities)
   </a>
  </li>
@@ -992,77 +992,39 @@ title="Edit this page"
 <h1>Common Packages<a class="headerlink" href="#common-packages" title="Permalink to this headline">#</a></h1>
 <section id="module-archai.common.config">
 <span id="configuration"></span><h2>Configuration<a class="headerlink" href="#module-archai.common.config" title="Permalink to this headline">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.common.config.deep_update">
+<span class="sig-prename descclassname"><span class="pre">archai.common.config.</span></span><span class="sig-name descname"><span class="pre">deep_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.MutableMapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.abc.Mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">create_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">collections.abc.MutableMapping</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.abc.MutableMapping</span></span></span><a class="reference internal" href="../../_modules/archai/common/config.html#deep_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.deep_update" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.common.config.Config">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.common.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parse_cl_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cl_description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolve_redirect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/common/config.html#Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.Config" title="Permalink to this definition">#</a></dt>
-<dd><p>Configuration class that supports YAML-based configuration files and
-command line arguments.</p>
-<dl class="py method">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.common.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolve_redirects</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/common/config.html#Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.Config" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.common.config.Config.to_dict">
-<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/common/config.html#Config.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.Config.to_dict" title="Permalink to this definition">#</a></dt>
-<dd><p>Convert the <cite>Config</cite> object to a dictionary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><cite>Config</cite> represented as a dictionary.</p>
-</dd>
-</dl>
-</dd></dl>
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../_modules/archai/common/config.html#Config.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.Config.to_dict" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="archai.common.config.Config.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/common/config.html#Config.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.Config.get" title="Permalink to this definition">#</a></dt>
-<dd><p>Get a value from the <cite>Config</cite> object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> – Key to search for.</p></li>
-<li><p><strong>default_value</strong> – Default value to return if <cite>key</cite> is not found.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Value corresponding to the key.</p>
-</dd>
-</dl>
-</dd></dl>
+<dt class="sig sig-object py" id="archai.common.config.Config.get_val">
+<span class="sig-name descname"><span class="pre">get_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_val</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/common/config.html#Config.get_val"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.Config.get_val" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="archai.common.config.Config.set_global_instance">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_global_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/config.html#Config.set_global_instance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.Config.set_global_instance" title="Permalink to this definition">#</a></dt>
-<dd><p>Set a global configuration instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>instance</strong> – Instance to be set globally.</p>
-</dd>
-</dl>
-</dd></dl>
+<dt class="sig sig-object py" id="archai.common.config.Config.set_inst">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_inst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/config.html#Config.set_inst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.Config.set_inst" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="archai.common.config.Config.get_global_instance">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_global_instance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></span><a class="reference internal" href="../../_modules/archai/common/config.html#Config.get_global_instance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.Config.get_global_instance" title="Permalink to this definition">#</a></dt>
-<dd><p>Get a global configuration instance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Global configuration.</p>
-</dd>
-</dl>
-</dd></dl>
+<dt class="sig sig-object py" id="archai.common.config.Config.get_inst">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_inst</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></span><a class="reference internal" href="../../_modules/archai/common/config.html#Config.get_inst"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config.Config.get_inst" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 </section>
-<section id="module-archai.common.config_utils">
-<span id="configuration-utilities"></span><h2>Configuration (Utilities)<a class="headerlink" href="#module-archai.common.config_utils" title="Permalink to this headline">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="archai.common.config_utils.resolve_dict">
-<span class="sig-prename descclassname"><span class="pre">archai.common.config_utils.</span></span><span class="sig-name descname"><span class="pre">resolve_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MutableMapping</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/common/config_utils.html#resolve_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.config_utils.resolve_dict" title="Permalink to this definition">#</a></dt>
-<dd><p>Resolve all values in a dictionary recursively.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>root_dict</strong> – Root dictionary.</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="configuration-utilities">
+<h2>Configuration (Utilities)<a class="headerlink" href="#configuration-utilities" title="Permalink to this headline">#</a></h2>
 </section>
 <section id="module-archai.common.deprecation_utils">
 <span id="deprecation-utilities"></span><h2>Deprecation (Utilities)<a class="headerlink" href="#module-archai.common.deprecation_utils" title="Permalink to this headline">#</a></h2>
@@ -1327,6 +1289,17 @@ of an existing file name (before the file extension).</p>
 <dt class="sig sig-object py" id="archai.common.ordered_dict_logger.OrderedDictLogger">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.common.ordered_dict_logger.</span></span><span class="sig-name descname"><span class="pre">OrderedDictLogger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/common/ordered_dict_logger.html#OrderedDictLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.ordered_dict_logger.OrderedDictLogger" title="Permalink to this definition">#</a></dt>
 <dd><p>Log and save data in a hierarchical YAML structure.</p>
+<p>The purpose of the structured logging is to store logs as key value pair.
+However, when you have loop and sub routine calls, what you need is hierarchical
+dictionaries where the value for a key could be a dictionary. The idea is that you
+set one of the nodes in tree as current node and start logging your values. You can
+then use pushd to create and go to child node and popd to come back to parent.</p>
+<p>To implement this mechanism we use two main variables: _stack allows us to push each node
+on stack when pushd is called. The node is OrderedDictionary. As a convinience, we let
+specify child path in pushd in which case child hierarchy is created and current node
+will be set to the last node in specified path. When popd is called, we go back to
+original parent instead of parent of current node. To implement this we use _paths
+variable which stores subpath when each pushd call was made.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.common.ordered_dict_logger.OrderedDictLogger.root_node">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">root_node</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collections.OrderedDict</span></em><a class="headerlink" href="#archai.common.ordered_dict_logger.OrderedDictLogger.root_node" title="Permalink to this definition">#</a></dt>
@@ -1614,7 +1587,7 @@ console (i.e., <cite>sys.stdout</cite>) and is configured with a formatter.</p>
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 07, 2023.<br/>
+    Last updated on Feb 13, 2023.<br/>
 </p>
         </footer>
     </div>

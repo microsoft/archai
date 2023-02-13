@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>archai.supergraph.utils.atomic_file_handler &#8212; Archai</title>
+    <title>archai.discrete_search.evaluators.ray &#8212; Archai</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -818,7 +818,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/supergraph/utils/atomic_file_handler.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/discrete_search/evaluators/ray.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -861,70 +861,98 @@ title="Open an issue"
                 
               <div>
                 
-  <h1>Source code for archai.supergraph.utils.atomic_file_handler</h1><div class="highlight"><pre>
+  <h1>Source code for archai.discrete_search.evaluators.ray</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
-<span class="kn">from</span> <span class="nn">logging</span> <span class="kn">import</span> <span class="n">StreamHandler</span><span class="p">,</span> <span class="n">Handler</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">import</span> <span class="nn">ray</span>
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 
-<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Lock</span>
+<span class="kn">from</span> <span class="nn">archai.api.dataset_provider</span> <span class="kn">import</span> <span class="n">DatasetProvider</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.api.archai_model</span> <span class="kn">import</span> <span class="n">ArchaiModel</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.api.model_evaluator</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AsyncModelEvaluator</span><span class="p">,</span>
+    <span class="n">ModelEvaluator</span><span class="p">,</span>
+<span class="p">)</span>
 
-<div class="viewcode-block" id="AtomicFileHandler"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.atomic_file_handler.AtomicFileHandler">[docs]</a><span class="k">class</span> <span class="nc">AtomicFileHandler</span><span class="p">(</span><span class="n">Handler</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This class opens and writes entire file instead of appending one line at a time</span>
+
+<span class="k">def</span> <span class="nf">_wrap_metric_calculate</span><span class="p">(</span><span class="n">class_method</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_calculate</span><span class="p">(</span><span class="n">arch</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">class_method</span><span class="p">(</span><span class="n">arch</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">budget</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_calculate</span>
+
+
+<div class="viewcode-block" id="RayParallelEvaluator"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.ray.RayParallelEvaluator">[docs]</a><span class="k">class</span> <span class="nc">RayParallelEvaluator</span><span class="p">(</span><span class="n">AsyncModelEvaluator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wraps a `ModelEvaluator` object into an `AsyncModelEvaluator` with parallel execution using Ray.</span>
+
+<span class="sd">    `RayParallelEvaluator` expects a stateless objective function as input, meaning that any</span>
+<span class="sd">    `ModelEvaluator.evaluate(arch, ...)` will not alter the state of `obj` or `arch` in any way.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">terminator</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">ModelEvaluator</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">force_stop</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">ray_kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the evaluator.</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_delay</span><span class="o">=</span><span class="mf">30.0</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">baseFilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span> <span class="o">=</span> <span class="n">encoding</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mutex</span> <span class="o">=</span> <span class="n">Lock</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_last_flush</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_delay</span> <span class="o">=</span> <span class="n">save_delay</span>
+<span class="sd">        Args:</span>
+<span class="sd">            obj: A `ModelEvaluator` object.</span>
+<span class="sd">            timeout: Timeout for receiving results from Ray. If None, then Ray will wait</span>
+<span class="sd">                indefinitely for results. If timeout is reached, then incomplete tasks</span>
+<span class="sd">                are canceled and returned as None.</span>
+<span class="sd">            force_stop: If incomplete tasks (within `timeout` seconds) should be force-killed.</span>
+<span class="sd">                If set to `False`, Ray will just send a `KeyboardInterrupt` signal to the process.</span>
+<span class="sd">            **ray_kwargs: Key-value arguments for ray.remote(), e.g: num_gpus, num_cpus, max_task_retries.</span>
 
-<div class="viewcode-block" id="AtomicFileHandler.flush"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.atomic_file_handler.AtomicFileHandler.flush">[docs]</a>    <span class="nd">@overrides</span>
-    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_flush_buffer</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="AtomicFileHandler.close"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.atomic_file_handler.AtomicFileHandler.close">[docs]</a>    <span class="nd">@overrides</span>
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_flush_buffer</span><span class="p">(</span><span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">finally</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">ModelEvaluator</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">baseFilename</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">)</span>
+        <span class="c1"># Wraps metric.calculate as a standalone function. This only works with stateless metrics</span>
+        <span class="k">if</span> <span class="n">ray_kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_fn</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="o">**</span><span class="n">ray_kwargs</span><span class="p">)(</span><span class="n">_wrap_metric_calculate</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">evaluate</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">compute_fn</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">_wrap_metric_calculate</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">evaluate</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_flush_buffer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">force</span> <span class="ow">or</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_flush</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_delay</span><span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">mutex</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_last_flush</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="k">finally</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">mutex</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_stop</span> <span class="o">=</span> <span class="n">force_stop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object_refs</span> <span class="o">=</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="AtomicFileHandler.emit"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.atomic_file_handler.AtomicFileHandler.emit">[docs]</a>    <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mutex</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_buffer</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminator</span><span class="p">)</span>
-        <span class="k">finally</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">mutex</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<div class="viewcode-block" id="RayParallelEvaluator.send"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.ray.RayParallelEvaluator.send">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object_refs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_fn</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">arch</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">budget</span><span class="p">))</span></div>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_flush_buffer</span><span class="p">()</span></div></div>
+<div class="viewcode-block" id="RayParallelEvaluator.fetch_all"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.ray.RayParallelEvaluator.fetch_all">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">fetch_all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_refs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_refs</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Maps each object from the object_refs list to its index</span>
+            <span class="n">ref2idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">ref</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ref</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_refs</span><span class="p">)}</span>
+
+            <span class="c1"># Gets all results available within `self.timeout` seconds.</span>
+            <span class="n">complete_objs</span><span class="p">,</span> <span class="n">incomplete_objs</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">object_refs</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">,</span> <span class="n">num_returns</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_refs</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">partial_results</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">complete_objs</span><span class="p">)</span>
+
+            <span class="c1"># Update results with the partial results fetched</span>
+            <span class="k">for</span> <span class="n">ref</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">complete_objs</span><span class="p">,</span> <span class="n">partial_results</span><span class="p">):</span>
+                <span class="n">results</span><span class="p">[</span><span class="n">ref2idx</span><span class="p">[</span><span class="n">ref</span><span class="p">]]</span> <span class="o">=</span> <span class="n">result</span>
+
+            <span class="c1"># Cancels incomplete jobs</span>
+            <span class="k">for</span> <span class="n">incomplete_obj</span> <span class="ow">in</span> <span class="n">incomplete_objs</span><span class="p">:</span>
+                <span class="n">ray</span><span class="o">.</span><span class="n">cancel</span><span class="p">(</span><span class="n">incomplete_obj</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_stop</span><span class="p">)</span>
+
+        <span class="c1"># Resets metric state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">object_refs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">return</span> <span class="n">results</span></div></div>
 </pre></div>
 
               </div>
@@ -944,7 +972,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 07, 2023.<br/>
+    Last updated on Feb 13, 2023.<br/>
 </p>
         </footer>
     </div>

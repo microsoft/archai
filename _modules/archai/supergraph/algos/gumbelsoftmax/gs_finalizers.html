@@ -862,15 +862,18 @@ title="Open an issue"
               <div>
                 
   <h1>Source code for archai.supergraph.algos.gumbelsoftmax.gs_finalizers</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
 
+<span class="kn">from</span> <span class="nn">archai.common.common</span> <span class="kn">import</span> <span class="n">get_conf</span>
 <span class="kn">from</span> <span class="nn">archai.supergraph.algos.gumbelsoftmax.gs_op</span> <span class="kn">import</span> <span class="n">GsOp</span>
 <span class="kn">from</span> <span class="nn">archai.supergraph.nas.finalizers</span> <span class="kn">import</span> <span class="n">Finalizers</span>
 <span class="kn">from</span> <span class="nn">archai.supergraph.nas.model_desc</span> <span class="kn">import</span> <span class="n">EdgeDesc</span><span class="p">,</span> <span class="n">NodeDesc</span>
-<span class="kn">from</span> <span class="nn">archai.supergraph.utils.common</span> <span class="kn">import</span> <span class="n">get_conf</span>
 
 
 <div class="viewcode-block" id="GsFinalizers"><a class="viewcode-back" href="../../../../../reference/api/archai.supergraph.algos.gumbelsoftmax.html#archai.supergraph.algos.gumbelsoftmax.gs_finalizers.GsFinalizers">[docs]</a><span class="k">class</span> <span class="nc">GsFinalizers</span><span class="p">(</span><span class="n">Finalizers</span><span class="p">):</span>
@@ -947,7 +950,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 07, 2023.<br/>
+    Last updated on Feb 13, 2023.<br/>
 </p>
         </footer>
     </div>

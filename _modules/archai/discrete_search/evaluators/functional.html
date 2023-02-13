@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>archai.supergraph.utils.delimited_text &#8212; Archai</title>
+    <title>archai.discrete_search.evaluators.functional &#8212; Archai</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -818,7 +818,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/supergraph/utils/delimited_text.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/discrete_search/evaluators/functional.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -861,67 +861,40 @@ title="Open an issue"
                 
               <div>
                 
-  <h1>Source code for archai.supergraph.utils.delimited_text</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">OrderedDict</span>
+  <h1>Source code for archai.discrete_search.evaluators.functional</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
 
-<span class="kn">from</span> <span class="nn">archai.supergraph.utils</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+
+<span class="kn">from</span> <span class="nn">archai.api.dataset_provider</span> <span class="kn">import</span> <span class="n">DatasetProvider</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.api.archai_model</span> <span class="kn">import</span> <span class="n">ArchaiModel</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.api.model_evaluator</span> <span class="kn">import</span> <span class="n">ModelEvaluator</span>
 
 
-<div class="viewcode-block" id="DelimitedText"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.delimited_text.DelimitedText">[docs]</a><span class="k">class</span> <span class="nc">DelimitedText</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+<div class="viewcode-block" id="EvaluationFunction"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.functional.EvaluationFunction">[docs]</a><span class="k">class</span> <span class="nc">EvaluationFunction</span><span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom function evaluator.</span>
 
-<div class="viewcode-block" id="DelimitedText.add_from_file"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.delimited_text.DelimitedText.add_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">add_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">has_header</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">filepath</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">full_path</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">has_header</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
-            <span class="k">while</span> <span class="n">line</span><span class="p">:</span>
-                <span class="n">cols</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="n">delimiter</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">header</span> <span class="o">=</span> <span class="n">cols</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">add_from_cols</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span></div>
+<span class="sd">    This evaluator is used to wrap a custom evaluation function.</span>
 
-<div class="viewcode-block" id="DelimitedText.add_from_text"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.delimited_text.DelimitedText.add_from_text">[docs]</a>    <span class="k">def</span> <span class="nf">add_from_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">has_header</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">header</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">has_header</span> <span class="k">else</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
-            <span class="n">cols</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="o">=</span><span class="n">delimiter</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">header</span> <span class="o">=</span> <span class="n">cols</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_from_cols</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span></div>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="DelimitedText.add_from_cols"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.delimited_text.DelimitedText.add_from_cols">[docs]</a>    <span class="k">def</span> <span class="nf">add_from_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">i</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">))</span></div>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">evaluation_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the evaluator.</span>
 
-<div class="viewcode-block" id="DelimitedText.get_col"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.delimited_text.DelimitedText.get_col">[docs]</a>    <span class="k">def</span> <span class="nf">get_col</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span></div>
+<span class="sd">        Args:</span>
+<span class="sd">            evaluation_fn: Evaluation function that receives the parameters</span>
+<span class="sd">                (model: ArchaiModel, dataloader: torch.utils.data.Dataloader, budget: float) and outputs</span>
+<span class="sd">                a float.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="DelimitedText.set_col"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.delimited_text.DelimitedText.set_col">[docs]</a>    <span class="k">def</span> <span class="nf">set_col</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">vals</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">vals</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluation_fn</span> <span class="o">=</span> <span class="n">evaluation_fn</span>
 
-<div class="viewcode-block" id="DelimitedText.set_data"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.delimited_text.DelimitedText.set_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="DelimitedText.add_from_cols_list"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.delimited_text.DelimitedText.add_from_cols_list">[docs]</a>    <span class="k">def</span> <span class="nf">add_from_cols_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cols_list</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Iterable</span><span class="p">],</span> <span class="n">header</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">cols</span> <span class="ow">in</span> <span class="n">cols_list</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_from_cols</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="DelimitedText.save"><a class="viewcode-back" href="../../../../reference/api/archai.supergraph.utils.html#archai.supergraph.utils.delimited_text.DelimitedText.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">has_header</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">has_header</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">vals</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)):</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">delimiter</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span></div>
+<div class="viewcode-block" id="EvaluationFunction.evaluate"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.functional.EvaluationFunction.evaluate">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluation_fn</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="p">)</span></div></div>
 </pre></div>
 
               </div>
@@ -941,7 +914,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 07, 2023.<br/>
+    Last updated on Feb 13, 2023.<br/>
 </p>
         </footer>
     </div>

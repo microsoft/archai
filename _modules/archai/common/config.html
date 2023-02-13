@@ -865,204 +865,164 @@ title="Open an issue"
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-
 <span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserDict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">MutableMapping</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">distutils.util</span> <span class="kn">import</span> <span class="n">strtobool</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 
 <span class="kn">import</span> <span class="nn">yaml</span>
 
-<span class="kn">from</span> <span class="nn">archai.common.config_utils</span> <span class="kn">import</span> <span class="n">resolve_dict</span>
+<span class="kn">from</span> <span class="nn">archai.common</span> <span class="kn">import</span> <span class="n">yaml_utils</span>
 
+<span class="c1"># global config instance</span>
+<span class="n">_config</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;Config&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="k">def</span> <span class="nf">_update_nested_dict</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="n">MutableMapping</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">mapping_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">MutableMapping</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MutableMapping</span><span class="p">:</span>
+<span class="c1"># TODO: remove this duplicate code which is also in utils.py without circular deps</span>
+<div class="viewcode-block" id="deep_update"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.config.deep_update">[docs]</a><span class="k">def</span> <span class="nf">deep_update</span><span class="p">(</span><span class="n">d</span><span class="p">:</span><span class="n">MutableMapping</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">create_map</span><span class="p">:</span><span class="n">Callable</span><span class="p">[[],</span><span class="n">MutableMapping</span><span class="p">])</span>\
+        <span class="o">-&gt;</span><span class="n">MutableMapping</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">u</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
-            <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">_update_nested_dict</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">mapping_fn</span><span class="p">()),</span> <span class="n">v</span><span class="p">,</span> <span class="n">mapping_fn</span><span class="p">)</span>
+            <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">deep_update</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">create_map</span><span class="p">()),</span> <span class="n">v</span><span class="p">,</span> <span class="n">create_map</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
-
-    <span class="k">return</span> <span class="n">d</span>
-
+    <span class="k">return</span> <span class="n">d</span></div>
 
 <div class="viewcode-block" id="Config"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.config.Config">[docs]</a><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="n">UserDict</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration class that supports YAML-based configuration files and</span>
-<span class="sd">    command line arguments.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_filepath</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">app_desc</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_args</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">param_args</span><span class="p">:</span> <span class="n">Sequence</span> <span class="o">=</span> <span class="p">[],</span> <span class="n">resolve_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create config from specified files and args</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Config is simply a dictionary of key, value map. The value can itself be</span>
+<span class="sd">        a dictionary so config can be hierarchical. This class allows to load</span>
+<span class="sd">        config from yaml. A special key &#39;__include__&#39; can specify another yaml</span>
+<span class="sd">        relative file path (or list of file paths) which will be loaded first</span>
+<span class="sd">        and the key-value pairs in the main file</span>
+<span class="sd">        will override the ones in include file. You can think of included file as</span>
+<span class="sd">        defaults provider. This allows to create one base config and then several</span>
+<span class="sd">        environment/experiment specific configs. On the top of that you can use</span>
+<span class="sd">        param_args to perform final overrides for a given run.</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">file_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">parse_cl_args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">cl_description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">resolve_redirect</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a configuration object.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            file_path: Path to YAML-based configuration file.</span>
-<span class="sd">            args: List of extra arguments, e.g., [&quot;--arg&quot;, &quot;value&quot;, &quot;--arg2&quot;, &quot;value2&quot;].</span>
-<span class="sd">            parse_cl_args: Whether to parse command line arguments.</span>
-<span class="sd">            cl_description: Description to use for command line arguments.</span>
-<span class="sd">            resolve_redirect: Whether to resolve the YAML-based redirects.</span>
-
+<span class="sd">        Keyword Arguments:</span>
+<span class="sd">            config_filepath {[str]} -- [Yaml file to load config from, could be names of files separated by semicolon which will be loaded in sequence oveeriding previous config] (default: {None})</span>
+<span class="sd">            app_desc {[str]} -- [app description that will show up in --help] (default: {None})</span>
+<span class="sd">            use_args {bool} -- [if true then command line parameters will override parameters from config files] (default: {False})</span>
+<span class="sd">            param_args {Sequence} -- [parameters specified as [&#39;--key1&#39;,val1,&#39;--key2&#39;,val2,...] which will override parameters from config file.] (default: {[]})</span>
+<span class="sd">            resolve_redirects -- [if True then _copy commands in yaml are executed]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Config</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[]</span>
 
-        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="n">extra_cl_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">use_args</span><span class="p">:</span>
+            <span class="c1"># let command line args specify/override config file</span>
+            <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">app_desc</span><span class="p">)</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--config&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">help</span><span class="o">=</span><span class="s1">&#39;config filepath in yaml format, can be list separated by ;&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+            <span class="n">config_filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">config</span> <span class="ow">or</span> <span class="n">config_filepath</span>
 
-        <span class="k">if</span> <span class="n">parse_cl_args</span><span class="p">:</span>
-            <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">cl_description</span><span class="p">)</span>
-            <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-                <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;--config&quot;</span><span class="p">,</span>
-                <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-                <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">help</span><span class="o">=</span><span class="s2">&quot;YAML-based configuration file-paths (separated by `;` if multiple).&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">config_filepath</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">config_filepath</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_file</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
 
-            <span class="n">cl_args</span><span class="p">,</span> <span class="n">extra_cl_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
-            <span class="n">file_path</span> <span class="o">=</span> <span class="n">cl_args</span><span class="o">.</span><span class="n">config</span> <span class="ow">or</span> <span class="n">file_path</span>
+        <span class="c1"># Create a copy of ourselves and do the resolution over it.</span>
+        <span class="c1"># This resolved_conf then can be used to search for overrides that</span>
+        <span class="c1"># wouldn&#39;t have existed before resolution.</span>
+        <span class="n">resolved_conf</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resolve_redirects</span><span class="p">:</span>
+            <span class="n">yaml_utils</span><span class="o">.</span><span class="n">resolve_all</span><span class="p">(</span><span class="n">resolved_conf</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">file_path</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">file_path</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        <span class="c1"># Let&#39;s do final overrides from args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_from_args</span><span class="p">(</span><span class="n">param_args</span><span class="p">,</span> <span class="n">resolved_conf</span><span class="p">)</span>      <span class="c1"># merge from params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_from_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_args</span><span class="p">,</span> <span class="n">resolved_conf</span><span class="p">)</span> <span class="c1"># merge from command line</span>
 
-        <span class="c1"># Create a copy and resolve it, which can be used to search for overrides</span>
-        <span class="c1"># that would not have existed before resolution</span>
-        <span class="n">r_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">resolve_redirect</span><span class="p">:</span>
-            <span class="n">resolve_dict</span><span class="p">(</span><span class="n">r_config</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resolve_redirects</span><span class="p">:</span>
+            <span class="n">yaml_utils</span><span class="o">.</span><span class="n">resolve_all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-        <span class="c1"># Update with additional arguments</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_from_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">r_config</span><span class="p">)</span>  <span class="c1"># Merge from supplied args</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_from_args</span><span class="p">(</span><span class="n">extra_cl_args</span><span class="p">,</span> <span class="n">r_config</span><span class="p">)</span>  <span class="c1"># Merge from command line args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_filepath</span> <span class="o">=</span> <span class="n">config_filepath</span>
 
-        <span class="k">if</span> <span class="n">resolve_redirect</span><span class="p">:</span>
-            <span class="n">resolve_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">file_path</span>
-
-    <span class="k">def</span> <span class="nf">_load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">file_path</span><span class="p">:</span>
-            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">file_path</span><span class="p">)))</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">filepath</span><span class="p">:</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">filepath</span><span class="p">))</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">config_yaml</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">Loader</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_includes</span><span class="p">(</span><span class="n">config_yaml</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
+            <span class="n">deep_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_yaml</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">Config</span><span class="p">(</span><span class="n">resolve_redirects</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;config loaded from: &#39;</span><span class="p">,</span> <span class="n">filepath</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_from_include</span><span class="p">(</span><span class="n">config_yaml</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
-            <span class="n">_update_nested_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_yaml</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">Config</span><span class="p">(</span><span class="n">resolve_redirect</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-
-    <span class="k">def</span> <span class="nf">_update_from_include</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_yaml</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;__include__&quot;</span> <span class="ow">in</span> <span class="n">config_yaml</span><span class="p">:</span>
-            <span class="n">includes</span> <span class="o">=</span> <span class="n">config_yaml</span><span class="p">[</span><span class="s2">&quot;__include__&quot;</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">_process_includes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_yaml</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;__include__&#39;</span> <span class="ow">in</span> <span class="n">config_yaml</span><span class="p">:</span>
+            <span class="c1"># include could be file name or array of file names to apply in sequence</span>
+            <span class="n">includes</span> <span class="o">=</span> <span class="n">config_yaml</span><span class="p">[</span><span class="s1">&#39;__include__&#39;</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">includes</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">includes</span> <span class="o">=</span> <span class="p">[</span><span class="n">includes</span><span class="p">]</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">includes</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;`__include__` value must be string or list&quot;</span>
-
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">includes</span><span class="p">,</span> <span class="n">List</span><span class="p">),</span> <span class="s2">&quot;&#39;__include__&#39; value must be string or list&quot;</span>
             <span class="k">for</span> <span class="n">include</span> <span class="ow">in</span> <span class="n">includes</span><span class="p">:</span>
-                <span class="n">include_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span> <span class="n">include</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_load</span><span class="p">(</span><span class="n">include_file_path</span><span class="p">)</span>
+                <span class="n">include_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">filepath</span><span class="p">),</span> <span class="n">include</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_file</span><span class="p">(</span><span class="n">include_filepath</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_update_from_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">resolved_section</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_update_from_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span><span class="n">Sequence</span><span class="p">,</span> <span class="n">resolved_section</span><span class="p">:</span><span class="s1">&#39;Config&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
         <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
             <span class="n">arg</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">):</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">arg</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-                <span class="n">i</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_section</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">resolved_section</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">arg</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;--&quot;</span><span class="p">)):</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">arg</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s2">&quot;--&quot;</span><span class="p">):]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="n">Config</span><span class="o">.</span><span class="n">_update_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">resolved_section</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span> <span class="c1"># some other arg</span>
                 <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">_update_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">resolved_section</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="Config.to_dict"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.config.Config.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">deep_update</span><span class="p">({},</span> <span class="bp">self</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">dict</span><span class="p">())</span> <span class="c1"># type: ignore</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_update_section</span><span class="p">(</span><span class="n">section</span><span class="p">:</span><span class="s1">&#39;Config&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">val</span><span class="p">:</span><span class="n">Any</span><span class="p">,</span> <span class="n">resolved_section</span><span class="p">:</span><span class="s1">&#39;Config&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">int</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
             <span class="n">sub_path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">sub_path</span> <span class="ow">in</span> <span class="n">resolved_section</span><span class="p">:</span>
                 <span class="n">resolved_section</span> <span class="o">=</span> <span class="n">resolved_section</span><span class="p">[</span><span class="n">sub_path</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">sub_path</span> <span class="ow">in</span> <span class="n">section</span><span class="p">:</span>
+                    <span class="n">section</span><span class="p">[</span><span class="n">sub_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">resolve_redirects</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">section</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="n">sub_path</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mi">1</span> <span class="c1"># path not found, ignore this</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># final leaf node value</span>
 
-            <span class="k">if</span> <span class="n">sub_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="bp">self</span><span class="p">[</span><span class="n">sub_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">resolve_redirect</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="bp">self</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">sub_path</span><span class="p">]</span>
-
-        <span class="n">key</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Final leaf node value</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">resolved_section</span><span class="p">:</span>
             <span class="n">original_val</span><span class="p">,</span> <span class="n">original_type</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">original_val</span> <span class="o">=</span> <span class="n">resolved_section</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
                 <span class="n">original_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">original_val</span><span class="p">)</span>
-
-                <span class="k">if</span> <span class="n">original_type</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>  <span class="c1"># bool(&#39;False&#39;) is True :(</span>
-
-                    <span class="k">def</span> <span class="nf">original_type</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-                        <span class="k">return</span> <span class="n">strtobool</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-
-                <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">original_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">original_type</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span> <span class="c1"># bool(&#39;False&#39;) is True :(</span>
+                    <span class="n">original_type</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">strtobool</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span>
+                <span class="n">section</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">original_type</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Key: </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> could not been set to value </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">.&quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Original value was </span><span class="si">{</span><span class="n">original_val</span><span class="si">}</span><span class="s2"> of type </span><span class="si">{</span><span class="n">original_type</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
+                    <span class="sa">f</span><span class="s1">&#39;The yaml key or command line argument &quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot; is likely not named correctly or value is of wrong data type. Error was occured when setting it to value &quot;</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s1">&quot;.&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Originally it is set to </span><span class="si">{</span><span class="n">original_val</span><span class="si">}</span><span class="s1"> which is of type </span><span class="si">{</span><span class="n">original_type</span><span class="si">}</span><span class="s1">.&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;Original exception: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">2</span> <span class="c1"># path was found, increment arg pointer by 2 as we use up val</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">return</span> <span class="mi">1</span> <span class="c1"># path not found, ignore this</span>
 
-        <span class="k">return</span> <span class="mi">2</span>  <span class="c1"># Path was found or created, increment args pointer by 2</span>
+<div class="viewcode-block" id="Config.get_val"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.config.Config.get_val">[docs]</a>    <span class="k">def</span> <span class="nf">get_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">default_val</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default_val</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Config.to_dict"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.config.Config.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the `Config` object to a dictionary.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            `Config` represented as a dictionary.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="n">_update_nested_dict</span><span class="p">({},</span> <span class="bp">self</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">dict</span><span class="p">())</span></div>
-
-<div class="viewcode-block" id="Config.get"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.config.Config.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default_value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a value from the `Config` object.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            key: Key to search for.</span>
-<span class="sd">            default_value: Default value to return if `key` is not found.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Value corresponding to the key.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">default_value</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="Config.set_global_instance"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.config.Config.set_global_instance">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">set_global_instance</span><span class="p">(</span><span class="n">instance</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a global configuration instance.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            instance: Instance to be set globally.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
+<div class="viewcode-block" id="Config.set_inst"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.config.Config.set_inst">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">set_inst</span><span class="p">(</span><span class="n">instance</span><span class="p">:</span><span class="s1">&#39;Config&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
         <span class="k">global</span> <span class="n">_config</span>
         <span class="n">_config</span> <span class="o">=</span> <span class="n">instance</span></div>
 
-<div class="viewcode-block" id="Config.get_global_instance"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.config.Config.get_global_instance">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_global_instance</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Config</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a global configuration instance.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Global configuration.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
+<div class="viewcode-block" id="Config.get_inst"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.config.Config.get_inst">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_inst</span><span class="p">()</span><span class="o">-&gt;</span><span class="s1">&#39;Config&#39;</span><span class="p">:</span>
         <span class="k">global</span> <span class="n">_config</span>
         <span class="k">return</span> <span class="n">_config</span></div></div>
+
 </pre></div>
 
               </div>
@@ -1082,7 +1042,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 07, 2023.<br/>
+    Last updated on Feb 13, 2023.<br/>
 </p>
         </footer>
     </div>

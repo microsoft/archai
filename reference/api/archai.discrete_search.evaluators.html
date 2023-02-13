@@ -880,7 +880,7 @@ title="Edit this page"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#functional">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.functional">
    Functional
   </a>
  </li>
@@ -905,7 +905,7 @@ title="Edit this page"
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#ray">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.ray">
    Ray
   </a>
  </li>
@@ -934,7 +934,7 @@ title="Edit this page"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#functional">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.functional">
    Functional
   </a>
  </li>
@@ -959,7 +959,7 @@ title="Edit this page"
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#ray">
+  <a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.ray">
    Ray
   </a>
  </li>
@@ -983,9 +983,9 @@ title="Edit this page"
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html#transformer-flex-latency">Transformer-Flex Latency</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html#transformer-flex-memory">Transformer-Flex Memory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html#module-archai.discrete_search.evaluators.nlp.parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html#module-archai.discrete_search.evaluators.nlp.transformer_flex_latency">Transformer-Flex Latency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html#module-archai.discrete_search.evaluators.nlp.transformer_flex_memory">Transformer-Flex Memory</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a><ul>
@@ -996,8 +996,36 @@ title="Edit this page"
 </li>
 </ul>
 </div>
-<section id="functional">
-<h2>Functional<a class="headerlink" href="#functional" title="Permalink to this headline">#</a></h2>
+<section id="module-archai.discrete_search.evaluators.functional">
+<span id="functional"></span><h2>Functional<a class="headerlink" href="#module-archai.discrete_search.evaluators.functional" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.evaluators.functional.EvaluationFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.functional.</span></span><span class="sig-name descname"><span class="pre">EvaluationFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluation_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/functional.html#EvaluationFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.functional.EvaluationFunction" title="Permalink to this definition">#</a></dt>
+<dd><p>Custom function evaluator.</p>
+<p>This evaluator is used to wrap a custom evaluation function.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.evaluators.functional.EvaluationFunction.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/functional.html#EvaluationFunction.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.functional.EvaluationFunction.evaluate" title="Permalink to this definition">#</a></dt>
+<dd><p>Evaluate an <cite>ArchaiModel</cite> instance, optionally using a <cite>DatasetProvider</cite> and budget value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arch</strong> – Model to be evaluated.</p></li>
+<li><p><strong>dataset</strong> – A dataset provider object.</p></li>
+<li><p><strong>budget</strong> – A budget multiplier value, used by search algorithms like <cite>SucessiveHalving</cite>
+to specify how much compute should be spent in this evaluation. In order to use
+this type of search algorithm, the implementation of <cite>evaluate()</cite> must use the
+passed <cite>budget</cite> value accordingly.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Evaluation result.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="lookup-table">
 <h2>Lookup Table<a class="headerlink" href="#lookup-table" title="Permalink to this headline">#</a></h2>
@@ -1265,8 +1293,45 @@ passed <cite>budget</cite> value accordingly.</p></li>
 </dd></dl>
 
 </section>
-<section id="ray">
-<h2>Ray<a class="headerlink" href="#ray" title="Permalink to this headline">#</a></h2>
+<section id="module-archai.discrete_search.evaluators.ray">
+<span id="ray"></span><h2>Ray<a class="headerlink" href="#module-archai.discrete_search.evaluators.ray" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.evaluators.ray.RayParallelEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.ray.</span></span><span class="sig-name descname"><span class="pre">RayParallelEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.model_evaluator.ModelEvaluator" title="archai.discrete_search.api.model_evaluator.ModelEvaluator"><span class="pre">archai.discrete_search.api.model_evaluator.ModelEvaluator</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_stop</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">ray_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/ray.html#RayParallelEvaluator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.ray.RayParallelEvaluator" title="Permalink to this definition">#</a></dt>
+<dd><p>Wraps a <cite>ModelEvaluator</cite> object into an <cite>AsyncModelEvaluator</cite> with parallel execution using Ray.</p>
+<p><cite>RayParallelEvaluator</cite> expects a stateless objective function as input, meaning that any
+<cite>ModelEvaluator.evaluate(arch, …)</cite> will not alter the state of <cite>obj</cite> or <cite>arch</cite> in any way.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.evaluators.ray.RayParallelEvaluator.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/ray.html#RayParallelEvaluator.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.ray.RayParallelEvaluator.send" title="Permalink to this definition">#</a></dt>
+<dd><p>Send an evaluation job for a given (model, dataset, budget) triplet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arch</strong> – Model to be evaluated.</p></li>
+<li><p><strong>dataset</strong> – A dataset provider object.</p></li>
+<li><p><strong>budget</strong> – A budget multiplier value, used by search algorithms like <cite>SucessiveHalving</cite>
+to specify how much compute should be spent in this evaluation. In order to use
+this type of search algorithm, the implementation of <cite>send()</cite> must use the passed
+<cite>budget</cite> value accordingly.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.evaluators.ray.RayParallelEvaluator.fetch_all">
+<span class="sig-name descname"><span class="pre">fetch_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/ray.html#RayParallelEvaluator.fetch_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.ray.RayParallelEvaluator.fetch_all" title="Permalink to this definition">#</a></dt>
+<dd><p>Fetch all evaluation results from the job queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of evaluation results. Each result is a <cite>float</cite> or <cite>None</cite> if evaluation job failed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="remote-azure-benchmark">
 <h2>Remote Azure Benchmark<a class="headerlink" href="#remote-azure-benchmark" title="Permalink to this headline">#</a></h2>
@@ -1305,7 +1370,7 @@ passed <cite>budget</cite> value accordingly.</p></li>
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 07, 2023.<br/>
+    Last updated on Feb 13, 2023.<br/>
 </p>
         </footer>
     </div>

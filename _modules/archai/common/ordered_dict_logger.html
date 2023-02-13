@@ -882,7 +882,22 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="OrderedDictLogger"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.ordered_dict_logger.OrderedDictLogger">[docs]</a><span class="k">class</span> <span class="nc">OrderedDictLogger</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Log and save data in a hierarchical YAML structure.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Log and save data in a hierarchical YAML structure.</span>
+<span class="sd">    </span>
+<span class="sd">    The purpose of the structured logging is to store logs as key value pair.</span>
+<span class="sd">    However, when you have loop and sub routine calls, what you need is hierarchical</span>
+<span class="sd">    dictionaries where the value for a key could be a dictionary. The idea is that you</span>
+<span class="sd">    set one of the nodes in tree as current node and start logging your values. You can</span>
+<span class="sd">    then use pushd to create and go to child node and popd to come back to parent.</span>
+<span class="sd">    </span>
+<span class="sd">    To implement this mechanism we use two main variables: _stack allows us to push each node</span>
+<span class="sd">    on stack when pushd is called. The node is OrderedDictionary. As a convinience, we let</span>
+<span class="sd">    specify child path in pushd in which case child hierarchy is created and current node</span>
+<span class="sd">    will be set to the last node in specified path. When popd is called, we go back to</span>
+<span class="sd">    original parent instead of parent of current node. To implement this we use _paths </span>
+<span class="sd">    variable which stores subpath when each pushd call was made.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">delay</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">60.0</span>
@@ -1183,7 +1198,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 07, 2023.<br/>
+    Last updated on Feb 13, 2023.<br/>
 </p>
         </footer>
     </div>
