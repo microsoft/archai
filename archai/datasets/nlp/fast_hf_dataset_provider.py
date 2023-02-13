@@ -40,6 +40,7 @@ class FastHfDatasetProvider(DatasetProvider):
         dataset_config_name: Optional[str] = None,
         data_dir: Optional[str] = None,
         tokenizer_name: Optional[str] = "gpt2",
+        tokenizer_max_length: Optional[int] = 1024,
         mapping_column_name: Optional[List[str]] = None,
         cache_dir: Optional[str] = "cache",
         validation_split: Optional[float] = 0.1,
@@ -57,6 +58,7 @@ class FastHfDatasetProvider(DatasetProvider):
             dataset_config_name: Name of the dataset configuration.
             data_dir: Path to the data directory.
             tokenizer_name: Name of the tokenizer.
+            tokenizer_max_length: Maximum length of the tokenized sequences.
             mapping_column_name: The columns in `dataset` that should be tokenized.
             cache_dir: Path to the read/write cache directory.
             validation_split: Fraction of the dataset to use for validation.
@@ -72,6 +74,7 @@ class FastHfDatasetProvider(DatasetProvider):
         self.dataset_config_name = dataset_config_name
         self.data_dir = data_dir
         self.tokenizer_name = tokenizer_name
+        self.tokenizer_max_length = tokenizer_max_length
         self.mapping_column_name = mapping_column_name
         self.validation_split = validation_split
         self.seed = seed
@@ -107,6 +110,7 @@ class FastHfDatasetProvider(DatasetProvider):
             "dataset_config_name": self.dataset_config_name,
             "data_dir": self.data_dir,
             "tokenizer_name": self.tokenizer_name,
+            "tokenizer_max_length": self.tokenizer_max_length,
             "mapping_column_name": self.mapping_column_name,
             "validation_split": self.validation_split,
             "seed": self.seed,
@@ -118,6 +122,7 @@ class FastHfDatasetProvider(DatasetProvider):
 
     def _encode_dataset(self) -> None:
         tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
+        tokenizer.model_max_length = self.tokenizer_max_length
         dtype = np.uint16 if tokenizer.vocab_size < 64 * 1024 else np.int32
 
         # Ensures that the loaded dataset is always a dictionary
