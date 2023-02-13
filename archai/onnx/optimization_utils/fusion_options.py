@@ -42,6 +42,7 @@ class FusionOptions:
             self.enable_skip_layer_norm = False
 
         self.enable_attention = True
+        self.use_multi_head_attention = False
         self.attention_mask_format = AttentionMaskFormat.AttentionMask
 
     def use_raw_attention_mask(self, use_raw_mask: Optional[bool] = True) -> None:

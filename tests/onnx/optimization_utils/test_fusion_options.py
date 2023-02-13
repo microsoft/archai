@@ -29,6 +29,7 @@ def test_fusion_options():
     assert fusion_options.enable_skip_layer_norm is True
     assert fusion_options.enable_bias_skip_layer_norm is True
     assert fusion_options.enable_attention is True
+    assert fusion_options.use_multi_head_attention is False
     assert fusion_options.attention_mask_format == AttentionMaskFormat.AttentionMask
 
 
