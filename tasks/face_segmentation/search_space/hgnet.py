@@ -33,7 +33,7 @@ def hgnet_param_tree_factory(stem_strides: Tuple[int, ...] = (2, 4),
                     'op': DiscreteChoice(op_subset)
                 }, repeat_times=range(1, downsample_block_max_ops + 1), share_arch=False),
                 
-                'ch_expansion_factor': DiscreteChoice([0.8, 1.0, 1.2, 1.5, 1.6, 2.0, 2.2]),
+                'ch_expansion_factor': DiscreteChoice([1.0, 1.2, 1.5, 1.6, 2.0, 2.2]),
             }, repeat_times=num_blocks),
             
             'skip_blocks': repeat_config({
