@@ -9,7 +9,6 @@
 # Top-level folders
 /.github/ @gugarosa @piero2c
 /.vscode/ @sytelus
-/archai/ @sytelus @debadeepta @gugarosa @piero2c @caiom
 /confs/ @sytelus @debadeepta
 /docker/ @gugarosa
 /docs/ @gugarosa @piero2c
