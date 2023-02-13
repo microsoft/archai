@@ -1,0 +1,41 @@
+name: Notebook Tests Runner
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/getting_started/notebooks/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "docs/getting_started/notebooks/**"
+
+jobs:
+  run-tests:
+    name: Run notebook tests with `nbval`
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+    steps:
+      - name: Pulls the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Sets up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Installs the requirements
+        shell: bash -l {0}
+        run: |
+          sudo apt install -y graphviz
+          python -m pip install --user -e .[dev]
+          python -m pip install graphviz
+      - name: Tests notebooks
+        shell: bash -l {0}
+        run: |
+          pytest --nbval-lax docs/getting_started/notebooks
