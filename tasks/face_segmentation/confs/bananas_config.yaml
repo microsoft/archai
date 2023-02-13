@@ -25,17 +25,10 @@ search:
       post_upsample_max_ops: 2
 
   algorithm:
-    # name: evolution_pareto
-
-    # params:
-    #   init_num_models: 20
-    #   mutations_per_parent: 5
-    #   num_crossovers: 10
-    #   max_unseen_population: 50
-    #   num_random_mix: 5
     name: mo_bananas
 
     params:
       num_iters: 15
       init_num_models: 20
       mutations_per_parent: 5
+      num_candidates: 20

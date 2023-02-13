@@ -7,10 +7,10 @@ search:
       img_size: [256, 256] # (w, h)
       in_channels: 3
       op_subset: ['conv3x3', 'conv5x5', 'conv7x7']
-      stem_strides: [2, 4]
+      stem_strides: [2]
       
       # Number of downsampling blocks (without counting stem conv)
-      num_blocks: 4
+      num_blocks: 5
       
       # Maximum number of layers in downsampling blocks
       downsample_block_max_ops: 4
@@ -28,6 +28,7 @@ search:
     name: evolution_pareto
 
     params:
+      num_iters: 20
       init_num_models: 20
       mutations_per_parent: 5
       num_crossovers: 10
