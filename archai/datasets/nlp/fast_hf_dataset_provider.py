@@ -48,7 +48,7 @@ class FastHfDatasetProvider(DatasetProvider):
         seed: Optional[int] = 42,
         num_workers: Optional[int] = 1,
         use_shared_memory: Optional[bool] = True,
-        root_cache_dir: Optional[str] = "cache",
+        cache_dir: Optional[str] = "cache",
     ) -> None:
         """Initialize Fast Hugging Face-based dataset provider.
 
@@ -66,7 +66,7 @@ class FastHfDatasetProvider(DatasetProvider):
             seed: Random seed.
             num_workers: Number of workers to use for encoding.
             use_shared_memory: Whether to use shared memory for caching.
-            root_cache_dir: Root path to the cache directory.
+            cache_dir: Root path to the cache directory.
 
         """
 
@@ -82,11 +82,11 @@ class FastHfDatasetProvider(DatasetProvider):
         self.seed = seed
         self.num_workers = num_workers
         self.use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
-        self.root_cache_dir = root_cache_dir
+        self.cache_dir = cache_dir
 
         # Create full path where dataset will be cached
-        self.cache_dir = (
-            Path(root_cache_dir)
+        self.cache_data_dir = (
+            Path(cache_dir)
             / self.dataset_name
             / (self.dataset_config_name or "")
             / (self.data_dir or "")
@@ -94,17 +94,9 @@ class FastHfDatasetProvider(DatasetProvider):
         )
 
         # If cache is not available, encode the dataset and save it to cache
-        if not self.cache_dir.is_dir():
-            self.cache_dir.mkdir(parents=True, exist_ok=True)
+        if not self.cache_data_dir.is_dir():
+            self.cache_data_dir.mkdir(parents=True, exist_ok=True)
             self._encode_dataset()
-
-    @property
-    def fingerprint(self) -> str:
-        """Return a unique fingerprint for the dataset provider."""
-
-        return sha1(
-            f"{self.tokenizer_name}-{self.mapping_column_name}-{self.validation_split}-{self.seed}".encode("ascii")
-        ).hexdigest()
 
     @property
     def config(self) -> Dict[str, Any]:
@@ -119,10 +111,15 @@ class FastHfDatasetProvider(DatasetProvider):
             "mapping_column_name": self.mapping_column_name,
             "validation_split": self.validation_split,
             "seed": self.seed,
-            "num_workers": self.num_workers,
             "use_shared_memory": self.use_shared_memory,
-            "root_cache_dir": self.root_cache_dir,
+            "cache_dir": self.cache_dir,
         }
+
+    @property
+    def fingerprint(self) -> str:
+        """Return a unique fingerprint for the dataset provider."""
+
+        return sha1(repr(self.config).encode("ascii")).hexdigest()
 
     def _encode_dataset(self) -> None:
         tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
@@ -170,12 +167,12 @@ class FastHfDatasetProvider(DatasetProvider):
             dataset_dict = process_with_shared_memory(encoded_dataset, dtype, num_proc=self.num_workers)
         else:
             dataset_dict = process_with_memory_map_files(
-                encoded_dataset, self.cache_dir, dtype, num_proc=self.num_workers
+                encoded_dataset, self.cache_data_dir, dtype, num_proc=self.num_workers
             )
 
-        logger.info(f"Saving dataset to: {self.cache_dir}")
+        logger.info(f"Saving dataset to: {self.cache_data_dir}")
         for split, dataset in dataset_dict.items():
-            np.save(self.cache_dir / f"{split}.npy", dataset)
+            np.save(self.cache_data_dir / f"{split}.npy", dataset)
 
             # If using shared memory, dataset needs to have its shared memory
             # unlinked to prevent memory leak
@@ -186,9 +183,9 @@ class FastHfDatasetProvider(DatasetProvider):
             # closed to prevent an additional .bin file
             if not self.use_shared_memory:
                 dataset._mmap.close()
-                Path(self.cache_dir / f"{split}.bin").unlink()
+                Path(self.cache_data_dir / f"{split}.bin").unlink()
 
-        with open(self.cache_dir / "config.json", "w") as f:
+        with open(self.cache_data_dir / "config.json", "w") as f:
             json.dump(self.config, f)
 
     @classmethod
@@ -206,7 +203,7 @@ class FastHfDatasetProvider(DatasetProvider):
         cache_dir = Path(cache_dir)
         config_file = cache_dir / "config.json"
         if not config_file.is_file():
-            raise ValueError(f"Could not find dataset provider configuration in {cache_dir}.")
+            raise ValueError(f"Could not find configuration in {cache_dir}.")
 
         with open(config_file, "r") as f:
             config = json.load(f)
@@ -217,21 +214,21 @@ class FastHfDatasetProvider(DatasetProvider):
 
     @overrides
     def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        assert self.cache_dir.is_dir()
-        input_ids = np.load(self.cache_dir / "train.npy", mmap_mode="r")
+        assert self.cache_data_dir.is_dir()
+        input_ids = np.load(self.cache_data_dir / "train.npy", mmap_mode="r")
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 
     @overrides
     def get_val_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        assert self.cache_dir.is_dir()
-        input_ids = np.load(self.cache_dir / "validation.npy", mmap_mode="r")
+        assert self.cache_data_dir.is_dir()
+        input_ids = np.load(self.cache_data_dir / "validation.npy", mmap_mode="r")
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 
     @overrides
     def get_test_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        assert self.cache_dir.is_dir()
-        input_ids = np.load(self.cache_dir / "test.npy", mmap_mode="r")
+        assert self.cache_data_dir.is_dir()
+        input_ids = np.load(self.cache_data_dir / "test.npy", mmap_mode="r")
 
         return FastHfDataset(input_ids, seq_len=seq_len)
