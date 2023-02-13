@@ -76,7 +76,7 @@ extras_require["docs"] = filter_dependencies(
     "plotly",
     "nbimporter"
 )
-extras_require["tests"] = filter_dependencies("flake8", "nbval", "pytest")
+extras_require["tests"] = filter_dependencies("flake8", "nbval", "pytest", "nbimporter")
 extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
 
 install_requires = filter_dependencies(
