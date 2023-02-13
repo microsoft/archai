@@ -56,7 +56,7 @@ If you use Archai in a scientific publication, please consider citing it:
 
    First Time Contributor <contributing/first_contribution>
    Documentation <contributing/documentation>
-   Unitary Tests <contributing/unitary_tests>
+   Unit Tests <contributing/unit_tests>
 
 .. toctree::
    :hidden:

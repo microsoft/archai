@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Unitary Tests &#8212; Archai</title>
+    <title>Unit Tests &#8212; Archai</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -375,7 +375,7 @@
  </li>
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   Unitary Tests
+   Unit Tests
   </a>
  </li>
 </ul>
@@ -821,7 +821,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Fcontributing/unitary_tests.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Fcontributing/unit_tests.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -838,7 +838,7 @@ title="Open an issue"
       </li>
       
       <li>
-        <a href="https://github.com/microsoft/archai/edit/master/contributing/unitary_tests.rst"
+        <a href="https://github.com/microsoft/archai/edit/master/contributing/unit_tests.rst"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -869,7 +869,7 @@ title="Edit this page"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Unitary Tests</h1>
+                <h1>Unit Tests</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -881,13 +881,13 @@ title="Edit this page"
                 
               <div>
                 
-  <section id="unitary-tests">
-<h1>Unitary Tests<a class="headerlink" href="#unitary-tests" title="Permalink to this headline">#</a></h1>
-<p>The Archai project welcomes contributions through the implementation of unitary tests using Pytest. If you are interested in contributing to the project in this way, please follow these steps:</p>
+  <section id="unit-tests">
+<h1>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this headline">#</a></h1>
+<p>The Archai project welcomes contributions through the implementation of unit tests using Pytest. If you are interested in contributing to the project in this way, please follow these steps:</p>
 <ol class="arabic">
 <li><p>Ensure that Pytest is installed. You can install it using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">archai[tests]</span></code>.</p></li>
 <li><p>Check out the Archai codebase and create a new branch for your changes. This will allow for easy submission of your code as a pull request upon completion.</p></li>
-<li><p>Create a <code class="docutils literal notranslate"><span class="pre">.py</span></code> test file in the <a class="reference external" href="https://github.com/microsoft/archai/tree/main/tests">tests</a> directory. For example, if writing a unitary test for the <a class="reference external" href="https://github.com/microsoft/archai/tree/main/archai/trainers/nlp/hf_training_args.py">archai/trainers/nlp/hf_training_args.py</a> file, the corresponding path would be <a class="reference external" href="https://github.com/microsoft/archai/tree/main/tests/trainers/nlp/test_hf_training_args.py">tests/trainers/nlp/test_hf_training_args.py</a>.</p></li>
+<li><p>Create a <code class="docutils literal notranslate"><span class="pre">.py</span></code> test file in the <a class="reference external" href="https://github.com/microsoft/archai/tree/main/tests">tests</a> directory. For example, if writing a unit test for the <a class="reference external" href="https://github.com/microsoft/archai/tree/main/archai/trainers/nlp/hf_training_args.py">archai/trainers/nlp/hf_training_args.py</a> file, the corresponding path would be <a class="reference external" href="https://github.com/microsoft/archai/tree/main/tests/trainers/nlp/test_hf_training_args.py">tests/trainers/nlp/test_hf_training_args.py</a>.</p></li>
 <li><p>Write test functions inside the created file. These functions should be named using the pattern: <code class="docutils literal notranslate"><span class="pre">test_&lt;name</span> <span class="pre">of</span> <span class="pre">function</span> <span class="pre">being</span> <span class="pre">tested&gt;</span></code>.</p></li>
 <li><p>Test functions should utilize the assert statement to verify that the output of the tested function is correct. For example:</p>
 <blockquote>

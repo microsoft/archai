@@ -376,8 +376,8 @@
   </a>
  </li>
  <li class="toctree-l1">
-  <a class="reference internal" href="../../../contributing/unitary_tests.html">
-   Unitary Tests
+  <a class="reference internal" href="../../../contributing/unit_tests.html">
+   Unit Tests
   </a>
  </li>
 </ul>
@@ -1199,13 +1199,13 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="Training-a-CV-based-Model">
 <h1>Training a CV-based Model<a class="headerlink" href="#Training-a-CV-based-Model" title="Permalink to this headline">#</a></h1>
-<p>Training a CV-based model with PyTorch-Lightning is a simplified process, where the model architecture, loss function, and training process are defined using the <code class="docutils literal notranslate"><span class="pre">LightningModule</span></code>. Archai’s offers a set of dataset providers to load and pre-process the data. Additionally, Archai provides a <code class="docutils literal notranslate"><span class="pre">PlTrainer</span></code> which wraps the <code class="docutils literal notranslate"><span class="pre">TrainerBase</span></code> abstraction and exposes proper name for methods that are invoked in the searches’ evaluators.</p>
+<p>Training a CV-based model with PyTorch-Lightning is a simplified process, where the model architecture, loss function, and training process are defined using the <code class="docutils literal notranslate"><span class="pre">LightningModule</span></code>. Archai offers a set of dataset providers to load and pre-process the data. Additionally, Archai provides a <code class="docutils literal notranslate"><span class="pre">PlTrainer</span></code> which wraps the <code class="docutils literal notranslate"><span class="pre">TrainerBase</span></code> abstraction and renames methods so they fit in the search interface.</p>
 <section id="Loading-the-Data">
 <h2>Loading the Data<a class="headerlink" href="#Loading-the-Data" title="Permalink to this headline">#</a></h2>
 <p>When using a dataset provider, the data loading process is simplified, as the provider takes care of downloading and pre-processing the required dataset.</p>
 <p>This step is accomplished in the same way as the <a class="reference internal" href="cv_dataset_provider.html"><span class="doc">previous notebook</span></a>:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.datasets.cv.mnist_dataset_provider</span> <span class="kn">import</span> <span class="n">MnistDatasetProvider</span>
@@ -1229,13 +1229,14 @@ div.rendered_html tbody tr:hover {
 <li><p><code class="docutils literal notranslate"><span class="pre">configure_optimizers</span></code>: Defines the optimizer and attaches the model’s parameters.</p></li>
 </ul>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+
 
 <span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1271,8 +1272,6 @@ div.rendered_html tbody tr:hover {
     <span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">optimizer</span>
-
-<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1281,12 +1280,13 @@ div.rendered_html tbody tr:hover {
 <h2>Running the Trainer<a class="headerlink" href="#Running-the-Trainer" title="Permalink to this headline">#</a></h2>
 <p>The final step is to use the PyTorch-Lightning trainer abstraction (<code class="docutils literal notranslate"><span class="pre">PlTrainer</span></code>) to conduct the training process, which involves optimizing the model’s parameters using a pre-defined optimization algorithm and loss function, and updating the model’s parameters based on the training data. This process is repeated until the model converges to a satisfactory accuracy or performance level.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
 <span class="kn">from</span> <span class="nn">archai.trainers.cv.pl_trainer</span> <span class="kn">import</span> <span class="n">PlTrainer</span>
 
+<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">()</span>
 <span class="n">trainer</span> <span class="o">=</span> <span class="n">PlTrainer</span><span class="p">(</span><span class="n">max_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">limit_train_batches</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">limit_test_batches</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">limit_predict_batches</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">))</span>
@@ -1321,7 +1321,7 @@ HPU available: False, using: 0 HPUs
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "dba6a99f6dc347e7b42285253da35bf3", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "fdea4e8f500a48ffbb8b2f83c88f2d63", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -1335,27 +1335,26 @@ HPU available: False, using: 0 HPUs
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "7c88693a408544a89ae3504015f12bdb", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0d6371e9c99d46bb80add4afe33cd8f7", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-       Test metric             DataLoader 0
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-        val_loss             2.335841178894043
-────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-</pre></div></div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold">        Test metric        </span>┃<span style="font-weight: bold">       DataLoader 0        </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│<span style="color: #008080; text-decoration-color: #008080">         val_loss          </span>│<span style="color: #800080; text-decoration-color: #800080">     2.466376781463623     </span>│
+└───────────────────────────┴───────────────────────────┘
+</pre></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[{&#39;val_loss&#39;: 2.335841178894043}]
+[{&#39;val_loss&#39;: 2.466376781463623}]
 </pre></div></div>
 </div>
 </section>
