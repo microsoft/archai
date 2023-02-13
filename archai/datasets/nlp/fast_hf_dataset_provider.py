@@ -1,11 +1,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+from __future__ import annotations
+
 import json
 import sys
 from hashlib import sha1
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 from datasets import load_dataset as hf_load_dataset
@@ -42,11 +44,11 @@ class FastHfDatasetProvider(DatasetProvider):
         tokenizer_name: Optional[str] = "gpt2",
         tokenizer_max_length: Optional[int] = 1024,
         mapping_column_name: Optional[List[str]] = None,
-        cache_dir: Optional[str] = "cache",
         validation_split: Optional[float] = 0.1,
         seed: Optional[int] = 42,
         num_workers: Optional[int] = 1,
         use_shared_memory: Optional[bool] = True,
+        root_cache_dir: Optional[str] = "cache",
     ) -> None:
         """Initialize Fast Hugging Face-based dataset provider.
 
@@ -60,11 +62,11 @@ class FastHfDatasetProvider(DatasetProvider):
             tokenizer_name: Name of the tokenizer.
             tokenizer_max_length: Maximum length of the tokenized sequences.
             mapping_column_name: The columns in `dataset` that should be tokenized.
-            cache_dir: Path to the read/write cache directory.
             validation_split: Fraction of the dataset to use for validation.
             seed: Random seed.
             num_workers: Number of workers to use for encoding.
             use_shared_memory: Whether to use shared memory for caching.
+            root_cache_dir: Root path to the cache directory.
 
         """
 
@@ -80,8 +82,11 @@ class FastHfDatasetProvider(DatasetProvider):
         self.seed = seed
         self.num_workers = num_workers
         self.use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
+        self.root_cache_dir = root_cache_dir
+
+        # Create full path where dataset will be cached
         self.cache_dir = (
-            Path(cache_dir)
+            Path(root_cache_dir)
             / self.dataset_name
             / (self.dataset_config_name or "")
             / (self.data_dir or "")
@@ -116,8 +121,7 @@ class FastHfDatasetProvider(DatasetProvider):
             "seed": self.seed,
             "num_workers": self.num_workers,
             "use_shared_memory": self.use_shared_memory,
-            "fingerprint": self.fingerprint,
-            "cache_dir": self.cache_dir.as_posix(),
+            "root_cache_dir": self.root_cache_dir,
         }
 
     def _encode_dataset(self) -> None:
@@ -125,13 +129,13 @@ class FastHfDatasetProvider(DatasetProvider):
         tokenizer.model_max_length = self.tokenizer_max_length
         dtype = np.uint16 if tokenizer.vocab_size < 64 * 1024 else np.int32
 
-        # Ensures that the loaded dataset is always a dictionary
+        # Ensure that the loaded dataset is always a dictionary
         logger.info("Downloading dataset ...")
         raw_dataset = hf_load_dataset(self.dataset_name, name=self.dataset_config_name, data_dir=self.data_dir)
         if not isinstance(raw_dataset, DatasetDict):
             raw_dataset = DatasetDict({"train": raw_dataset})
 
-        # Ensures that `validation` and `test` splits are present
+        # Ensure that `validation` and `test` splits are present
         if "validation" not in raw_dataset:
             logger.info("Creating validation split ...")
 
@@ -186,6 +190,30 @@ class FastHfDatasetProvider(DatasetProvider):
 
         with open(self.cache_dir / "config.json", "w") as f:
             json.dump(self.config, f)
+
+    @classmethod
+    def from_cache(cls, cache_dir: Union[str, Path]) -> FastHfDatasetProvider:
+        """Load a dataset provider from a cache directory.
+
+        Args:
+            cache_dir: Path to the cache directory.
+
+        Returns:
+            Cached/encoded dataset provider.
+
+        """
+
+        cache_dir = Path(cache_dir)
+        config_file = cache_dir / "config.json"
+        if not config_file.is_file():
+            raise ValueError(f"Could not find dataset provider configuration in {cache_dir}.")
+
+        with open(config_file, "r") as f:
+            config = json.load(f)
+
+        dataset_name = config.pop("dataset_name")
+
+        return cls(dataset_name, **config)
 
     @overrides
     def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
