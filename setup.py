@@ -72,7 +72,8 @@ extras_require["docs"] = filter_dependencies(
     "sphinx_inline_tabs",
     "sphinxcontrib-programoutput",
     "sphinxcontrib-mermaid",
-    'plotly'
+    "plotly",
+    "nbimporter"
 )
 extras_require["tests"] = filter_dependencies("flake8", "nbval", "pytest")
 extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
