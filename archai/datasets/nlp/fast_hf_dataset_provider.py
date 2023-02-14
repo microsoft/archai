@@ -47,6 +47,7 @@ class FastHfDatasetProvider(DatasetProvider):
         validation_split: Optional[float] = 0.1,
         seed: Optional[int] = 42,
         num_workers: Optional[int] = 1,
+        use_eos_token: Optional[bool] = True,
         use_shared_memory: Optional[bool] = True,
         cache_dir: Optional[str] = "cache",
     ) -> None:
@@ -65,6 +66,7 @@ class FastHfDatasetProvider(DatasetProvider):
             validation_split: Fraction of the dataset to use for validation.
             seed: Random seed.
             num_workers: Number of workers to use for encoding.
+            use_eos_token: Whether to use EOS token to separate sequences.
             use_shared_memory: Whether to use shared memory for caching.
             cache_dir: Root path to the cache directory.
 
@@ -81,6 +83,7 @@ class FastHfDatasetProvider(DatasetProvider):
         self.validation_split = validation_split
         self.seed = seed
         self.num_workers = num_workers
+        self.use_eos_token = use_eos_token
         self.use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
         self.cache_dir = cache_dir
 
@@ -111,6 +114,7 @@ class FastHfDatasetProvider(DatasetProvider):
             "mapping_column_name": self.mapping_column_name,
             "validation_split": self.validation_split,
             "seed": self.seed,
+            "use_eos_token": self.use_eos_token,
             "use_shared_memory": self.use_shared_memory,
             "cache_dir": self.cache_dir,
         }
@@ -156,6 +160,7 @@ class FastHfDatasetProvider(DatasetProvider):
             fn_kwargs={
                 "tokenizer": tokenizer,
                 "mapping_column_name": self.mapping_column_name,
+                "use_eos_token": self.use_eos_token,
                 "dtype": dtype,
             },
             batched=True,
