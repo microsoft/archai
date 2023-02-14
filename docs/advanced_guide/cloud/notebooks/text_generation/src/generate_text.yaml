@@ -1,4 +1,3 @@
-name: generate_text
 display_name: Generates new tokens with a pre-trained model
 type: command
 compute: nas-gpu-cluster-NC6

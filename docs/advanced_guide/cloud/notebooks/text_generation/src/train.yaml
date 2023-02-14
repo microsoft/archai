@@ -1,4 +1,3 @@
-name: archai_train_transformer_flex
 display_name: Train a Pareto architecture from Transformer-Flex
 type: command
 compute: nas-gpu-cluster-NC6

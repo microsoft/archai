@@ -1,4 +1,3 @@
-name: archai_search_transformer_flex
 display_name: Search with Transformer-Flex
 type: command
 compute: nas-cpu-cluster-D14-v2
