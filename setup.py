@@ -13,6 +13,7 @@ dependencies = [
     "hyperopt",
     "kaleido",
     "matplotlib",
+    "nbimporter",
     "nbsphinx",
     "nbval",
     "onnx>=1.10.2",
@@ -43,8 +44,7 @@ dependencies = [
     "tokenizers>=0.10.3",
     "torchvision",
     "tqdm",
-    "transformers>=4.25.1",
-    "nbimporter"
+    "transformers>=4.25.1"
 ]
 dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)?$)", x)[0] for x in dependencies)}
 
