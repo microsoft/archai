@@ -5,15 +5,17 @@ from __future__ import annotations
 
 import json
 import sys
+from dataclasses import dataclass
 from hashlib import sha1
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Mapping, Optional, Union
 
 import numpy as np
+import torch
 from datasets import load_dataset as hf_load_dataset
 from datasets.dataset_dict import DatasetDict
 from overrides import overrides
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, DataCollatorForLanguageModeling
 
 from archai.api.dataset_provider import DatasetProvider
 from archai.common.ordered_dict_logger import OrderedDictLogger
@@ -237,3 +239,21 @@ class FastHfDatasetProvider(DatasetProvider):
         input_ids = np.load(self.cache_data_dir / "test.npy", mmap_mode="r")
 
         return FastHfDataset(input_ids, seq_len=seq_len)
+
+
+@dataclass
+class FastDataCollatorForLanguageModeling(DataCollatorForLanguageModeling):
+    """Language modeling data collator compatible with FastHfDataset."""
+
+    use_original_labels: bool = False
+
+    def torch_call(self, examples: List[Union[List[int], Any, Dict[str, Any]]]) -> Dict[str, Any]:
+        if isinstance(examples[0], Mapping):
+            return super().torch_call(examples)
+
+        batch = super().torch_call([example[0] for example in examples])
+
+        if self.use_original_labels:
+            batch["labels"] = torch.stack([example[1] for example in examples], dim=0)
+
+        return batch
