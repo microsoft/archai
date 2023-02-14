@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import math
 import mmap
 import sys
 from typing import Any, Dict, Optional, Tuple
@@ -40,7 +41,7 @@ class FastHfDataset(Dataset):
 
         # `input_ids` should not be sliced since they could be memory mapped
         self.input_ids = input_ids
-        self.n_sequences = np.ceil((self.n_input_ids - 1) / self.seq_len)
+        self.n_sequences = math.ceil((self.n_input_ids - 1) / self.seq_len)
 
     def __len__(self) -> int:
         return self.n_sequences
