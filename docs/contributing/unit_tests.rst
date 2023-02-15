@@ -1,13 +1,13 @@
-Unitary Tests
-=============
+Unit Tests
+==========
 
-The Archai project welcomes contributions through the implementation of unitary tests using Pytest. If you are interested in contributing to the project in this way, please follow these steps:
+The Archai project welcomes contributions through the implementation of unit tests using Pytest. If you are interested in contributing to the project in this way, please follow these steps:
 
 #. Ensure that Pytest is installed. You can install it using ``pip install archai[tests]``.
 
 #. Check out the Archai codebase and create a new branch for your changes. This will allow for easy submission of your code as a pull request upon completion.
 
-#. Create a ``.py`` test file in the :github:`tests` directory. For example, if writing a unitary test for the :github:`archai/trainers/nlp/hf_training_args.py` file, the corresponding path would be :github:`tests/trainers/nlp/test_hf_training_args.py`.
+#. Create a ``.py`` test file in the :github:`tests` directory. For example, if writing a unit test for the :github:`archai/trainers/nlp/hf_training_args.py` file, the corresponding path would be :github:`tests/trainers/nlp/test_hf_training_args.py`.
 
 #. Write test functions inside the created file. These functions should be named using the pattern: ``test_<name of function being tested>``.
 

@@ -1,4 +1,4 @@
-name: Linter and Tests Runner
+name: Linter and Unit Tests Runner
 
 on:
   push:
@@ -15,8 +15,8 @@ on:
       - "tests/**"
 
 jobs:
-  lint-run:
-    name: Lints with Flake8 and run tests with Pytest
+  lint-run-tests:
+    name: Lints with Flake8 and run unit tests with Pytest
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -37,21 +37,17 @@ jobs:
           sudo apt install -y graphviz
           python -m pip install --user -e .[dev]
           python -m pip install graphviz
-      - name: Finds Python syntax errors and undefined names
+      - name: Finds syntax errors and undefined names
         shell: bash -l {0}
         run: |
-          # Stops the build if there are Python syntax errors or undefined names
+          # Stops the build if there are syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
       - name: Lints the files
         shell: bash -l {0}
         run: |
           # Exit-zero treats all errors as warnings (GitHub editor is 127 chars wide)
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Runs unitary tests
+      - name: Runs unit tests
         shell: bash -l {0}
         run: |
           pytest tests
-      - name: Tests documentation notebooks
-        shell: bash -l {0}
-        run: |
-          pytest --nbval-lax docs/getting_started/notebooks
