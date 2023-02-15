@@ -171,3 +171,18 @@ def process_with_memory_map_files(
         processed_dataset_dict[split] = np.memmap(file_path, dtype=dtype, mode="r", shape=(length,))
 
     return processed_dataset_dict
+
+
+def xor(p: Any, q: Any) -> bool:
+    """Implements the logical XOR operator.
+
+    Args:
+        p: Any instance that may act as `True` or `False`.
+        q: Any instance that may act as `True` or `False`.
+
+    Returns:
+        Logical value.
+
+    """
+
+    return (p and not q) or (not p and q)

@@ -23,6 +23,7 @@ from archai.datasets.nlp.fast_hf_dataset_provider_utils import (
     FastHfDataset,
     process_with_memory_map_files,
     process_with_shared_memory,
+    xor,
 )
 from archai.datasets.nlp.hf_dataset_provider_utils import tokenize_concatenated_dataset
 
@@ -43,8 +44,9 @@ class FastHfDatasetProvider(DatasetProvider):
         dataset_name: str,
         dataset_config_name: Optional[str] = None,
         data_dir: Optional[str] = None,
-        tokenizer_name: Optional[str] = "gpt2",
-        tokenizer_max_length: Optional[int] = 1024,
+        tokenizer: Optional[AutoTokenizer] = None,
+        tokenizer_name: Optional[str] = None,
+        tokenizer_max_length: Optional[int] = None,
         mapping_column_name: Optional[List[str]] = None,
         validation_split: Optional[float] = 0.1,
         seed: Optional[int] = 42,
@@ -62,7 +64,8 @@ class FastHfDatasetProvider(DatasetProvider):
             dataset_name: Name of the dataset.
             dataset_config_name: Name of the dataset configuration.
             data_dir: Path to the data directory.
-            tokenizer_name: Name of the tokenizer.
+            tokenizer: Instance of tokenizer to use.
+            tokenizer_name: Name of the tokenizer, if `tokenizer` has not been passed.
             tokenizer_max_length: Maximum length of the tokenized sequences.
             mapping_column_name: The columns in `dataset` that should be tokenized.
             validation_split: Fraction of the dataset to use for validation.
@@ -79,8 +82,13 @@ class FastHfDatasetProvider(DatasetProvider):
         self.dataset_name = dataset_name
         self.dataset_config_name = dataset_config_name
         self.data_dir = data_dir
-        self.tokenizer_name = tokenizer_name
-        self.tokenizer_max_length = tokenizer_max_length
+
+        assert xor(tokenizer, tokenizer_name), "`tokenizer` and `tokenizer_name` are mutually exclusive."
+        self.tokenizer = tokenizer or AutoTokenizer.from_pretrained(tokenizer_name)
+        if tokenizer_max_length:
+            logger.warn(f"New maximum length set for the tokenizer: {tokenizer_max_length}.")
+            self.tokenizer.model_max_length = tokenizer_max_length
+
         self.mapping_column_name = mapping_column_name
         self.validation_split = validation_split
         self.seed = seed
@@ -111,8 +119,7 @@ class FastHfDatasetProvider(DatasetProvider):
             "dataset_name": self.dataset_name,
             "dataset_config_name": self.dataset_config_name,
             "data_dir": self.data_dir,
-            "tokenizer_name": self.tokenizer_name,
-            "tokenizer_max_length": self.tokenizer_max_length,
+            "tokenizer": repr(self.tokenizer),
             "mapping_column_name": self.mapping_column_name,
             "validation_split": self.validation_split,
             "seed": self.seed,
@@ -128,9 +135,7 @@ class FastHfDatasetProvider(DatasetProvider):
         return sha1(repr(self.config).encode("ascii")).hexdigest()
 
     def _encode_dataset(self) -> None:
-        tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
-        tokenizer.model_max_length = self.tokenizer_max_length
-        dtype = np.uint16 if tokenizer.vocab_size < 64 * 1024 else np.int32
+        dtype = np.uint16 if self.tokenizer.vocab_size < 64 * 1024 else np.int32
 
         # Ensure that the loaded dataset is always a dictionary
         logger.info("Downloading dataset ...")
@@ -160,7 +165,7 @@ class FastHfDatasetProvider(DatasetProvider):
         encoded_dataset = raw_dataset.map(
             tokenize_concatenated_dataset,
             fn_kwargs={
-                "tokenizer": tokenizer,
+                "tokenizer": self.tokenizer,
                 "mapping_column_name": self.mapping_column_name,
                 "use_eos_token": self.use_eos_token,
                 "dtype": dtype,
@@ -243,9 +248,14 @@ class FastHfDatasetProvider(DatasetProvider):
 
 @dataclass
 class FastDataCollatorForLanguageModeling(DataCollatorForLanguageModeling):
-    """Language modeling data collator compatible with FastHfDataset."""
+    """Language modeling data collator compatible with FastHfDataset.
 
-    use_original_labels: bool = False
+    Args:
+        use_shifted_labels: Whether to use the original labels (shifted) or the non-shifted labels.
+
+    """
+
+    use_shifted_labels: bool = False
 
     def torch_call(self, examples: List[Union[List[int], Any, Dict[str, Any]]]) -> Dict[str, Any]:
         if isinstance(examples[0], Mapping):
@@ -253,7 +263,7 @@ class FastDataCollatorForLanguageModeling(DataCollatorForLanguageModeling):
 
         batch = super().torch_call([example[0] for example in examples])
 
-        if self.use_original_labels:
+        if self.use_shifted_labels:
             batch["labels"] = torch.stack([example[1] for example in examples], dim=0)
 
         return batch
