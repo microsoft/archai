@@ -20,7 +20,10 @@ The default installation only includes the core functionality of Archai, e.g., N
 
 * Computer Vision: ``pip install archai[cv]``.
 * Natural Language Processing: ``pip install archai[nlp]``.
-* Built-in Modules (all modules above): ``pip install archai[all]``.
+* Built-in Modules (cv + nlp): ``pip install archai[all]``.
+* Documentation and Notebooks: ``pip install archai[docs]``.
+* Unit Tests: ``pip install archai[tests]``.
+* Development: ``pip install archai[dev]``.
 
 Source
 ------
