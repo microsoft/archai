@@ -215,6 +215,11 @@
     </label>
     <ul class="current">
      <li class="toctree-l3">
+      <a class="reference internal" href="fast_hf_dataset_provider.html">
+       Rapid NLP-based Data Creation/Encoding using Memory Mapping
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="hf_dataset_provider.html">
        HF Dataset Provider
       </a>
@@ -1217,7 +1222,7 @@ div.rendered_html tbody tr:hover {
 <span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span>
 
 <span class="n">collator</span> <span class="o">=</span> <span class="n">DataCollatorForLanguageModeling</span><span class="p">(</span><span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">mlm</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">HfHubDatasetProvider</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;wikitext&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;wikitext-103-raw-v1&quot;</span><span class="p">)</span>
+<span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">HfHubDatasetProvider</span><span class="p">(</span><span class="s2">&quot;wikitext&quot;</span><span class="p">,</span> <span class="n">dataset_config_name</span><span class="o">=</span><span class="s2">&quot;wikitext-103-raw-v1&quot;</span><span class="p">)</span>
 
 <span class="c1"># When loading `train_dataset`, we will override the split argument to only load 1%</span>
 <span class="c1"># of the data and speed up its encoding</span>
@@ -1226,65 +1231,14 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "953c7cc4e2d3496b96cc137ede4cbac4", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-c:\Users\gderosa\Anaconda3\envs\archai\lib\site-packages\huggingface_hub\file_download.py:129: UserWarning: `huggingface_hub` cache-system uses symlinks by default to efficiently store duplicated files but your machine does not support them in C:\Users\gderosa\.cache\huggingface\hub. Caching files will still work but in a degraded version that might require more space on your disk. This warning can be disabled by setting the `HF_HUB_DISABLE_SYMLINKS_WARNING` environment variable. For more details, see https://huggingface.co/docs/huggingface_hub/how-to-cache#limitations.
-To support symlinks on Windows, you either need to activate Developer Mode or to run Python as an administrator. In order to see activate developer mode, see this article: https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
-  warnings.warn(message)
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "b15f1853cc0f4a7bb0d4109701f2b501", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "b2ec836b48a9477c87ab3c6f18c7ca74", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "29202e3813f34423a120a63da4b2f520", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "62bd358138da4c83a2519af22702bb0b", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0adf3904d47a4cbcaf10e4b18d596c62", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 Found cached dataset wikitext (C:/Users/gderosa/.cache/huggingface/datasets/wikitext/wikitext-103-raw-v1/1.0.0/a241db52902eaf2c6aa732210bead40c090019a499ceb13bcbfa3f8ab646a126)
+Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets\wikitext\wikitext-103-raw-v1\1.0.0\a241db52902eaf2c6aa732210bead40c090019a499ceb13bcbfa3f8ab646a126\cache-04d7ff93d438ade6.arrow
 </pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8cddeee2ae9841f58e9def82424fdb29", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 </section>
 <section id="Defining-the-Model">
@@ -1364,7 +1318,7 @@ c:\Users\gderosa\Anaconda3\envs\archai\lib\site-packages\transformers\optimizati
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "cd9c4615466546a5b6180ad7da7e7b87", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8600bd55454d42bd9f1e824f41e8e532", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -1386,8 +1340,26 @@ Training completed. Do not forget to share your model on huggingface.co/models =
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;loss&#39;: 11.0746, &#39;learning_rate&#39;: 0.0, &#39;epoch&#39;: 0.0}
-{&#39;train_runtime&#39;: 13.891, &#39;train_samples_per_second&#39;: 0.072, &#39;train_steps_per_second&#39;: 0.072, &#39;train_loss&#39;: 11.074588775634766, &#39;epoch&#39;: 0.0}
+Attempted to log scalar metric loss:
+11.0034
+Attempted to log scalar metric learning_rate:
+0.0
+Attempted to log scalar metric epoch:
+0.0
+{&#39;loss&#39;: 11.0034, &#39;learning_rate&#39;: 0.0, &#39;epoch&#39;: 0.0}
+Attempted to log scalar metric train_runtime:
+10.6794
+Attempted to log scalar metric train_samples_per_second:
+0.094
+Attempted to log scalar metric train_steps_per_second:
+0.094
+Attempted to log scalar metric total_flos:
+759874922496.0
+Attempted to log scalar metric train_loss:
+11.003437995910645
+Attempted to log scalar metric epoch:
+0.0
+{&#39;train_runtime&#39;: 10.6794, &#39;train_samples_per_second&#39;: 0.094, &#39;train_steps_per_second&#39;: 0.094, &#39;train_loss&#39;: 11.003437995910645, &#39;epoch&#39;: 0.0}
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1396,7 +1368,7 @@ Training completed. Do not forget to share your model on huggingface.co/models =
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-TrainOutput(global_step=1, training_loss=11.074588775634766, metrics={&#39;train_runtime&#39;: 13.891, &#39;train_samples_per_second&#39;: 0.072, &#39;train_steps_per_second&#39;: 0.072, &#39;train_loss&#39;: 11.074588775634766, &#39;epoch&#39;: 0.0})
+TrainOutput(global_step=1, training_loss=11.003437995910645, metrics={&#39;train_runtime&#39;: 10.6794, &#39;train_samples_per_second&#39;: 0.094, &#39;train_steps_per_second&#39;: 0.094, &#39;train_loss&#39;: 11.003437995910645, &#39;epoch&#39;: 0.0})
 </pre></div></div>
 </div>
 </section>
@@ -1434,7 +1406,7 @@ TrainOutput(global_step=1, training_loss=11.074588775634766, metrics={&#39;train
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 13, 2023.<br/>
+    Last updated on Feb 16, 2023.<br/>
 </p>
         </footer>
     </div>

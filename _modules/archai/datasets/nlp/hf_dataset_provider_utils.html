@@ -210,6 +210,11 @@
     </label>
     <ul>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/nlp/fast_hf_dataset_provider.html">
+       Rapid NLP-based Data Creation/Encoding using Memory Mapping
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../../getting_started/notebooks/nlp/hf_dataset_provider.html">
        HF Dataset Provider
       </a>
@@ -869,6 +874,7 @@ title="Open an issue"
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">datasets.arrow_dataset</span> <span class="kn">import</span> <span class="n">Dataset</span>
 <span class="kn">from</span> <span class="nn">datasets.dataset_dict</span> <span class="kn">import</span> <span class="n">DatasetDict</span><span class="p">,</span> <span class="n">IterableDatasetDict</span>
 <span class="kn">from</span> <span class="nn">datasets.download.download_manager</span> <span class="kn">import</span> <span class="n">DownloadMode</span>
@@ -899,12 +905,12 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="tokenize_dataset"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.hf_dataset_provider_utils.tokenize_dataset">[docs]</a><span class="k">def</span> <span class="nf">tokenize_dataset</span><span class="p">(</span>
-    <span class="n">examples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">examples</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_eos_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">truncate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">padding</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;max_length&quot;</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tokenize a list of examples using a specified tokenizer.</span>
 
@@ -912,6 +918,7 @@ title="Open an issue"
 <span class="sd">        examples: A list of examples to be tokenized.</span>
 <span class="sd">        tokenizer: The tokenizer to use.</span>
 <span class="sd">        mapping_column_name: The columns in `examples` that should be tokenized.</span>
+<span class="sd">        use_eos_token: Whether to append the EOS token to each example.</span>
 <span class="sd">        truncate: Whether truncation should be applied.</span>
 <span class="sd">        padding: Whether padding should be applied.</span>
 
@@ -920,20 +927,60 @@ title="Open an issue"
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="nf">_add_eos_token</span><span class="p">(</span><span class="n">examples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">example</span> <span class="o">+</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span> <span class="k">if</span> <span class="n">example</span> <span class="k">else</span> <span class="n">example</span> <span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">examples</span><span class="p">]</span>
+
     <span class="k">if</span> <span class="n">mapping_column_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mapping_column_name</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span>
 
-    <span class="n">examples_mapping</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">mapping_column_name</span><span class="p">)</span>
+    <span class="n">examples_mapping</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+        <span class="n">_add_eos_token</span><span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="n">column_name</span><span class="p">])</span> <span class="k">if</span> <span class="n">use_eos_token</span> <span class="k">else</span> <span class="n">examples</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">mapping_column_name</span>
+    <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">tokenizer</span><span class="p">(</span><span class="o">*</span><span class="n">examples_mapping</span><span class="p">,</span> <span class="n">truncation</span><span class="o">=</span><span class="n">truncate</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="tokenize_concatenated_dataset"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.hf_dataset_provider_utils.tokenize_concatenated_dataset">[docs]</a><span class="k">def</span> <span class="nf">tokenize_concatenated_dataset</span><span class="p">(</span>
+    <span class="n">examples</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_eos_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tokenize a list of examples using a specified tokenizer and</span>
+<span class="sd">    with concatenated batches (no truncation nor padding).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        examples: A list of examples to be tokenized.</span>
+<span class="sd">        tokenizer: The tokenizer to use.</span>
+<span class="sd">        mapping_column_name: The columns in `examples` that should be tokenized.</span>
+<span class="sd">        use_eos_token: Whether to append the EOS token to each example.</span>
+<span class="sd">        dtype: Numpy data type of the tokenized examples.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Concatenated tokenized examples.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">examples</span> <span class="o">=</span> <span class="n">tokenize_dataset</span><span class="p">(</span>
+        <span class="n">examples</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+        <span class="n">mapping_column_name</span><span class="o">=</span><span class="n">mapping_column_name</span><span class="p">,</span>
+        <span class="n">use_eos_token</span><span class="o">=</span><span class="n">use_eos_token</span><span class="p">,</span>
+        <span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">tokenized_examples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">examples</span><span class="p">[</span><span class="s2">&quot;input_ids&quot;</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;input_ids&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">tokenized_examples</span><span class="p">],</span> <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">tokenized_examples</span><span class="p">)]}</span></div>
+
+
 <div class="viewcode-block" id="tokenize_contiguous_dataset"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.hf_dataset_provider_utils.tokenize_contiguous_dataset">[docs]</a><span class="k">def</span> <span class="nf">tokenize_contiguous_dataset</span><span class="p">(</span>
-    <span class="n">examples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">examples</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">model_max_length</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tokenize a list of examples using a specified tokenizer and</span>
 <span class="sd">    with contiguous-length batches (no truncation nor padding).</span>
@@ -968,12 +1015,11 @@ title="Open an issue"
 
 
 <div class="viewcode-block" id="tokenize_nsp_dataset"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.hf_dataset_provider_utils.tokenize_nsp_dataset">[docs]</a><span class="k">def</span> <span class="nf">tokenize_nsp_dataset</span><span class="p">(</span>
-    <span class="n">examples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">examples</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
     <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">truncate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">padding</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;max_length&quot;</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Tokenize a list of examples using a specified tokenizer and</span>
 <span class="sd">    with next-sentence prediction (NSP).</span>
@@ -1096,7 +1142,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 13, 2023.<br/>
+    Last updated on Feb 16, 2023.<br/>
 </p>
         </footer>
     </div>

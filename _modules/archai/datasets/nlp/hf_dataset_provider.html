@@ -210,6 +210,11 @@
     </label>
     <ul>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/nlp/fast_hf_dataset_provider.html">
+       Rapid NLP-based Data Creation/Encoding using Memory Mapping
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../../getting_started/notebooks/nlp/hf_dataset_provider.html">
        HF Dataset Provider
       </a>
@@ -888,8 +893,8 @@ title="Open an issue"
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dataset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;wikitext&quot;</span><span class="p">,</span>
-        <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;wikitext-2-raw-v1&quot;</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dataset_config_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">data_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">data_files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -898,8 +903,8 @@ title="Open an issue"
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize Hugging Face Hub dataset provider.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            dataset: Name of the dataset.</span>
-<span class="sd">            subset: Name of the dataset configuration.</span>
+<span class="sd">            dataset_name: Name of the dataset.</span>
+<span class="sd">            dataset_config_name: Name of the dataset configuration.</span>
 <span class="sd">            data_dir: Path to the data directory.</span>
 <span class="sd">            data_files: Path(s) to the data file(s).</span>
 <span class="sd">            cache_dir: Path to the read/write cache directory.</span>
@@ -909,8 +914,8 @@ title="Open an issue"
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span> <span class="o">=</span> <span class="n">dataset_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_config_name</span> <span class="o">=</span> <span class="n">dataset_config_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">data_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_files</span> <span class="o">=</span> <span class="n">data_files</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache_dir</span> <span class="o">=</span> <span class="n">cache_dir</span>
@@ -924,8 +929,8 @@ title="Open an issue"
         <span class="n">streaming</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">DatasetDict</span><span class="p">,</span> <span class="n">IterableDataset</span><span class="p">,</span> <span class="n">IterableDatasetDict</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">hf_load_dataset</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">subset</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_config_name</span><span class="p">,</span>
             <span class="n">data_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span>
             <span class="n">data_files</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_files</span><span class="p">,</span>
             <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span>
@@ -1051,7 +1056,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 13, 2023.<br/>
+    Last updated on Feb 16, 2023.<br/>
 </p>
         </footer>
     </div>

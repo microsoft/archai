@@ -210,6 +210,11 @@
     </label>
     <ul>
      <li class="toctree-l3">
+      <a class="reference internal" href="../../../../getting_started/notebooks/nlp/fast_hf_dataset_provider.html">
+       Rapid NLP-based Data Creation/Encoding using Memory Mapping
+      </a>
+     </li>
+     <li class="toctree-l3">
       <a class="reference internal" href="../../../../getting_started/notebooks/nlp/hf_dataset_provider.html">
        HF Dataset Provider
       </a>
@@ -906,6 +911,7 @@ title="Open an issue"
             <span class="bp">self</span><span class="o">.</span><span class="n">enable_skip_layer_norm</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">enable_attention</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_multi_head_attention</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attention_mask_format</span> <span class="o">=</span> <span class="n">AttentionMaskFormat</span><span class="o">.</span><span class="n">AttentionMask</span>
 
 <div class="viewcode-block" id="FusionOptions.use_raw_attention_mask"><a class="viewcode-back" href="../../../../reference/api/archai.onnx.optimization_utils.html#archai.onnx.optimization_utils.fusion_options.FusionOptions.use_raw_attention_mask">[docs]</a>    <span class="k">def</span> <span class="nf">use_raw_attention_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_raw_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -944,7 +950,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 13, 2023.<br/>
+    Last updated on Feb 16, 2023.<br/>
 </p>
         </footer>
     </div>

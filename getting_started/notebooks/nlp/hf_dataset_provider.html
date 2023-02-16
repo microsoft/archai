@@ -42,7 +42,7 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Training NLP-based Models with Hugging Face" href="hf_trainer.html" />
-    <link rel="prev" title="Natural Language Processing" href="../nlp.html" />
+    <link rel="prev" title="Rapid NLP-based Data Creation/Encoding using Memory Mapping" href="fast_hf_dataset_provider.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -214,6 +214,11 @@
      </i>
     </label>
     <ul class="current">
+     <li class="toctree-l3">
+      <a class="reference internal" href="fast_hf_dataset_provider.html">
+       Rapid NLP-based Data Creation/Encoding using Memory Mapping
+      </a>
+     </li>
      <li class="toctree-l3 current active">
       <a class="current reference internal" href="#">
        HF Dataset Provider
@@ -1193,22 +1198,21 @@ div.rendered_html tbody tr:hover {
 <section id="Loading-the-Data">
 <h2>Loading the Data<a class="headerlink" href="#Loading-the-Data" title="Permalink to this headline">#</a></h2>
 <p>The first step is to create an instance of the <code class="docutils literal notranslate"><span class="pre">HfHubDatasetProvider</span></code>, which offers pre-loads the dataset and offers three methods to retrieve them: <code class="docutils literal notranslate"><span class="pre">get_train_dataset()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_val_dataset()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_test_dataset()</span></code>.</p>
-<p>Additionally, a set of arguments can be passed to its constructor according to the user’s needs:</p>
+<p>Additionally, a set of additional arguments can be passed to its constructor according to the user’s needs:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">dataset</span></code>: Name of the dataset.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">subset</span></code>: Name of the dataset configuration.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dataset_config_name</span></code>: Name of the dataset configuration.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">data_dir</span></code>: Path to the data directory.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">data_files</span></code>: Path(s) to the data file(s).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cache_dir</span></code>: Path to the read/write cache directory.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">revision</span></code>: Version of the dataset to load.</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.datasets.nlp.hf_dataset_provider</span> <span class="kn">import</span> <span class="n">HfHubDatasetProvider</span>
 
-<span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">HfHubDatasetProvider</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;glue&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;sst2&quot;</span><span class="p">)</span>
+<span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">HfHubDatasetProvider</span><span class="p">(</span><span class="s2">&quot;glue&quot;</span><span class="p">,</span> <span class="n">dataset_config_name</span><span class="o">=</span><span class="s2">&quot;sst2&quot;</span><span class="p">)</span>
 
 <span class="c1"># When loading `train_dataset`, we will override the split argument to only load 1%</span>
 <span class="c1"># of the data and speed up its encoding</span>
@@ -1252,7 +1256,7 @@ Dataset({
 <li><p><code class="docutils literal notranslate"><span class="pre">tokenize_nsp_dataset</span></code>: Tokenize a list of examples using a specified tokenizer and with next-sentence prediction (NSP).</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoTokenizer</span>
@@ -1270,14 +1274,16 @@ Dataset({
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "191c63e1183b4fe58d462afb6c582bb8", "version_major": 2, "version_minor": 0}</script></div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets\glue\sst2\1.0.0\dacbe3125aa31d7f70367a07a8a9e72a5a0bfeb5fc42e75c9db75b96da6053ad\cache-c989f437f7c0d7ad.arrow
+</pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1217b8d1d9f84f0d9dd737f2d1024876", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f7156f9c30db4c8193e6417f84fc693f", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -1304,11 +1310,11 @@ Dataset({
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="../nlp.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="fast_hf_dataset_provider.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Natural Language Processing</p>
+            <p class="prev-next-title">Rapid NLP-based Data Creation/Encoding using Memory Mapping</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="hf_trainer.html" title="next page">
@@ -1328,7 +1334,7 @@ Dataset({
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 13, 2023.<br/>
+    Last updated on Feb 16, 2023.<br/>
 </p>
         </footer>
     </div>
