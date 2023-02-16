@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import pickle
 import sys
 from dataclasses import dataclass
 from hashlib import sha1
@@ -119,7 +120,10 @@ class FastHfDatasetProvider(DatasetProvider):
             "dataset_name": self.dataset_name,
             "dataset_config_name": self.dataset_config_name,
             "data_dir": self.data_dir,
-            "tokenizer": repr(self.tokenizer),
+            "tokenizer": {
+                "name_or_path": self.tokenizer.name_or_path,
+                "model_max_length": self.tokenizer.model_max_length,
+            },
             "mapping_column_name": self.mapping_column_name,
             "validation_split": self.validation_split,
             "seed": self.seed,
@@ -199,6 +203,8 @@ class FastHfDatasetProvider(DatasetProvider):
 
         with open(self.cache_data_dir / "config.json", "w") as f:
             json.dump(self.config, f)
+        with open(self.cache_data_dir / "tokenizer.pkl", "wb") as f:
+            pickle.dump(self.tokenizer, f)
 
     @classmethod
     def from_cache(cls, cache_dir: Union[str, Path]) -> FastHfDatasetProvider:
@@ -214,15 +220,25 @@ class FastHfDatasetProvider(DatasetProvider):
 
         cache_dir = Path(cache_dir)
         config_file = cache_dir / "config.json"
+        tokenizer_file = cache_dir / "tokenizer.pkl"
+
         if not config_file.is_file():
             raise ValueError(f"Could not find configuration in {cache_dir}.")
+        if not tokenizer_file.is_file():
+            raise ValueError(f"Could not find tokenizer in {cache_dir}.")
 
         with open(config_file, "r") as f:
             config = json.load(f)
+        with open(tokenizer_file, "rb") as f:
+            tokenizer = pickle.load(f)
 
         dataset_name = config.pop("dataset_name")
 
-        return cls(dataset_name, **config)
+        # Removes `tokenizer` from config as its only informative and
+        # does not correspond to the actual class instance
+        _ = config.pop("tokenizer")
+
+        return cls(dataset_name, tokenizer=tokenizer, **config)
 
     @overrides
     def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
