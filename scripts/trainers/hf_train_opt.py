@@ -62,8 +62,8 @@ if __name__ == "__main__":
         tokenizer=tokenizer,
     )
 
-    train_dataset = dataset_provider.get_train_dataset()
-    eval_dataset = dataset_provider.get_val_dataset()
+    train_dataset = dataset_provider.get_train_dataset(seq_len=args.seq_len)
+    eval_dataset = dataset_provider.get_val_dataset(seq_len=args.seq_len)
 
     config = OPTConfig(
         n_positions=args.seq_len,
