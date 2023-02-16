@@ -234,7 +234,7 @@ class FastHfDatasetProvider(DatasetProvider):
 
         dataset_name = config.pop("dataset_name")
 
-        # Removes `tokenizer` from config as its only informative and
+        # Removes `tokenizer` from config (used to compose the fingerprint) as it
         # does not correspond to the actual class instance
         _ = config.pop("tokenizer")
 
