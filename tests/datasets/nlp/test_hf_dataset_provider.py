@@ -10,7 +10,7 @@ from archai.datasets.nlp.hf_dataset_provider import (
 
 
 def test_hf_hub_dataset_provider():
-    dataset_provider = HfHubDatasetProvider("glue", "sst2")
+    dataset_provider = HfHubDatasetProvider("glue", dataset_config_name="sst2")
 
     # Assert that we can individually load training, validation and test datasets
     train_dataset = dataset_provider.get_train_dataset()
@@ -24,7 +24,7 @@ def test_hf_hub_dataset_provider():
 
 
 def test_hf_disk_dataset_provider():
-    dataset_hub_provider = HfHubDatasetProvider("glue", "sst2")
+    dataset_hub_provider = HfHubDatasetProvider("glue", dataset_config_name="sst2")
     train_dataset = dataset_hub_provider.get_train_dataset()
     train_dataset.save_to_disk("dataroot")
 

@@ -3,21 +3,17 @@
 
 import argparse
 
-from transformers import (
-    AutoTokenizer,
-    CodeGenConfig,
-    CodeGenForCausalLM,
-    DataCollatorForLanguageModeling,
-    TrainingArguments,
-)
+from transformers import AutoTokenizer, OPTConfig, OPTForCausalLM, TrainingArguments
 
-from archai.datasets.nlp.hf_dataset_provider import HfHubDatasetProvider
-from archai.datasets.nlp.hf_dataset_provider_utils import tokenize_dataset
+from archai.datasets.nlp.fast_hf_dataset_provider import (
+    FastDataCollatorForLanguageModeling,
+    FastHfDatasetProvider,
+)
 from archai.trainers.nlp.hf_trainer import HfTrainer
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Trains a CodeGen using the Hugging Face trainer.")
+    parser = argparse.ArgumentParser(description="Trains an OPT using fast data loading and the Hugging Face trainer.")
 
     parser.add_argument(
         "-dn",
@@ -47,7 +43,7 @@ def parse_args() -> argparse.Namespace:
 
     parser.add_argument("-wd", "--weight_decay", type=float, default=0.0, help="Weight decay.")
 
-    parser.add_argument("-n", "--max_steps", type=int, default=250, help="Maximum number of steps.")
+    parser.add_argument("-n", "--max_steps", type=int, default=1, help="Maximum number of steps.")
 
     args = parser.parse_args()
 
@@ -57,34 +53,31 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    tokenizer = AutoTokenizer.from_pretrained("Salesforce/codegen-350M-mono", model_max_length=args.seq_len)
-    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer = AutoTokenizer.from_pretrained("facebook/opt-350m", model_max_length=args.seq_len)
+    collator = FastDataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-    collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
-
-    dataset_provider = HfHubDatasetProvider(args.dataset_name, dataset_config_name=args.dataset_config_name)
-    train_dataset = dataset_provider.get_train_dataset()
-    eval_dataset = dataset_provider.get_val_dataset()
-
-    encoded_train_dataset = train_dataset.map(tokenize_dataset, batched=True, fn_kwargs={"tokenizer": tokenizer})
-    encoded_eval_dataset = eval_dataset.map(tokenize_dataset, batched=True, fn_kwargs={"tokenizer": tokenizer})
-
-    config = CodeGenConfig(
-        n_positions=args.seq_len,
-        n_embd=768,
-        n_layer=12,
-        n_head=12,
-        rotary_dim=16,
-        bos_token_id=0,
-        eos_token_id=0,
-        vocab_size=50295,
+    dataset_provider = FastHfDatasetProvider(
+        args.dataset_name,
+        dataset_config_name=args.dataset_config_name,
+        tokenizer=tokenizer,
     )
-    model = CodeGenForCausalLM(config=config)
+
+    train_dataset = dataset_provider.get_train_dataset(seq_len=args.seq_len)
+    eval_dataset = dataset_provider.get_val_dataset(seq_len=args.seq_len)
+
+    config = OPTConfig(
+        n_positions=args.seq_len,
+        hidden_size=768,
+        num_hidden_layers=12,
+        num_attention_heads=12,
+        vocab_size=50272,
+    )
+    model = OPTForCausalLM(config=config)
 
     print(f"Total parameters: {sum(p.numel() for p in model.parameters())}")
 
     training_args = TrainingArguments(
-        "hf-codegen",
+        "hf-opt",
         evaluation_strategy="steps",
         logging_steps=args.logging_steps,
         eval_steps=args.eval_steps,
@@ -97,8 +90,8 @@ if __name__ == "__main__":
         model=model,
         args=training_args,
         data_collator=collator,
-        train_dataset=encoded_train_dataset,
-        eval_dataset=encoded_eval_dataset,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
     )
 
     trainer.train()
