@@ -172,7 +172,7 @@ class ApexUtils:
     def is_mixed(self)->bool:
         return self._enabled and self._mixed_prec_enabled
     def is_dist(self)->bool:
-        return self._enabled and self._distributed_enabled
+        return self._enabled and self._distributed_enabled and self.world_size > 1
     def is_master(self)->bool:
         return self.global_rank == 0
     def is_ray(self)->bool:
