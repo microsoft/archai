@@ -19,6 +19,7 @@ dependencies = [
     "onnx>=1.10.2",
     "onnxruntime>=1.10.0",
     "opencv-python",
+    "opt_einsum",
     "overrides==3.1.0",
     "plotly",
     "psutil",
@@ -61,7 +62,7 @@ extras_require["cv"] = filter_dependencies(
     "scikit-learn",
     "torchvision",
 )
-extras_require["nlp"] = filter_dependencies("datasets", "einops", "tokenizers", "transformers")
+extras_require["nlp"] = filter_dependencies("datasets", "einops", "opt_einsum", "tokenizers", "transformers")
 extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
 
 extras_require["docs"] = filter_dependencies(
