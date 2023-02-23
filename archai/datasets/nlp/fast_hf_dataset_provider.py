@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import pickle
 import sys
 from dataclasses import dataclass
@@ -221,6 +222,24 @@ class FastHfDatasetProvider(DatasetProvider):
         cache_files = FastHfDatasetProvider._save_dataset(
             processed_dataset_dict, tokenizer, cache_dir, use_shared_memory
         )
+
+        with open(cache_dir / "config.json", "w") as f:
+            json.dump(
+                {
+                    "dataset_name": dataset_name,
+                    "dataset_config_name": dataset_config_name,
+                    "data_dir": data_dir,
+                    "tokenizer": {
+                        "name_or_path": tokenizer.name_or_path,
+                        "model_max_length": tokenizer.model_max_length,
+                    },
+                    "mapping_column_name": mapping_column_name or ["text"],
+                    "validation_split": validation_split,
+                    "seed": seed,
+                    "use_eos_token": use_eos_token,
+                },
+                f,
+            )
 
         return FastHfDatasetProvider(*cache_files, tokenizer=tokenizer)
 
