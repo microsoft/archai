@@ -2,8 +2,6 @@ from typing import Union
 from pathlib import Path
 import pandas as pd
 
-# TODO Move this module to Archai utils stuff
-
 def get_search_csv(output_path: Union[str, Path], iteration_num: int = -1) -> pd.DataFrame:
     """Reads the search csv file from the output path and returns a pandas dataframe
 

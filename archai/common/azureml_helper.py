@@ -5,8 +5,6 @@ from azure.ai.ml import MLClient, command
 from azure.ai.ml.entities import AmlCompute, Environment, Command, Job
 from azure.identity import DefaultAzureCredential
 
-# TODO Move this module to Archai utils stuff
-
 def get_aml_client_from_file(config_path: Union[str, Path] = "../.azureml/config.json") -> MLClient:
     credential = DefaultAzureCredential()
     config_path = Path(config_path)
