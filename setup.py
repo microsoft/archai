@@ -7,6 +7,7 @@ from setuptools import find_packages, setup
 
 dependencies = [
     "datasets>=2.4.0",
+    "einops",
     "flake8>=5.0.4",
     "gorilla>=0.4.0",
     "h5py",
@@ -60,7 +61,7 @@ extras_require["cv"] = filter_dependencies(
     "scikit-learn",
     "torchvision",
 )
-extras_require["nlp"] = filter_dependencies("datasets", "tokenizers", "transformers")
+extras_require["nlp"] = filter_dependencies("datasets", "einops", "tokenizers", "transformers")
 extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
 
 extras_require["docs"] = filter_dependencies(
