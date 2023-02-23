@@ -226,6 +226,8 @@ class FastHfDatasetProvider(DatasetProvider):
         """
 
         cache_dir = Path(cache_dir)
+        cache_dir_parts = cache_dir.parts
+
         config_file = cache_dir / "config.json"
         tokenizer_file = cache_dir / "tokenizer.pkl"
 
@@ -239,13 +241,16 @@ class FastHfDatasetProvider(DatasetProvider):
         with open(tokenizer_file, "rb") as f:
             tokenizer = pickle.load(f)
 
-        dataset_name = config.pop("dataset_name")
-
         # Removes `tokenizer` from config (used to compose the fingerprint) as it
         # does not correspond to the actual class instance
         _ = config.pop("tokenizer")
+        dataset_name = config.pop("dataset_name")
 
-        return cls(dataset_name, tokenizer=tokenizer, cache_dir=cache_dir.parts[0], **config)
+        # Ensures that `input_cache_dir` corresponds to the actual cache directory,
+        # as the user might provide a cache with subfolders
+        input_cache_dir = Path(*cache_dir_parts[: cache_dir_parts.index(dataset_name)])
+
+        return cls(dataset_name, tokenizer=tokenizer, cache_dir=input_cache_dir, **config)
 
     @overrides
     def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
