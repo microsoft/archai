@@ -4,8 +4,14 @@
 import argparse
 import os
 import pathlib
+import subprocess
+import sys
 
-from runstats import Statistics
+try:
+    from runstats import Statistics
+except:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'runstats'])
+    from runstats import Statistics
 
 
 def main():
