@@ -56,7 +56,7 @@ if __name__ == "__main__":
     tokenizer = AutoTokenizer.from_pretrained("facebook/opt-350m", model_max_length=args.seq_len)
     collator = FastDataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-    dataset_provider = FastHfDatasetProvider(
+    dataset_provider = FastHfDatasetProvider.from_hub(
         args.dataset_name,
         dataset_config_name=args.dataset_config_name,
         tokenizer=tokenizer,
