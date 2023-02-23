@@ -4,7 +4,6 @@
 import os
 
 from overrides import overrides
-from PIL import Image
 from torchvision import datasets
 from torchvision.transforms import transforms
 
@@ -59,7 +58,7 @@ class ImagenetProvider(DatasetProvider):
         transform_train = transforms.Compose([
             transforms.RandomResizedCrop(224,
                 scale=(0.08, 1.0), # TODO: these two params are normally not specified
-                interpolation=Image.BICUBIC),
+                interpolation=transforms.InterpolationMode.BICUBIC),
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(
                 brightness=0.4,
