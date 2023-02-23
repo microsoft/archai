@@ -7,11 +7,18 @@ import pathlib
 import re
 from collections import OrderedDict
 from inspect import getsourcefile
+import subprocess
+import sys
 from typing import Dict, Iterator, List, Tuple
 
 import matplotlib
 import yaml
-from runstats import Statistics
+
+try:
+    from runstats import Statistics
+except:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'runstats'])
+    from runstats import Statistics
 
 matplotlib.use("Agg")
 

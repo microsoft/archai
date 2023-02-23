@@ -4,11 +4,18 @@
 import itertools
 import pathlib
 from concurrent.futures import ThreadPoolExecutor
+import subprocess
+import sys
 from threading import Lock
 
 import numpy as np
 from PIL import Image
-from runstats import Statistics
+
+try:
+    from runstats import Statistics
+except:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'runstats'])
+    from runstats import Statistics
 
 
 class ImageStats:
