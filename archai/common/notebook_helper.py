@@ -34,3 +34,15 @@ def get_csv_as_stylized_html(df: pd.DataFrame) -> str:
     html_with_scrollbar = f'<div style="height: 300px; overflow-y: scroll;">{html_table}</div>'
 
     return html_with_scrollbar
+
+def get_arch_abs_path(archid: str, downloaded_folder: Union[str, Path], iteration_num: int = -1) -> Path:
+    if iteration_num == -1:
+        dir_path = max(Path(downloaded_folder).glob("pareto_models_iter_*"), key=lambda x: int(x.stem.split("_")[-1]))
+    else:
+        dir_path = Path(downloaded_folder) / f"pareto_models_iter_{iteration_num}"
+
+    file_path = dir_path / archid
+    if not file_path.is_file():
+        raise FileNotFoundError(f"File not found at {file_path}")
+
+    return file_path.absolute()
