@@ -1,7 +1,7 @@
 from typing import Dict, Union
 from pathlib import Path
 
-from azure.ai.ml import MLClient, command
+from azure.ai.ml import MLClient, command, load_job
 from azure.ai.ml.entities import AmlCompute, Environment, Command, Job
 from azure.identity import DefaultAzureCredential
 
@@ -99,6 +99,10 @@ def create_job(
     )
 
     return job
+
+
+def create_job_from_file(source: Union[str, Path], **kwargs) -> Job:
+    return load_job(source=source, **kwargs)
 
 
 def run_job(ml_client: MLClient, job: Job) -> Job:
