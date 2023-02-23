@@ -131,7 +131,6 @@ class FastHfDatasetProvider(DatasetProvider):
             "num_workers": self.num_workers,
             "use_eos_token": self.use_eos_token,
             "use_shared_memory": self.use_shared_memory,
-            "cache_dir": self.cache_dir,
         }
 
     @property
@@ -142,7 +141,6 @@ class FastHfDatasetProvider(DatasetProvider):
         config = copy.deepcopy(self.config)
         config.pop("num_workers")
         config.pop("use_shared_memory")
-        config.pop("cache_dir")
 
         return sha1(repr(config).encode("ascii")).hexdigest()
 
@@ -247,7 +245,7 @@ class FastHfDatasetProvider(DatasetProvider):
         # does not correspond to the actual class instance
         _ = config.pop("tokenizer")
 
-        return cls(dataset_name, tokenizer=tokenizer, **config)
+        return cls(dataset_name, tokenizer=tokenizer, cache_dir=cache_dir.parts[0], **config)
 
     @overrides
     def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
