@@ -3,18 +3,16 @@
 
 from __future__ import annotations
 
-import copy
 import json
 import pickle
 import sys
 from dataclasses import dataclass
-from hashlib import sha1
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Union
+from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-from datasets import load_dataset as hf_load_dataset
+from datasets import load_dataset
 from datasets.dataset_dict import DatasetDict
 from overrides import overrides
 from transformers import AutoTokenizer, DataCollatorForLanguageModeling
@@ -23,6 +21,7 @@ from archai.api.dataset_provider import DatasetProvider
 from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.datasets.nlp.fast_hf_dataset_provider_utils import (
     FastHfDataset,
+    SHMArray,
     process_with_memory_map_files,
     process_with_shared_memory,
     xor,
@@ -43,6 +42,102 @@ class FastHfDatasetProvider(DatasetProvider):
 
     def __init__(
         self,
+        train_file: str,
+        validation_file: str,
+        test_file: str,
+        tokenizer: Optional[AutoTokenizer] = None,
+    ) -> None:
+        """Initialize Fast Hugging Face-based dataset provider.
+
+        Args:
+            train_file: Path to the training array file (.npy).
+            validation_file: Path to the validation array file (.npy).
+            test_file: Path to the test array file (.npy).
+            tokenizer: Instance of tokenizer to use.
+
+        """
+
+        super().__init__()
+
+        self.train_file = train_file
+        self.validation_file = validation_file
+        self.test_file = test_file
+        self.tokenizer = tokenizer
+
+    @staticmethod
+    def _encode_dataset(
+        dataset_dict: DatasetDict,
+        tokenizer: AutoTokenizer,
+        mapping_column_name: List[str],
+        use_eos_token: bool,
+        dtype: np.dtype,
+        num_workers: int,
+    ) -> DatasetDict:
+        logger.info("Encoding dataset ...")
+        logger.info(f"Number of workers: {num_workers} | EOS token: {use_eos_token}")
+
+        column_names = dataset_dict["train"].column_names
+        encoded_dataset_dict = dataset_dict.map(
+            tokenize_concatenated_dataset,
+            fn_kwargs={
+                "tokenizer": tokenizer,
+                "mapping_column_name": mapping_column_name,
+                "use_eos_token": use_eos_token,
+                "dtype": dtype,
+            },
+            batched=True,
+            num_proc=num_workers,
+            remove_columns=column_names,
+        )
+
+        return encoded_dataset_dict
+
+    @staticmethod
+    def _process_dataset_to_memory(
+        dataset_dict: DatasetDict, cache_dir: str, dtype: np.dtype, num_workers: int, use_shared_memory: int
+    ) -> Dict[str, Union[SHMArray, np.ndarray]]:
+        logger.info("Processing dataset to memory ...")
+        logger.info(f"Number of workers: {num_workers} | Shared memory: {use_shared_memory}")
+
+        if use_shared_memory:
+            return process_with_shared_memory(dataset_dict, dtype, num_proc=num_workers)
+
+        return process_with_memory_map_files(dataset_dict, cache_dir, dtype, num_proc=num_workers)
+
+    @staticmethod
+    def _save_dataset(
+        dataset_dict: Dict[str, Union[SHMArray, np.ndarray]],
+        tokenizer: AutoTokenizer,
+        cache_dir: str,
+        use_shared_memory: bool,
+    ) -> Tuple[Path, Path, Path]:
+        logger.info(f"Saving dataset to: {cache_dir}")
+
+        cache_files = ()
+        for split, dataset in dataset_dict.items():
+            np.save(cache_dir / f"{split}.npy", dataset)
+
+            # If using shared memory, dataset needs to have its shared memory
+            # unlinked to prevent memory leak
+            if use_shared_memory:
+                dataset.shm.unlink()
+
+            # If not using shared memory, dataset needs to have its memory map
+            # closed to prevent an additional .bin file
+            if not use_shared_memory:
+                dataset._mmap.close()
+                Path(cache_dir / f"{split}.bin").unlink()
+
+            cache_files += (cache_dir / f"{split}.npy",)
+
+        with open(cache_dir / "tokenizer.pkl", "wb") as f:
+            pickle.dump(tokenizer, f)
+
+        return cache_files
+
+    @classmethod
+    def from_hub(
+        cls: FastHfDatasetProvider,
         dataset_name: str,
         dataset_config_name: Optional[str] = None,
         data_dir: Optional[str] = None,
@@ -56,11 +151,8 @@ class FastHfDatasetProvider(DatasetProvider):
         use_eos_token: Optional[bool] = True,
         use_shared_memory: Optional[bool] = True,
         cache_dir: Optional[str] = "cache",
-    ) -> None:
-        """Initialize Fast Hugging Face-based dataset provider.
-
-        The initialization consists in pre-loading the dataset, encoding it
-        using the specified tokenizer, and saving it to the cache directory.
+    ) -> FastHfDatasetProvider:
+        """Load a dataset provider by downloading and encoding data from Hugging Face Hub.
 
         Args:
             dataset_name: Name of the dataset.
@@ -77,196 +169,124 @@ class FastHfDatasetProvider(DatasetProvider):
             use_shared_memory: Whether to use shared memory for caching.
             cache_dir: Root path to the cache directory.
 
+        Returns:
+            Dataset provider.
+
         """
 
-        super().__init__()
-
-        self.dataset_name = dataset_name
-        self.dataset_config_name = dataset_config_name
-        self.data_dir = data_dir
-
         assert xor(tokenizer, tokenizer_name), "`tokenizer` and `tokenizer_name` are mutually exclusive."
-        self.tokenizer = tokenizer or AutoTokenizer.from_pretrained(tokenizer_name)
+        tokenizer = tokenizer or AutoTokenizer.from_pretrained(tokenizer_name)
         if tokenizer_max_length:
             logger.warn(f"New maximum length set for the tokenizer: {tokenizer_max_length}.")
-            self.tokenizer.model_max_length = tokenizer_max_length
+            tokenizer.model_max_length = tokenizer_max_length
 
-        self.mapping_column_name = mapping_column_name
-        self.validation_split = validation_split
-        self.seed = seed
-        self.num_workers = num_workers
-        self.use_eos_token = use_eos_token
-        self.use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
-        self.cache_dir = cache_dir
+        dtype = np.uint16 if tokenizer.vocab_size < 64 * 1024 else np.int32
+        use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
 
-        # Create full path where dataset will be cached
-        self.cache_data_dir = (
-            Path(cache_dir)
-            / self.dataset_name
-            / (self.dataset_config_name or "")
-            / (self.data_dir or "")
-            / self.fingerprint
-        )
+        cache_dir = Path(cache_dir)
+        if cache_dir.is_dir():
+            logger.warn(f"Cache: {cache_dir} already exists and will be overritten.")
+        cache_dir.mkdir(parents=True, exist_ok=True)
 
-        # If cache is not available, encode the dataset and save it to cache
-        if not self.cache_data_dir.is_dir():
-            self.cache_data_dir.mkdir(parents=True, exist_ok=True)
-            self._encode_dataset()
-
-    @property
-    def config(self) -> Dict[str, Any]:
-        """Return the configuration of the dataset provider."""
-
-        return {
-            "dataset_name": self.dataset_name,
-            "dataset_config_name": self.dataset_config_name,
-            "data_dir": self.data_dir,
-            "tokenizer": {
-                "name_or_path": self.tokenizer.name_or_path,
-                "model_max_length": self.tokenizer.model_max_length,
-            },
-            "mapping_column_name": self.mapping_column_name,
-            "validation_split": self.validation_split,
-            "seed": self.seed,
-            "num_workers": self.num_workers,
-            "use_eos_token": self.use_eos_token,
-            "use_shared_memory": self.use_shared_memory,
-            "cache_dir": self.cache_dir,
-        }
-
-    @property
-    def fingerprint(self) -> str:
-        """Return a unique fingerprint for the dataset provider."""
-
-        # Only use keys that affect the dataset for the fingerprint
-        config = copy.deepcopy(self.config)
-        config.pop("num_workers")
-        config.pop("use_shared_memory")
-        config.pop("cache_dir")
-
-        return sha1(repr(config).encode("ascii")).hexdigest()
-
-    def _encode_dataset(self) -> None:
-        dtype = np.uint16 if self.tokenizer.vocab_size < 64 * 1024 else np.int32
-
-        # Ensure that the loaded dataset is always a dictionary
+        # Ensure that the downloaded dataset is always a dictionary
         logger.info("Downloading dataset ...")
-        raw_dataset = hf_load_dataset(self.dataset_name, name=self.dataset_config_name, data_dir=self.data_dir)
-        if not isinstance(raw_dataset, DatasetDict):
-            raw_dataset = DatasetDict({"train": raw_dataset})
+        hub_dataset_dict = load_dataset(dataset_name, name=dataset_config_name, data_dir=data_dir)
+        if not isinstance(hub_dataset_dict, DatasetDict):
+            hub_dataset_dict = DatasetDict({"train": hub_dataset_dict})
 
-        # Ensure that `validation` and `test` splits are present
-        if "validation" not in raw_dataset:
+        # Ensure that `validation` and `test` splits are available
+        if "validation" not in hub_dataset_dict:
             logger.info("Creating validation split ...")
 
-            validation_split = self.validation_split or 0.1
-            tmp_dataset_dict = raw_dataset["train"].train_test_split(
-                test_size=validation_split, shuffle=True, seed=self.seed
+            validation_split = validation_split or 0.1
+            tmp_dataset_dict = hub_dataset_dict["train"].train_test_split(
+                test_size=validation_split, shuffle=True, seed=seed
             )
-            raw_dataset["train"] = tmp_dataset_dict["train"]
-            raw_dataset["validation"] = tmp_dataset_dict["test"]
+            hub_dataset_dict["train"] = tmp_dataset_dict["train"]
+            hub_dataset_dict["validation"] = tmp_dataset_dict["test"]
 
-        if "test" not in raw_dataset:
+        if "test" not in hub_dataset_dict:
             logger.info("Creating test split ...")
 
-            tmp_dataset_dict = raw_dataset["validation"].train_test_split(test_size=0.25, shuffle=True, seed=self.seed)
-            raw_dataset["validation"] = tmp_dataset_dict["train"]
-            raw_dataset["test"] = tmp_dataset_dict["test"]
+            tmp_dataset_dict = hub_dataset_dict["validation"].train_test_split(test_size=0.25, shuffle=True, seed=seed)
+            hub_dataset_dict["validation"] = tmp_dataset_dict["train"]
+            hub_dataset_dict["test"] = tmp_dataset_dict["test"]
 
-        logger.info("Encoding dataset ...")
-        column_names = raw_dataset["train"].column_names
-        encoded_dataset = raw_dataset.map(
-            tokenize_concatenated_dataset,
-            fn_kwargs={
-                "tokenizer": self.tokenizer,
-                "mapping_column_name": self.mapping_column_name,
-                "use_eos_token": self.use_eos_token,
-                "dtype": dtype,
-            },
-            batched=True,
-            num_proc=self.num_workers,
-            remove_columns=column_names,
+        encoded_dataset_dict = FastHfDatasetProvider._encode_dataset(
+            hub_dataset_dict, tokenizer, mapping_column_name, use_eos_token, dtype, num_workers
+        )
+        processed_dataset_dict = FastHfDatasetProvider._process_dataset_to_memory(
+            encoded_dataset_dict, cache_dir, dtype, num_workers, use_shared_memory
         )
 
-        if self.use_shared_memory:
-            dataset_dict = process_with_shared_memory(encoded_dataset, dtype, num_proc=self.num_workers)
-        else:
-            dataset_dict = process_with_memory_map_files(
-                encoded_dataset, self.cache_data_dir, dtype, num_proc=self.num_workers
+        cache_files = FastHfDatasetProvider._save_dataset(
+            processed_dataset_dict, tokenizer, cache_dir, use_shared_memory
+        )
+
+        with open(cache_dir / "config.json", "w") as f:
+            json.dump(
+                {
+                    "dataset_name": dataset_name,
+                    "dataset_config_name": dataset_config_name,
+                    "data_dir": data_dir,
+                    "tokenizer": {
+                        "name_or_path": tokenizer.name_or_path,
+                        "model_max_length": tokenizer.model_max_length,
+                    },
+                    "mapping_column_name": mapping_column_name or ["text"],
+                    "validation_split": validation_split,
+                    "seed": seed,
+                    "use_eos_token": use_eos_token,
+                },
+                f,
             )
 
-        logger.info(f"Saving dataset to: {self.cache_data_dir}")
-        for split, dataset in dataset_dict.items():
-            np.save(self.cache_data_dir / f"{split}.npy", dataset)
-
-            # If using shared memory, dataset needs to have its shared memory
-            # unlinked to prevent memory leak
-            if self.use_shared_memory:
-                dataset.shm.unlink()
-
-            # If not using shared memory, dataset needs to have its memory map
-            # closed to prevent an additional .bin file
-            if not self.use_shared_memory:
-                dataset._mmap.close()
-                Path(self.cache_data_dir / f"{split}.bin").unlink()
-
-        with open(self.cache_data_dir / "config.json", "w") as f:
-            json.dump(self.config, f)
-        with open(self.cache_data_dir / "tokenizer.pkl", "wb") as f:
-            pickle.dump(self.tokenizer, f)
+        return FastHfDatasetProvider(*cache_files, tokenizer=tokenizer)
 
     @classmethod
-    def from_cache(cls, cache_dir: Union[str, Path]) -> FastHfDatasetProvider:
+    def from_cache(cls: FastHfDatasetProvider, cache_dir: str) -> FastHfDatasetProvider:
         """Load a dataset provider from a cache directory.
 
         Args:
             cache_dir: Path to the cache directory.
 
         Returns:
-            Cached/encoded dataset provider.
+            Dataset provider.
 
         """
 
+        logger.info(f"Loading dataset from: {cache_dir}")
+
         cache_dir = Path(cache_dir)
-        config_file = cache_dir / "config.json"
+        cache_train_file = cache_dir / "train.npy"
+        cache_validation_file = cache_dir / "validation.npy"
+        cache_test_file = cache_dir / "test.npy"
+
         tokenizer_file = cache_dir / "tokenizer.pkl"
-
-        if not config_file.is_file():
-            raise ValueError(f"Could not find configuration in {cache_dir}.")
         if not tokenizer_file.is_file():
-            raise ValueError(f"Could not find tokenizer in {cache_dir}.")
+            logger.warn(f"Could not find tokenizer in {cache_dir}.")
+            tokenizer = None
+        else:
+            with open(tokenizer_file, "rb") as f:
+                tokenizer = pickle.load(f)
 
-        with open(config_file, "r") as f:
-            config = json.load(f)
-        with open(tokenizer_file, "rb") as f:
-            tokenizer = pickle.load(f)
-
-        dataset_name = config.pop("dataset_name")
-
-        # Removes `tokenizer` from config (used to compose the fingerprint) as it
-        # does not correspond to the actual class instance
-        _ = config.pop("tokenizer")
-
-        return cls(dataset_name, tokenizer=tokenizer, **config)
+        return FastHfDatasetProvider(cache_train_file, cache_validation_file, cache_test_file, tokenizer=tokenizer)
 
     @overrides
     def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        assert self.cache_data_dir.is_dir()
-        input_ids = np.load(self.cache_data_dir / "train.npy", mmap_mode="r")
+        input_ids = np.load(self.train_file, mmap_mode="r")
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 
     @overrides
     def get_val_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        assert self.cache_data_dir.is_dir()
-        input_ids = np.load(self.cache_data_dir / "validation.npy", mmap_mode="r")
+        input_ids = np.load(self.validation_file, mmap_mode="r")
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 
     @overrides
     def get_test_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        assert self.cache_data_dir.is_dir()
-        input_ids = np.load(self.cache_data_dir / "test.npy", mmap_mode="r")
+        input_ids = np.load(self.test_file, mmap_mode="r")
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 
