@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Rapid NLP-based Data Creation/Encoding using Memory Mapping &#8212; Archai</title>
+    <title>Creating Memory Mapped NLP-based Data &#8212; Archai</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -216,7 +216,7 @@
     <ul class="current">
      <li class="toctree-l3 current active">
       <a class="current reference internal" href="#">
-       Rapid NLP-based Data Creation/Encoding using Memory Mapping
+       Fast HF Dataset Provider
       </a>
      </li>
      <li class="toctree-l3">
@@ -886,19 +886,12 @@ title="Edit this page"
     </div>
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   Rapid NLP-based Data Creation/Encoding using Memory Mapping
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Instantiating-the-Provider">
+   Instantiating the Provider
   </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Instantiating-the-Provider">
-     Instantiating the Provider
-    </a>
-   </li>
-  </ul>
  </li>
- <li class="toc-h1 nav-item toc-entry">
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Loading-from-Cache">
    Loading from Cache
   </a>
@@ -912,7 +905,7 @@ title="Edit this page"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Rapid NLP-based Data Creation/Encoding using Memory Mapping</h1>
+                <h1>Creating Memory Mapped NLP-based Data</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -922,19 +915,12 @@ title="Edit this page"
                         </div>
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   Rapid NLP-based Data Creation/Encoding using Memory Mapping
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Instantiating-the-Provider">
+   Instantiating the Provider
   </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Instantiating-the-Provider">
-     Instantiating the Provider
-    </a>
-   </li>
-  </ul>
  </li>
- <li class="toc-h1 nav-item toc-entry">
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Loading-from-Cache">
    Loading from Cache
   </a>
@@ -1206,8 +1192,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="Rapid-NLP-based-Data-Creation/Encoding-using-Memory-Mapping">
-<h1>Rapid NLP-based Data Creation/Encoding using Memory Mapping<a class="headerlink" href="#Rapid-NLP-based-Data-Creation/Encoding-using-Memory-Mapping" title="Permalink to this headline">#</a></h1>
+<section id="Creating-Memory-Mapped-NLP-based-Data">
+<h1>Creating Memory Mapped NLP-based Data<a class="headerlink" href="#Creating-Memory-Mapped-NLP-based-Data" title="Permalink to this headline">#</a></h1>
 <p>In this notebook, we will use a fast dataset provider-based abstraction that interfaces with Hugging Face’s <code class="docutils literal notranslate"><span class="pre">datasets</span></code> (and has been created by HazyResearch). The key advantage of this approach is the use of either shared memory or memory maps in Python to accelerate the caching process. Furthermore, the dataset is cached as a contiguous numpy array, enabling manipulation of data with any sequence length. This feature eliminates the need for re-encoding data for multiple lengths, streamlining
 the data processing pipeline.</p>
 <section id="Instantiating-the-Provider">
@@ -1537,9 +1523,8 @@ Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets
 </pre></div></div>
 </div>
 </section>
-</section>
 <section id="Loading-from-Cache">
-<h1>Loading from Cache<a class="headerlink" href="#Loading-from-Cache" title="Permalink to this headline">#</a></h1>
+<h2>Loading from Cache<a class="headerlink" href="#Loading-from-Cache" title="Permalink to this headline">#</a></h2>
 <p>After loading and encoding the dataset for the first time, a cache will be created with a unique fingerprint (identifier) based on its configuration. The cached is composed by the following files:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">config.json</span></code>: Dataset provider configuration (used to re-create the object when loaded from cache).</p></li>
@@ -1776,6 +1761,7 @@ Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets
           340,   750]))
 </pre></div></div>
 </div>
+</section>
 </section>
 
 
