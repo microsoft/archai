@@ -294,7 +294,8 @@ class Trainer(EnforceOverrides):
 
                 loss_sum += loss_c.item() * len(logits_c)
                 loss_count += len(logits_c)
-                logits_chunks.append(logits_c.detach().cpu())               # pyright: ignore[reportGeneralTypeIssues]
+                # TODO: cannot place on CPU if it was half precision but should we somehow?
+                logits_chunks.append(logits_c.detach())               # pyright: ignore[reportGeneralTypeIssues]
 
             # TODO: original darts clips alphas as well but pt.darts doesn't
             self._apex.clip_grad(self._grad_clip, self.model, self._multi_optim)
@@ -304,7 +305,8 @@ class Trainer(EnforceOverrides):
             # TODO: we possibly need to sync so all replicas are upto date
             self._apex.sync_devices()
 
-            self.post_step(x, y,
+            # TODO: we need to put y on GPU because logits are on GPU. Is this good idea from GPU mem perspective?
+            self.post_step(x, y.to(self.get_device(), non_blocking=True),
                            ml_utils.join_chunks(logits_chunks),
                            torch.tensor(loss_sum/loss_count),
                            steps)

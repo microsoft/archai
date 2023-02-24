@@ -5,6 +5,7 @@ import random
 from itertools import chain
 from typing import Any, Callable, Dict, List, Optional, Union
 
+import numpy as np
 from datasets.arrow_dataset import Dataset
 from datasets.dataset_dict import DatasetDict, IterableDatasetDict
 from datasets.download.download_manager import DownloadMode
@@ -35,12 +36,12 @@ def should_refresh_cache(refresh: bool) -> DownloadMode:
 
 
 def tokenize_dataset(
-    examples: List[str],
+    examples: Dict[str, List[str]],
     tokenizer: Optional[AutoTokenizer] = None,
     mapping_column_name: Optional[List[str]] = None,
+    use_eos_token: Optional[bool] = False,
     truncate: Optional[Union[bool, str]] = True,
     padding: Optional[Union[bool, str]] = "max_length",
-    **kwargs,
 ) -> Dict[str, Any]:
     """Tokenize a list of examples using a specified tokenizer.
 
@@ -48,6 +49,7 @@ def tokenize_dataset(
         examples: A list of examples to be tokenized.
         tokenizer: The tokenizer to use.
         mapping_column_name: The columns in `examples` that should be tokenized.
+        use_eos_token: Whether to append the EOS token to each example.
         truncate: Whether truncation should be applied.
         padding: Whether padding should be applied.
 
@@ -56,20 +58,60 @@ def tokenize_dataset(
 
     """
 
+    def _add_eos_token(examples: List[str]) -> List[str]:
+        return [example + tokenizer.eos_token if example else example for example in examples]
+
     if mapping_column_name is None:
         mapping_column_name = ["text"]
 
-    examples_mapping = tuple(examples[column_name] for column_name in mapping_column_name)
+    examples_mapping = tuple(
+        _add_eos_token(examples[column_name]) if use_eos_token else examples[column_name]
+        for column_name in mapping_column_name
+    )
 
     return tokenizer(*examples_mapping, truncation=truncate, padding=padding)
 
 
+def tokenize_concatenated_dataset(
+    examples: Dict[str, List[str]],
+    tokenizer: Optional[AutoTokenizer] = None,
+    mapping_column_name: Optional[List[str]] = None,
+    use_eos_token: Optional[bool] = False,
+    dtype: Optional[np.dtype] = None,
+) -> Dict[str, Any]:
+    """Tokenize a list of examples using a specified tokenizer and
+    with concatenated batches (no truncation nor padding).
+
+    Args:
+        examples: A list of examples to be tokenized.
+        tokenizer: The tokenizer to use.
+        mapping_column_name: The columns in `examples` that should be tokenized.
+        use_eos_token: Whether to append the EOS token to each example.
+        dtype: Numpy data type of the tokenized examples.
+
+    Returns:
+        Concatenated tokenized examples.
+
+    """
+
+    examples = tokenize_dataset(
+        examples,
+        tokenizer=tokenizer,
+        mapping_column_name=mapping_column_name,
+        use_eos_token=use_eos_token,
+        truncate=False,
+        padding=False,
+    )
+    tokenized_examples = np.fromiter(chain(*examples["input_ids"]), dtype=dtype)
+
+    return {"input_ids": [tokenized_examples], "length": [len(tokenized_examples)]}
+
+
 def tokenize_contiguous_dataset(
-    examples: List[str],
+    examples: Dict[str, List[str]],
     tokenizer: Optional[AutoTokenizer] = None,
     mapping_column_name: Optional[List[str]] = None,
     model_max_length: Optional[int] = 1024,
-    **kwargs,
 ) -> Dict[str, Any]:
     """Tokenize a list of examples using a specified tokenizer and
     with contiguous-length batches (no truncation nor padding).
@@ -104,12 +146,11 @@ def tokenize_contiguous_dataset(
 
 
 def tokenize_nsp_dataset(
-    examples: List[str],
+    examples: Dict[str, List[str]],
     tokenizer: Optional[AutoTokenizer] = None,
     mapping_column_name: Optional[List[str]] = None,
     truncate: Optional[Union[bool, str]] = True,
     padding: Optional[Union[bool, str]] = "max_length",
-    **kwargs,
 ) -> Dict[str, Any]:
     """Tokenize a list of examples using a specified tokenizer and
     with next-sentence prediction (NSP).

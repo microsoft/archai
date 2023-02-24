@@ -6,11 +6,19 @@ from here: https://www.rarlab.com/download.htm and adding path of unrar.exe to P
 """
 
 import os
+import sys
+import subprocess
 from collections import defaultdict
 from typing import Dict, List
 
 import dataset_utils
-import pyunpack
+
+try:
+    import pyunpack
+except:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'pyunpack'])
+    import pyunpack
+    
 from torchvision.datasets import utils as tvutils
 
 from archai.common import utils

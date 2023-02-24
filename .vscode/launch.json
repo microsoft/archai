@@ -209,7 +209,7 @@
             "request": "launch",
             "program": "${cwd}/scripts/supergraph/main.py",
             "console": "integratedTerminal",
-            "args": ["--no-search", "--algos", "manual", "--datasets", "imagenet"]
+            "args": ["--no-search", "--algos", "manual"]
         },
         {
             "name": "Resnet-Full",
