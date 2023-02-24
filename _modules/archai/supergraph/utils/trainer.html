@@ -1163,7 +1163,8 @@ title="Open an issue"
 
                 <span class="n">loss_sum</span> <span class="o">+=</span> <span class="n">loss_c</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">logits_c</span><span class="p">)</span>
                 <span class="n">loss_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">logits_c</span><span class="p">)</span>
-                <span class="n">logits_chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logits_c</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">())</span>               <span class="c1"># pyright: ignore[reportGeneralTypeIssues]</span>
+                <span class="c1"># TODO: cannot place on CPU if it was half precision but should we somehow?</span>
+                <span class="n">logits_chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logits_c</span><span class="o">.</span><span class="n">detach</span><span class="p">())</span>               <span class="c1"># pyright: ignore[reportGeneralTypeIssues]</span>
 
             <span class="c1"># TODO: original darts clips alphas as well but pt.darts doesn&#39;t</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_apex</span><span class="o">.</span><span class="n">clip_grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grad_clip</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multi_optim</span><span class="p">)</span>
@@ -1173,7 +1174,8 @@ title="Open an issue"
             <span class="c1"># TODO: we possibly need to sync so all replicas are upto date</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_apex</span><span class="o">.</span><span class="n">sync_devices</span><span class="p">()</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">post_step</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span>
+            <span class="c1"># TODO: we need to put y on GPU because logits are on GPU. Is this good idea from GPU mem perspective?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">post_step</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_device</span><span class="p">(),</span> <span class="n">non_blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
                            <span class="n">ml_utils</span><span class="o">.</span><span class="n">join_chunks</span><span class="p">(</span><span class="n">logits_chunks</span><span class="p">),</span>
                            <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">loss_sum</span><span class="o">/</span><span class="n">loss_count</span><span class="p">),</span>
                            <span class="n">steps</span><span class="p">)</span>
@@ -1233,7 +1235,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 16, 2023.<br/>
+    Last updated on Feb 24, 2023.<br/>
 </p>
         </footer>
     </div>

@@ -873,7 +873,6 @@ title="Open an issue"
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
-<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
 <span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">datasets</span>
 <span class="kn">from</span> <span class="nn">torchvision.transforms</span> <span class="kn">import</span> <span class="n">transforms</span>
 
@@ -928,7 +927,7 @@ title="Open an issue"
         <span class="n">transform_train</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
             <span class="n">transforms</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span>
                 <span class="n">scale</span><span class="o">=</span><span class="p">(</span><span class="mf">0.08</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="c1"># TODO: these two params are normally not specified</span>
-                <span class="n">interpolation</span><span class="o">=</span><span class="n">Image</span><span class="o">.</span><span class="n">BICUBIC</span><span class="p">),</span>
+                <span class="n">interpolation</span><span class="o">=</span><span class="n">transforms</span><span class="o">.</span><span class="n">InterpolationMode</span><span class="o">.</span><span class="n">BICUBIC</span><span class="p">),</span>
             <span class="n">transforms</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
             <span class="n">transforms</span><span class="o">.</span><span class="n">ColorJitter</span><span class="p">(</span>
                 <span class="n">brightness</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
@@ -971,7 +970,7 @@ title="Open an issue"
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 16, 2023.<br/>
+    Last updated on Feb 24, 2023.<br/>
 </p>
         </footer>
     </div>

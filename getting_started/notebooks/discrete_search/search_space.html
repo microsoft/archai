@@ -1280,18 +1280,11 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span> <span class="nn">archai.discrete_search.api.search_space</span> <span class="kn">import</span> <span class="n">DiscreteSearchSpace</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
 </pre></div>
 </div>
@@ -1300,23 +1293,19 @@ div.rendered_html tbody tr:hover {
 <h2>The <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> class<a class="headerlink" href="#The-ArchaiModel-class" title="Permalink to this headline">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> class is a base class used to wrap all model objects. <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> also stores an architecture ID (<code class="docutils literal notranslate"><span class="pre">ArchaiModel.archid</span></code>) and optionally a metadata dictionary (<code class="docutils literal notranslate"><span class="pre">ArchaiModel.metadata</span></code>).</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.api.archai_model</span> <span class="kn">import</span> <span class="n">ArchaiModel</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.api</span> <span class="kn">import</span> <span class="n">ArchaiModel</span>
 </pre></div>
 </div>
 </div>
 <p>Let’s first consider a simple PyTorch model</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
-
-
-<span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyModel</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nb_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">kernel_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -1327,37 +1316,40 @@ div.rendered_html tbody tr:hover {
         <span class="n">layer_list</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nb_layers</span><span class="p">):</span>
-            <span class="n">in_ch</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">hidden_dim</span><span class="p">)</span>
+            <span class="n">in_ch</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">hidden_dim</span><span class="p">)</span>
 
             <span class="n">layer_list</span> <span class="o">+=</span> <span class="p">[</span>
-                <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_ch</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">),</span>
+                <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_ch</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="n">kernel_size</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">),</span>
                 <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">),</span>
-                <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">()</span>
+                <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
             <span class="p">]</span>
 
         <span class="n">layer_list</span> <span class="o">+=</span> <span class="p">[</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">()</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">AdaptiveAvgPool2d</span><span class="p">(</span><span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layer_list</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<br/></pre></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_archid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_layers</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="si">}</span><span class="s1">)&#39;</span>
+</pre></div>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_obj</span> <span class="o">=</span> <span class="n">MyModel</span><span class="p">(</span><span class="n">nb_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">hidden_dim</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>We can now wrap a <code class="docutils literal notranslate"><span class="pre">DummyModel</span></code> instance into an <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code>:</p>
+<p>We can now wrap a <code class="docutils literal notranslate"><span class="pre">MyModel</span></code> instance into an <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code>:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">ArchaiModel</span><span class="p">(</span>
@@ -1368,8 +1360,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
+<p>Architecture ids (<code class="docutils literal notranslate"><span class="pre">archid</span></code>) are used to identify a unique model architecture. The contents of <code class="docutils literal notranslate"><span class="pre">archid</span></code> can be decided by the search space designer, one good approach is to hash the architecture definition into a string. However, to keep things simple, in this example we’ll just use a simple string representing with the three available architecture parameters (L, K and H).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">archid</span>
@@ -1377,16 +1370,16 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;L=2, K=3&#39;
+&#39;L=2, K=3, H=16&#39;
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">metadata</span>
@@ -1394,7 +1387,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1403,7 +1396,7 @@ div.rendered_html tbody tr:hover {
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">arch</span>
@@ -1411,24 +1404,25 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-DummyModel(
-  (layers): Sequential(
-    (0): Conv2d(3, 16, kernel_size=(3, 3), stride=(1, 1), padding=same)
+MyModel(
+  (model): Sequential(
+    (0): Conv2d(1, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
     (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
     (2): ReLU()
-    (3): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=same)
+    (3): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
     (4): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
     (5): ReLU()
+    (6): AdaptiveAvgPool2d(output_size=(1, 1))
+    (7): Conv2d(16, 10, kernel_size=(1, 1), stride=(1, 1))
   )
 )
 </pre></div></div>
 </div>
-<p>Architecture ids are used to identify and deduplicate architectures during search</p>
 </section>
 <section id="Building-a-Search-Space">
 <h2>Building a Search Space<a class="headerlink" href="#Building-a-Search-Space" title="Permalink to this headline">#</a></h2>
@@ -1458,12 +1452,13 @@ DummyModel(
 </div>
 <p>To turn <code class="docutils literal notranslate"><span class="pre">MyModel</span></code> into a search space, we need to override the <code class="docutils literal notranslate"><span class="pre">DiscreteSearchSpace</span></code> abstract base class:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 <span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">Random</span>
+<span class="kn">from</span> <span class="nn">archai.discrete_search.api</span> <span class="kn">import</span> <span class="n">DiscreteSearchSpace</span>
+
 
 <span class="k">class</span> <span class="nc">CNNSearchSpace</span><span class="p">(</span><span class="n">DiscreteSearchSpace</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">max_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
@@ -1520,7 +1515,7 @@ DummyModel(
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span> <span class="o">=</span> <span class="n">CNNSearchSpace</span><span class="p">(</span><span class="n">hidden_list</span><span class="o">=</span><span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">])</span>
@@ -1529,7 +1524,7 @@ DummyModel(
 </div>
 <p>Let’s try sampling an architecture</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
@@ -1538,27 +1533,27 @@ DummyModel(
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 ArchaiModel(
-        archid=(3, 1, 64),
+        archid=L=3, K=1, H=64,
         metadata={},
         arch=MyModel(
   (model): Sequential(
-    (0): Conv2d(3, 64, kernel_size=(1, 1), stride=(1, 1), padding=same)
+    (0): Conv2d(1, 64, kernel_size=(1, 1), stride=(1, 1))
     (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
     (2): ReLU()
-    (3): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), padding=same)
+    (3): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
     (4): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
     (5): ReLU()
-    (6): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), padding=same)
+    (6): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
     (7): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
     (8): ReLU()
-    (9): Conv2d(64, 1, kernel_size=(1, 1), stride=(1, 1), padding=same)
-    (10): Sigmoid()
+    (9): AdaptiveAvgPool2d(output_size=(1, 1))
+    (10): Conv2d(64, 10, kernel_size=(1, 1), stride=(1, 1))
   )
 )
 )
@@ -1566,7 +1561,7 @@ ArchaiModel(
 </div>
 <p>Saving an architecture</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span><span class="o">.</span><span class="n">save_arch</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s1">&#39;arch.json&#39;</span><span class="p">)</span>
@@ -1574,24 +1569,25 @@ ArchaiModel(
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>cat<span class="w"> </span>arch.json
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;arch.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#34;nb_layers&#34;: 3, &#34;kernel_size&#34;: 1, &#34;hidden_dim&#34;: 64}
+&#39;{&#34;nb_layers&#34;: 3, &#34;kernel_size&#34;: 1, &#34;hidden_dim&#34;: 64}&#39;
 </pre></div></div>
 </div>
 <p>Loading an architecture without the weights</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span><span class="o">.</span><span class="n">load_arch</span><span class="p">(</span><span class="s1">&#39;arch.json&#39;</span><span class="p">)</span>
@@ -1599,27 +1595,27 @@ ArchaiModel(
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 ArchaiModel(
-        archid=(3, 1, 64),
+        archid=L=3, K=1, H=64,
         metadata={},
         arch=MyModel(
   (model): Sequential(
-    (0): Conv2d(3, 64, kernel_size=(1, 1), stride=(1, 1), padding=same)
+    (0): Conv2d(1, 64, kernel_size=(1, 1), stride=(1, 1))
     (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
     (2): ReLU()
-    (3): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), padding=same)
+    (3): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
     (4): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
     (5): ReLU()
-    (6): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), padding=same)
+    (6): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1))
     (7): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
     (8): ReLU()
-    (9): Conv2d(64, 1, kernel_size=(1, 1), stride=(1, 1), padding=same)
-    (10): Sigmoid()
+    (9): AdaptiveAvgPool2d(output_size=(1, 1))
+    (10): Conv2d(64, 10, kernel_size=(1, 1), stride=(1, 1))
   )
 )
 )
@@ -1645,7 +1641,7 @@ ArchaiModel(
 <h4>Example: Making <code class="docutils literal notranslate"><span class="pre">CNNSearchSpace</span></code> compatible with NAS algorithsm<a class="headerlink" href="#Example:-Making-CNNSearchSpace-compatible-with-NAS-algorithsm" title="Permalink to this headline">#</a></h4>
 <p>Let’s make our search space compatible with Evolutionary and Bayesian Optimization NAS algorithms. To do that, we need to subclass <code class="docutils literal notranslate"><span class="pre">EvolutionarySearchSpace</span></code> and <code class="docutils literal notranslate"><span class="pre">BayesOptSearchSpace</span></code>, and implement <code class="docutils literal notranslate"><span class="pre">mutation</span></code>, <code class="docutils literal notranslate"><span class="pre">crossover</span></code> and <code class="docutils literal notranslate"><span class="pre">encode</span></code> method.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.api.search_space</span> <span class="kn">import</span> <span class="n">EvolutionarySearchSpace</span><span class="p">,</span> <span class="n">BayesOptSearchSpace</span>
@@ -1678,12 +1674,10 @@ ArchaiModel(
 
     <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">crossover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ArchaiModel</span><span class="p">:</span>
-        <span class="n">model_1</span><span class="p">,</span> <span class="n">model_2</span> <span class="o">=</span> <span class="n">model_list</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
-
         <span class="n">new_config</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;nb_layers&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">model_1</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">nb_layers</span><span class="p">,</span> <span class="n">model_2</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">nb_layers</span><span class="p">]),</span>
-            <span class="s1">&#39;kernel_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">model_1</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">model_2</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">]),</span>
-            <span class="s1">&#39;hidden_dim&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">model_1</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">model_2</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">]),</span>
+            <span class="s1">&#39;nb_layers&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">nb_layers</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">model_list</span><span class="p">]),</span>
+            <span class="s1">&#39;kernel_size&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">kernel_size</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">model_list</span><span class="p">]),</span>
+            <span class="s1">&#39;hidden_dim&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">hidden_dim</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">model_list</span><span class="p">]),</span>
         <span class="p">}</span>
 
         <span class="n">crossover_model</span> <span class="o">=</span> <span class="n">MyModel</span><span class="p">(</span><span class="o">**</span><span class="n">new_config</span><span class="p">)</span>
@@ -1699,7 +1693,7 @@ ArchaiModel(
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span> <span class="o">=</span> <span class="n">CNNSearchSpaceExt</span><span class="p">(</span><span class="n">hidden_list</span><span class="o">=</span><span class="p">[</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">])</span>
@@ -1708,7 +1702,7 @@ ArchaiModel(
 </div>
 <p>Now we can generate mutations, crossover and encodings from any architecture of this search space</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
@@ -1717,16 +1711,16 @@ ArchaiModel(
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;(3, 1, 64)&#39;
+&#39;L=3, K=1, H=64&#39;
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">archid</span>
@@ -1734,16 +1728,46 @@ ArchaiModel(
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;(8, 1, 64)&#39;
+&#39;L=8, K=1, H=64&#39;
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+<span class="p">[</span><span class="nb">print</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">archid</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">models</span><span class="p">]</span>
+<span class="n">ss</span><span class="o">.</span><span class="n">crossover</span><span class="p">(</span><span class="n">models</span><span class="p">)</span><span class="o">.</span><span class="n">archid</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+L=4, K=1, H=64
+L=1, K=7, H=64
+L=10, K=1, H=128
+L=8, K=5, H=128
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;L=1, K=1, H=128&#39;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
@@ -1751,7 +1775,7 @@ ArchaiModel(
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1765,10 +1789,10 @@ array([ 3,  1, 64])
 </section>
 <section id="Built-in-Search-Spaces">
 <h2>Built-in Search Spaces<a class="headerlink" href="#Built-in-Search-Spaces" title="Permalink to this headline">#</a></h2>
-<p>Instead of creating a search space from scratch, Archai has a list of built-in search spaces that can be used for multiple tasks. A list of built-in search spaces can be found in <code class="docutils literal notranslate"><span class="pre">archai/discrete_search/search_spaces</span></code>.</p>
+<p>Instead of creating a search space from scratch, Archai has a list of built-in search spaces that can be used for many Machine Learning tasks. A list of built-in search spaces can be found in <code class="docutils literal notranslate"><span class="pre">archai/discrete_search/search_spaces</span></code>.</p>
 <p>Example: Semantic Segmentation Search Space (<code class="docutils literal notranslate"><span class="pre">SegmentationDagSearchSpace</span></code>)</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.cv</span> <span class="kn">import</span> <span class="n">SegmentationDagSearchSpace</span>
@@ -1779,7 +1803,7 @@ array([ 3,  1, 64])
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1862,7 +1886,7 @@ ArchaiModel(
     By Microsoft<br/>
   
       &copy; Copyright 2023.<br/>
-    Last updated on Feb 16, 2023.<br/>
+    Last updated on Feb 24, 2023.<br/>
 </p>
         </footer>
     </div>
