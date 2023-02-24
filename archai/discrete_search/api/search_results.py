@@ -197,6 +197,7 @@ class SearchResults:
         status_df = self.get_search_state_df().copy()
 
         fig, ax = plt.subplots(figsize=figsize)
+        fig.patch.set_facecolor('white')
         status_range = range(0, self.iteration_num + 1)
 
         # Transforms dimensions to be decreasing if necessary
