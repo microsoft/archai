@@ -1212,7 +1212,7 @@ div.rendered_html tbody tr:hover {
 the data processing pipeline.</p>
 <section id="Instantiating-the-Provider">
 <h2>Instantiating the Provider<a class="headerlink" href="#Instantiating-the-Provider" title="Permalink to this headline">#</a></h2>
-<p>The first step is to instantiate the <code class="docutils literal notranslate"><span class="pre">FastHfDatasetProvider</span></code>, which loads and encodes the dataset. A set of arguments can be passed to its constructor according to the user’s needs:</p>
+<p>The first step is to instantiate the <code class="docutils literal notranslate"><span class="pre">FastHfDatasetProvider.from_hub()</span></code>, which loads and encodes the dataset. A set of arguments can be passed to its class method according to the user’s needs:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">dataset_name</span></code>: Name of the dataset.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">dataset_config_name</span></code>: Name of the dataset configuration.</p></li>
@@ -1226,7 +1226,7 @@ the data processing pipeline.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">num_workers</span></code>: Number of workers to use for encoding.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_eos_token</span></code>: Whether to use EOS token to separate sequences.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_shared_memory</span></code>: Whether to use shared memory for caching.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cache_dir</span></code>: Root path to the cache directory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cache_dir</span></code>: Path to the cache directory.</p></li>
 </ul>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -1236,13 +1236,14 @@ the data processing pipeline.</p>
 
 <span class="c1"># The provider will automatically download the dataset and tokenizer, encode</span>
 <span class="c1"># the dataset and cache it for future use</span>
-<span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="p">(</span>
+<span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">from_hub</span><span class="p">(</span>
     <span class="s2">&quot;glue&quot;</span><span class="p">,</span>
     <span class="n">dataset_config_name</span><span class="o">=</span><span class="s2">&quot;sst2&quot;</span><span class="p">,</span>
     <span class="n">tokenizer_name</span><span class="o">=</span><span class="s2">&quot;gpt2&quot;</span><span class="p">,</span>
     <span class="n">tokenizer_max_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
     <span class="n">mapping_column_name</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sentence&quot;</span><span class="p">],</span>
-    <span class="n">use_shared_memory</span><span class="o">=</span><span class="kc">False</span>
+    <span class="n">use_shared_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">cache_dir</span><span class="o">=</span><span class="s2">&quot;cache/glue-sst2-gpt2&quot;</span>
 <span class="p">)</span>
 
 <span class="c1"># (inputs, labels) can be retrieved with any sequence length</span>
@@ -1257,9 +1258,9 @@ the data processing pipeline.</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-16 14:19:39,981 - archai.datasets.nlp.fast_hf_dataset_provider — WARNING —  Shared memory is not available in Python &lt; 3.8.
-2023-02-16 14:19:42,645 - archai.datasets.nlp.fast_hf_dataset_provider — WARNING —  New maximum length set for the tokenizer: 512.
-2023-02-16 14:19:42,649 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Downloading dataset ...
+2023-02-24 11:58:45,090 - archai.datasets.nlp.fast_hf_dataset_provider — WARNING —  Shared memory is not available in Python &lt; 3.8.
+2023-02-24 11:58:47,844 - archai.datasets.nlp.fast_hf_dataset_provider — WARNING —  New maximum length set for the tokenizer: 512.
+2023-02-24 11:58:47,846 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Downloading dataset ...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1274,14 +1275,15 @@ Found cached dataset glue (C:/Users/gderosa/.cache/huggingface/datasets/glue/sst
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "d8ef210940ce4773a1675389b5061a9c", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0964e007e4d14e06b195030a4fb2c77c", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-16 14:19:46,295 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Encoding dataset ...
+2023-02-24 11:58:52,905 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Encoding dataset ...
+2023-02-24 11:58:52,907 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Number of workers: 1 | EOS token: True
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1298,26 +1300,35 @@ Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ef674e6378e8470ead207f24e0dfabed", "version_major": 2, "version_minor": 0}</script></div>
+<div class="highlight"><pre>
+2023-02-24 11:58:53,054 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Processing dataset to memory ...
+2023-02-24 11:58:53,056 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Number of workers: 1 | Shared memory: False
+</pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f977234e870643c9bce445768f2dbaa7", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "5153af5e050c4461999f222ca3d6111e", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "b5c7bec1080c4009baf45a6f7f2f265e", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "66a19c9897b842b7a714acd52728c639", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ad086c4b1c3a4badaf1aae0a332b8b82", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-16 14:19:47,798 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Saving dataset to: cache\glue\sst2\3ba1dcb015d7664117d16b85af90496896fc74ef
+2023-02-24 11:58:54,300 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Saving dataset to: cache\glue-sst2-gpt2
 (tensor([24717,   649,  3200,   507,   422,   262, 21694,  4991,   220, 50256,
          3642,  1299,   645, 20868,   837,   691,  2248,  1850,   308,  3775,
           220, 50256,  5562, 10408,   663,  3435,   290, 48556,  1223,  2138,
@@ -1544,7 +1555,7 @@ Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The caching mechanism automatically saves `config.json` and `tokenizer.pkl`,</span>
 <span class="c1"># which are used to recreate the provider when calling `from_cache` method</span>
-<span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">from_cache</span><span class="p">(</span><span class="s2">&quot;cache/glue/sst2/3ba1dcb015d7664117d16b85af90496896fc74ef&quot;</span><span class="p">)</span>
+<span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">from_cache</span><span class="p">(</span><span class="s2">&quot;cache/glue-sst2-gpt2&quot;</span><span class="p">)</span>
 
 <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">dataset_provider</span><span class="o">.</span><span class="n">get_train_dataset</span><span class="p">(</span><span class="n">seq_len</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
 <span class="n">val_dataset</span> <span class="o">=</span> <span class="n">dataset_provider</span><span class="o">.</span><span class="n">get_val_dataset</span><span class="p">(</span><span class="n">seq_len</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
@@ -1557,6 +1568,7 @@ Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+2023-02-24 11:58:54,579 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Loading dataset from: cache/glue-sst2-gpt2
 (tensor([24717,   649,  3200,   507,   422,   262, 21694,  4991,   220, 50256,
          3642,  1299,   645, 20868,   837,   691,  2248,  1850,   308,  3775,
           220, 50256,  5562, 10408,   663,  3435,   290, 48556,  1223,  2138,
