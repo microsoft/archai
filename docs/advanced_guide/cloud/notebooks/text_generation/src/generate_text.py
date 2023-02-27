@@ -11,13 +11,12 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generates new tokens with a pre-trained model.")
 
     parser.add_argument("pre_trained_model_path", type=str, help="Path to the pre-trained model file.")
-
     parser.add_argument("hub_tokenizer_path", type=str, help="Path to the Hugging Face's Hub tokenizer.")
-
     parser.add_argument("prompt", type=str, help="Prompt to serve as the generation's context.")
-
+    parser.add_argument("--output_path",
+                        type=str,
+                        help="Path to a file where the generated text will be saved. If not specified, it will be printed to the console.")
     args = parser.parse_args()
-
     return args
 
 
@@ -44,4 +43,8 @@ if __name__ == "__main__":
         max_new_tokens=128,
     )
 
-    print(f"Generated: \n{tokenizer.decode(outputs[0], skip_special_tokens=True)}")
+    if args.output_path:
+        with open(args.output_path, "x") as f:
+            f.write(tokenizer.decode(outputs[0], skip_special_tokens=True))
+    else:
+        print(f"Generated: \n{tokenizer.decode(outputs[0], skip_special_tokens=True)}")
