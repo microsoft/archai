@@ -61,6 +61,14 @@ python train.py -h
 
 ### Results
 
+After pre-training the architectures, we performed a zero-shot evaluation over 16 tasks, and created two Pareto frontiers between the average performance (across all tasks) and ONNX-based metrics (latency and memory).
+
+![GPT-2: Zero-Shot Evaluation Pareto Frontier](assets/pareto_zero_shot_eval.png)
+
+It is interesting to highlight that the "yellow" dot (gpt2_4352a56f3fa9e7ba6d291867d356a08022753658), achieved the highest average performance with less latency and memory than a model with 20% more parameters (gpt2_6c6e63116ff74ba444ff5a08cef54380073ebea3).
+
+On the other hand, one can find an interesting "medium green" dot (gpt2_ddf63c1125f1fed5a7dd3537f640834187719996) which only uses 13.32M non-embedding parameters, 0.069s latency and 125.78MB memory, yet it achieves 0.3867 average performance. Such performance is only 2.89% less than the highest performance model ("yellow" dot) but using roughly a third of non-embedding parameters, latency and memory.
+
 ## Generating Text with Pre-Trained Architectures
 
 With our pre-trained architectures, high-quality text can be generated with ease using just a few lines of code. Simply download one of the models from our Model Gallery and start generating text immediately:
