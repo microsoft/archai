@@ -1,6 +1,6 @@
 # Text Generation
 
-At Archai, we understand the significance of finding the optimal neural architecture in order to achieve the highest performance in text generation. That's why we have developed a cutting-edge neural architecture search method named Lightweight Transformer Search (LTS). This innovative method allows us to find the most optimal architectures that lie on the Pareto Frontier, where trade-offs are made between multiple objectives such as latency and memory usage.
+At Archai, we recognize the significance of discovering the optimal neural architecture to attain the highest performance in text generation. For this purpose, we have created an advanced neural architecture search method known as the Lightweight Transformer Search (LTS). This innovative method enables us to identify the most optimal architectures that exist on the Pareto Frontier, where trade-offs are made between several objectives, such as latency and memory usage.
 
 ## Model Gallery
 
@@ -37,15 +37,15 @@ We ran LTS for a total of 10 generations and discovered multiple architectures t
 python search.py -h
 ```
 
-*The arguments used on this task are the default ones provided by the script.*
+*The default arguments provided by the script were used in this task.*
 
 ### Results
 
-The points to the bottom-left of the plot indicate the best architectures in terms of non-embedding parameters and ONNX-based latency.
+The best-performing architectures with respect to non-embedding parameters and ONNX-based latency are depicted by the points in the bottom-left corner of the plot:
 
 ![Non-Embedding Parameters x ONNX Latency Plot](assets/pareto_non_embedding_params_vs_onnx_latency.png)
 
-The points to the bottom-left of the plot represent the best architectures in terms of non-embedding parameters and ONNX-based memory.
+The best-performing architectures with respect to non-embedding parameters and ONNX-based memory are shown by the points in the bottom-left corner of the plot:
 
 ![Non-Embedding Parameters x ONNX Memory Plot](assets/pareto_non_embedding_params_vs_onnx_memory.png)
 
@@ -57,7 +57,7 @@ Once the Pareto-optimal architectures have been found (located in the `models` f
 python train.py -h
 ```
 
-*The arguments used on this task are the default ones provided by the script. The dataset used for training is 7.8B tokens from a pre-encoded version of ThePile.*
+*The default arguments provided by the script were used in this task. The training dataset consisted of 7.8 billion tokens from a pre-encoded version of ThePile.*
 
 ### Results
 
@@ -65,19 +65,19 @@ After pre-training the architectures, we performed a zero-shot evaluation over 1
 
 ![GPT-2: Zero-Shot Evaluation Pareto Frontier](assets/pareto_zero_shot_eval.png)
 
-It is interesting to highlight that the "yellow" dot (gpt2_4352a56f3fa9e7ba6d291867d356a08022753658), achieved the highest average performance with less latency and memory than a model with 20% more parameters (gpt2_6c6e63116ff74ba444ff5a08cef54380073ebea3).
+It is worth noting that the model labeled *gpt2_4352a56f3fa9e7ba6d291867d356a08022753658* (represented by the "yellow" dot) achieved the highest average performance with lower latency and memory usage than *gpt2_6c6e63116ff74ba444ff5a08cef54380073ebea3*, despite having 20% less parameters.
 
-On the other hand, one can find an interesting "medium green" dot (gpt2_ddf63c1125f1fed5a7dd3537f640834187719996) which only uses 13.32M non-embedding parameters, 0.069s latency and 125.78MB memory, yet it achieves 0.3867 average performance. Such performance is only 2.89% less than the highest performance model ("yellow" dot) but using roughly a third of non-embedding parameters, latency and memory.
+Furthermore, *gpt2_ddf63c1125f1fed5a7dd3537f640834187719996* (represented by the "medium green" dot) used only 13.32M non-embedding parameters, 0.069s of latency, and 125.78MB of memory, yet it attained an average performance of 0.3867. This level of performance was only 2.89% lower than that of the highest-performing model ("yellow" dot), but it utilized roughly one-third of the non-embedding parameters, latency, and memory.
 
 ## Generating Text with Pre-Trained Architectures
 
-With our pre-trained architectures, high-quality text can be generated with ease using just a few lines of code. Simply download one of the models from our Model Gallery and start generating text immediately:
+With our pre-trained architectures, text can be generated with ease using just a few lines of code. Simply download one of the models from our Model Gallery and start generating text:
 
 ```python
 python generate_text.py -h
 ```
 
-As an alternative, one can use models from Hugging Face's Hub to generate text, such as:
+Alternatively, models from Hugging Face's Hub can be used to generate text:
 
 ```python
 python generate_text.py "gpt2" "gpt2" <prompt>
