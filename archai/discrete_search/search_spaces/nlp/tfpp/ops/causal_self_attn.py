@@ -8,7 +8,7 @@ from archai.discrete_search.search_spaces.config import ArchConfig
 
 
 # Copied from transformers.models.gptj.modeling_gptj.fixed_pos_embedding
-def fixed_pos_embedding(x, seq_dim=1, seq_len=None):
+def fixed_pos_embedding(x: torch.FloatTensor, seq_dim: int = 1, seq_len: Optional[int] = None):
     dim = x.shape[-1]
     if seq_len is None:
         seq_len = x.shape[seq_dim]
@@ -20,7 +20,7 @@ def fixed_pos_embedding(x, seq_dim=1, seq_len=None):
 
 
 # Copied from transformers.models.gptj.modeling_gptj.rotate_every_two
-def rotate_every_two(x):
+def rotate_every_two(x: torch.FloatTensor):
     x1 = x[:, :, :, ::2]
     x2 = x[:, :, :, 1::2]
     x = torch.stack((-x2, x1), dim=-1)
@@ -28,7 +28,7 @@ def rotate_every_two(x):
 
 
 # Copied from transformers.models.gptj.modeling_gptj.duplicate_interleave
-def duplicate_interleave(m):
+def duplicate_interleave(m: torch.FloatTensor):
     """
     A simple version of `torch.repeat_interleave` for duplicating a matrix while interleaving the copy.
     """
@@ -40,7 +40,7 @@ def duplicate_interleave(m):
 
 
 # Copied from transformers.models.gptj.modeling_gptj.apply_rotary_pos_emb
-def apply_rotary_pos_emb(x, sincos, offset=0):
+def apply_rotary_pos_emb(x: torch.FloatTensor, sincos: torch.FloatTensor, offset: int = 0):
     sin, cos = map(lambda t: duplicate_interleave(t)[None, offset : x.shape[1] + offset, None, :], sincos)
     # einsum notation for lambda t: repeat(t[offset:x.shape[1]+offset,:], "n d -> () n () (d j)", j=2)
     return (x * cos) + (rotate_every_two(x) * sin)
@@ -78,12 +78,12 @@ class CausalSelfAttention(nn.Module):
         if hf_config.rotary_dim is not None:
             self.rotary_dim = hf_config.rotary_dim
 
-    def _split_heads(self, x, n_head, dim_head, mp_num):
+    def _split_heads(self, x: torch.FloatTensor, n_head: int, dim_head: int, mp_num: int):
         reshaped = x.reshape(x.shape[:-1] + (n_head // mp_num, dim_head))
         reshaped = reshaped.reshape(x.shape[:-2] + (-1,) + reshaped.shape[-1:])
         return reshaped
 
-    def _merge_heads(self, tensor, num_attention_heads, attn_head_size):
+    def _merge_heads(self, tensor: torch.FloatTensor, num_attention_heads: int, attn_head_size: int):
         """
         Merges attn_head_size dim and num_attn_heads dim into n_ctx
         """
@@ -98,11 +98,11 @@ class CausalSelfAttention(nn.Module):
 
     def _attn(
         self,
-        query,
-        key,
-        value,
-        attention_mask=None,
-        head_mask=None,
+        query: torch.Tensor,
+        key: torch.Tensor,
+        value: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        head_mask: Optional[torch.Tensor] = None,
     ):
 
         # compute causal mask from causal mask buffer
