@@ -46,7 +46,8 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
         self.register_buffer("mask_value_float16", torch.tensor(-1e4))
         self.register_buffer("mask_value_float32", torch.tensor(-1e9))
 
-    def _split_hidden_size_and_add_rotary(self, x, num_attn_heads, attn_head_size, seq_len):
+    def _split_hidden_size_and_add_rotary(self, x: torch.FloatTensor, num_attn_heads: int,
+                                          attn_head_size: int, seq_len: int):
         """
         splits hidden_size dim into attn_head_size and num_attn_heads
         """
@@ -61,14 +62,14 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
 
     def forward(
         self,
-        hidden_states,
-        attention_mask=None,
-        head_mask=None,
-        num_hashes=None,
-        buckets=None,
-        past_buckets_states=None,
-        use_cache=False,
-        output_attentions=False,
+        hidden_states: torch.FloatTensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        head_mask: Optional[torch.Tensor] = None,
+        num_hashes: Optional[int] = None,
+        buckets: Optional[torch.Tensor] = None,
+        past_buckets_states: Optional[torch.Tensor] = None,
+        use_cache: bool = False,
+        output_attentions: bool = False,
         **kwargs,
     ):
         sequence_length = hidden_states.shape[1]
@@ -295,7 +296,7 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
 
         return LSHSelfAttentionOutput(hidden_states=out_vectors, attention_probs=attention_probs, buckets=buckets)
 
-    def _query_per_attn_head(self, hidden_states):
+    def _query_per_attn_head(self, hidden_states: torch.FloatTensor):
         per_head_query_key = self.query_key.weight.reshape(
             self.num_attention_heads, self.attention_head_size, self.hidden_size
         ).transpose(-2, -1)
@@ -303,7 +304,7 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
         query_key_vectors = torch.einsum("balh,ahr->balr", hidden_states, per_head_query_key)
         return query_key_vectors
 
-    def _value_per_attn_head(self, hidden_states):
+    def _value_per_attn_head(self, hidden_states: torch.FloatTensor):
         per_head_value = self.value.weight.reshape(
             self.num_attention_heads, self.attention_head_size, self.hidden_size
         ).transpose(-2, -1)
@@ -311,7 +312,10 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
         value_vectors = torch.einsum("balh,ahr->balr", hidden_states, per_head_value)
         return value_vectors
 
-    def _hash_vectors(self, vectors, num_hashes, attention_mask, increase_num_buckets=False):
+    def _hash_vectors(self, vectors: torch.FloatTensor,
+                      num_hashes: int,
+                      attention_mask: Optional[torch.Tensor],
+                      increase_num_buckets: bool = False):
         batch_size = vectors.shape[0]
 
         # See https://arxiv.org/pdf/1509.02897.pdf
@@ -385,7 +389,8 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
 
         return offset_buckets
 
-    def _get_sorted_bucket_idx_and_undo_sorted_bucket_idx(self, sequence_length, buckets, num_hashes):
+    def _get_sorted_bucket_idx_and_undo_sorted_bucket_idx(self, sequence_length: int, buckets: torch.Tensor,
+                                                          num_hashes: int):
         # no gradients are needed
         with torch.no_grad():
             # hash-based sort
@@ -404,7 +409,7 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
 
         return sorted_bucket_idx, undo_sorted_bucket_idx
 
-    def _set_num_buckets(self, sequence_length):
+    def _set_num_buckets(self, sequence_length: int):
         # `num_buckets` should be set to 2 * sequence_length // chunk_length as recommended in paper
         num_buckets_pow_2 = (2 * (sequence_length // self.chunk_length)).bit_length() - 1
         # make sure buckets are power of 2
@@ -424,14 +429,14 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
 
     def _attend(
         self,
-        query_vectors,
-        key_vectors,
-        value_vectors,
-        sorted_bucket_idx_per_hash,
-        attention_mask,
-        head_mask,
-        do_standard_self_attention,
-        do_cached_attention,
+        query_vectors: torch.FloatTensor,
+        key_vectors: torch.FloatTensor,
+        value_vectors: torch.FloatTensor,
+        sorted_bucket_idx_per_hash: torch.Tensor,
+        attention_mask: Optional[torch.Tensor],
+        head_mask: Optional[torch.Tensor],
+        do_standard_self_attention: bool,
+        do_cached_attention: bool,
     ):
         # look at previous and following chunks if chunked attention
         if not do_standard_self_attention:
@@ -535,7 +540,10 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
         return out_vectors, logits, attention_probs
 
     def _compute_attn_mask(
-        self, query_indices, key_indices, attention_mask, query_key_dot_shape, do_standard_self_attention
+        self, query_indices: torch.Tensor, key_indices: torch.Tensor,
+        attention_mask: Optional[torch.Tensor],
+        query_key_dot_shape: torch.Size,
+        do_standard_self_attention: bool
     ):
         # attention mask for LSH
         if attention_mask is not None:
@@ -563,7 +571,12 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
         return attention_mask
 
     def _get_relevant_hid_states_and_buckets(
-        self, query_vectors, attention_mask, num_hashes, hidden_states, past_states, past_buckets
+        self, query_vectors: torch.FloatTensor,
+        attention_mask: Optional[torch.Tensor],
+        num_hashes: int,
+        hidden_states: torch.FloatTensor,
+        past_states: torch.FloatTensor,
+        past_buckets: torch.Tensor
     ):
         # concat hidden states
         hidden_states = torch.cat([past_states, hidden_states], dim=1)
@@ -649,7 +662,7 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
 
         return relevant_hidden_states, relevant_bucket_idx_chunk, query_buckets
 
-    def _expand_to_indices_in_relevant_chunk(self, indices, sequence_length):
+    def _expand_to_indices_in_relevant_chunk(self, indices: torch.Tensor, sequence_length: int):
         # get relevant indices of where chunk starts and its size
         start_indices_chunk = ((indices[:, -1] // self.chunk_length) - self.num_chunks_before) * self.chunk_length
         total_chunk_size = self.chunk_length * (1 + self.num_chunks_before + self.num_chunks_after)
@@ -669,7 +682,7 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
 
         return indices
 
-    def _len_and_dim_norm(self, vectors):
+    def _len_and_dim_norm(self, vectors: torch.Tensor):
         """
         length and attention head size dim normalization
         """
@@ -679,7 +692,7 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
         )
         return vectors
 
-    def _len_norm(self, x, epsilon=1e-6):
+    def _len_norm(self, x: torch.Tensor, epsilon=1e-6):
         """
         length normalization
         """
@@ -687,7 +700,7 @@ class HfLSHSelfAttention(nn.Module, EfficientAttentionMixin):
         norm_x = x * torch.rsqrt(variance + epsilon)
         return norm_x
 
-    def _gather_by_expansion(self, vectors, idxs, num_hashes):
+    def _gather_by_expansion(self, vectors: torch.Tensor, idxs: torch.Tensor, num_hashes: int):
         """
         expand dims of idxs and vectors for all hashes and gather
         """
@@ -728,7 +741,8 @@ class LSHAttention(nn.Module):
 
         self.attn = HfLSHSelfAttention(self.config)
 
-    def forward(self, hidden_states, bin_attention_mask: Optional[torch.FloatTensor] = None, 
+    def forward(self, hidden_states: torch.FloatTensor,
+                bin_attention_mask: Optional[torch.FloatTensor] = None, 
                 past_buckets_states: Optional[torch.Tensor] = None,  use_cache: bool = False,
                 *args, **kwargs):
         

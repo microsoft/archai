@@ -3,12 +3,14 @@
 '''
 
 import math
+from typing import Optional
+from functools import partial
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 import opt_einsum as oe
-from functools import partial
 
 from archai.discrete_search.search_spaces.config import ArchConfig
 from transformers import PretrainedConfig
@@ -20,7 +22,7 @@ if optimized:
 else:
     contract = torch.einsum
 
-def get_initializer(name, activation=None):
+def get_initializer(name: str, activation: Optional[str] = None):
     if activation in [ None, 'id', 'identity', 'linear', 'modrelu' ]:
         nonlinearity = 'linear'
     elif activation in ['relu', 'tanh', 'sigmoid']:
@@ -73,7 +75,7 @@ class TransposedLinear(nn.Module):
     Assumes shape (B, D, L), where L can be 1 or more axis
     """
 
-    def __init__(self, d_input, d_output, bias=True):
+    def __init__(self, d_input: int, d_output: int, bias: bool = True):
         super().__init__()
 
         self.weight = nn.Parameter(torch.empty(d_output, d_input))
@@ -89,7 +91,7 @@ class TransposedLinear(nn.Module):
         else:
             self.bias = 0.0
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor):
         num_axis = len(x.shape[2:])  # num_axis in L, for broadcasting bias
         y = contract('b u ..., v u -> b v ...', x, self.weight) + \
             self.bias.view(-1, *[1]*num_axis)
@@ -103,7 +105,7 @@ class TransposedLN(nn.Module):
     This is slow and a dedicated CUDA/Triton implementation shuld provide substantial end-to-end speedup
     """
 
-    def __init__(self, d, scalar=True):
+    def __init__(self, d: int, scalar: bool = True):
         super().__init__()
         self.scalar = scalar
         if self.scalar:
@@ -114,7 +116,7 @@ class TransposedLN(nn.Module):
         else:
             self.ln = nn.LayerNorm(d)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor):
         if self.scalar:
             # calc. stats over D dim / channels
             s, m = torch.std_mean(x, dim=1, unbiased=False, keepdim=True)
@@ -126,7 +128,7 @@ class TransposedLN(nn.Module):
         return y
 
 
-def Activation(activation=None, size=None, dim=-1):
+def Activation(activation: Optional[str] = None, size: Optional[int] = None, dim: int = -1):
     if activation in [None, 'id', 'identity', 'linear']:
         return nn.Identity()
     elif activation == 'tanh':
@@ -151,13 +153,14 @@ def Activation(activation=None, size=None, dim=-1):
 
 
 def LinearActivation(
-    d_input, d_output, bias=True,
-    zero_bias_init=False,
-    transposed=False,
-    initializer=None,
-    activation=None,
-    activate=False,  # Apply activation as part of this module
-    weight_norm=False,
+    d_input: int,
+    d_output: int, bias: bool = True,
+    zero_bias_init: bool = False,
+    transposed: bool = False,
+    initializer: Optional[str] = None,
+    activation: Optional[str] = None,
+    activate: bool = False,  # Apply activation as part of this module
+    weight_norm: bool = False,
     **kwargs,
 ):
     """ Returns a linear nn.Module with control over axes order, initialization, and activation """
@@ -191,9 +194,9 @@ def LinearActivation(
 class Normalization(nn.Module):
     def __init__(
         self,
-        d,
-        transposed=False, # Length dimension is -1 or -2
-        _name_='layer',
+        d: int,
+        transposed: bool = False, # Length dimension is -1 or -2
+        _name_: str = 'layer',
         **kwargs
     ):
         super().__init__()
@@ -224,7 +227,7 @@ class Normalization(nn.Module):
             self.norm = nn.Identity()
         else: raise NotImplementedError
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor):
         # Handle higher dimension logic
         shape = x.shape
         if self.transposed:
@@ -244,7 +247,7 @@ class Normalization(nn.Module):
         x = x.view(shape)
         return x
 
-    def step(self, x, **kwargs):
+    def step(self, x: torch.Tensor, **kwargs):
         assert self._name_ in ["layer", "none"]
         if self.transposed: x = x.unsqueeze(-1)
         x = self.forward(x)
@@ -257,24 +260,24 @@ class GConv(nn.Module):
 
     def __init__(
         self,
-        d_model,
-        d_state=64,
-        l_max=1,  # Maximum length of sequence. Fine if not provided: the kernel will keep doubling in length until longer than sequence. However, this can be marginally slower if the true length is not a power of 2
-        channels=1,  # maps 1-dim to C-dim
-        bidirectional=False,
+        d_model: int,
+        d_state: int = 64,
+        l_max: int = 1,  # Maximum length of sequence. Fine if not provided: the kernel will keep doubling in length until longer than sequence. However, this can be marginally slower if the true length is not a power of 2
+        channels: int = 1,  # maps 1-dim to C-dim
+        bidirectional: bool = False,
         # Arguments for FF
-        activation='gelu',  # activation in between SS and FF
-        ln=False,  # Extra normalization
-        postact=None,  # activation after FF
-        initializer=None,  # initializer on FF
-        weight_norm=False,  # weight normalization on FF
-        hyper_act=None,  # Use a "hypernetwork" multiplication
-        dropout=0.0,
-        transposed=True,  # axis ordering (B, L, D) or (B, D, L)
-        verbose=False,
-        shift=False,
-        linear=False,
-        mode="cat_randn",
+        activation: str = 'gelu',  # activation in between SS and FF
+        ln: bool = False,  # Extra normalization
+        postact: Optional[str] = None,  # activation after FF
+        initializer: Optional[str] =None,  # initializer on FF
+        weight_norm: bool = False,  # weight normalization on FF
+        hyper_act: Optional[str] = None,  # Use a "hypernetwork" multiplication
+        dropout: float = 0.0,
+        transposed: bool = True,  # axis ordering (B, L, D) or (B, D, L)
+        verbose: bool = False,
+        shift: bool = False,
+        linear: bool = False,
+        mode: str = "cat_randn",
         # SSM Kernel arguments
         **kernel_args,
     ):

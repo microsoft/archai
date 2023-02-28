@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 
 from archai.discrete_search.search_spaces.config import ArchConfig
@@ -22,7 +23,7 @@ class SeparableConv1d(nn.Module):
         
         self.act = nn.ReLU()
         
-    def forward(self, hidden_states, **kwargs):
+    def forward(self, hidden_states: torch.FloatTensor, **kwargs):
         out = self.act(self.conv_map_in(hidden_states))
         out = self.act(self.conv(out.transpose(-1,-2)).transpose(-1,-2))
         
