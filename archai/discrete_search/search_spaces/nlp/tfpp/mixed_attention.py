@@ -3,14 +3,14 @@ from typing import Optional
 import torch
 from torch import nn
 from transformers.pytorch_utils import Conv1D
-from transformers.models.gpt2.configuration_gpt2 import GPT2Config
+from transformers import PretrainedConfig
 
 from archai.discrete_search.search_spaces.config import ArchConfig
 from archai.discrete_search.search_spaces.nlp.tfpp.ops import OPS
 
 
 class MixedAttentionBlock(nn.Module):
-    def __init__(self, arch_config: ArchConfig, hf_config: GPT2Config,
+    def __init__(self, arch_config: ArchConfig, hf_config: PretrainedConfig,
                  hidden_size: int, layer_idx: Optional[int] = None) -> None:
         super().__init__()
         
@@ -48,7 +48,7 @@ class MixedAttentionBlock(nn.Module):
         self.resid_dropout = nn.Dropout(self.hf_config.resid_pdrop)
         self.out_proj = Conv1D(self.hidden_size, self.hidden_size)
 
-    def forward(self, hidden_states, **kwargs):
+    def forward(self, hidden_states: torch.Tensor, **kwargs):
         # Concatenates outputs from each op in the embedding dim
         output = [op(hidden_states, **kwargs)[0] for op in self.ops]
         output = torch.cat(output, dim=-1)
