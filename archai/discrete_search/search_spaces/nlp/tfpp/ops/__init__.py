@@ -1,10 +1,10 @@
 from collections import namedtuple
 
-from .causal_self_attn import CausalSelfAttention
-from .sep_conv1d import SeparableConv1d
-from .sgconv import SGConv
-from .local_attention import LocalMHA
-from .lsh_attn import LSHAttention
+from archai.discrete_search.search_spaces.nlp.tfpp.ops.causal_self_attn import CausalSelfAttention
+from archai.discrete_search.search_spaces.nlp.tfpp.ops.sep_conv1d import SeparableConv1d
+from archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv import SGConv
+from archai.discrete_search.search_spaces.nlp.tfpp.ops.local_attention import LocalMHA
+from archai.discrete_search.search_spaces.nlp.tfpp.ops.lsh_attn import LSHAttention
 
 OP = namedtuple('Operation', ['cls', 'requires_extra_config'])
 
