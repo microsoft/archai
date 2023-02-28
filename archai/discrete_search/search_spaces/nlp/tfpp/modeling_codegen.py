@@ -183,6 +183,8 @@ class CodeGenModel(CodeGenPreTrainedModel):
             position_ids = position_ids.unsqueeze(0).view(-1, input_shape[-1])
 
         # Attention mask.
+        bin_attention_mask = attention_mask
+        
         if attention_mask is not None:
             if batch_size <= 0:
                 raise ValueError("batch_size has to be defined and > 0")
