@@ -11,6 +11,7 @@ from archai.discrete_search.api.search_space import EvolutionarySearchSpace
 
 from model import MyModel
 
+
 class CNNSearchSpace(EvolutionarySearchSpace):
     def __init__(self, min_layers: int = 1, max_layers: int = 12,
                  kernel_list=(1, 3, 5, 7), hidden_list=(16, 32, 64, 128),
@@ -98,7 +99,3 @@ class CNNSearchSpace(EvolutionarySearchSpace):
         return ArchaiModel(
             arch=crossover_model, archid=crossover_model.get_archid()
         )
-
-    @overrides
-    def encode(self, model: ArchaiModel) -> np.ndarray:
-        return np.array([model.arch.nb_layers, model.arch.kernel_size, model.arch.hidden_dim])

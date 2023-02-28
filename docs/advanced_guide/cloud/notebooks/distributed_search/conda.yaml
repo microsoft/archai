@@ -1,0 +1,12 @@
+name: sample-nas-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    - --extra-index-url https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-python/pypi/simple/
+    - azure-ai-ml==1.5.0a20230215003
+    - azure-storage-blob
+    - azure-data-tables
+    - "archai[dev] @ git+https://github.com/microsoft/archai.git"
