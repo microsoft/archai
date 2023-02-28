@@ -7,6 +7,9 @@ inputs:
     path: azureml://full/path/to/pretrained/model
   hub_tokenizer_path: gpt2
   prompt: Machine Learning
+outputs:
+  output_path:
+    type: uri_file
 code: .
 environment:
   azureml:aml-archai:0.1.0
@@ -15,3 +18,4 @@ command: >-
   ${{inputs.pre_trained_model_path}}
   ${{inputs.hub_tokenizer_path}}
   "${{inputs.prompt}}"
+  --output_path ${{outputs.output_path}}

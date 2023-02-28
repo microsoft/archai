@@ -13,6 +13,7 @@ dependencies = [
     "hyperopt",
     "kaleido",
     "matplotlib",
+    "nbimporter",
     "nbsphinx",
     "nbval",
     "onnx>=1.10.2",
@@ -41,7 +42,7 @@ dependencies = [
     "tokenizers>=0.10.3",
     "torchvision",
     "tqdm",
-    "transformers>=4.25.1",
+    "transformers>=4.25.1"
 ]
 dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)?$)", x)[0] for x in dependencies)}
 
@@ -70,8 +71,9 @@ extras_require["docs"] = filter_dependencies(
     "sphinx_inline_tabs",
     "sphinxcontrib-programoutput",
     "sphinxcontrib-mermaid",
+    "nbimporter"
 )
-extras_require["tests"] = filter_dependencies("flake8", "nbval", "pytest")
+extras_require["tests"] = filter_dependencies("flake8", "nbval", "pytest", "nbimporter")
 extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
 
 install_requires = filter_dependencies(
