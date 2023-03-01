@@ -8,6 +8,7 @@ from setuptools import find_packages, setup
 dependencies = [
     "datasets>=2.4.0",
     "deepspeed",
+    "einops",
     "flake8>=5.0.4",
     "gorilla>=0.4.0",
     "h5py",
@@ -20,6 +21,7 @@ dependencies = [
     "onnx>=1.10.2",
     "onnxruntime>=1.10.0",
     "opencv-python",
+    "opt_einsum",
     "overrides==3.1.0",
     "plotly",
     "psutil",
@@ -61,7 +63,7 @@ extras_require["cv"] = filter_dependencies(
     "scikit-learn",
     "torchvision",
 )
-extras_require["nlp"] = filter_dependencies("datasets", "tokenizers", "transformers")
+extras_require["nlp"] = filter_dependencies("datasets", "einops", "opt_einsum", "tokenizers", "transformers")
 extras_require["deepspeed"] = filter_dependencies("deepspeed")
 
 extras_require["docs"] = filter_dependencies(

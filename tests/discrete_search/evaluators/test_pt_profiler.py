@@ -5,12 +5,12 @@ import pytest
 import torch
 
 from archai.discrete_search.evaluators.pt_profiler import (
-    TorchPeakCudaMemory,
     TorchFlops,
     TorchLatency,
     TorchMacs,
     TorchNumParameters,
-    TorchPeakCpuMemory
+    TorchPeakCpuMemory,
+    TorchPeakCudaMemory,
 )
 from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import (
     TransformerFlexSearchSpace,
@@ -68,22 +68,14 @@ def test_torch_latency(models, sample_input):
     assert all(lt > 0 for lt in latency2)
 
 
-def test_torch_peak_memory(models, sample_input):
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    torch_peak_memory = TorchPeakCudaMemory(forward_args=(sample_input.to(device),))
-
-    for model in models:
-        model.arch.to(device)
-
-    peak_memory = [torch_peak_memory.evaluate(model, None, None) for model in models]
-    assert all((m > 0 if device == "cuda" else m == 0) for m in peak_memory)
+def test_torch_peak_cuda_memory(models, sample_input):
+    if torch.cuda.is_available():
+        torch_peak_memory = TorchPeakCudaMemory(forward_args=sample_input)
+        peak_memory = [torch_peak_memory.evaluate(model, None, None) for model in models]
+        assert all(m > 0 for m in peak_memory)
 
 
 def test_torch_peak_cpu_memory(models, sample_input):
-    torch_peak_memory = TorchPeakCpuMemory(forward_args=sample_input.to('cpu'))
-
-    for model in models:
-        model.arch.to('cpu')
-
+    torch_peak_memory = TorchPeakCpuMemory(forward_args=sample_input)
     peak_memory = [torch_peak_memory.evaluate(model, None, None) for model in models]
     assert all(m > 0 for m in peak_memory)
