@@ -1,6 +1,8 @@
 name: sample-nas-env
 channels:
   - conda-forge
+  - pytorch
+  - nvidia
 dependencies:
   - python=3.10
   - pip
@@ -9,4 +11,6 @@ dependencies:
     - azure-ai-ml==1.5.0a20230215003
     - azure-storage-blob
     - azure-data-tables
+    - torchvision
+    - torchaudio
     - "archai[dev] @ git+https://github.com/microsoft/archai.git"

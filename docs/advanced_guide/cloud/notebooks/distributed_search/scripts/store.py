@@ -23,28 +23,26 @@ class ArchaiStore:
         self.table_client = None
         self.container_client = None
 
-    def __init__(self, storage_connection_string, blob_container_name='models', status_table_name='status'):
+    @staticmethod
+    def parse_connection_string(storage_connection_string):
         parts = storage_connection_string.split(";")
+        storage_account_name = None
+        storage_account_key = None
         for part in parts:
             keyvalue = part.split("=")
             key = keyvalue[0]
             if key == "AccountName":
-                self.storage_account_name = keyvalue[1]
+                storage_account_name = keyvalue[1]
             elif key == "AccountKey":
-                self.storage_account_key = keyvalue[1]
+                storage_account_key = keyvalue[1]
 
-        if not self.storage_account_name:
+        if not storage_account_name:
             raise Exception("storage_connection_string is missing AccountName part")
 
-        if not self.storage_account_key:
+        if not storage_account_key:
             raise Exception("storage_connection_string is missing AccountKey part")
 
-        self.storage_connection_string = storage_connection_string
-        self.blob_container_name = blob_container_name
-        self.status_table_name = status_table_name
-        self.service = None
-        self.table_client = None
-        self.container_client = None
+        return (storage_account_name, storage_account_key)
 
     def get_utc_date(self):
         current_date = datetime.datetime.now()
@@ -66,13 +64,13 @@ class ArchaiStore:
             self.table_client = self.service.create_table_if_not_exists(self.status_table_name)
         return self.table_client
 
-    def _get_container_client(self):
+    def _get_container_client(self, name):
         if not self.container_client:
             logger = logging.getLogger('azure.core.pipeline.policies.http_logging_policy')
             logger.setLevel(logging.ERROR)
             self.container_client = ContainerClient.from_connection_string(
                 self.storage_connection_string,
-                container_name=self.blob_container_name,
+                container_name=name,
                 logger=logger,
                 logging_enable=False)
             if not self.container_client.exists():
@@ -80,7 +78,7 @@ class ArchaiStore:
         return self.container_client
 
     def _get_blob_client(self, name):
-        container = self._get_container_client()  # make sure container exists.
+        container = self._get_container_client(self.blob_container_name)  # make sure container exists.
         return BlobClient.from_connection_string(self.storage_connection_string, container_name=container.container_name, blob_name=name)
 
     def get_all_status_entities(self, status=None, not_equal=False):
@@ -250,7 +248,7 @@ class ArchaiStore:
         given then it tries to find and download that file only.  If you set all_files to true
         it will download all files associated with the friendly name.  If friendly_name is empty
         it will download everything from the blob store. """
-        container = self._get_container_client()
+        container = self._get_container_client(self.blob_container_name)
         if not container.exists():
             return (False, None)
 
@@ -300,7 +298,7 @@ class ArchaiStore:
         return (model_found, model_name, local_file)
 
     def delete_blobs(self, name, specific_file=None):
-        container = self._get_container_client()
+        container = self._get_container_client(self.blob_container_name)
         prefix = f'{name}/'
         for blob in container.list_blobs(name_starts_with=prefix):
             file_name = blob.name[len(prefix):]
