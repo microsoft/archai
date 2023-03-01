@@ -9,6 +9,8 @@ from typing import Any, Dict, Union
 import deepspeed
 import torch
 
+from archai.common.file_utils import get_full_path
+
 
 @dataclass
 class DsTrainingArguments:
@@ -29,13 +31,15 @@ class DsTrainingArguments:
 
     backend: int = field(default="nccl", metadata={"help": "Distributed training backend."})
 
-    max_steps: int = field(default=100, metadata={"help": "Maximum number of training steps."})
+    logging_steps: int = field(default=10, metadata={"help": "Number of steps between logs."})
 
     do_eval: bool = field(default=True, metadata={"help": "Whether to enable evaluation."})
 
-    eval_steps: int = field(default=100, metadata={"help": "Number of steps between evaluations."})
+    eval_steps: int = field(default=10, metadata={"help": "Number of steps between evaluations."})
 
-    save_steps: int = field(default=500, metadata={"help": "Number of steps between checkpoints."})
+    save_steps: int = field(default=100, metadata={"help": "Number of steps between checkpoints."})
+
+    max_steps: int = field(default=100, metadata={"help": "Maximum number of training steps."})
 
     pipeline_parallalelism: bool = field(default=True, metadata={"help": "Whether to use pipeline parallelism."})
 
@@ -54,23 +58,13 @@ class DsTrainingArguments:
             with open(self.config, "r") as f:
                 self.config = json.load(f)
 
+        self.output_dir = get_full_path(self.output_dir)
+
         torch.manual_seed(self.seed)
         deepspeed.runtime.utils.set_random_seed(self.seed)
 
         self.local_rank = int(self.local_rank)
         torch.cuda.set_device(self.local_rank)
-
-        # self.batch_size
-
-    @property
-    def batch_size(self) -> int:
-        if "train_micro_batch_size_per_gpu" in self.config:
-            return self.config.train_micro_batch_size_per_gpu
-
-        # if "train_batch_size" in self.config:
-
-        # print(self.config)
-        # raise
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert attributes into a dictionary representation.

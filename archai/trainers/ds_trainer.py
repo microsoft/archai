@@ -1,17 +1,24 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from typing import Any, Dict, Optional, Union
+import math
+from typing import Any, Dict, Iterable, Optional, Union
 
 import deepspeed
 import torch
 from deepspeed.pipe import PipelineModule
 from deepspeed.utils import RepeatingLoader
 from overrides import overrides
-from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import _LRScheduler
+from torch.optim.optimizer import Optimizer
+from torch.utils.data import DataLoader, Dataset, Sampler
+from torch.utils.data.distributed import DistributedSampler
 
 from archai.api.trainer_base import TrainerBase
+from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.trainers.ds_training_args import DsTrainingArguments
+
+logger = OrderedDictLogger(source=__name__)
 
 
 def _create_deepspeed_config() -> Dict[str, Any]:
@@ -29,18 +36,21 @@ class DsTrainer(TrainerBase):
 
     def __init__(
         self,
-        model,
-        args=None,
-        optimizer=None,
-        model_parameters=None,
-        training_data=None,
-        lr_scheduler=None,
-        mpu=None,
-        dist_init_required=None,
-        train_dataset=None,
-        eval_dataset=None,
+        model: torch.nn.Module,
+        args: Optional[DsTrainingArguments] = None,
+        optimizer: Optional[Optimizer] = None,
+        model_parameters: Optional[Union[Iterable[torch.Tensor], Dict[str, torch.Tensor]]] = None,
+        lr_scheduler: Optional[_LRScheduler] = None,
+        mpu: Optional[Any] = None,
+        dist_init_required: Optional[bool] = None,
+        train_dataset: Optional[Dataset] = None,
+        eval_dataset: Optional[Dataset] = None,
     ) -> None:
-        """"""
+        """Initialize by creating the DeepSpeed engine.
+
+        Args:
+
+        """
 
         deepspeed.init_distributed()
 
@@ -74,39 +84,56 @@ class DsTrainer(TrainerBase):
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
 
-    def _get_dataloader(self, dataset, sampler=None, shuffle=False):
+    def _get_dataloader(
+        self, dataset: Dataset, sampler: Optional[Sampler] = None, shuffle: Optional[bool] = False
+    ) -> DataLoader:
         if sampler is None:
-            sampler = torch.utils.data.distributed.DistributedSampler(
+            sampler = DistributedSampler(
                 dataset,
                 num_replicas=self.engine.dp_world_size,
                 rank=self.engine.mpu.get_data_parallel_rank(),
                 shuffle=shuffle,
             )
 
-        dataloader = DataLoader(dataset, sampler=sampler, drop_last=True, batch_size=self.engine.micro_batch_size)
-
-        return iter(RepeatingLoader(dataloader))
+        return DataLoader(dataset, sampler=sampler, drop_last=True, batch_size=self.engine.micro_batch_size)
 
     @overrides
-    def train(
-        self,
-    ) -> None:
+    def train(self) -> None:
+        logger.info("Starting training ...")
+        logger.debug(f"Training arguments: {self.args.to_dict()}")
+
         train_dataloader = self._get_dataloader(self.train_dataset, shuffle=True)
+        train_iterator = iter(RepeatingLoader(train_dataloader))
+
         for step in range(self.args.max_steps):
-            _ = self.engine.train_batch(train_dataloader)
+            loss = self.engine.train_batch(data_iter=train_iterator)
 
-            if step % self.args.eval_interval and self.args.do_eval:
+            logger.info(f"Step: {step + 1} | Loss: {loss:.3f} | PPL: {math.exp(loss):.3f}")
+
+            do_periodic_eval = (step + 1) % self.args.eval_steps == 0
+            if do_periodic_eval and self.args.do_eval:
+                assert self.eval_dataset, "`eval_dataset` must be supplied if `args.do_eval` is True."
+
                 eval_dataloader = self._get_dataloader(self.eval_dataset, shuffle=False)
-                self._evaluation_step(eval_dataloader)
+                eval_loss = self.evaluate(eval_dataloader)
 
-            if step % self.args.save_steps:
-                self.engine.save_checkpoint(self.args.output_dir, step)
+                logger.info(f"Eval Loss: {eval_loss:.3f} | Eval PPL: {math.exp(eval_loss):.3f}")
 
-    def _evaluation_step(self, eval_dataloader):
+            do_periodic_checkpoint = (step + 1) % self.args.save_steps == 0
+            if do_periodic_checkpoint:
+                self.engine.save_checkpoint(self.args.output_dir, step + 1)
+
+    @overrides
+    def evaluate(self, eval_dataset: Optional[Dataset] = None) -> None:
+        eval_dataset = eval_dataset or self.eval_dataset
+        assert eval_dataset, "`eval_dataset` must be supplied in constructor or evaluate()."
+
+        eval_dataloader = self._get_dataloader(eval_dataset, shuffle=False)
+        eval_iterator = iter(eval_dataloader)
+
         eval_loss = 0.0
-
         for _ in range(len(eval_dataloader)):
-            loss = self.engine.eval_batch(eval_dataloader)
+            loss = self.engine.eval_batch(data_iter=eval_iterator)
             eval_loss += loss.mean().item()
 
         eval_loss / len(eval_dataloader)
@@ -114,18 +141,5 @@ class DsTrainer(TrainerBase):
         return eval_loss
 
     @overrides
-    def evaluate(
-        self,
-        eval_dataset=None,
-    ) -> None:
-        eval_dataset = eval_dataset or self.eval_dataset
-        assert eval_dataset, "`eval_dataset` must be supplied in constructor or evaluate()."
-
-        eval_dataloader = self._get_dataloader(eval_dataset, shuffle=False)
-        _ = self._evaluation_step(eval_dataloader)
-
-    @overrides
-    def predict(
-        self,
-    ) -> None:
-        pass
+    def predict(self) -> None:
+        raise NotImplementedError
