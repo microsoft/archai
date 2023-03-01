@@ -17,7 +17,21 @@ class DsTrainingArguments:
     """Define arguments used in the DeepSpeed training pipeline.
 
     Args:
-
+        config: DeepSpeed configuration (dictionary or path to JSON file).
+        output_dir: Output folder.
+        seed: Random seed.
+        local_rank: Rank of process.
+        backend: Distributed training backend.
+        logging_steps: Number of steps between logs.
+        do_eval: Whether to enable evaluation.
+        eval_steps: Number of steps between evaluations.
+        save_steps: Number of steps between checkpoints.
+        max_steps: Maximum number of training steps.
+        pipe_parallel: Whether to use pipeline parallelism.
+        pipe_parallel_size: Size of pipeline parallelism.
+        pipe_parallel_loss_fn: Loss function for pipeline parallelism.
+        pipe_parallel_partition_method: Partition method for pipeline parallelism.
+        pipe_parallel_activation_checkpoint_steps: Number of steps between pipeline parallelism activation checkpoins.
 
     """
 
@@ -41,15 +55,19 @@ class DsTrainingArguments:
 
     max_steps: int = field(default=100, metadata={"help": "Maximum number of training steps."})
 
-    pipeline_parallalelism: bool = field(default=True, metadata={"help": "Whether to use pipeline parallelism."})
+    pipe_parallel: bool = field(default=True, metadata={"help": "Whether to use pipeline parallelism."})
 
-    pp_size: int = field(default=1, metadata={"help": "Size of pipeline parallelism."})
+    pipe_parallel_size: int = field(default=1, metadata={"help": "Size of pipeline parallelism."})
 
-    pp_loss_fn: callable = field(default=None, metadata={"help": ""})
+    pipe_parallel_loss_fn: callable = field(default=None, metadata={"help": "Loss function for pipeline parallelism."})
 
-    pp_partition_method: str = field(default="parameters", metadata={"help": ""})
+    pipe_parallel_partition_method: str = field(
+        default="parameters", metadata={"help": "Partition method for pipeline parallelism."}
+    )
 
-    pp_activation_checkpoint_interval: int = field(default=0, metadata={"help": ""})
+    pipe_parallel_activation_checkpoint_steps: int = field(
+        default=0, metadata={"help": "Number of steps between pipeline parallelism activation checkpoins."}
+    )
 
     def __post_init__(self) -> None:
         """Override post-initialization with custom instructions."""

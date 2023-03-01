@@ -593,7 +593,7 @@ class NvidiaTrainer(TrainerBase):
     def predict(self) -> None:
         """Predict with a model."""
 
-        pass
+        raise NotImplementedError
 
     def fine_tune_qat(self, model: Optional[torch.nn.Module] = None, checkpoint_file_path: Optional[str] = "") -> None:
         """Fine-tune a model with QAT.

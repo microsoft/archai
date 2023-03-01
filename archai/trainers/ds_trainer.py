@@ -49,6 +49,16 @@ class DsTrainer(TrainerBase):
         """Initialize by creating the DeepSpeed engine.
 
         Args:
+            model: Model to be trained or evaluated.
+            args: DeepSpeed training arguments. If not provided, a default instance
+                of `DsTrainingArguments` will be used.
+            optimizer: Optimizer to be used for training.
+            model_parameters: Model parameters to be used for training.
+            lr_scheduler: Learning rate scheduler to be used for training.
+            mpu: Model parallelism unit.
+            dist_init_required: Whether distributed initialization is required.
+            train_dataset: Training dataset.
+            eval_dataset: Evaluation dataset.
 
         """
 
@@ -59,16 +69,16 @@ class DsTrainer(TrainerBase):
         assert isinstance(args, DsTrainingArguments), "`args` should be an instance of `DsTrainingArguments`."
         self.args = args
 
-        if self.args.pipeline_parallalelism:
+        if self.args.pipe_parallel:
             assert isinstance(
                 model, torch.nn.Sequential
             ), "`model` should be an instance of `torch.nn.Sequential` for Pipeline Parallelism."
             model = PipelineModule(
                 layers=model,
-                num_stages=self.args.pp_size,
-                loss_fn=self.args.pp_loss_fn,
-                partition_method=self.args.pp_partition_method,
-                activation_checkpoint_interval=self.args.pp_activation_checkpoint_interval,
+                num_stages=self.args.pipe_parallel_size,
+                loss_fn=self.args.pipe_parallel_loss_fn,
+                partition_method=self.args.pipe_parallel_partition_method,
+                activation_checkpoint_interval=self.args.pipe_parallel_activation_checkpoint_steps,
             )
 
         self.engine, _, _, _ = deepspeed.initialize(
@@ -99,6 +109,8 @@ class DsTrainer(TrainerBase):
 
     @overrides
     def train(self) -> None:
+        """Train a model."""
+
         logger.info("Starting training ...")
         logger.debug(f"Training arguments: {self.args.to_dict()}")
 
@@ -125,6 +137,13 @@ class DsTrainer(TrainerBase):
 
     @overrides
     def evaluate(self, eval_dataset: Optional[Dataset] = None) -> None:
+        """Evaluate a model.
+
+        Args:
+            eval_dataset: Evaluation dataset.
+
+        """
+
         eval_dataset = eval_dataset or self.eval_dataset
         assert eval_dataset, "`eval_dataset` must be supplied in constructor or evaluate()."
 
@@ -142,4 +161,6 @@ class DsTrainer(TrainerBase):
 
     @overrides
     def predict(self) -> None:
+        """Predict with a model."""
+
         raise NotImplementedError
