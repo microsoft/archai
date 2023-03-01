@@ -65,6 +65,7 @@ extras_require["nlp"] = filter_dependencies("datasets", "tokenizers", "transform
 extras_require["deepspeed"] = filter_dependencies("deepspeed")
 
 extras_require["docs"] = filter_dependencies(
+    "nbimporter",
     "nbsphinx",
     "sphinx",
     "sphinx-book-theme",
@@ -73,9 +74,8 @@ extras_require["docs"] = filter_dependencies(
     "sphinx_inline_tabs",
     "sphinxcontrib-programoutput",
     "sphinxcontrib-mermaid",
-    "nbimporter",
 )
-extras_require["tests"] = filter_dependencies("flake8", "nbval", "pytest", "nbimporter")
+extras_require["tests"] = filter_dependencies("flake8", "pytest")
 
 extras_require["all"] = extras_require["cv"] + extras_require["nlp"] + extras_require["deepspeed"]
 extras_require["dev"] = extras_require["all"] + extras_require["docs"] + extras_require["tests"]
