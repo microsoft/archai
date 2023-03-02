@@ -8,7 +8,7 @@ We utilized GPT-2 as our base model and applied LTS on top of it to find the bes
 
 | Model | Non-Embedding Parameters (M) | Latency (s) | Memory (MB) |
 | - | - | - | - |
-[gpt2_a9e3147996070fda25af4b39ed95b6a18d6d0402](https://huggingface.co/microsoft/lts-gpt2-sm/tree/main/gpt2_0e1b5a3c867d6473da270799061f3089a1df5afd) | 1.06 | 0.008 | 29.06
+[gpt2_a9e3147996070fda25af4b39ed95b6a18d6d0402](https://huggingface.co/microsoft/lts-gpt2-sm/tree/main/gpt2_a9e3147996070fda25af4b39ed95b6a18d6d0402) | 1.06 | 0.008 | 29.06
 [gpt2_80fabe4acddff0dc796e287588e40d86e79df4b2](https://huggingface.co/microsoft/lts-gpt2-sm/tree/main/gpt2_80fabe4acddff0dc796e287588e40d86e79df4b2) | 2.08 | 0.013 | 45.46
 [gpt2_90682823835acabd965294775983a1d5a2c2fa43](https://huggingface.co/microsoft/lts-gpt2-sm/tree/main/gpt2_90682823835acabd965294775983a1d5a2c2fa43) | 3.13 | 0.021 | 74.50
 [gpt2_c76bdddb5cf59275711672daa5b8c70e6c78bf4e](https://huggingface.co/microsoft/lts-gpt2-sm/tree/main/gpt2_c76bdddb5cf59275711672daa5b8c70e6c78bf4e) | 3.95 | 0.024 | 77.62
