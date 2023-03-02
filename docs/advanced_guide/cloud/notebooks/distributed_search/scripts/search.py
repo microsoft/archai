@@ -16,6 +16,8 @@ def main():
     parser.add_argument("--compute", type=str, help="name of AML compute to run the partial training jobs on")
     parser.add_argument('--config', type=str, help='bin hexed config json info for mlclient')
     parser.add_argument("--output_dir", type=str, help="path to output data")
+    parser.add_argument("--local_output", type=str, help="optional path to local output data (default output_dir)")
+
     args = parser.parse_args()
 
     environment_name = args.environment
@@ -67,11 +69,15 @@ def main():
         compute_intensive=True
     )
 
+    local_output = args.local_output
+    if not local_output:
+        local_output = args.output_dir
+
     algo = EvolutionParetoSearch(
         space,
         search_objectives,
         None,
-        args.output_dir,
+        local_output,
         num_iters=5,
         init_num_models=10,
         seed=1234,
