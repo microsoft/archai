@@ -141,6 +141,7 @@ class FastHfDatasetProvider(DatasetProvider):
         dataset_name: str,
         dataset_config_name: Optional[str] = None,
         data_dir: Optional[str] = None,
+        data_files: Optional[Union[List[str], Dict[str, Union[str, List[str]]]]] = None,
         tokenizer: Optional[AutoTokenizer] = None,
         tokenizer_name: Optional[str] = None,
         tokenizer_max_length: Optional[int] = None,
@@ -158,6 +159,7 @@ class FastHfDatasetProvider(DatasetProvider):
             dataset_name: Name of the dataset.
             dataset_config_name: Name of the dataset configuration.
             data_dir: Path to the data directory.
+            data_files: Path to the source data file(s).
             tokenizer: Instance of tokenizer to use.
             tokenizer_name: Name of the tokenizer, if `tokenizer` has not been passed.
             tokenizer_max_length: Maximum length of the tokenized sequences.
@@ -190,7 +192,9 @@ class FastHfDatasetProvider(DatasetProvider):
 
         # Ensure that the downloaded dataset is always a dictionary
         logger.info("Downloading dataset ...")
-        hub_dataset_dict = load_dataset(dataset_name, name=dataset_config_name, data_dir=data_dir)
+        hub_dataset_dict = load_dataset(
+            dataset_name, name=dataset_config_name, data_dir=data_dir, data_files=data_files
+        )
         if not isinstance(hub_dataset_dict, DatasetDict):
             hub_dataset_dict = DatasetDict({"train": hub_dataset_dict})
 
