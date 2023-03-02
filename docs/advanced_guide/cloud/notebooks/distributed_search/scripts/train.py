@@ -71,14 +71,15 @@ class Trainer:
 def main():
     # input and output arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_params", type=str, help="json file containing model parameters")
+    parser.add_argument("--model_params", type=str, help="json string containing model parameters")
+    parser.add_argument("--data_dir", type=str, help="location of dataset")
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
     parser.add_argument("--output", type=str, help="place to write the results")
     args = parser.parse_args()
 
-    model = MyModel.load_from_config(args.model_params)
+    model = MyModel.from_json(args.model_params)
     evaluator = Trainer(training_epochs=args.epochs, lr=1e-4, device='cuda')
-    dataset_provider = MnistDatasetProvider()
+    dataset_provider = MnistDatasetProvider(args.data_dir)
     val_acc = evaluator.evaluate(model, dataset_provider)
 
     config = json.load(open(args.model_params))
@@ -86,3 +87,6 @@ def main():
     config['epochs'] = args.epochs
     with open(args.output, 'w') as fp:
         json.dump(config, fp)
+
+if __name__ == "__main__":
+    main()

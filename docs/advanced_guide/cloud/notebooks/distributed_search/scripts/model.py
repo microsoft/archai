@@ -33,17 +33,16 @@ class MyModel(nn.Module):
     def get_archid(self):
         return f'({self.nb_layers}, {self.kernel_size}, {self.hidden_dim})'
 
-    def save_config(self, filename):
-        with open(filename, 'w') as fp:
-            json.dump({
-                'nb_layers': self.nb_layers,
-                'kernel_size': self.kernel_size,
-                'hidden_dim': self.hidden_dim
-            }, fp)
+    def to_json(self):
+        return json.dumps({
+            'nb_layers': self.nb_layers,
+            'kernel_size': self.kernel_size,
+            'hidden_dim': self.hidden_dim
+        })
 
     @staticmethod
-    def load_from_config(self, filename):
-        config = json.load(open(filename))
+    def from_json(self, json_str):
+        config = json.loads(json_str)
         nb_layers = int(config['nb_layers'])
         kernel_size = int(config['kernel_size'])
         hidden_dim = int(config['hidden_dim'])

@@ -10,9 +10,10 @@ import platform
 from azure.data.tables import TableServiceClient, UpdateMode, EntityProperty, EdmType
 from azure.storage.blob import BlobClient, ContainerClient
 
-"""ArchaiStore wraps the Azure 'status' Table and associated Blob Storage used to provide a backing
-store and collated status for long running Archai search jobs."""
+
 class ArchaiStore:
+    """ArchaiStore wraps the Azure 'status' Table and associated Blob Storage used to provide a backing
+    store and collated status for long running Archai search jobs."""
     def __init__(self, storage_account_key, storage_account_name, blob_container_name='models', status_table_name='status'):
         self.storage_account_key = storage_account_key
         self.storage_account_name = storage_account_name
@@ -356,11 +357,11 @@ def status(con_str, args):
 
 
 def upload(con_str, args):
-    parser = argparse.ArgumentParser( description='Upload a model to azure blob store')
+    parser = argparse.ArgumentParser(description='Upload a model to azure blob store')
     parser.add_argument('name', help='Friendly name of the folder to put this in.')
     parser.add_argument('file', help='Path to the file to upload to Azure or a folder to upload all files in that folder.')
     parser.add_argument('--priority', type=int, help='Optional priority override for this job. ' +
-                             'Larger numbers mean lower priority')
+                        'Larger numbers mean lower priority')
     args = parser.parse_args(args)
     store = ArchaiStore(con_str)
     store.upload(args.name, args.file, priority=args.priority)
@@ -408,6 +409,7 @@ def unlock(con_str, args):
     args = parser.parse_args(args)
     store = ArchaiStore(con_str)
     store.unlock_all(args.node)
+
 
 if __name__ == '__main__':
     CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
