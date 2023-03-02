@@ -10,12 +10,12 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generates new tokens with a pre-trained model.")
 
-    parser.add_argument("pre_trained_model_path", type=str, help="Path to the pre-trained model file.")
+    parser.add_argument("pre_trained_model_path", type=str, help="Path to the pre-trained model path/file.")
 
     parser.add_argument("prompt", type=str, help="Prompt to serve as the generation's context.")
 
     parser.add_argument(
-        "-sbf", "--pre_trained_model_subfolder", type=str, default=None, help="Path to the pre-trained model file."
+        "-sf", "--pre_trained_model_subfolder", type=str, default=None, help="Subfolder to the pre-trained model path."
     )
 
     args = parser.parse_args()
