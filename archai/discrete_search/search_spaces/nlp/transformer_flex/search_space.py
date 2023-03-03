@@ -9,6 +9,7 @@ from typing import Any, Dict, List, Optional
 
 import torch
 from overrides import overrides
+from transformers.modeling_utils import no_init_weights
 from transformers.models.auto.configuration_auto import AutoConfig
 from transformers.models.auto.modeling_auto import AutoModelForCausalLM
 
@@ -100,6 +101,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         vocab_size: Optional[int] = 10_000,
         max_sequence_length: Optional[int] = 1024,
         att_dropout_rate: Optional[float] = 0.0,
+        disable_init_weights: Optional[bool] = False,
         random_seed: Optional[int] = 1,
     ) -> None:
         """Initialize search space.
@@ -117,6 +119,7 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
             vocab_size: Size of the vocabulary.
             max_sequence_length: Maximum sequence length.
             att_dropout_rate: Dropout rate for attention.
+            disable_init_weights: Whether to disable initialization of weights.
             random_seed: Random seed for reproducibility.
 
         """
@@ -142,12 +145,18 @@ class TransformerFlexSearchSpace(EvolutionarySearchSpace, BayesOptSearchSpace):
         self.vocab_size = vocab_size
         self.max_sequence_length = max_sequence_length
         self.att_dropout_rate = att_dropout_rate
+        self.disable_init_weights = disable_init_weights
 
     def _load_model_from_config(self, model_config: Dict[str, Any]) -> torch.nn.Module:
         param_map = self._DEFAULT_MODELS[self.arch_type]
         mapped_config = {param_map.get(p_name, p_name): p_value for p_name, p_value in model_config.items()}
 
         config = AutoConfig.for_model(self.arch_type, **mapped_config)
+
+        if self.disable_init_weights:
+            with no_init_weights():
+                return AutoModelForCausalLM.from_config(config)
+
         return AutoModelForCausalLM.from_config(config)
 
     def get_archid(self, config: Dict[str, Any]) -> str:
