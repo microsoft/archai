@@ -19,14 +19,14 @@ class DsTrainingArguments:
     Args:
         config: DeepSpeed configuration (dictionary or path to JSON file).
         output_dir: Output folder.
+        do_eval: Whether to enable evaluation.
+        max_steps: Maximum number of training steps.
+        logging_steps: Number of steps between logs.
+        save_steps: Number of steps between checkpoints.
         seed: Random seed.
         local_rank: Rank of process.
         backend: Distributed training backend.
-        logging_steps: Number of steps between logs.
-        do_eval: Whether to enable evaluation.
         eval_steps: Number of steps between evaluations.
-        save_steps: Number of steps between checkpoints.
-        max_steps: Maximum number of training steps.
         pipe_parallel: Whether to use pipeline parallelism.
         pipe_parallel_size: Size of pipeline parallelism.
         pipe_parallel_loss_fn: Loss function for pipeline parallelism.
@@ -39,23 +39,23 @@ class DsTrainingArguments:
 
     output_dir: str = field(default="~/logdir", metadata={"help": "Output folder."})
 
+    do_eval: bool = field(default=True, metadata={"help": "Whether to enable evaluation."})
+
+    max_steps: int = field(default=1, metadata={"help": "Maximum number of training steps."})
+
+    logging_steps: int = field(default=10, metadata={"help": "Number of steps between logs."})
+
+    save_steps: int = field(default=500, metadata={"help": "Number of steps between checkpoints."})
+
     seed: int = field(default=42, metadata={"help": "Random seed."})
 
     local_rank: int = field(default=os.getenv("LOCAL_RANK", -1), metadata={"help": "Rank of process."})
 
     backend: int = field(default="nccl", metadata={"help": "Distributed training backend."})
 
-    logging_steps: int = field(default=10, metadata={"help": "Number of steps between logs."})
+    eval_steps: int = field(default=500, metadata={"help": "Number of steps between evaluations."})
 
-    do_eval: bool = field(default=True, metadata={"help": "Whether to enable evaluation."})
-
-    eval_steps: int = field(default=10, metadata={"help": "Number of steps between evaluations."})
-
-    save_steps: int = field(default=100, metadata={"help": "Number of steps between checkpoints."})
-
-    max_steps: int = field(default=100, metadata={"help": "Maximum number of training steps."})
-
-    pipe_parallel: bool = field(default=True, metadata={"help": "Whether to use pipeline parallelism."})
+    pipe_parallel: bool = field(default=False, metadata={"help": "Whether to use pipeline parallelism."})
 
     pipe_parallel_size: int = field(default=1, metadata={"help": "Size of pipeline parallelism."})
 
