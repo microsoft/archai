@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import os
 import re
 
 from setuptools import find_packages, setup
@@ -79,7 +80,11 @@ extras_require["docs"] = filter_dependencies(
 )
 extras_require["tests"] = filter_dependencies("flake8", "pytest")
 
-extras_require["all"] = extras_require["cv"] + extras_require["nlp"] + extras_require["deepspeed"]
+extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
+if os.name != "nt":
+    # Support for DeepSpeed is not available on native Windows
+    extras_require["all"] += extras_require["deepspeed"]
+
 extras_require["dev"] = extras_require["all"] + extras_require["docs"] + extras_require["tests"]
 
 install_requires = filter_dependencies(
