@@ -4,8 +4,8 @@
 from typing import Dict, Union, Optional, Any
 from pathlib import Path
 
-from azure.ai.ml import MLClient, command, load_job
-from azure.ai.ml.entities import AmlCompute, Environment, Command, Job
+from azure.ai.ml import MLClient
+from azure.ai.ml.entities import AmlCompute, Environment
 from azure.identity import DefaultAzureCredential
 
 def get_aml_client_from_file(config_path: Union[str, Path]) -> MLClient:
@@ -112,42 +112,6 @@ def create_environment_from_file(
         f"Environment with name {archai_job_env.name} is registered to workspace, the environment version is {archai_job_env.version}")
 
     return archai_job_env
-
-# TODO remove
-def create_job(
-        experiment_name: str,
-        display_name: str,
-        compute_name: str,
-        environment: str,
-        code: str,
-        cli_command: str,
-        outputs: Dict,
-        **kwargs) -> Command:
-
-    job = command(
-        display_name=display_name,
-        outputs=outputs,
-        code=code,
-        command=cli_command,
-        environment=environment,
-        compute=compute_name,
-        experiment_name=experiment_name,
-        **kwargs
-    )
-
-    return job
-
-# TODO remove
-def create_job_from_file(source: Union[str, Path], **kwargs) -> Job:
-    return load_job(source=source, **kwargs)
-
-# TODO remove
-def run_job(ml_client: MLClient, job: Job) -> Job:
-    return ml_client.create_or_update(job)
-
-# TODO remove
-def stream_job_logs(ml_client: MLClient, job: Job):
-    ml_client.jobs.stream(job.name)
 
 
 # TODO How can we return the path that the output was downloaded to?
