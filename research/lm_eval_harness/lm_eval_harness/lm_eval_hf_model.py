@@ -94,7 +94,7 @@ class HFEvalModel(BaseLM):
                     add_special_tokens=False,
                     return_attention_mask=False,
                     return_tensors="pt",
-                )["input_ids"]
+                )["input_ids"].to(self.device)
                 n_removal_tokens = encoded_stop_tokens.shape[-1]
 
                 # Defines the stopping criteria
