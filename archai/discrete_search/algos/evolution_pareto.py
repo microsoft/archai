@@ -267,7 +267,7 @@ class EvolutionParetoSearch(Searcher):
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
             self.search_state.save_pareto_frontier_models(
                 str(self.output_dir / f"pareto_models_iter_{self.iter_num}"),
-                save_weights=self.save_pareto_weights
+                save_weights=self.save_pareto_model_weights
             )
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
 
