@@ -43,7 +43,8 @@ class EvolutionParetoSearch(Searcher):
         max_unseen_population: Optional[int] = 100,
         mutations_per_parent: Optional[int] = 1,
         num_crossovers: Optional[int] = 5,
-        clear_evaluated_models: Optional[bool] = False,
+        clear_evaluated_models: bool = False,
+        save_pareto_model_weights: bool = True,
         seed: Optional[int] = 1,
     ):
         """Initialize the evolutionary search algorithm.
@@ -63,6 +64,7 @@ class EvolutionParetoSearch(Searcher):
             num_crossovers: Total number of crossovers generated per iteration.
             clear_evaluated_models: Optimizes memory usage by clearing the architecture
                 of `ArchaiModel` after each iteration.
+            save_pareto_model_weights: If `True`, saves the weights of the pareto models.
             seed: Random seed.
 
         """
@@ -86,9 +88,10 @@ class EvolutionParetoSearch(Searcher):
         self.max_unseen_population = max_unseen_population
         self.mutations_per_parent = mutations_per_parent
         self.num_crossovers = num_crossovers
-        self.clear_evaluated_models = clear_evaluated_models
 
         # Utils
+        self.clear_evaluated_models = clear_evaluated_models
+        self.save_pareto_model_weights = save_pareto_model_weights
         self.search_state = SearchResults(search_space, self.so)
         self.seed = seed
         self.rng = random.Random(seed)
@@ -255,11 +258,6 @@ class EvolutionParetoSearch(Searcher):
             # Records evaluated archs to avoid computing the same architecture twice
             self.seen_archs.update([m.archid for m in unseen_pop])
 
-            # Optimizes memory usage by clearing architectures from memory
-            if self.clear_evaluated_models:
-                logger.info("Optimzing memory usage ...")
-                [model.clear() for model in unseen_pop]
-
             # update the pareto frontier
             logger.info("Updating Pareto frontier ...")
             pareto = self.search_state.get_pareto_frontier()["models"]
@@ -267,8 +265,16 @@ class EvolutionParetoSearch(Searcher):
 
             # Saves search iteration results
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
-            self.search_state.save_pareto_frontier_models(str(self.output_dir / f"pareto_models_iter_{self.iter_num}"))
+            self.search_state.save_pareto_frontier_models(
+                str(self.output_dir / f"pareto_models_iter_{self.iter_num}"),
+                save_weights=self.save_pareto_weights
+            )
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
+
+            # Optimizes memory usage by clearing architectures from memory
+            if self.clear_evaluated_models:
+                logger.info("Optimzing memory usage ...")
+                [model.clear() for model in unseen_pop]
 
             parents = pareto
             logger.info(f"Choosing {len(parents)} parents ...")

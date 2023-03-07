@@ -168,16 +168,15 @@ class SearchResults:
             save_weights: If `True`, saves the model weights. Otherwise, only saves the architecture.
 
         """
-
-        if save_weights:
-            raise NotImplementedError
-
         dir_path = Path(directory)
         dir_path.mkdir(exist_ok=True, parents=True)
 
         pareto_frontier = self.get_pareto_frontier()
         for model in pareto_frontier["models"]:
             self.search_space.save_arch(model, str(dir_path / f"{model.archid}"))
+
+            if save_weights:
+                self.search_space.save_model_weights(model, str(dir_path / f"{model.archid}_weights.pt"))
 
     def plot_2d_pareto_evolution(
         self, objective_names: Tuple[str, str], figsize: Optional[Tuple[int, int]] = (10, 5)
