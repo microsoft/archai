@@ -47,8 +47,7 @@ dependencies = [
     "torchvision",
     "transformers",
     "tqdm",
-    "transformers>=4.25.1",
-    "git+https://github.com/sytelus/cifar_testbed.git"
+    "transformers>=4.25.1"
 ]
 dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+).*$)", x)[0] for x in dependencies)}
 
@@ -87,8 +86,7 @@ extras_require["tests"] = filter_dependencies(
     "flake8",
     "pytest",
     "einops",
-    "opt_einsum",
-    "git+https://github.com/sytelus/cifar_testbed.git"
+    "opt_einsum"
 )
 
 extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
