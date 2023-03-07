@@ -36,9 +36,10 @@ exclude_patterns = [
     "tests/**",
 ]
 extlinks = {"github": ("https://github.com/microsoft/archai/tree/main/%s", "%s")}
-source_suffix = ".rst"
+source_suffix = [".rst", ".md"]
 master_doc = "index"
 language = "en"
+html_baseurl = "https://microsoft.github.io/archai/"
 
 # Options for HTML output
 html_title = project
