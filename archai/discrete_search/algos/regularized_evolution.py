@@ -41,7 +41,7 @@ class RegularizedEvolutionSearch(Searcher):
         initial_population_paths: Optional[List[str]] = None,
         pareto_sample_size: Optional[int] = 40,
         history_size: Optional[int] = 100,
-        clear_evaluated_models: Optional[bool] = False,
+        clear_evaluated_models: Optional[bool] = True,
         save_pareto_model_weights: bool = True,
         seed: Optional[int] = 1,
     ) -> None:
@@ -58,7 +58,7 @@ class RegularizedEvolutionSearch(Searcher):
             pareto_sample_size: Number of models to sample from the pareto frontier.
             history_size: Number of models to keep in the history.
             clear_evaluated_models (bool, optional): Optimizes memory usage by clearing the architecture
-                of `ArchaiModel` after each iteration. Defaults to False.
+                of `ArchaiModel` after each iteration. Defaults to True.
             save_pareto_model_weights: If `True`, saves the weights of the pareto models.
             seed: Random seed.
 

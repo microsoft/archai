@@ -43,7 +43,7 @@ class EvolutionParetoSearch(Searcher):
         max_unseen_population: Optional[int] = 100,
         mutations_per_parent: Optional[int] = 1,
         num_crossovers: Optional[int] = 5,
-        clear_evaluated_models: bool = False,
+        clear_evaluated_models: bool = True,
         save_pareto_model_weights: bool = True,
         seed: Optional[int] = 1,
     ):
@@ -63,8 +63,8 @@ class EvolutionParetoSearch(Searcher):
             mutations_per_parent: Number of distinct mutations generated for each Pareto frontier member.
             num_crossovers: Total number of crossovers generated per iteration.
             clear_evaluated_models: Optimizes memory usage by clearing the architecture
-                of `ArchaiModel` after each iteration.
-            save_pareto_model_weights: If `True`, saves the weights of the pareto models.
+                of `ArchaiModel` after each iteration. Defaults to True
+            save_pareto_model_weights: If `True`, saves the weights of the pareto models. Defaults to True
             seed: Random seed.
 
         """

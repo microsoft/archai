@@ -47,7 +47,7 @@ class MoBananasSearch(Searcher):
         num_parents: Optional[int] = 10,
         mutations_per_parent: Optional[int] = 5,
         num_candidates: Optional[int] = 10,
-        clear_evaluated_models: bool = False,
+        clear_evaluated_models: bool = True,
         save_pareto_weights: bool = False,
         seed: Optional[int] = 1,
     ) -> None:
@@ -67,7 +67,7 @@ class MoBananasSearch(Searcher):
             mutations_per_parent: Number of mutations to apply to each parent.
             num_candidates: Number of selected models to add to evaluate in the next iteration.
             clear_evaluated_models: Optimizes memory usage by clearing the architecture
-                of `ArchaiModel` after each iteration.
+                of `ArchaiModel` after each iteration. Defaults to True
             save_pareto_model_weights: If `False`, saves the weights of the pareto models.
             seed: Random seed.
 

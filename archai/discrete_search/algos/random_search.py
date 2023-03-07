@@ -34,7 +34,7 @@ class RandomSearch(Searcher):
         output_dir: str,
         num_iters: Optional[int] = 10,
         samples_per_iter: Optional[int] = 10,
-        clear_evaluated_models: Optional[bool] = False,
+        clear_evaluated_models: Optional[bool] = True,
         save_pareto_model_weights: bool = True,
         seed: Optional[int] = 1,
     ):
@@ -48,8 +48,8 @@ class RandomSearch(Searcher):
             num_iters: Number of iterations.
             samples_per_iter: Number of samples per iteration.
             clear_evaluated_models (bool, optional): Optimizes memory usage by clearing the architecture
-                of `ArchaiModel` after each iteration. Defaults to False.
-            save_pareto_model_weights: If `True`, saves the weights of the pareto models.
+                of `ArchaiModel` after each iteration. Defaults to True.
+            save_pareto_model_weights: If `True`, saves the weights of the pareto models. Defaults to True.
             seed: Random seed.
         """
 

@@ -30,7 +30,7 @@ class LocalSearch(Searcher):
         init_num_models: Optional[int] = 10,
         initial_population_paths: Optional[List[str]] = None,
         mutations_per_parent: Optional[int] = 1,
-        clear_evaluated_models: Optional[bool] = False,
+        clear_evaluated_models: bool = True,
         save_pareto_model_weights: bool = True,
         seed: Optional[int] = 1,
     ):
@@ -48,7 +48,7 @@ class LocalSearch(Searcher):
                 If None, then `init_num_models` random models are used. Defaults to None.
             mutations_per_parent (int, optional): Number of mutations per parent. Defaults to 1.
             clear_evaluated_models (bool, optional): Optimizes memory usage by clearing the architecture
-                of `ArchaiModel` after each iteration. Defaults to False.
+                of `ArchaiModel` after each iteration. Defaults to True.
             save_pareto_model_weights: If `True`, saves the weights of the pareto models.
             seed (int, optional): Random seed. Defaults to 1.
         """
