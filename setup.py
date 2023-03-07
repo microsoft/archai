@@ -45,7 +45,7 @@ dependencies = [
     "tensorwatch",
     "tokenizers>=0.10.3",
     "torchvision",
-    "transformers,"
+    "transformers",
     "tqdm",
     "transformers>=4.25.1",
     "git+https://github.com/sytelus/cifar_testbed.git"
