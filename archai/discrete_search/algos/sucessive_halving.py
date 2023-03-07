@@ -18,7 +18,7 @@ from archai.discrete_search.utils.multi_objective import get_non_dominated_sorti
 logger = OrderedDictLogger(source=__name__)
 
 
-class SucessiveHalvingSearch(Searcher):
+class SuccessiveHalvingSearch(Searcher):
     """Sucessive Halving algorithm"""
 
     def __init__(
