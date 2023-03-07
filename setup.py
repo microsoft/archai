@@ -84,9 +84,10 @@ extras_require["docs"] = filter_dependencies(
 )
 extras_require["tests"] = filter_dependencies(
     "flake8",
-    "pytest",
     "einops",
-    "opt_einsum"
+    "nbval"
+    "opt_einsum",
+    "pytest",
 )
 
 extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
