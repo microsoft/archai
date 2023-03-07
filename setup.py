@@ -70,6 +70,7 @@ extras_require["deepspeed"] = filter_dependencies("deepspeed")
 extras_require["docs"] = filter_dependencies(
     "nbimporter",
     "nbsphinx",
+    "nbval",
     "sphinx",
     "sphinx-book-theme",
     "sphinx-git",
