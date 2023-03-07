@@ -34,6 +34,8 @@ class RandomSearch(Searcher):
         output_dir: str,
         num_iters: Optional[int] = 10,
         samples_per_iter: Optional[int] = 10,
+        clear_evaluated_models: Optional[bool] = False,
+        save_pareto_model_weights: bool = True,
         seed: Optional[int] = 1,
     ):
         """Initialize the random search algorithm.
@@ -45,8 +47,10 @@ class RandomSearch(Searcher):
             output_dir: Output directory.
             num_iters: Number of iterations.
             samples_per_iter: Number of samples per iteration.
+            clear_evaluated_models (bool, optional): Optimizes memory usage by clearing the architecture
+                of `ArchaiModel` after each iteration. Defaults to False.
+            save_pareto_model_weights: If `True`, saves the weights of the pareto models.
             seed: Random seed.
-
         """
 
         assert isinstance(
@@ -65,6 +69,8 @@ class RandomSearch(Searcher):
         self.samples_per_iter = samples_per_iter
 
         # Utils
+        self.clear_evaluated_models = clear_evaluated_models
+        self.save_pareto_model_weights = save_pareto_model_weights
         self.search_state = SearchResults(search_space, self.so)
         self.seed = seed
         self.rng = random.Random(seed)
@@ -121,7 +127,15 @@ class RandomSearch(Searcher):
 
             # Saves search iteration results
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
-            self.search_state.save_pareto_frontier_models(str(self.output_dir / f"pareto_models_iter_{self.iter_num}"))
+            self.search_state.save_pareto_frontier_models(
+                str(self.output_dir / f"pareto_models_iter_{self.iter_num}"),
+                save_weights=self.save_pareto_model_weights
+            )
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
+
+            # Clears models from memory if needed
+            if self.clear_evaluated_models:
+                logger.info("Optimzing memory usage ...")
+                [model.clear() for model in unseen_pop]
 
         return self.search_state

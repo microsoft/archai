@@ -41,6 +41,8 @@ class RegularizedEvolutionSearch(Searcher):
         initial_population_paths: Optional[List[str]] = None,
         pareto_sample_size: Optional[int] = 40,
         history_size: Optional[int] = 100,
+        clear_evaluated_models: Optional[bool] = False,
+        save_pareto_model_weights: bool = True,
         seed: Optional[int] = 1,
     ) -> None:
         """Initialize the Regularized Evolution.
@@ -55,6 +57,9 @@ class RegularizedEvolutionSearch(Searcher):
             initial_population_paths: Paths to initial population models.
             pareto_sample_size: Number of models to sample from the pareto frontier.
             history_size: Number of models to keep in the history.
+            clear_evaluated_models (bool, optional): Optimizes memory usage by clearing the architecture
+                of `ArchaiModel` after each iteration. Defaults to False.
+            save_pareto_model_weights: If `True`, saves the weights of the pareto models.
             seed: Random seed.
 
         """
@@ -76,6 +81,7 @@ class RegularizedEvolutionSearch(Searcher):
         self.initial_population_paths = initial_population_paths
         self.pareto_sample_size = pareto_sample_size
         self.history_size = history_size
+        self.clear_evaluated_models = clear_evaluated_models
 
         # Utils
         self.search_state = SearchResults(search_space, self.so)
@@ -183,8 +189,16 @@ class RegularizedEvolutionSearch(Searcher):
 
             # Saves search iteration results
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
-            self.search_state.save_pareto_frontier_models(str(self.output_dir / f"pareto_models_iter_{self.iter_num}"))
+            self.search_state.save_pareto_frontier_models(
+                str(self.output_dir / f"pareto_models_iter_{self.iter_num}"),
+                save_weights=self.save_pareto_model_weights
+            )
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
+
+            # Clears models from memory if needed
+            if self.clear_evaluated_models:
+                logger.info("Optimzing memory usage ...")
+                [model.clear() for model in iter_members]
 
             # Samples subset of models from the history buffer
             history_indices = list(range(max(0, len(self.all_pop) - self.history_size), len(self.all_pop)))
