@@ -85,7 +85,7 @@ extras_require["docs"] = filter_dependencies(
 extras_require["tests"] = filter_dependencies(
     "flake8",
     "einops",
-    "nbval"
+    "nbval",
     "opt_einsum",
     "pytest",
 )
