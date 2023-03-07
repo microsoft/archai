@@ -48,6 +48,7 @@ dependencies = [
     "transformers,"
     "tqdm",
     "transformers>=4.25.1",
+    "git+https://github.com/sytelus/cifar_testbed.git"
 ]
 dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)?$)", x)[0] for x in dependencies)}
 
