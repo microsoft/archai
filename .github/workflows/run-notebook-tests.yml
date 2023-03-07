@@ -34,7 +34,6 @@ jobs:
         run: |
           sudo apt install -y graphviz
           python -m pip install --user -e .[dev]
-          python -m pip install --user -e .[test]
           python -m pip install graphviz
       - name: Tests notebooks
         shell: bash -l {0}

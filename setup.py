@@ -45,11 +45,10 @@ dependencies = [
     "tensorwatch",
     "tokenizers>=0.10.3",
     "torchvision",
-    "transformers",
     "tqdm",
-    "transformers>=4.25.1"
+    "transformers>=4.25.1",
 ]
-dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+).*$)", x)[0] for x in dependencies)}
+dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)?$)", x)[0] for x in dependencies)}
 
 
 def filter_dependencies(*pkgs):
@@ -74,6 +73,7 @@ extras_require["deepspeed"] = filter_dependencies("deepspeed")
 extras_require["docs"] = filter_dependencies(
     "nbimporter",
     "nbsphinx",
+    "nbval",
     "sphinx",
     "sphinx-book-theme",
     "sphinx-git",
@@ -82,13 +82,7 @@ extras_require["docs"] = filter_dependencies(
     "sphinxcontrib-programoutput",
     "sphinxcontrib-mermaid",
 )
-extras_require["tests"] = filter_dependencies(
-    "flake8",
-    "einops",
-    "nbval",
-    "opt_einsum",
-    "pytest",
-)
+extras_require["tests"] = filter_dependencies("flake8", "pytest")
 
 extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
 if os.name != "nt":
