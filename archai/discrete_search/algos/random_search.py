@@ -7,7 +7,6 @@ from typing import List, Optional
 
 from overrides import overrides
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_objectives import SearchObjectives
@@ -30,7 +29,6 @@ class RandomSearch(Searcher):
         self,
         search_space: DiscreteSearchSpace,
         search_objectives: SearchObjectives,
-        dataset_provider: DatasetProvider,
         output_dir: str,
         num_iters: Optional[int] = 10,
         samples_per_iter: Optional[int] = 10,
@@ -41,7 +39,6 @@ class RandomSearch(Searcher):
         Args:
             search_space: Discrete search space.
             search_objectives: Search objectives.
-            dataset_provider: Dataset provider.
             output_dir: Output directory.
             num_iters: Number of iterations.
             samples_per_iter: Number of samples per iteration.
@@ -56,7 +53,6 @@ class RandomSearch(Searcher):
         self.iter_num = 0
         self.search_space = search_space
         self.so = search_objectives
-        self.dataset_provider = dataset_provider
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
 
@@ -91,7 +87,7 @@ class RandomSearch(Searcher):
         while len(valid_sample) < num_models and nb_tries < patience:
             sample = [self.search_space.random_sample() for _ in range(num_models)]
 
-            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
+            _, valid_indices = self.so.validate_constraints(sample)
             valid_sample += [sample[i] for i in valid_indices if sample[i].archid not in self.seen_archs]
 
         return valid_sample[:num_models]
@@ -106,9 +102,9 @@ class RandomSearch(Searcher):
             unseen_pop = self.sample_models(self.samples_per_iter)
 
             # Calculates objectives
-            logger.info(f"Calculating search objectives {list(self.so.objs.keys())} for {len(unseen_pop)} models ...")
+            logger.info(f"Calculating search objectives {list(self.so.objective_names)} for {len(unseen_pop)} models ...")
 
-            results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
+            results = self.so.eval_all_objs(unseen_pop)
             self.search_state.add_iteration_results(unseen_pop, results)
 
             # Records evaluated archs to avoid computing the same architecture twice

@@ -30,7 +30,7 @@ class RayParallelEvaluator(AsyncModelEvaluator):
     """
 
     def __init__(
-        self, obj: ModelEvaluator, timeout: Optional[float] = None, force_stop: Optional[bool] = False, **ray_kwargs
+        self, obj: ModelEvaluator, dataset: DatasetProvider, timeout: Optional[float] = None, force_stop: Optional[bool] = False, **ray_kwargs
     ) -> None:
         """Initialize the evaluator.
 
@@ -55,11 +55,12 @@ class RayParallelEvaluator(AsyncModelEvaluator):
 
         self.timeout = timeout
         self.force_stop = force_stop
+        self.dataset = dataset
         self.object_refs = []
 
     @overrides
-    def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
-        self.object_refs.append(self.compute_fn.remote(arch, dataset, budget))
+    def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
+        self.object_refs.append(self.compute_fn.remote(arch, self.dataset, budget))
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:

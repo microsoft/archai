@@ -24,12 +24,12 @@ def get_pareto_frontier(
 
     """
 
-    assert all(obj_name in objectives.objs for obj_name in evaluation_results)
+    assert all(obj_name in objectives.objectives for obj_name in evaluation_results)
     assert all(len(r) == len(models) for r in evaluation_results.values())
 
     # Inverts maximization objectives
     inverted_results = {
-        obj_name: (-obj_r if objectives.objs[obj_name]["higher_is_better"] else obj_r)
+        obj_name: (-obj_r if objectives.objectives[obj_name].higher_is_better else obj_r)
         for obj_name, obj_r in evaluation_results.items()
     }
 
@@ -62,12 +62,12 @@ def get_non_dominated_sorting(
 
     """
 
-    assert all(obj_name in objectives.objs for obj_name in evaluation_results)
+    assert all(obj_name in objectives.objectives for obj_name in evaluation_results)
     assert all(len(r) == len(models) for r in evaluation_results.values())
 
     # Inverts maximization objectives
     inverted_results = {
-        obj_name: (-obj_r if objectives.objs[obj_name]["higher_is_better"] else obj_r)
+        obj_name: (-obj_r if objectives.objectives[obj_name].higher_is_better else obj_r)
         for obj_name, obj_r in evaluation_results.items()
     }
 

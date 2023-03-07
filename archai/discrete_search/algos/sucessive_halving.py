@@ -89,8 +89,7 @@ class SucessiveHalvingSearch(Searcher):
 
             results = self.objectives.eval_all_objs(
                 selected_models,
-                self.dataset_provider,
-                budgets={obj_name: current_budget for obj_name in self.objectives.objs},
+                budgets={obj_name: current_budget for obj_name in self.objectives.objectives},
             )
 
             # Logs results and saves iteration models
