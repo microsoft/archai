@@ -8,7 +8,6 @@ import onnxruntime as rt
 import torch
 from overrides import overrides
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.common.timing import MeasureBlockTime
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
@@ -61,7 +60,7 @@ class AvgOnnxLatency(ModelEvaluator):
         self.inf_session_kwargs = inf_session_kwargs or dict()
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
         model.arch.to("cpu")
 
         # Exports model to ONNX

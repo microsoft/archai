@@ -21,5 +21,5 @@ def test_transformer_flex_onnx_latency(search_space):
     objective = TransformerFlexOnnxLatency(search_space)
 
     # Assert that the returned latency is valid
-    latency = objective.evaluate(arch, None)
+    latency = objective.evaluate(arch)
     assert latency > 0.0

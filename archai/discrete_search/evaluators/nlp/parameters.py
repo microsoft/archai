@@ -6,7 +6,6 @@ from typing import List, Optional
 from overrides import overrides
 from torch import nn
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
 
@@ -34,7 +33,7 @@ class NonEmbeddingParamsProxy(ModelEvaluator):
         self.trainable_only = trainable_only
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
         total_params = sum(
             param.numel() for param in model.arch.parameters() if not self.trainable_only or param.requires_grad
         )

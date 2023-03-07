@@ -29,7 +29,7 @@ def _ray_wrap_training_fn(training_fn) -> Callable:
 class ProgressiveTraining(ModelEvaluator):
     """Progressive training evaluator."""
 
-    def __init__(self, search_space: DiscreteSearchSpace, training_fn: Callable) -> None:
+    def __init__(self, search_space: DiscreteSearchSpace, dataset: DatasetProvider, training_fn: Callable) -> None:
         """Initialize the evaluator.
 
         Args:
@@ -40,17 +40,18 @@ class ProgressiveTraining(ModelEvaluator):
 
         self.search_space = search_space
         self.training_fn = training_fn
+        self.dataset = dataset
 
         # Training state buffer (e.g optimizer state) for each architecture id
         self.training_states = {}
 
     @overrides
-    def evaluate(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, arch: ArchaiModel, budget: Optional[float] = None) -> float:
         # Tries to retrieve previous training state
         tr_state = self.training_states.get(arch.archid, None)
 
         # Computes metric and updates training state
-        metric_result, updated_tr_state = self.training_fn(arch, dataset, budget, tr_state)
+        metric_result, updated_tr_state = self.training_fn(arch, self.dataset, budget, tr_state)
         self.training_states[arch.archid] = updated_tr_state
 
         return metric_result
@@ -62,6 +63,7 @@ class RayProgressiveTraining(AsyncModelEvaluator):
     def __init__(
         self,
         search_space: DiscreteSearchSpace,
+        dataset: DatasetProvider,
         training_fn: Callable,
         timeout: Optional[float] = None,
         force_stop: Optional[bool] = False,
@@ -78,6 +80,7 @@ class RayProgressiveTraining(AsyncModelEvaluator):
         """
 
         self.search_space = search_space
+        self.dataset = dataset
 
         if ray_kwargs:
             self.compute_fn = ray.remote(**ray_kwargs)(_ray_wrap_training_fn(training_fn))
@@ -98,12 +101,12 @@ class RayProgressiveTraining(AsyncModelEvaluator):
         self.training_states = {}
 
     @overrides
-    def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
+    def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
         # Stores original model reference
         self.models.append(arch)
 
         current_tr_state = self.training_states.get(arch.archid, None)
-        self.results_ref.append(self.compute_fn.remote(arch, dataset, budget, current_tr_state))
+        self.results_ref.append(self.compute_fn.remote(arch, self.dataset, budget, current_tr_state))
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:

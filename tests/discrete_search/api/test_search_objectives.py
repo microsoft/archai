@@ -45,7 +45,7 @@ def test_eval_all_objs(models):
         AvgOnnxLatency(input_shape=(1, 1, 192), num_trials=1, input_dtype="torch.LongTensor"),
         higher_is_better=False,
     )
-    search_objectives.add_objective("Budget Value", EvaluationFunction(lambda m, d, b: b), higher_is_better=True)
+    search_objectives.add_objective("Budget Value", EvaluationFunction(lambda m, b: b), higher_is_better=True)
 
     # Assert that objectives are evaluated and return a dictionary
     result = search_objectives.eval_all_objs(
@@ -56,7 +56,7 @@ def test_eval_all_objs(models):
 
 def test_eval_subsets(sample_input, models):
     num_params_obj = TorchNumParameters()
-    num_params = [num_params_obj.evaluate(m, None, None) for m in models]
+    num_params = [num_params_obj.evaluate(m) for m in models]
     max_params = max(num_params)
 
     search_objectives = SearchObjectives(cache_objective_evaluation=False)
@@ -73,7 +73,7 @@ def test_eval_subsets(sample_input, models):
         higher_is_better=False,
     )
     search_objectives.add_constraint("NumParameters", TorchNumParameters(), (max_params - 0.5, max_params + 0.5))
-    search_objectives.add_objective("Budget Value", EvaluationFunction(lambda m, d, b: b), higher_is_better=True)
+    search_objectives.add_objective("Budget Value", EvaluationFunction(lambda m, b: b), higher_is_better=True)
 
     # Assert that cheap objectives are evaluated and return a dictionary
     result = search_objectives.eval_cheap_objs(
@@ -108,7 +108,7 @@ def test_eval_cache(sample_input, models):
         higher_is_better=False,
     )
     search_objectives.add_constraint("NumberOfParameters", TorchNumParameters(), (0, float("inf")))
-    search_objectives.add_constraint("Random number", EvaluationFunction(lambda m, d, b: random.random()), (0.0, 1.0))
+    search_objectives.add_constraint("Random number", EvaluationFunction(lambda m, b: random.random()), (0.0, 1.0))
 
     # Assert that cheap objectives are evaluated and cached
     result = search_objectives.eval_cheap_objs(models, progress_bar=True)
