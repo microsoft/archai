@@ -43,6 +43,7 @@ class EvolutionParetoSearch(Searcher):
         max_unseen_population: Optional[int] = 100,
         mutations_per_parent: Optional[int] = 1,
         num_crossovers: Optional[int] = 5,
+        optimize_memory_usage: Optional[bool] = False,
         seed: Optional[int] = 1,
     ):
         """Initialize the evolutionary search algorithm.
@@ -60,6 +61,8 @@ class EvolutionParetoSearch(Searcher):
             max_unseen_population: Maximum number of unseen models to evaluate in each iteration.
             mutations_per_parent: Number of distinct mutations generated for each Pareto frontier member.
             num_crossovers: Total number of crossovers generated per iteration.
+            optimize_memory_usage: Optimizes memory usage by clearing the architecture
+                of `ArchaiModel` after each iteration.
             seed: Random seed.
 
         """
@@ -83,6 +86,7 @@ class EvolutionParetoSearch(Searcher):
         self.max_unseen_population = max_unseen_population
         self.mutations_per_parent = mutations_per_parent
         self.num_crossovers = num_crossovers
+        self.optimize_memory_usage = optimize_memory_usage
 
         # Utils
         self.search_state = SearchResults(search_space, self.so)
@@ -250,6 +254,11 @@ class EvolutionParetoSearch(Searcher):
 
             # Records evaluated archs to avoid computing the same architecture twice
             self.seen_archs.update([m.archid for m in unseen_pop])
+
+            # Optimizes memory usage by clearing architectures from memory
+            if self.optimize_memory_usage:
+                logger.info("Optimzing memory usage ...")
+                [model.clear() for model in unseen_pop]
 
             # update the pareto frontier
             logger.info("Updating Pareto frontier ...")
