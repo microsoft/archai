@@ -381,7 +381,7 @@ class SearchObjectives:
         with open(file_path, "r", encoding="utf-8") as f:
             self._cache = yaml.load(f)
 
-    def lookup_cache(self, obj_name: str, arch_id: str, budget: int) -> Optional[float]:
+    def lookup_cache(self, obj_name: str, arch_id: str, budget: Optional[int]) -> Optional[float]:
         """Look up the cache for a specific objective, architecture and budget.
 
         Args:
