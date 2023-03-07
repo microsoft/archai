@@ -81,9 +81,10 @@ class RegularizedEvolutionSearch(Searcher):
         self.initial_population_paths = initial_population_paths
         self.pareto_sample_size = pareto_sample_size
         self.history_size = history_size
-        self.clear_evaluated_models = clear_evaluated_models
 
         # Utils
+        self.clear_evaluated_models = clear_evaluated_models
+        self.save_pareto_model_weights = save_pareto_model_weights        
         self.search_state = SearchResults(search_space, self.so)
         self.seed = seed
         self.rng = random.Random(seed)
