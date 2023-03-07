@@ -134,7 +134,7 @@ if __name__ == "__main__":
         max_unseen_population=args.max_unseen_population,
         mutations_per_parent=args.mutations_per_parent,
         num_crossovers=args.num_crossovers,
-        optimize_memory_usage=True,
+        clear_evaluated_models=True,
         seed=args.seed,
     )
     algo.search()
