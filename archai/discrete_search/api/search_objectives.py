@@ -44,7 +44,7 @@ class SearchObjectives:
 
         Args:
             cache_objective_evaluation: If `True`, objective evaluations are cached using the
-                tuple `(obj_name, archid, dataset_provider_name, budget)` as key.
+                tuple `(obj_name, archid, budget)` as key.
 
         """
 
