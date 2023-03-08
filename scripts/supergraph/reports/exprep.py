@@ -24,7 +24,6 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 
 from archai.common import utils
 
@@ -305,8 +304,8 @@ def plot_epochs(epoch_stats: List[EpochStats], filepath: str):
     plt.ioff()
     plt.clf()
     fig, ax = plt.subplots()
-    clrs = sns.color_palette("husl", 5)
-    with sns.axes_style("darkgrid"):
+    clrs = plt.colors.get_palette("husl", 5)
+    with plt.style.use("seaborn-darkgrid"):
         metrics = []
         val_top1_means = [es.val_fold.top1.mean() if len(es.val_fold.top1) > 0 else np.nan for es in epoch_stats]
         val_top1_std = [es.val_fold.top1.stddev() if len(es.val_fold.top1) > 1 else np.nan for es in epoch_stats]

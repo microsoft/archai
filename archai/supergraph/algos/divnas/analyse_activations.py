@@ -11,10 +11,10 @@ from typing import Any, Callable, Dict, List, Set, Tuple
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 from tqdm import tqdm
 
 from archai.supergraph.algos.divnas.seqopt import SeqOpt
+from archai.supergraph.utils.heatmap import heatmap
 
 
 def create_submod_f(covariance:np.array)->Callable:
@@ -294,10 +294,10 @@ def plot_all_covs(covs_kernel, corr, primitives, axs):
 
     for i, quantile in enumerate(covs_kernel.keys()):
         cov = covs_kernel[quantile]
-        sns.heatmap(cov, annot=True, fmt='.1g', cmap='coolwarm', xticklabels=primitives, yticklabels=primitives, ax=flat_axs[i])
+        heatmap(cov, ax=flat_axs[i], xtick_labels=primitives, ytick_labels=primitives, fmt=".1g", cmap="coolwarm")
         flat_axs[i].set_title(f'Kernel covariance sigma={quantile} quantile')
 
-    sns.heatmap(corr, annot=True, fmt='.1g', cmap='coolwarm', xticklabels=primitives, yticklabels=primitives, ax=flat_axs[-1])
+    heatmap(corr, ax=flat_axs[-1], xtick_labels=primitives, ytick_labels=primitives, fmt=".1g", cmap="coolwarm")
     flat_axs[-1].set_title(f'Correlation')
 
 def main():
@@ -341,7 +341,7 @@ def main():
     # compute covariance like usual
     # cov = compute_covariance_offline(all_edges_list)
     # corr = compute_correlation(cov)
-    # sns.heatmap(corr, annot=False, xticklabels=all_names_list, yticklabels=all_names_list, cmap='coolwarm')
+    # heatmap(corr, xtick_labels=all_names_list, ytick_labels=all_names_list, cmap='coolwarm')
     # plt.axis('equal')
     # plt.show()
 
@@ -352,7 +352,7 @@ def main():
     print(f'Det before diag addition {np.linalg.det(cov_kernel_orig)}')
     print(f'Det after diag addition {np.linalg.det(cov_kernel)}')
     print(f'Condition number is {np.linalg.cond(cov_kernel)}')
-    sns.heatmap(cov_kernel, annot=False, xticklabels=all_names_list, yticklabels=all_names_list, cmap='coolwarm')
+    heatmap(cov_kernel, xtick_labels=all_names_list, ytick_labels=all_names_list, cmap="coolwarm")
     plt.axis('equal')
     plt.show()
 
