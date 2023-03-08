@@ -64,6 +64,9 @@ class ArchConfig:
         cls_name = self.__class__.__name__
         return f"{cls_name}({json.dumps(self, cls=ArchConfigJsonEncoder, indent=4)})"
 
+    def __in__(self, param_name: str) -> bool:
+        return param_name in self.nodes
+
     def get_used_params(self) -> Dict[str, Union[Dict, bool]]:
         """Get the parameter usage tree.
 
