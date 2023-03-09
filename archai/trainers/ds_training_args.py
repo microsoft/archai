@@ -55,8 +55,6 @@ class DsTrainingArguments:
 
     eval_steps: int = field(default=500, metadata={"help": "Number of steps between evaluations."})
 
-    pipe_parallel: bool = field(default=False, metadata={"help": "Whether to use pipeline parallelism."})
-
     pipe_parallel_size: int = field(default=1, metadata={"help": "Size of pipeline parallelism."})
 
     pipe_parallel_loss_fn: callable = field(default=None, metadata={"help": "Loss function for pipeline parallelism."})

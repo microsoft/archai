@@ -69,17 +69,16 @@ class DsTrainer(TrainerBase):
         assert isinstance(args, DsTrainingArguments), "`args` should be an instance of `DsTrainingArguments`."
         self.args = args
 
-        if self.args.pipe_parallel:
-            assert isinstance(
-                model, torch.nn.Sequential
-            ), "`model` should be an instance of `torch.nn.Sequential` for Pipeline Parallelism."
-            model = PipelineModule(
-                layers=model,
-                num_stages=self.args.pipe_parallel_size,
-                loss_fn=self.args.pipe_parallel_loss_fn,
-                partition_method=self.args.pipe_parallel_partition_method,
-                activation_checkpoint_interval=self.args.pipe_parallel_activation_checkpoint_steps,
-            )
+        assert isinstance(
+            model, torch.nn.Sequential
+        ), "`model` should be an instance of `torch.nn.Sequential` for Pipeline Parallelism."
+        model = PipelineModule(
+            layers=model,
+            num_stages=self.args.pipe_parallel_size,
+            loss_fn=self.args.pipe_parallel_loss_fn,
+            partition_method=self.args.pipe_parallel_partition_method,
+            activation_checkpoint_interval=self.args.pipe_parallel_activation_checkpoint_steps,
+        )
 
         self.engine, _, _, _ = deepspeed.initialize(
             model=model,
