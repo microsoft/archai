@@ -2,7 +2,7 @@
 # Licensed under the MIT licen
 
 import os
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
@@ -246,4 +246,4 @@ class NvidiaTrainingArguments:
 
         """
 
-        return self.__dict__
+        return asdict(self)

@@ -82,7 +82,7 @@ class HFEvalModel(BaseLM):
 
             # Encodes the context and defines number of tokens to be
             # removed when generation ends (default = 1)
-            input_ids = self.tokenizer(context, return_tensors="pt")["input_ids"]
+            input_ids = self.tokenizer(context, return_tensors="pt")["input_ids"].to(self.device)
             n_removal_tokens = 1
 
             if stop_tokens:
@@ -94,7 +94,7 @@ class HFEvalModel(BaseLM):
                     add_special_tokens=False,
                     return_attention_mask=False,
                     return_tensors="pt",
-                )["input_ids"]
+                )["input_ids"].to(self.device)
                 n_removal_tokens = encoded_stop_tokens.shape[-1]
 
                 # Defines the stopping criteria

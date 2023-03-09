@@ -1,12 +1,15 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import os
 import re
 
 from setuptools import find_packages, setup
 
 dependencies = [
     "datasets>=2.4.0",
+    "deepspeed",
+    "einops",
     "flake8>=5.0.4",
     "gorilla>=0.4.0",
     "h5py",
@@ -19,6 +22,7 @@ dependencies = [
     "onnx>=1.10.2",
     "onnxruntime>=1.10.0",
     "opencv-python",
+    "opt_einsum",
     "overrides==3.1.0",
     "plotly",
     "psutil",
@@ -42,7 +46,7 @@ dependencies = [
     "tokenizers>=0.10.3",
     "torchvision",
     "tqdm",
-    "transformers>=4.25.1"
+    "transformers>=4.25.1",
 ]
 dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)?$)", x)[0] for x in dependencies)}
 
@@ -52,6 +56,7 @@ def filter_dependencies(*pkgs):
 
 
 extras_require = {}
+
 extras_require["cv"] = filter_dependencies(
     "gorilla",
     "opencv-python",
@@ -59,11 +64,13 @@ extras_require["cv"] = filter_dependencies(
     "scikit-learn",
     "torchvision",
 )
-extras_require["nlp"] = filter_dependencies("datasets", "tokenizers", "transformers")
-extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
+extras_require["nlp"] = filter_dependencies("datasets", "einops", "opt_einsum", "tokenizers", "transformers")
+extras_require["deepspeed"] = filter_dependencies("deepspeed")
 
 extras_require["docs"] = filter_dependencies(
+    "nbimporter",
     "nbsphinx",
+    "nbval",
     "sphinx",
     "sphinx-book-theme",
     "sphinx-git",
@@ -71,10 +78,15 @@ extras_require["docs"] = filter_dependencies(
     "sphinx_inline_tabs",
     "sphinxcontrib-programoutput",
     "sphinxcontrib-mermaid",
-    "nbimporter"
 )
-extras_require["tests"] = filter_dependencies("flake8", "nbval", "pytest", "nbimporter")
-extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
+extras_require["tests"] = filter_dependencies("flake8", "pytest")
+
+extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
+if os.name != "nt":
+    # Support for DeepSpeed is not available on native Windows
+    extras_require["all"] += extras_require["deepspeed"]
+
+extras_require["dev"] = extras_require["all"] + extras_require["docs"] + extras_require["tests"]
 
 install_requires = filter_dependencies(
     "h5py",

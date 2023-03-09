@@ -2,9 +2,10 @@
 # Licensed under the MIT license.
 
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from datasets.arrow_dataset import Dataset
+from datasets.download import DownloadMode
 from evaluate import load
 from lm_eval.base import Task
 from lm_eval.metrics import mean
@@ -18,6 +19,21 @@ class HumanEval(Task):
     VERSION = 0
     DATASET_PATH = "openai_humaneval"
     DATASET_NAME = "openai_humaneval"
+
+    def __init__(
+        self,
+        data_dir: Optional[str] = None,
+        cache_dir: Optional[str] = None,
+        download_mode: Optional[DownloadMode] = None,
+        n_samples: Optional[int] = 1,
+        temperature: Optional[float] = 0.01,
+        pass_at_k: Optional[List[int]] = None,
+    ) -> None:
+        super().__init__(data_dir=data_dir, cache_dir=cache_dir, download_mode=download_mode)
+
+        self.n_samples = n_samples
+        self.temperature = temperature
+        self.pass_at_k = pass_at_k or [1]
 
     def should_decontaminate(self) -> bool:
         return False
@@ -46,11 +62,11 @@ class HumanEval(Task):
                 ctx,
                 ["\nclass", "\ndef", "\n#", "\nif", "\nprint"],
                 True,
-                0.1,
+                self.temperature,
                 0.95,
-                1,
+                300,
             )
-            for _ in range(1)
+            for _ in range(self.n_samples)
         ]
 
     def process_results(self, doc: Dict[str, Any], results: List[str]) -> Dict[str, Any]:
@@ -62,12 +78,12 @@ class HumanEval(Task):
 
         metric = load("code_eval")
         metric.add_batch(predictions=prediction, references=reference)
-        pass_at_k = metric.compute(k=[1, 10])[0]
+        pass_at_k = metric.compute(k=self.pass_at_k)[0]
 
         return {k: v for k, v in pass_at_k.items()}
 
     def aggregation(self) -> Dict[str, Any]:
-        return {"pass": mean}
+        return {f"pass@{k}": mean for k in self.pass_at_k}
 
     def higher_is_better(self) -> Dict[str, Any]:
-        return {"pass": True}
+        return {f"pass@{k}": True for k in self.pass_at_k}
