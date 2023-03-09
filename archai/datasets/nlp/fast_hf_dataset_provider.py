@@ -144,7 +144,6 @@ class FastHfDatasetProvider(DatasetProvider):
         data_files: Optional[Union[List[str], Dict[str, Union[str, List[str]]]]] = None,
         tokenizer: Optional[AutoTokenizer] = None,
         tokenizer_name: Optional[str] = None,
-        tokenizer_max_length: Optional[int] = None,
         mapping_column_name: Optional[List[str]] = None,
         validation_split: Optional[float] = 0.0,
         seed: Optional[int] = 42,
@@ -162,7 +161,6 @@ class FastHfDatasetProvider(DatasetProvider):
             data_files: Path to the source data file(s).
             tokenizer: Instance of tokenizer to use.
             tokenizer_name: Name of the tokenizer, if `tokenizer` has not been passed.
-            tokenizer_max_length: Maximum length of the tokenized sequences.
             mapping_column_name: The columns in `dataset` that should be tokenized.
             validation_split: Fraction of the dataset to use for validation.
             seed: Random seed.
@@ -178,9 +176,6 @@ class FastHfDatasetProvider(DatasetProvider):
 
         assert xor(tokenizer, tokenizer_name), "`tokenizer` and `tokenizer_name` are mutually exclusive."
         tokenizer = tokenizer or AutoTokenizer.from_pretrained(tokenizer_name)
-        if tokenizer_max_length:
-            logger.warn(f"New maximum length set for the tokenizer: {tokenizer_max_length}.")
-            tokenizer.model_max_length = tokenizer_max_length
 
         dtype = np.uint16 if tokenizer.vocab_size < 64 * 1024 else np.int32
         use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
@@ -235,7 +230,7 @@ class FastHfDatasetProvider(DatasetProvider):
                     "data_dir": data_dir,
                     "tokenizer": {
                         "name_or_path": tokenizer.name_or_path,
-                        "model_max_length": tokenizer.model_max_length,
+                        "model_max_length": None,
                     },
                     "mapping_column_name": mapping_column_name or ["text"],
                     "validation_split": validation_split,
