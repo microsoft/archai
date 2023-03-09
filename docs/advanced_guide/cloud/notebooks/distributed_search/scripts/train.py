@@ -5,6 +5,8 @@ import torch
 from torch import nn
 from model import MyModel
 from archai.datasets.cv.mnist_dataset_provider import MnistDatasetProvider
+from store import ArchaiStore
+import onnx
 
 
 class Trainer:
@@ -12,8 +14,10 @@ class Trainer:
         self.training_epochs = training_epochs
         self.device = device
         self.lr = lr
+        self.model = None
+        self.val_acc = None
 
-    def evaluate(self, model, dataset_provider) -> float:
+    def evaluate(self, model, dataset_provider, store: ArchaiStore) -> float:
         # Loads the dataset
         tr_data = dataset_provider.get_train_dataset()
         val_data = dataset_provider.get_val_dataset()
@@ -65,18 +69,29 @@ class Trainer:
         # Returns model to cpu
         model.cpu()
 
+        self.model = model
+        self.val_acc = val_acc
         return val_acc
+
+    def upload_results(self, store: ArchaiStore):
+
+        store.upload_model(self.model)
+        store.upload_val_acc(self.val_acc
 
 
 def main():
     # input and output arguments
     parser = argparse.ArgumentParser()
+    parser.add_argument("--storage_key", required=True, type=str, help="Azure model store key")
+    parser.add_argument("--storage_account_name", required=True, type=str, help="Azure model store name")
     parser.add_argument("--model_params", type=str, help="json string containing model parameters")
     parser.add_argument("--data_dir", type=str, help="location of dataset")
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
     parser.add_argument("--output", type=str, help="place to write the results")
+
     args = parser.parse_args()
 
+    store = ArchaiStore(args.storage_account_name, args.storage_key)
     model = MyModel.from_json(args.model_params)
     evaluator = Trainer(training_epochs=args.epochs, lr=1e-4, device='cuda')
     dataset_provider = MnistDatasetProvider(args.data_dir)

@@ -7,7 +7,9 @@ from archai.discrete_search.evaluators import TorchNumParameters
 from archai.discrete_search.algos import EvolutionParetoSearch
 from cnn_search_space import CNNSearchSpace
 from aml_training_evaluator import AmlTrainingValAccuracy
-
+from azure.ai.ml.entities import UserIdentityConfiguration
+from azure.ai.ml import MLClient
+# from mldesigner.dsl import dynamic  # can we use this to dynamically create the training commands?
 
 def main():
     parser = argparse.ArgumentParser()
@@ -27,6 +29,20 @@ def main():
     config = json.loads(str(bytes.fromhex(args.config), encoding='utf-8'))
 
     space = CNNSearchSpace()
+
+    subscription = config['subscription_id'],
+    resource_group = config['resource_group'],
+    workspace_name = config['workspace_name']
+
+    ml_client = MLClient(
+        UserIdentityConfiguration(),
+        subscription,
+        resource_group,
+        workspace_name
+    )
+
+    ds = ml_client.data.get('datasets')
+    print(f"Successfully fetched datasets info: {ds.path}")
 
     search_objectives = SearchObjectives()
 
@@ -62,8 +78,7 @@ def main():
         model_evaluator=AmlTrainingValAccuracy(compute_cluster_name=compute_name,
                                                environment_name=environment_name,  # AML environment name
                                                datastore_path=data_dir,  # AML datastore path
-                                               models_path=output_dir,
-                                               ml_config=config,
+                                               ml_client=ml_client,
                                                training_epochs=1),
         higher_is_better=True,
         compute_intensive=True

@@ -1,5 +1,5 @@
 import json
-from torch import nn
+from torch import nn, onnx
 
 class MyModel(nn.Module):
     def __init__(self, nb_layers: int = 5, kernel_size: int = 3, hidden_dim: int = 32):
@@ -40,8 +40,16 @@ class MyModel(nn.Module):
             'hidden_dim': self.hidden_dim
         })
 
+    def to_onnx(self, filename):
+        onnx.export(
+            self.model, self.sample_input, exported_model_buffer,
+            input_names=[f'input_{i}' for i in range(len(self.sample_input))],
+            opset_version=11,
+            **self.export_kwargs
+        )
+
     @staticmethod
-    def from_json(self, json_str):
+    def from_json(json_str):
         config = json.loads(json_str)
         nb_layers = int(config['nb_layers'])
         kernel_size = int(config['kernel_size'])

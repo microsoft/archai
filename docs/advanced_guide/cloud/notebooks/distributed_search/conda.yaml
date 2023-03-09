@@ -12,6 +12,8 @@ dependencies:
     - azure-storage-blob
     - azure-data-tables
     - azure.identity
+    - mldesigner
+    - mlflow
     - torchvision
     - torchaudio
     - "archai[dev] @ git+https://github.com/microsoft/archai.git"

@@ -2,35 +2,25 @@ import os
 from typing import List, Optional, Union
 from overrides import overrides
 import uuid
-import time
-import datetime
 
 from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
 from archai.datasets.cv.mnist_dataset_provider import MnistDatasetProvider
 from azure.ai.ml import MLClient, command, Input, Output, dsl
-from azure.identity import DefaultAzureCredential
 
 scripts_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class AmlTrainingValAccuracy(AsyncModelEvaluator):
-    def __init__(self, compute_cluster_name, environment_name, datastore_path, models_path, ml_config, training_epochs: float = 1.0):
+    def __init__(self, compute_cluster_name, environment_name, datastore_path, models_path, ml_client: MLClient, training_epochs: float = 1.0):
         self.training_epochs = training_epochs
         self.compute_cluster_name = compute_cluster_name
         self.environment_name = environment_name
         self.datastore_path = datastore_path
         self.models_path = models_path
         self.models = []
-
-        credential = DefaultAzureCredential()
-        self.ml_client = MLClient(
-            credential,
-            ml_config['subscription_id'],
-            ml_config['resource_group'],
-            ml_config['workspace_name']
-        )
+        self.ml_client = ml_client
 
     @overrides
     def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
@@ -56,6 +46,9 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 command="""python3 train.py \
                         --data_dir "${{inputs.data}}" \
                         --output ${{outputs.results}} """ + \
+                        f"--subscription {self.ml_client.subscription_id} " + \
+                        f"--resource_group {self.ml_client.resource_group_name} " + \
+                        f"--workspace {self.ml_client.workspace_name} " + \
                         f"--epochs {training_epochs} " + \
                         f"--model_params '{config}' ",
                 environment=self.environment_name,
