@@ -8,7 +8,7 @@ import pickle
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -68,6 +68,8 @@ class FastHfDatasetProvider(DatasetProvider):
     def _encode_dataset(
         dataset_dict: DatasetDict,
         tokenizer: AutoTokenizer,
+        mapping_fn: Callable[[Any], Dict[str, Any]],
+        mapping_fn_kwargs: Dict[str, Any],
         mapping_column_name: List[str],
         use_eos_token: bool,
         dtype: np.dtype,
@@ -76,15 +78,18 @@ class FastHfDatasetProvider(DatasetProvider):
         logger.info("Encoding dataset ...")
         logger.info(f"Number of workers: {num_workers} | EOS token: {use_eos_token}")
 
+        mapping_fn = mapping_fn or tokenize_concatenated_dataset
+        mapping_fn_kwargs = mapping_fn_kwargs or {
+            "tokenizer": tokenizer,
+            "mapping_column_name": mapping_column_name,
+            "use_eos_token": use_eos_token,
+            "dtype": dtype,
+        }
+
         column_names = dataset_dict["train"].column_names
         encoded_dataset_dict = dataset_dict.map(
-            tokenize_concatenated_dataset,
-            fn_kwargs={
-                "tokenizer": tokenizer,
-                "mapping_column_name": mapping_column_name,
-                "use_eos_token": use_eos_token,
-                "dtype": dtype,
-            },
+            mapping_fn,
+            fn_kwargs=mapping_fn_kwargs,
             batched=True,
             num_proc=num_workers,
             remove_columns=column_names,
@@ -144,6 +149,8 @@ class FastHfDatasetProvider(DatasetProvider):
         data_files: Optional[Union[List[str], Dict[str, Union[str, List[str]]]]] = None,
         tokenizer: Optional[AutoTokenizer] = None,
         tokenizer_name: Optional[str] = None,
+        mapping_fn: Optional[Callable[[Any], Dict[str, Any]]] = None,
+        mapping_fn_kwargs: Optional[Dict[str, Any]] = None,
         mapping_column_name: Optional[List[str]] = None,
         validation_split: Optional[float] = 0.0,
         seed: Optional[int] = 42,
@@ -161,7 +168,12 @@ class FastHfDatasetProvider(DatasetProvider):
             data_files: Path to the source data file(s).
             tokenizer: Instance of tokenizer to use.
             tokenizer_name: Name of the tokenizer, if `tokenizer` has not been passed.
-            mapping_column_name: The columns in `dataset` that should be tokenized.
+            mapping_fn: A function that maps the dataset. If not provided,
+                the default `tokenize_concatenated_dataset` function will be used.
+            mapping_fn_kwargs: Keyword arguments to pass to `mapping_fn`.
+            mapping_column_name: The columns in the dataset to be tokenized.
+                If `str`, only one column will be tokenized.
+                If `List[str]`, multiple columns will be tokenized.
             validation_split: Fraction of the dataset to use for validation.
             seed: Random seed.
             num_workers: Number of workers to use for encoding.
@@ -212,7 +224,14 @@ class FastHfDatasetProvider(DatasetProvider):
             hub_dataset_dict["test"] = tmp_dataset_dict["test"]
 
         encoded_dataset_dict = FastHfDatasetProvider._encode_dataset(
-            hub_dataset_dict, tokenizer, mapping_column_name, use_eos_token, dtype, num_workers
+            hub_dataset_dict,
+            tokenizer,
+            mapping_fn,
+            mapping_fn_kwargs,
+            mapping_column_name,
+            use_eos_token,
+            dtype,
+            num_workers,
         )
         processed_dataset_dict = FastHfDatasetProvider._process_dataset_to_memory(
             encoded_dataset_dict, cache_dir, dtype, num_workers, use_shared_memory
