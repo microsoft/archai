@@ -64,6 +64,9 @@ class ArchConfig:
         cls_name = self.__class__.__name__
         return f"{cls_name}({json.dumps(self, cls=ArchConfigJsonEncoder, indent=4)})"
 
+    def __in__(self, param_name: str) -> bool:
+        return param_name in self.nodes
+
     def get_used_params(self) -> Dict[str, Union[Dict, bool]]:
         """Get the parameter usage tree.
 
@@ -84,11 +87,13 @@ class ArchConfig:
 
         return used_params
 
-    def pick(self, param_name: str, record_usage: Optional[bool] = True) -> Any:
+    def pick(self, param_name: str, default: Optional[Any] = None, record_usage: Optional[bool] = True) -> Any:
         """Pick an architecture parameter, possibly recording its usage.
 
         Args:
             param_name: Architecture parameter name
+            default: Default value to return if parameter is not found. If `None`, an
+                exception is raised.
             record_usage: If this parameter should be recorded as 'used' in
                 `ArchConfig._used_params`.
 
@@ -96,8 +101,15 @@ class ArchConfig:
             Parameter value.
 
         """
-
-        param_value = self.nodes[param_name]
+        if param_name in self.nodes:
+            param_value = self.nodes[param_name]
+        else:
+            if default is None:
+                raise ValueError(
+                    f"Architecture parameter {param_name} not found in config and "
+                    f"no default value provided. Available parameters are: {self.nodes.keys()}"
+                )
+            param_value = default
 
         if record_usage:
             self._used_params.add(param_name)
