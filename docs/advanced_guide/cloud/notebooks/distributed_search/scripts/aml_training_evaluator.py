@@ -33,8 +33,10 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         scripts_dir = os.path.dirname(os.path.abspath(__file__))
         temp_dir = tempfile.TemporaryDirectory()
         for file in os.listdir(scripts_dir):
-            print(f"Copying {file} to {temp_dir.name}")
-            copyfile(os.path.join(scripts_dir, file), os.path.join(temp_dir.name, file))
+            path = os.path.join(scripts_dir, file)
+            if os.path.isfile(path):
+                print(f"Copying {file} to {temp_dir.name}")
+                copyfile(path, os.path.join(temp_dir.name, file))
         return temp_dir
 
     @overrides
