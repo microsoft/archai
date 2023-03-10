@@ -2,12 +2,13 @@ import os
 from typing import List, Optional, Union
 from overrides import overrides
 import uuid
-
+import time
 from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
 from azure.ai.ml import MLClient, command, Input, Output, dsl
 from azure.ai.ml.entities import UserIdentityConfiguration
+from store import ArchaiStore
 
 scripts_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,6 +24,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         self.models = []
         self.ml_client = ml_client
         self.model_names = []
+        self.store = ArchaiStore(storage_account_name, storage_account_key)
 
     @overrides
     def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
@@ -91,5 +93,27 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
             experiment_name="mnist_partial_training",
         )
 
-        # wait until the job completes
-        self.ml_client.jobs.stream(pipeline_job.name)
+        # wait for the job to finish
+        completed = {}
+        waiting = list(self.model_names)
+        while len(waiting) > 0:
+            id = waiting[0]
+            e = self.store.get_status(id)
+            if 'status' in e and e['status'] != 'trining':
+                del waiting[0]
+                completed[id] = e
+            else:
+                time.sleep(20)
+                continue
+
+        # awesome - they all completed!
+        results = []
+        for id in self.model_names:
+            e = completed[id]
+            if 'val_acc' in e:
+                results += [(float(e['val_acc'])]
+            else:
+                # this one failed so just return a zero accuracy
+                results += [float(0)]
+
+        return results

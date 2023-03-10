@@ -144,7 +144,7 @@ def main():
         config = {
             'name': name,
             'vac_acc': val_acc,
-            'epochs': args.epochs,
+            'epochs': epochs,
             'nb_layers': model.nb_layers,
             'kernel_size': model.kernel_size,
             'hidden_dim': model.hidden_dim,
@@ -155,7 +155,7 @@ def main():
             json.dump(config, fp)
 
         # post updated progress to our unified status table.
-        e['val_acc'] = val_acc
+        e['val_acc'] = float(val_acc)
         e['status'] = 'trained'
         store.update_status_entity(e)
     except Exception as ex:
