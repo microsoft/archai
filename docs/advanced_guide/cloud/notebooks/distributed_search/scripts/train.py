@@ -1,4 +1,5 @@
 import argparse
+import os
 import json
 import math
 import torch
@@ -6,7 +7,8 @@ from torch import nn
 from model import MyModel
 from archai.datasets.cv.mnist_dataset_provider import MnistDatasetProvider
 from store import ArchaiStore
-import onnx
+from azure.identity import DefaultAzureCredential
+from azure.ai.ml import MLClient
 
 
 class Trainer:
@@ -16,11 +18,14 @@ class Trainer:
         self.lr = lr
         self.model = None
         self.val_acc = None
+        self.input_shape = None
 
-    def evaluate(self, model, dataset_provider, store: ArchaiStore) -> float:
+    def train(self, model, dataset_provider, progress_bar=False) -> float:
         # Loads the dataset
         tr_data = dataset_provider.get_train_dataset()
         val_data = dataset_provider.get_val_dataset()
+
+        self.input_shape = tr_data.data[0].shape
 
         tr_dl = torch.utils.data.DataLoader(tr_data, batch_size=16, shuffle=True, num_workers=4)
         val_dl = torch.utils.data.DataLoader(val_data, batch_size=16, shuffle=False, num_workers=4)
@@ -34,6 +39,9 @@ class Trainer:
 
         # Partial training
         epoch_iter = range(math.ceil(self.training_epochs))
+        if progress_bar:
+            from tqdm import tqdm
+            epoch_iter = tqdm(epoch_iter, desc=f'Training model {model.get_archid()}')
 
         for epoch_nb in epoch_iter:
             # Early stops for fractional values of training epochs (e.g, 0.2)
@@ -73,35 +81,89 @@ class Trainer:
         self.val_acc = val_acc
         return val_acc
 
-    def upload_results(self, store: ArchaiStore):
-
-        store.upload_model(self.model)
-        store.upload_val_acc(self.val_acc
-
-
 def main():
     # input and output arguments
     parser = argparse.ArgumentParser()
+    parser.add_argument("--name", required=True, type=str, help="The globally unique name of this model")
     parser.add_argument("--storage_key", required=True, type=str, help="Azure model store key")
     parser.add_argument("--storage_account_name", required=True, type=str, help="Azure model store name")
     parser.add_argument("--model_params", type=str, help="json string containing model parameters")
     parser.add_argument("--data_dir", type=str, help="location of dataset")
+    parser.add_argument("--subscription", type=str, help="subscription of workspace")
+    parser.add_argument("--resource_group", type=str, help="resource group of workspace")
+    parser.add_argument("--workspace", type=str, help="the workspace name")
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
     parser.add_argument("--output", type=str, help="place to write the results")
 
     args = parser.parse_args()
 
-    store = ArchaiStore(args.storage_account_name, args.storage_key)
-    model = MyModel.from_json(args.model_params)
-    evaluator = Trainer(training_epochs=args.epochs, lr=1e-4, device='cuda')
-    dataset_provider = MnistDatasetProvider(args.data_dir)
-    val_acc = evaluator.evaluate(model, dataset_provider)
+    ml_client = MLClient(
+        DefaultAzureCredential(),
+        args.subscription,
+        args.resource_group,
+        args.workspace
+    )
 
-    config = json.load(open(args.model_params))
-    config['vac_acc'] = val_acc
-    config['epochs'] = args.epochs
-    with open(args.output, 'w') as fp:
-        json.dump(config, fp)
+    ds = ml_client.datastores.get('datasets')
+    print(f"Training job fetched datasets info: {ds.container_name} on store {ds.account_name}")
+
+    output_folder = args.output
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder, exist_ok=True)
+
+    name = args.name
+    store = ArchaiStore(args.storage_account_name, args.storage_key)
+    e = store.update_status(name, 'training')
+
+    epochs = args.epochs
+
+    try:
+        model = MyModel.from_archid(args.model_params)
+        if model is None:
+            e['status'] = 'failed'
+            e['error'] = 'invalid model parameters'
+            store.update_status_entity(e)
+            return
+
+        e['nb_layers'] = model.nb_layers
+        e['kernel_size'] = model.kernel_size
+        e['hidden_dim'] = model.hidden_dim
+        store.update_status_entity(e)
+
+        trainer = Trainer(training_epochs=epochs, lr=1e-4, device='cuda')
+        dataset_provider = MnistDatasetProvider(root=args.data_dir)
+        val_acc = trainer.train(model, dataset_provider, progress_bar=True)
+
+        shape = trainer.input_shape
+        # add batch and channel dimensions
+        shape = [1,1] + list(shape)
+
+        # this writes the results to the output folder.
+        model.export_onnx(shape, os.path.join(output_folder, 'model.onnx'))
+
+        config = {
+            'name': name,
+            'vac_acc': val_acc,
+            'epochs': args.epochs,
+            'nb_layers': model.nb_layers,
+            'kernel_size': model.kernel_size,
+            'hidden_dim': model.hidden_dim,
+        }
+
+        json_file = os.path.join(output_folder, 'results.json')
+        with open(json_file, 'w') as fp:
+            json.dump(config, fp)
+
+        # post updated progress to our unified status table.
+        e['val_acc'] = val_acc
+        e['status'] = 'trained'
+        store.update_status_entity(e)
+    except Exception as ex:
+        print(f"Training job failed: {ex}")
+        e['status'] = 'failed'
+        e['error'] = str(ex)
+        store.update_status_entity(e)
+
 
 if __name__ == "__main__":
     main()

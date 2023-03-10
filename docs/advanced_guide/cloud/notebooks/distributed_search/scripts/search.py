@@ -33,6 +33,9 @@ def main():
     subscription = config['subscription_id'],
     resource_group = config['resource_group'],
     workspace_name = config['workspace_name']
+    storage_account_key = config['storage_account_key']
+    storage_account_name = config['storage_account_name']
+
 
     ml_client = MLClient(
         UserIdentityConfiguration(),
@@ -41,7 +44,7 @@ def main():
         workspace_name
     )
 
-    ds = ml_client.data.get('datasets')
+    ds = ml_client.datastores.get('datasets')
     print(f"Successfully fetched datasets info: {ds.path}")
 
     search_objectives = SearchObjectives()
@@ -78,6 +81,8 @@ def main():
         model_evaluator=AmlTrainingValAccuracy(compute_cluster_name=compute_name,
                                                environment_name=environment_name,  # AML environment name
                                                datastore_path=data_dir,  # AML datastore path
+                                               storage_account_key=storage_account_key,  # for ArchaiStore
+                                               storage_account_name=storage_account_name,
                                                ml_client=ml_client,
                                                training_epochs=1),
         higher_is_better=True,

@@ -153,3 +153,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 mlruns/
+dataroot/

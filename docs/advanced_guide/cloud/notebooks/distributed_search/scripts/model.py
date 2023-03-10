@@ -1,5 +1,6 @@
 import json
-from torch import nn, onnx
+from torch import nn
+import torch
 
 class MyModel(nn.Module):
     def __init__(self, nb_layers: int = 5, kernel_size: int = 3, hidden_dim: int = 32):
@@ -33,25 +34,19 @@ class MyModel(nn.Module):
     def get_archid(self):
         return f'({self.nb_layers}, {self.kernel_size}, {self.hidden_dim})'
 
-    def to_json(self):
-        return json.dumps({
-            'nb_layers': self.nb_layers,
-            'kernel_size': self.kernel_size,
-            'hidden_dim': self.hidden_dim
-        })
+    def export_onnx(self, input_shape, path):
+        dummy_input = torch.randn(input_shape, device="cpu")
+        torch.onnx.export(self.model, dummy_input, path,
+                        input_names = ['input'],
+                        output_names = ['output'])
 
-    def to_onnx(self, filename):
-        onnx.export(
-            self.model, self.sample_input, exported_model_buffer,
-            input_names=[f'input_{i}' for i in range(len(self.sample_input))],
-            opset_version=11,
-            **self.export_kwargs
-        )
 
     @staticmethod
-    def from_json(json_str):
-        config = json.loads(json_str)
-        nb_layers = int(config['nb_layers'])
-        kernel_size = int(config['kernel_size'])
-        hidden_dim = int(config['hidden_dim'])
-        return MyModel(nb_layers, kernel_size, hidden_dim)
+    def from_archid(model_id):
+        parts = model_id.split(',')
+        if len(parts) == 3:
+            nb_layers = int(parts[0])
+            kernel_size = int(parts[1])
+            hidden_dim = int(parts[2])
+            return MyModel(nb_layers, kernel_size, hidden_dim)
+        return None
