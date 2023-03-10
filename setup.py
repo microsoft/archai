@@ -16,6 +16,7 @@ dependencies = [
     "hyperopt",
     "kaleido",
     "matplotlib",
+    "mlflow",
     "nbimporter",
     "nbsphinx",
     "nbval",
@@ -65,7 +66,7 @@ extras_require["cv"] = filter_dependencies(
     "torchvision",
 )
 extras_require["nlp"] = filter_dependencies("datasets", "einops", "opt_einsum", "tokenizers", "transformers")
-extras_require["deepspeed"] = filter_dependencies("deepspeed")
+extras_require["deepspeed"] = filter_dependencies("deepspeed", "mlflow")
 
 extras_require["docs"] = filter_dependencies(
     "nbimporter",
