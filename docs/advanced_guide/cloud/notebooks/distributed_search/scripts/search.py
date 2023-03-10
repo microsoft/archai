@@ -1,6 +1,7 @@
 import argparse
 import torch
 import json
+import time
 from archai.discrete_search.api import SearchObjectives
 from archai.discrete_search.evaluators import AvgOnnxLatency, TorchFlops
 from archai.discrete_search.evaluators import TorchNumParameters
@@ -20,6 +21,7 @@ def main():
     parser.add_argument('--config', type=str, help='bin hexed config json info for mlclient')
     parser.add_argument("--output_dir", type=str, help="path to output data")
     parser.add_argument("--local_output", type=str, help="optional path to local output data (default output_dir)")
+    parser.add_argument("--init_num_models", type=int, default=10, help="Number of initial models to evaluate")
 
     args = parser.parse_args()
 
@@ -27,6 +29,7 @@ def main():
     compute_name = args.compute
     data_dir = args.data_dir
     output_dir = args.output_dir
+    init_num_models = args.init_num_models
 
     print("Starting search with: ")
     print(f"Environment: {environment_name}")
@@ -121,8 +124,8 @@ def main():
         None,
         local_output,
         num_iters=5,
-        init_num_models=10,
-        seed=1234,
+        init_num_models=init_num_models,
+        seed=int(time.time()),
         save_pareto_model_weights=False  # we are doing distributed training!
     )
 

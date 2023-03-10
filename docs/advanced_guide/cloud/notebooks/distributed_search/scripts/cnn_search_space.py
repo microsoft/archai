@@ -36,20 +36,24 @@ class CNNSearchSpace(EvolutionarySearchSpace):
         # Wraps model into ArchaiModel
         return ArchaiModel(arch=model, archid=model.get_archid())
 
+    def get_model_json(self, archid: str) -> ArchaiModel:
+        model = MyModel.from_archid(archid)
+        return {
+                'nb_layers': model.nb_layers,
+                'kernel_size': model.kernel_size,
+                'hidden_dim': model.hidden_dim
+            }
+
     @overrides
     def save_arch(self, model: ArchaiModel, file: str):
+        config = self.get_model_json(model.archid)
         with open(file, 'w') as fp:
-            json.dump({
-                'nb_layers': model.arch.nb_layers,
-                'kernel_size': model.arch.kernel_size,
-                'hidden_dim': model.arch.hidden_dim
-            }, fp)
+            json.dump(config, fp)
 
     @overrides
     def load_arch(self, file: str):
         config = json.load(open(file))
         model = MyModel(**config)
-
         return ArchaiModel(arch=model, archid=model.get_archid())
 
     @overrides
@@ -63,12 +67,7 @@ class CNNSearchSpace(EvolutionarySearchSpace):
 
     @overrides
     def mutate(self, model_1: ArchaiModel) -> ArchaiModel:
-        config = {
-            'nb_layers': model_1.arch.nb_layers,
-            'kernel_size': model_1.arch.kernel_size,
-            'hidden_dim': model_1.arch.hidden_dim
-        }
-
+        config = self.get_model_json(model_1.archid)
         if self.rng.random() < 0.2:
             config['nb_layers'] = self.rng.randint(self.min_layers, self.max_layers)
 
@@ -99,3 +98,10 @@ class CNNSearchSpace(EvolutionarySearchSpace):
         return ArchaiModel(
             arch=crossover_model, archid=crossover_model.get_archid()
         )
+
+
+if __name__ == "__main__":
+    space = CNNSearchSpace()
+    m = space.random_sample()
+    space.save_arch(m, 'test.json')
+    m = space.load_arch('test.json')

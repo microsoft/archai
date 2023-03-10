@@ -76,7 +76,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
             for archid in self.models:
                 job_id = 'id_' + str(uuid.uuid4()).replace('-', '_')
                 self.model_names += [job_id]
-                output_path = f'{self.models_path}/{job_id}/'
+                output_path = f'{self.models_path}/{job_id}'
                 train_job = make_train_model_command(job_id, output_path, archid, self.training_epochs)(
                     data=data_input
                 )
@@ -102,10 +102,11 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         waiting = list(self.model_names)
         start = time.time()
         while len(waiting) > 0:
-            for id in list(waiting):
+            for i in range(len(waiting) - 1, -1, -1):
+                id = waiting[i]
                 e = self.store.get_existing_status(id)
                 if e is not None and 'status' in e and (e['status'] == 'trained' or e['status'] == 'failed'):
-                    del waiting[id]
+                    del waiting[i]
                     completed[id] = e
 
             status = self.ml_client.jobs.get(pipeline_job.name).status
@@ -119,6 +120,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
             if len(waiting) > 0:
                 if time.time() > self.timeout + start:
                     break
+                print("Waiting 20 seconds for partial training to complete...")
                 time.sleep(20)
 
         # awesome - they all completed!
@@ -138,5 +140,5 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 # this one failed so just return a zero accuracy
                 results += [float(0)]
 
-        print("AmlTrainingValAccuracy returning: {results}")
+        print(f"AmlTrainingValAccuracy returning: {results}")
         return results
