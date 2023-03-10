@@ -7,7 +7,7 @@ from archai.discrete_search.evaluators import TorchNumParameters
 from archai.discrete_search.algos import EvolutionParetoSearch
 from cnn_search_space import CNNSearchSpace
 from aml_training_evaluator import AmlTrainingValAccuracy
-from azure.ai.ml.entities import UserIdentityConfiguration
+from azure.identity import DefaultAzureCredential
 from azure.ai.ml import MLClient
 # from mldesigner.dsl import dynamic  # can we use this to dynamically create the training commands?
 
@@ -38,7 +38,7 @@ def main():
 
 
     ml_client = MLClient(
-        UserIdentityConfiguration(),
+        DefaultAzureCredential(),
         subscription,
         resource_group,
         workspace_name
@@ -104,6 +104,8 @@ def main():
     )
 
     algo.search()
+
+    algo.save_results(output_dir)
 
 
 if __name__ == "__main__":

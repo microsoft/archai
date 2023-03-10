@@ -111,7 +111,8 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         for id in self.model_names:
             e = completed[id]
             if 'val_acc' in e:
-                results += [(float(e['val_acc'])]
+                val_acc = float(e['val_acc'])
+                results += [val_acc]
             else:
                 # this one failed so just return a zero accuracy
                 results += [float(0)]
