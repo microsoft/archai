@@ -26,16 +26,20 @@ def main():
     compute_name = args.compute
     data_dir = args.data_dir
     output_dir = args.output_dir
-    config = json.loads(str(bytes.fromhex(args.config), encoding='utf-8'))
+    if args.config:
+        config = json.loads(str(bytes.fromhex(args.config), encoding='utf-8'))
+    else:
+        # this is for local debugging of this script.
+        config_file = "../.azureml/config.json"
+        config = json.load(open(config_file, 'r'))
 
     space = CNNSearchSpace()
 
-    subscription = config['subscription_id'],
-    resource_group = config['resource_group'],
+    subscription = config['subscription_id']
+    resource_group = config['resource_group']
     workspace_name = config['workspace_name']
     storage_account_key = config['storage_account_key']
     storage_account_name = config['storage_account_name']
-
 
     ml_client = MLClient(
         DefaultAzureCredential(),
@@ -45,7 +49,7 @@ def main():
     )
 
     ds = ml_client.datastores.get('datasets')
-    print(f"Successfully fetched datasets info: {ds.path}")
+    print(f"Successfully fetched dataset from workspace {workspace_name} in resource group {resource_group}")
 
     search_objectives = SearchObjectives()
 
