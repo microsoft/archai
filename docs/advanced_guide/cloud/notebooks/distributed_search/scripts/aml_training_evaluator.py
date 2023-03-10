@@ -37,7 +37,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
             if os.path.isfile(path):
                 print(f"Copying {file} to {temp_dir.name}")
                 copyfile(path, os.path.join(temp_dir.name, file))
-        return temp_dir
+        return temp_dir.name
 
     @overrides
     def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
