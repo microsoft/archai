@@ -7,6 +7,7 @@ from archai.discrete_search.evaluators import TorchNumParameters
 from archai.discrete_search.algos import EvolutionParetoSearch
 from cnn_search_space import CNNSearchSpace
 from aml_training_evaluator import AmlTrainingValAccuracy
+from azure.ai.ml.identity import AzureMLOnBehalfOfCredential
 from azure.identity import DefaultAzureCredential
 from azure.ai.ml import MLClient
 # from mldesigner.dsl import dynamic  # can we use this to dynamically create the training commands?
@@ -26,12 +27,25 @@ def main():
     compute_name = args.compute
     data_dir = args.data_dir
     output_dir = args.output_dir
+
+    print("Starting search with: ")
+    print(f"Environment: {environment_name}")
+    print(f"Compute: {compute_name}")
+    print(f"Data dir: {data_dir}")
+
+
+    identity = AzureMLOnBehalfOfCredential()
     if args.config:
-        config = json.loads(str(bytes.fromhex(args.config), encoding='utf-8'))
+        print("Using AzureMLOnBehalfOfCredential...")
+        workspace_config = str(bytes.fromhex(args.config), encoding='utf-8')
+        print(f"Config: {workspace_config}")
+        config = json.loads(workspace_config)
     else:
-        # this is for local debugging of this script.
+        print("Using DefaultAzureCredential...")
         config_file = "../.azureml/config.json"
+        print(f"Config: {config_file}")
         config = json.load(open(config_file, 'r'))
+        identity = DefaultAzureCredential()
 
     space = CNNSearchSpace()
 
@@ -42,14 +56,14 @@ def main():
     storage_account_name = config['storage_account_name']
 
     ml_client = MLClient(
-        DefaultAzureCredential(),
+        identity,
         subscription,
         resource_group,
         workspace_name
     )
 
     ds = ml_client.datastores.get('datasets')
-    print(f"Successfully fetched dataset from workspace {workspace_name} in resource group {resource_group}")
+    print(f"Successfully found dataset from workspace {workspace_name} in resource group {resource_group}")
 
     search_objectives = SearchObjectives()
 
@@ -63,6 +77,8 @@ def main():
         # Objective function name (will be used in plots and reports)
         name='ONNX Latency (ms)',
         # ModelEvaluator object that will be used to evaluate the model
+        # TODO: add device parameter when this is merged into the main branch.
+        # model_evaluator=AvgOnnxLatency(input_shape=(1, 1, 28, 28), num_trials=3, device='cpu'),
         model_evaluator=AvgOnnxLatency(input_shape=(1, 1, 28, 28), num_trials=3),
         # Optimization direction, `True` for maximization or `False` for minimization
         higher_is_better=False,
@@ -85,6 +101,7 @@ def main():
         model_evaluator=AmlTrainingValAccuracy(compute_cluster_name=compute_name,
                                                environment_name=environment_name,  # AML environment name
                                                datastore_path=data_dir,  # AML datastore path
+                                               models_path=output_dir,
                                                storage_account_key=storage_account_key,  # for ArchaiStore
                                                storage_account_name=storage_account_name,
                                                ml_client=ml_client,
@@ -105,12 +122,12 @@ def main():
         num_iters=5,
         init_num_models=10,
         seed=1234,
+        save_pareto_model_weights=False  # we are doing distributed training!
     )
 
     algo.search()
 
-    algo.save_results(output_dir)
-
+    # TBD, ok now from pareto curve pick 5 models to do full training on.
 
 if __name__ == "__main__":
     main()

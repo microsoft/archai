@@ -43,10 +43,5 @@ class MyModel(nn.Module):
 
     @staticmethod
     def from_archid(model_id):
-        parts = model_id.split(',')
-        if len(parts) == 3:
-            nb_layers = int(parts[0])
-            kernel_size = int(parts[1])
-            hidden_dim = int(parts[2])
-            return MyModel(nb_layers, kernel_size, hidden_dim)
-        return None
+        nb_layers,  kernel_size, hidden_dim = eval(model_id)
+        return MyModel(nb_layers, kernel_size, hidden_dim)

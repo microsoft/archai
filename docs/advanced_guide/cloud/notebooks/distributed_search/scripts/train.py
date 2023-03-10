@@ -7,8 +7,6 @@ from torch import nn
 from model import MyModel
 from archai.datasets.cv.mnist_dataset_provider import MnistDatasetProvider
 from store import ArchaiStore
-from azure.identity import DefaultAzureCredential
-from azure.ai.ml import MLClient
 
 
 class Trainer:
@@ -96,16 +94,6 @@ def main():
     parser.add_argument("--output", type=str, help="place to write the results")
 
     args = parser.parse_args()
-
-    ml_client = MLClient(
-        DefaultAzureCredential(),
-        args.subscription,
-        args.resource_group,
-        args.workspace
-    )
-
-    ds = ml_client.datastores.get('datasets')
-    print(f"Training job fetched datasets info: {ds.container_name} on store {ds.account_name}")
 
     output_folder = args.output
     if not os.path.exists(output_folder):
