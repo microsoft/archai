@@ -11,6 +11,7 @@ dependencies = [
     "deepspeed",
     "einops",
     "flake8>=5.0.4",
+    "flash-attn",
     "gorilla>=0.4.0",
     "h5py",
     "hyperopt",
@@ -66,7 +67,7 @@ extras_require["cv"] = filter_dependencies(
     "torchvision",
 )
 extras_require["nlp"] = filter_dependencies("datasets", "einops", "opt_einsum", "tokenizers", "transformers")
-extras_require["deepspeed"] = filter_dependencies("deepspeed", "mlflow")
+extras_require["deepspeed"] = filter_dependencies("deepspeed", "flash-attn", "mlflow")
 
 extras_require["docs"] = filter_dependencies(
     "nbimporter",

@@ -1,0 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+# Allows DeepSpeed configuration
+!ds_config.json
