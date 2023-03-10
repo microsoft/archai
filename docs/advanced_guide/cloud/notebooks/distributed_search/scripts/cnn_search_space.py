@@ -86,11 +86,12 @@ class CNNSearchSpace(EvolutionarySearchSpace):
     @overrides
     def crossover(self, model_list: List[ArchaiModel]) -> ArchaiModel:
         model_1, model_2 = model_list[:2]
-
+        config = self.get_model_json(model_1.archid)
+        config_2 = self.get_model_json(model_2.archid)
         new_config = {
-            'nb_layers': self.rng.choice([model_1.arch.nb_layers, model_2.arch.nb_layers]),
-            'kernel_size': self.rng.choice([model_1.arch.kernel_size, model_2.arch.kernel_size]),
-            'hidden_dim': self.rng.choice([model_1.arch.hidden_dim, model_2.arch.hidden_dim]),
+            'nb_layers': self.rng.choice([config.nb_layers, config_2.nb_layers]),
+            'kernel_size': self.rng.choice([config.kernel_size, config_2.kernel_size]),
+            'hidden_dim': self.rng.choice([config.hidden_dim, config_2.hidden_dim]),
         }
 
         crossover_model = MyModel(**new_config)

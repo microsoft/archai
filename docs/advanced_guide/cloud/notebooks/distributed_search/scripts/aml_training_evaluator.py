@@ -31,13 +31,14 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
 
     def copy_code_folder(self):
         scripts_dir = os.path.dirname(os.path.abspath(__file__))
-        temp_dir = tempfile.TemporaryDirectory()
+        code_dir = 'code'
+        os.makedirs(code_dir, exist_ok=True)
         for file in os.listdir(scripts_dir):
             path = os.path.join(scripts_dir, file)
             if os.path.isfile(path):
-                print(f"Copying {file} to {temp_dir.name}")
-                copyfile(path, os.path.join(temp_dir.name, file))
-        return temp_dir.name
+                print(f"Copying {file} to {code_dir}")
+                copyfile(path, os.path.join(code_dir, file))
+        return code_dir
 
     @overrides
     def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
