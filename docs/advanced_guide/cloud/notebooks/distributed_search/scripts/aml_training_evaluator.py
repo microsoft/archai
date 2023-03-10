@@ -9,8 +9,9 @@ from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
 from azure.ai.ml import MLClient, command, Input, Output, dsl
 from azure.ai.ml.entities import UserIdentityConfiguration
 from store import ArchaiStore
+import tempfile
+from shutil import copyfile
 
-scripts_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class AmlTrainingValAccuracy(AsyncModelEvaluator):
@@ -28,6 +29,14 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         self.timeout = timeout_seconds
         self.store = ArchaiStore(storage_account_name, storage_account_key)
 
+    def copy_code_folder(self):
+        scripts_dir = os.path.dirname(os.path.abspath(__file__))
+        temp_dir = tempfile.TemporaryDirectory()
+        for file in os.listdir(scripts_dir):
+            print(f"Copying {file} to {temp_dir.name}")
+            copyfile(os.path.join(scripts_dir, file), os.path.join(temp_dir, file))
+        return temp_dir
+
     @overrides
     def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
         self.models += [arch.arch.get_archid()]
@@ -35,6 +44,8 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
         print(f"Ok, doing partial training on {len(self.models)} models")
+
+        code_dir = self.copy_code_folder()
 
         def make_train_model_command(id, output_path, archid, training_epochs):
             args = \
@@ -57,7 +68,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 },
 
                 # The source folder of the component
-                code=scripts_dir,
+                code=code_dir,
                 identity= UserIdentityConfiguration(),
                 command="""python3 train.py \
                         --data_dir "${{inputs.data}}" \
@@ -80,8 +91,6 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 train_job = make_train_model_command(job_id, output_path, archid, self.training_epochs)(
                     data=data_input
                 )
-                print("--------------------------------------------------------------------------------")
-                print(train_job)
                 outputs[job_id] = train_job.outputs.results
 
             return outputs
