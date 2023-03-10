@@ -57,7 +57,7 @@ To prepare the data, you can use the `FastHfDatasetProvider` class to load and e
 dataset_provider = FastHfDatasetProvider.from_hub(
     "wikitext",
     dataset_config_name="wikitext-103-raw-v1",
-    tokenizer=tokenizer,
+    tokenizer_name="Salesforce/codegen-350M-mono",
     cache_dir="wikitext_cache",
 )
 train_dataset = dataset_provider.get_train_dataset(seq_len=2048)
