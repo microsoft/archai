@@ -25,11 +25,16 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         self.storage_account_name = storage_account_name
         self.models = []
         self.ml_client = ml_client
-        self.model_names = []
         self.timeout = timeout_seconds
+        self.result_cache = {}
         self.store = ArchaiStore(storage_account_name, storage_account_key)
 
     def copy_code_folder(self):
+        """ Copies the code folder into a separate folder.  This is needed otherwise the pipeline will fail with
+        UserError: The code snapshot was modified in blob storage, which could indicate tampering.
+        If this was unintended, you can create a new snapshot for the run. To do so, edit any
+        content in the local source directory and resubmit the run.
+        """
         scripts_dir = os.path.dirname(os.path.abspath(__file__))
         code_dir = 'code'
         os.makedirs(code_dir, exist_ok=True)
@@ -46,9 +51,18 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
-        print(f"Ok, doing partial training on {len(self.models)} models")
+
+        snapshot = self.models
+        self.models = []  # reset for next run.
+        self.job_names = []
+        self.job_archids = {}
+
+        print(f"Ok, doing partial training on {len(snapshot)} models")
 
         code_dir = self.copy_code_folder()
+
+
+        # code_dir = os.path.dirname(os.path.abspath(__file__))
 
         def make_train_model_command(id, output_path, archid, training_epochs):
             args = \
@@ -87,9 +101,12 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
             data_input
         ):
             outputs = {}
-            for archid in self.models:
+            for archid in snapshot:
+                if archid in self.result_cache:
+                    print(f'### Already trained the model architecture {archid} ???')
                 job_id = 'id_' + str(uuid.uuid4()).replace('-', '_')
-                self.model_names += [job_id]
+                self.job_names += [job_id]
+                self.job_archids[job_id] = archid
                 output_path = f'{self.models_path}/{job_id}'
                 train_job = make_train_model_command(job_id, output_path, archid, self.training_epochs)(
                     data=data_input
@@ -111,7 +128,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
 
         # wait for the job to finish
         completed = {}
-        waiting = list(self.model_names)
+        waiting = list(self.job_names)
         start = time.time()
         while len(waiting) > 0:
             for i in range(len(waiting) - 1, -1, -1):
@@ -143,14 +160,16 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 raise Exception('Partial Training Pipeline failed')
 
         results = []
-        for id in self.model_names:
+        for id in self.job_names:
             e = completed[id] if id in completed else {}
             if 'val_acc' in e:
                 val_acc = float(e['val_acc'])
                 results += [val_acc]
+                archid = self.job_archids[id]
+                self.result_cache[archid] = val_acc
             else:
                 # this one failed so just return a zero accuracy
                 results += [float(0)]
 
-        print(f"AmlTrainingValAccuracy returning: {results}")
+        print(f"AmlTrainingValAccuracy returning {len(results)} results: {results}")
         return results

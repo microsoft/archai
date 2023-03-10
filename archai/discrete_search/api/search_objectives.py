@@ -192,7 +192,7 @@ class SearchObjectives:
         for obj_name, obj_d in pbar:
             results = obj_d["evaluator"].fetch_all()
 
-            assert len(eval_indices[obj_name]) == len(results), "Received a different amount of results than expected."
+            assert len(eval_indices[obj_name]) == len(results), f"Received {len(results)} results, expecting {len(eval_indices[obj_name])} results."
 
             for result_i, eval_i in enumerate(eval_indices[obj_name]):
                 eval_results[obj_name][eval_i] = results[result_i]
