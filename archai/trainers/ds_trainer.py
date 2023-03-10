@@ -2,7 +2,8 @@
 # Licensed under the MIT license.
 
 import math
-from typing import Any, Dict, Iterable, Optional, Union
+import time
+from typing import Any, Dict, Iterable, Optional, Tuple, Union
 
 import deepspeed
 import mlflow
@@ -119,46 +120,79 @@ class DsTrainer(TrainerBase):
 
         train_dataloader = self._get_dataloader(self.train_dataset, shuffle=True)
         train_iterator = iter(RepeatingLoader(train_dataloader))
+        train_time = time.time()
 
         for step in range(self.args.max_steps):
+            step_time = time.time()
             loss = self.engine.train_batch(data_iter=train_iterator)
+            step_time = time.time() - step_time
 
             if self.engine.global_rank == 0:
                 float_loss = loss.mean().item()
+                samples_per_second = self.engine.train_batch_size() / step_time
+                learning_rate = self.engine.get_lr()[0]
 
-                mlflow.log_metric("train_loss", float_loss, step=step + 1)
-                mlflow.log_metric("ppl", math.exp(float_loss), step=step + 1)
+                mlflow.log_metrics(
+                    {
+                        "train/loss": float_loss,
+                        "train/ppl": math.exp(float_loss),
+                        "train/learning_rate": learning_rate,
+                        "train/samples_per_second": samples_per_second,
+                        "train/step_runtime": step_time,
+                    },
+                    step=step + 1,
+                )
 
                 do_periodic_logging = (step + 1) % self.args.logging_steps == 0
                 if do_periodic_logging:
-                    logger.info(f"Step: {step + 1} | Loss: {float_loss:.3f} | PPL: {math.exp(float_loss):.3f}")
+                    logger.info(
+                        f"Step: {step + 1} | Time: {step_time:.3f} | "
+                        + f"LR: {learning_rate} | Samples/s: {samples_per_second:.3f} | "
+                        + f"Loss: {float_loss:.3f} | PPL: {math.exp(float_loss):.3f}"
+                    )
 
             do_periodic_eval = (step + 1) % self.args.eval_steps == 0
             if do_periodic_eval and self.args.do_eval:
                 assert self.eval_dataset, "`eval_dataset` must be supplied if `args.do_eval` is True."
-                float_eval_loss = self.evaluate(self.eval_dataset)
+                eval_loss, eval_time, eval_samples_per_second, eval_steps_per_second = self.evaluate(self.eval_dataset)
 
                 if self.engine.global_rank == 0:
-                    mlflow.log_metric("eval_loss", float_eval_loss, step=step + 1)
-                    mlflow.log_metric("eval_ppl", math.exp(float_eval_loss), step=step + 1)
-                    logger.info(f"Eval Loss: {float_eval_loss:.3f} | Eval PPL: {math.exp(float_eval_loss):.3f}")
+                    eval_idx = (step + 1) // self.args.eval_steps
+                    mlflow.log_metrics(
+                        {
+                            "eval/loss": eval_loss,
+                            "eval/ppl": math.exp(eval_loss),
+                            "eval/runtime": eval_time,
+                            "eval/samples_per_second": eval_samples_per_second,
+                            "eval/steps_per_second": eval_steps_per_second,
+                        },
+                        step=eval_idx,
+                    )
+                    logger.info(
+                        f"Eval: {eval_idx} | Time: {eval_time:.3f} | "
+                        + f"Samples/s: {eval_samples_per_second:.3f} | Loss: {eval_loss:.3f} | "
+                        + f"PPL: {math.exp(eval_loss):.3f}"
+                    )
 
             do_periodic_checkpoint = (step + 1) % self.args.save_steps == 0
             if do_periodic_checkpoint:
                 self.engine.save_checkpoint(self.args.output_dir, step + 1)
 
+        train_time = time.time() - train_time
+
         if self.engine.global_rank == 0:
+            mlflow.log_metric("train/time", train_time)
             mlflow.end_run()
 
     @overrides
-    def evaluate(self, eval_dataset: Dataset) -> float:
+    def evaluate(self, eval_dataset: Dataset) -> Tuple[float, float, float, float]:
         """Evaluate a model.
 
         Args:
             eval_dataset: Evaluation dataset.
 
         Returns:
-            Evaluation loss.
+            Evaluation loss, time, samples per second and steps per second.
 
         """
 
@@ -166,15 +200,19 @@ class DsTrainer(TrainerBase):
         eval_iterator = iter(eval_dataloader)
 
         n_eval_steps = self.args.eval_max_steps or len(eval_dataloader)
-        eval_loss = 0.0
+        eval_loss, eval_time = 0.0, time.time()
 
         for _ in range(n_eval_steps):
             loss = self.engine.eval_batch(data_iter=eval_iterator)
             eval_loss += loss.mean().item()
 
-        eval_loss / n_eval_steps
+        eval_loss /= n_eval_steps
 
-        return eval_loss
+        eval_time = time.time() - eval_time
+        eval_samples_per_second = (n_eval_steps * self.engine.train_batch_size()) / eval_time
+        eval_steps_per_second = n_eval_steps / eval_time
+
+        return eval_loss, eval_time, eval_samples_per_second, eval_steps_per_second
 
     @overrides
     def predict(self) -> None:
