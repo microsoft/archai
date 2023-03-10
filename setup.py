@@ -67,6 +67,7 @@ extras_require["cv"] = filter_dependencies(
     "torchvision",
 )
 extras_require["nlp"] = filter_dependencies("datasets", "einops", "opt_einsum", "tokenizers", "transformers")
+
 extras_require["deepspeed"] = filter_dependencies("deepspeed", "mlflow")
 extras_require["flash-attn"] = filter_dependencies("flash-attn")
 
@@ -84,12 +85,10 @@ extras_require["docs"] = filter_dependencies(
 )
 extras_require["tests"] = filter_dependencies("flake8", "pytest")
 
-extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
+extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
 if os.name != "nt":
     # Support for DeepSpeed is not available on native Windows
-    extras_require["all"] += extras_require["deepspeed"]
-
-extras_require["dev"] = extras_require["all"] + extras_require["docs"] + extras_require["tests"]
+    extras_require["dev"] += extras_require["deepspeed"]
 
 install_requires = filter_dependencies(
     "h5py",
