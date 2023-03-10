@@ -14,7 +14,7 @@ scripts_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class AmlTrainingValAccuracy(AsyncModelEvaluator):
-    def __init__(self, compute_cluster_name, environment_name, datastore_path, models_path, storage_account_key, storage_account_name, ml_client: MLClient, training_epochs: float = 1.0):
+    def __init__(self, compute_cluster_name, environment_name, datastore_path, models_path, storage_account_key, storage_account_name, ml_client: MLClient, training_epochs: float = 1.0, timeout_seconds=3600):
         self.training_epochs = training_epochs
         self.compute_cluster_name = compute_cluster_name
         self.environment_name = environment_name
@@ -25,6 +25,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         self.models = []
         self.ml_client = ml_client
         self.model_names = []
+        self.timeout = timeout_seconds
         self.store = ArchaiStore(storage_account_name, storage_account_key)
 
     @overrides
@@ -99,24 +100,34 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         # wait for the job to finish
         completed = {}
         waiting = list(self.model_names)
+        start = time.time()
         while len(waiting) > 0:
-            id = waiting[0]
-            e = self.store.get_existing_status(id)
-            if e is not None and 'status' in e and (e['status'] == 'trained' or e['status'] == 'failed'):
-                del waiting[0]
-                completed[id] = e
-            else:
+            for id in list(waiting):
+                e = self.store.get_existing_status(id)
+                if e is not None and 'status' in e and (e['status'] == 'trained' or e['status'] == 'failed'):
+                    del waiting[id]
+                    completed[id] = e
 
-                status = self.ml_client.jobs.get(pipeline_job.name).status
-                if status == 'Completed':
-                    # ok, all jobs are done, which means if we still have waiting tasks then they failed to
-                    # even start.
+            status = self.ml_client.jobs.get(pipeline_job.name).status
+            if status == 'Completed':
+                # ok, all jobs are done, which means if we still have waiting tasks then they failed to
+                # even start.
+                break
+            elif status == 'Failed':
+                raise Exception('Partial Training Pipeline failed')
+
+            if len(waiting) > 0:
+                if time.time() > self.timeout + start:
                     break
-
                 time.sleep(20)
-                continue
 
         # awesome - they all completed!
+        if len(completed) == 0:
+            if time.time() > self.timeout + start:
+                raise Exception(f'Partial Training Pipeline times out after {self.timeout} seconds')
+            else:
+                raise Exception('Partial Training Pipeline failed')
+
         results = []
         for id in self.model_names:
             e = completed[id] if id in completed else {}
@@ -127,4 +138,5 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 # this one failed so just return a zero accuracy
                 results += [float(0)]
 
+        print("AmlTrainingValAccuracy returning: {results}")
         return results

@@ -32,6 +32,7 @@ def main():
     print(f"Environment: {environment_name}")
     print(f"Compute: {compute_name}")
     print(f"Data dir: {data_dir}")
+    print(f"Output dir: {output_dir}")
 
 
     identity = AzureMLOnBehalfOfCredential()
