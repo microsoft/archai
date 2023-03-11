@@ -15,18 +15,34 @@ from shutil import copyfile
 
 
 class AmlTrainingValAccuracy(AsyncModelEvaluator):
-    def __init__(self, compute_cluster_name, environment_name, datastore_path, models_path, storage_account_key, storage_account_name, ml_client: MLClient, training_epochs: float = 1.0, timeout_seconds=3600):
+    def __init__(self,
+                 compute_cluster_name,
+                 environment_name,
+                 datastore_path,
+                 models_path,
+                 storage_account_key,
+                 storage_account_name,
+                 experiment_name,
+                 ml_client: MLClient,
+                 save_models: bool = True,
+                 partial_training: bool = True,
+                 training_epochs: float = 1.0,
+                 timeout_seconds=3600):
         self.training_epochs = training_epochs
+        self.partial_training = partial_training
         self.compute_cluster_name = compute_cluster_name
         self.environment_name = environment_name
         self.datastore_path = datastore_path
         self.models_path = models_path
         self.storage_account_key = storage_account_key
         self.storage_account_name = storage_account_name
+        self.experiment_name
         self.models = []
+        self.save_models = save_models
         self.ml_client = ml_client
         self.timeout = timeout_seconds
         self.result_cache = {}
+        self.store = None
         self.store = ArchaiStore(storage_account_name, storage_account_key)
 
     def copy_code_folder(self):
@@ -36,18 +52,51 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         content in the local source directory and resubmit the run.
         """
         scripts_dir = os.path.dirname(os.path.abspath(__file__))
-        code_dir = 'code'
+        code_dir = 'temp_code'
         os.makedirs(code_dir, exist_ok=True)
         for file in os.listdir(scripts_dir):
             path = os.path.join(scripts_dir, file)
             if os.path.isfile(path):
-                print(f"Copying {file} to {code_dir}")
                 copyfile(path, os.path.join(code_dir, file))
         return code_dir
 
     @overrides
     def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
-        self.models += [arch.arch.get_archid()]
+        if arch.archid:
+            self.models += [arch.archid]
+        else:
+            self.models += [arch.arch.get_archid()]
+
+    def make_train_model_command(self, id, output_path, archid, code_dir, training_epochs):
+        args = \
+            f'--name {id} '     + \
+            f'--storage_account_key "{self.storage_account_key}" '     + \
+            f'--storage_account_name "{self.storage_account_name}" '     + \
+            f'--model_params "{archid}" '     + \
+            f'--subscription "{self.ml_client.subscription_id}" ' + \
+            f'--resource_group "{self.ml_client.resource_group_name}" ' + \
+            f'--workspace "{self.ml_client.workspace_name}" ' + \
+            f'--epochs "{training_epochs}" '
+        if self.save_models:
+            args += '--save_models '
+        return command(
+            name=f'train_{id}',
+            display_name=f'train {id}',
+            inputs={
+                "data": Input(type="uri_folder")
+            },
+            outputs={
+                "results": Output(type="uri_folder", path=output_path, mode="rw_mount")
+            },
+
+            # The source folder of the component
+            code=code_dir,
+            identity= UserIdentityConfiguration(),
+            command="""python3 train.py \
+                    --data_dir "${{inputs.data}}" \
+                    --output ${{outputs.results}} """ + args,
+            environment=self.environment_name,
+            )
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
@@ -57,41 +106,10 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         self.job_names = []
         self.job_archids = {}
 
-        print(f"Ok, doing partial training on {len(snapshot)} models")
+        training_type = 'partial' if self.partial_training else 'full'
+        print(f"AmlTrainingValAccuracy: Starting {training_type} training on {len(snapshot)} models")
 
         code_dir = self.copy_code_folder()
-
-
-        # code_dir = os.path.dirname(os.path.abspath(__file__))
-
-        def make_train_model_command(id, output_path, archid, training_epochs):
-            args = \
-                f'--name {id} '     + \
-                f'--storage_key "{self.storage_account_key}" '     + \
-                f'--storage_account_name "{self.storage_account_name}" '     + \
-                f'--model_params "{archid}" '     + \
-                f'--subscription "{self.ml_client.subscription_id}" ' + \
-                f'--resource_group "{self.ml_client.resource_group_name}" ' + \
-                f'--workspace "{self.ml_client.workspace_name}" ' + \
-                f'--epochs "{training_epochs}" '
-            return command(
-                name=f'train_{id}',
-                display_name=f'train {id}',
-                inputs={
-                    "data": Input(type="uri_folder")
-                },
-                outputs={
-                    "results": Output(type="uri_folder", path=output_path, mode="rw_mount")
-                },
-
-                # The source folder of the component
-                code=code_dir,
-                identity= UserIdentityConfiguration(),
-                command="""python3 train.py \
-                        --data_dir "${{inputs.data}}" \
-                        --output ${{outputs.results}} """ + args,
-                environment=self.environment_name,
-            )
 
         @dsl.pipeline(
             compute=self.compute_cluster_name,
@@ -108,7 +126,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 self.job_names += [job_id]
                 self.job_archids[job_id] = archid
                 output_path = f'{self.models_path}/{job_id}'
-                train_job = make_train_model_command(job_id, output_path, archid, self.training_epochs)(
+                train_job = self.make_train_model_command(job_id, output_path, archid, code_dir, self.training_epochs)(
                     data=data_input
                 )
                 outputs[job_id] = train_job.outputs.results
@@ -123,7 +141,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         pipeline_job = self.ml_client.jobs.create_or_update(
             pipeline,
             # Project's name
-            experiment_name="mnist_partial_training",
+            experiment_name=self.experiment_name,
         )
 
         # wait for the job to finish
@@ -149,7 +167,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
             if len(waiting) > 0:
                 if time.time() > self.timeout + start:
                     break
-                print("Waiting 20 seconds for partial training to complete...")
+                print("AmlTrainingValAccuracy: Waiting 20 seconds for partial training to complete...")
                 time.sleep(20)
 
         # awesome - they all completed!
@@ -171,5 +189,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 # this one failed so just return a zero accuracy
                 results += [float(0)]
 
-        print(f"AmlTrainingValAccuracy returning {len(results)} results: {results}")
+        timespan = time.strftime('%H:%M:%S', time.gmtime(time.time() - start))
+        print(f'AmlTrainingValAccuracy: Distributed training completed in {timespan} seconds')
+        print(f'AmlTrainingValAccuracy: returning {len(results)} results: {results}')
         return results

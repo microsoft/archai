@@ -83,8 +83,9 @@ def main():
     # input and output arguments
     parser = argparse.ArgumentParser()
     parser.add_argument("--name", required=True, type=str, help="The globally unique name of this model")
-    parser.add_argument("--storage_key", required=True, type=str, help="Azure model store key")
+    parser.add_argument("--storage_account_key", required=True, type=str, help="Azure model store key")
     parser.add_argument("--storage_account_name", required=True, type=str, help="Azure model store name")
+    parser.add_argument("--save_models", action='store_true', help="save models to azure storage")
     parser.add_argument("--model_params", type=str, help="json string containing model parameters")
     parser.add_argument("--data_dir", type=str, help="location of dataset")
     parser.add_argument("--subscription", type=str, help="subscription of workspace")
@@ -95,12 +96,14 @@ def main():
 
     args = parser.parse_args()
 
+    save_models = args.save_models
     output_folder = args.output
-    if not os.path.exists(output_folder):
+
+    if save_models and not os.path.exists(output_folder):
         os.makedirs(output_folder, exist_ok=True)
 
     name = args.name
-    store = ArchaiStore(args.storage_account_name, args.storage_key)
+    store = ArchaiStore(args.storage_account_name, args.storage_account_key)
     e = store.update_status(name, 'training')
 
     epochs = args.epochs
@@ -126,21 +129,22 @@ def main():
         # add batch and channel dimensions
         shape = [1,1] + list(shape)
 
-        # this writes the results to the output folder.
-        model.export_onnx(shape, os.path.join(output_folder, 'model.onnx'))
+        if save_models:
+            # this writes the results to the output folder.
+            model.export_onnx(shape, os.path.join(output_folder, 'model.onnx'))
 
-        config = {
-            'name': name,
-            'vac_acc': val_acc,
-            'epochs': epochs,
-            'nb_layers': model.nb_layers,
-            'kernel_size': model.kernel_size,
-            'hidden_dim': model.hidden_dim,
-        }
+            config = {
+                'name': name,
+                'vac_acc': val_acc,
+                'epochs': epochs,
+                'nb_layers': model.nb_layers,
+                'kernel_size': model.kernel_size,
+                'hidden_dim': model.hidden_dim,
+            }
 
-        json_file = os.path.join(output_folder, 'results.json')
-        with open(json_file, 'w') as fp:
-            json.dump(config, fp)
+            json_file = os.path.join(output_folder, 'results.json')
+            with open(json_file, 'w') as fp:
+                json.dump(config, fp)
 
         # post updated progress to our unified status table.
         e['val_acc'] = float(val_acc)

@@ -344,10 +344,13 @@ class ArchaiStore:
             if download:
                 print(f"Downloading file: {file_name} to {local_file} ...")
                 blob_client = container.get_blob_client(blob)
-                with open(local_file, 'wb') as f:
-                    data = blob_client.download_blob()
-                    f.write(data.readall())
-                downloaded += [local_file]
+                try:
+                    with open(local_file, 'wb') as f:
+                        data = blob_client.download_blob()
+                        f.write(data.readall())
+                    downloaded += [local_file]
+                except Exception as e:
+                    print(f"### Error downloading to local file: {e}")
                 if specific_file:
                     break
 
