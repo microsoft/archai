@@ -36,7 +36,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         self.models_path = models_path
         self.storage_account_key = storage_account_key
         self.storage_account_name = storage_account_name
-        self.experiment_name
+        self.experiment_name = experiment_name
         self.models = []
         self.save_models = save_models
         self.ml_client = ml_client
@@ -91,7 +91,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
 
             # The source folder of the component
             code=code_dir,
-            identity= UserIdentityConfiguration(),
+            identity = UserIdentityConfiguration(),
             command="""python3 train.py \
                     --data_dir "${{inputs.data}}" \
                     --output ${{outputs.results}} """ + args,
