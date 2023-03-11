@@ -32,7 +32,7 @@ dashboard. Here you see 5 iterations followed by a final full training job:
 
 ![dashboard](images/dashboard.png)
 
-You can also run the last cell of the notebook multiple times to watch how the pareto curves are
+You can also run the cell titled `Plots` in the notebook multiple times to watch how the pareto curves are
 shaping up, you will see something like this after 5 iterations have completed:
 
 ![pareto](images/epochs1.png)
@@ -55,8 +55,17 @@ Top model results:
   },
 ```
 
-And the notebook will download this file named 'top_models.json'
+And the next cell in the notebook will download this file named 'top_models.json'.
 
+You can run the last cell of the notebook to compare the inference accuracy of the top
+model using the ONNX runtime locally on the resulting downloaded .onnx model.
+
+You should see something like this:
+
+```
+Inference pass rate is  99.57 %.
+How does this compare with the training validation accuracy of 0.9957
+```
 
 ## Design
 
