@@ -46,6 +46,8 @@ class MoBananasSearch(Searcher):
         num_parents: Optional[int] = 10,
         mutations_per_parent: Optional[int] = 5,
         num_candidates: Optional[int] = 10,
+        clear_evaluated_models: bool = True,
+        save_pareto_weights: bool = False,
         seed: Optional[int] = 1,
     ) -> None:
         """Initialize the multi-objective BANANAS.
@@ -62,6 +64,9 @@ class MoBananasSearch(Searcher):
             num_parents: Number of parents to select for each iteration.
             mutations_per_parent: Number of mutations to apply to each parent.
             num_candidates: Number of selected models to add to evaluate in the next iteration.
+            clear_evaluated_models: Optimizes memory usage by clearing the architecture
+                of `ArchaiModel` after each iteration. Defaults to True
+            save_pareto_model_weights: If `False`, saves the weights of the pareto models.
             seed: Random seed.
 
         """
@@ -91,11 +96,16 @@ class MoBananasSearch(Searcher):
         self.num_candidates = num_candidates
 
         # Utils
+        self.clear_evaluated_models = clear_evaluated_models
+        self.save_pareto_weights = save_pareto_weights
         self.seen_archs = set()
         self.seed = seed
         self.rng = np.random.RandomState(self.seed)
         self.surrogate_dataset = []
         self.search_state = SearchResults(search_space, search_objectives)
+
+        if self.save_pareto_weights:
+            raise NotImplementedError
 
     def get_surrogate_iter_dataset(self, all_pop: List[ArchaiModel]) -> Tuple[np.ndarray, np.ndarray]:
         """Get the surrogate dataset for the current iteration.
@@ -255,6 +265,11 @@ class MoBananasSearch(Searcher):
                 for c in ["mean", "var"]
             }
             self.search_state.add_iteration_results(unseen_pop, iter_results, extra_model_data)
+
+            # Clears models from memory if needed
+            if self.clear_evaluated_models:
+                for m in unseen_pop:
+                    m.clear()
 
             # Updates surrogate
             logger.info("Updating surrogate model ...")

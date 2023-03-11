@@ -28,3 +28,13 @@ class ArchaiModel:
 
     def __str__(self) -> str:
         return repr(self)
+
+    def clear(self) -> None:
+        """Clear architecture from memory.
+
+        Sometimes, after evaluating an `ArchaiModel`, there is no need to keep its
+        architecture instantiated, which optimizes memory usage.
+
+        """
+
+        self.arch = None

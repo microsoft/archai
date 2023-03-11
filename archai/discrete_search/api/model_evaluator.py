@@ -60,7 +60,8 @@ class ModelEvaluator(EnforceOverrides):
 
         Args:
             arch: Model to be evaluated.
-            budget: A budget multiplier value, used by search algorithms like `SucessiveHalving`
+            dataset: A dataset provider object.
+            budget: A budget multiplier value, used by search algorithms like `SuccessiveHalving`
                 to specify how much compute should be spent in this evaluation. In order to use
                 this type of search algorithm, the implementation of `evaluate()` must use the
                 passed `budget` value accordingly.
@@ -115,7 +116,8 @@ class AsyncModelEvaluator(EnforceOverrides):
 
         Args:
             arch: Model to be evaluated.
-            budget: A budget multiplier value, used by search algorithms like `SucessiveHalving`
+            dataset: A dataset provider object.
+            budget: A budget multiplier value, used by search algorithms like `SuccessiveHalving`
                 to specify how much compute should be spent in this evaluation. In order to use
                 this type of search algorithm, the implementation of `send()` must use the passed
                 `budget` value accordingly.
