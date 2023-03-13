@@ -62,10 +62,11 @@ class CodeGenFlashBlock(nn.Module):
         super().__init__()
 
         inner_dim = config.n_inner if config.n_inner is not None else 4 * config.n_embd
+        self.use_flash_attn = config.use_flash_attn
         self.rotary_dim = min(config.rotary_dim, config.n_ctx // config.num_attention_heads)
         self.ln_1 = nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon)
 
-        if not config.use_flash_attn:
+        if not self.use_flash_attn:
             self.attn = CodeGenAttention(config)
             self.mlp = CodeGenMLP(inner_dim, config)
         else:
