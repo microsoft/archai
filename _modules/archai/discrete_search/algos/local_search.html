@@ -448,6 +448,8 @@ document.write(`
         <span class="n">init_num_models</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">initial_population_paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mutations_per_parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">clear_evaluated_models</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">save_pareto_model_weights</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Local search algorithm. In each iteration, the algorithm generates a new population by</span>
@@ -463,6 +465,9 @@ document.write(`
 <span class="sd">            initial_population_paths (Optional[List[str]], optional): Paths to initial population.</span>
 <span class="sd">                If None, then `init_num_models` random models are used. Defaults to None.</span>
 <span class="sd">            mutations_per_parent (int, optional): Number of mutations per parent. Defaults to 1.</span>
+<span class="sd">            clear_evaluated_models (bool, optional): Optimizes memory usage by clearing the architecture</span>
+<span class="sd">                of `ArchaiModel` after each iteration. Defaults to True.</span>
+<span class="sd">            save_pareto_model_weights: If `True`, saves the weights of the pareto models.</span>
 <span class="sd">            seed (int, optional): Random seed. Defaults to 1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
@@ -483,6 +488,8 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">mutations_per_parent</span> <span class="o">=</span> <span class="n">mutations_per_parent</span>
 
         <span class="c1"># Utils</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_evaluated_models</span> <span class="o">=</span> <span class="n">clear_evaluated_models</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_pareto_model_weights</span> <span class="o">=</span> <span class="n">save_pareto_model_weights</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span> <span class="o">=</span> <span class="n">SearchResults</span><span class="p">(</span><span class="n">search_space</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
@@ -594,8 +601,17 @@ document.write(`
 
             <span class="c1"># Saves search iteration results</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">save_search_state</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;search_state_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">save_pareto_frontier_models</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;pareto_models_iter_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">save_pareto_frontier_models</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;pareto_models_iter_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span> 
+                <span class="n">save_weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_pareto_model_weights</span>
+            <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">save_all_2d_pareto_evolution_plots</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
+
+            <span class="c1"># Clears models from memory if needed</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clear_evaluated_models</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Optimzing memory usage ...&quot;</span><span class="p">)</span>
+                <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">unseen_pop</span><span class="p">]</span>
+
 
             <span class="c1"># mutate random &#39;k&#39; subsets of the parents</span>
             <span class="c1"># while ensuring the mutations fall within</span>
@@ -651,7 +667,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 07, 2023.
+  Last updated on Mar 13, 2023.
   <br/>
 </p>
   </div>

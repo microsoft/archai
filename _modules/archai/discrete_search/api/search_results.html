@@ -586,16 +586,15 @@ document.write(`
 <span class="sd">            save_weights: If `True`, saves the model weights. Otherwise, only saves the architecture.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">save_weights</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
         <span class="n">dir_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
         <span class="n">dir_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">pareto_frontier</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pareto_frontier</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">pareto_frontier</span><span class="p">[</span><span class="s2">&quot;models&quot;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">save_arch</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">archid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">save_arch</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">archid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">save_weights</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">save_model_weights</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dir_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">archid</span><span class="si">}</span><span class="s2">_weights.pt&quot;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="SearchResults.plot_2d_pareto_evolution"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_results.SearchResults.plot_2d_pareto_evolution">[docs]</a>    <span class="k">def</span> <span class="nf">plot_2d_pareto_evolution</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">objective_names</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">figsize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
@@ -727,7 +726,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 07, 2023.
+  Last updated on Mar 13, 2023.
   <br/>
 </p>
   </div>

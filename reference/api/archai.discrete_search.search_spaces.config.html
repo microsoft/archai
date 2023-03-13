@@ -487,12 +487,14 @@ by calling <cite>ArchConfig.pick(param_name)</cite>.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.config.arch_config.ArchConfig.pick">
-<span class="sig-name descname"><span class="pre">pick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_usage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/config/arch_config.html#ArchConfig.pick"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.config.arch_config.ArchConfig.pick" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">pick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_usage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/config/arch_config.html#ArchConfig.pick"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.config.arch_config.ArchConfig.pick" title="Permalink to this definition">#</a></dt>
 <dd><p>Pick an architecture parameter, possibly recording its usage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>param_name</strong> – Architecture parameter name</p></li>
+<li><p><strong>default</strong> – Default value to return if parameter is not found. If <cite>None</cite>, an
+exception is raised.</p></li>
 <li><p><strong>record_usage</strong> – If this parameter should be recorded as ‘used’ in
 <cite>ArchConfig._used_params</cite>.</p></li>
 </ul>
@@ -556,6 +558,8 @@ by calling <cite>ArchConfig.pick(param_name)</cite>.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>param_name</strong> – Architecture parameter name</p></li>
+<li><p><strong>default</strong> – Default value to return if parameter is not found. If <cite>None</cite>, an
+exception is raised.</p></li>
 <li><p><strong>record_usage</strong> – If this parameter should be recorded as ‘used’ in
 <cite>ArchConfig._used_params</cite>.</p></li>
 </ul>
@@ -999,7 +1003,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 07, 2023.
+  Last updated on Mar 13, 2023.
   <br/>
 </p>
   </div>

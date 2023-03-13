@@ -427,6 +427,7 @@ document.write(`
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+<span class="kn">from</span> <span class="nn">transformers.modeling_utils</span> <span class="kn">import</span> <span class="n">no_init_weights</span>
 <span class="kn">from</span> <span class="nn">transformers.models.auto.configuration_auto</span> <span class="kn">import</span> <span class="n">AutoConfig</span>
 <span class="kn">from</span> <span class="nn">transformers.models.auto.modeling_auto</span> <span class="kn">import</span> <span class="n">AutoModelForCausalLM</span>
 
@@ -518,6 +519,7 @@ document.write(`
         <span class="n">vocab_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">,</span>
         <span class="n">max_sequence_length</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">,</span>
         <span class="n">att_dropout_rate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">disable_weights_init</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">random_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize search space.</span>
@@ -535,6 +537,7 @@ document.write(`
 <span class="sd">            vocab_size: Size of the vocabulary.</span>
 <span class="sd">            max_sequence_length: Maximum sequence length.</span>
 <span class="sd">            att_dropout_rate: Dropout rate for attention.</span>
+<span class="sd">            disable_weights_init: Whether to disable weights initialization.</span>
 <span class="sd">            random_seed: Random seed for reproducibility.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -560,12 +563,18 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">=</span> <span class="n">vocab_size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_sequence_length</span> <span class="o">=</span> <span class="n">max_sequence_length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">att_dropout_rate</span> <span class="o">=</span> <span class="n">att_dropout_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_weights_init</span> <span class="o">=</span> <span class="n">disable_weights_init</span>
 
     <span class="k">def</span> <span class="nf">_load_model_from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
         <span class="n">param_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_MODELS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">arch_type</span><span class="p">]</span>
         <span class="n">mapped_config</span> <span class="o">=</span> <span class="p">{</span><span class="n">param_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p_name</span><span class="p">,</span> <span class="n">p_name</span><span class="p">):</span> <span class="n">p_value</span> <span class="k">for</span> <span class="n">p_name</span><span class="p">,</span> <span class="n">p_value</span> <span class="ow">in</span> <span class="n">model_config</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="n">AutoConfig</span><span class="o">.</span><span class="n">for_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arch_type</span><span class="p">,</span> <span class="o">**</span><span class="n">mapped_config</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_weights_init</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">no_init_weights</span><span class="p">():</span>
+                <span class="k">return</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TransformerFlexSearchSpace.get_archid"><a class="viewcode-back" href="../../../../../../reference/api/archai.discrete_search.search_spaces.nlp.transformer_flex.html#archai.discrete_search.search_spaces.nlp.transformer_flex.search_space.TransformerFlexSearchSpace.get_archid">[docs]</a>    <span class="k">def</span> <span class="nf">get_archid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -743,7 +752,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 07, 2023.
+  Last updated on Mar 13, 2023.
   <br/>
 </p>
   </div>

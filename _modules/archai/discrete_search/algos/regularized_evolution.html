@@ -459,6 +459,8 @@ document.write(`
         <span class="n">initial_population_paths</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pareto_sample_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span>
         <span class="n">history_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">clear_evaluated_models</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">save_pareto_model_weights</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the Regularized Evolution.</span>
@@ -473,6 +475,9 @@ document.write(`
 <span class="sd">            initial_population_paths: Paths to initial population models.</span>
 <span class="sd">            pareto_sample_size: Number of models to sample from the pareto frontier.</span>
 <span class="sd">            history_size: Number of models to keep in the history.</span>
+<span class="sd">            clear_evaluated_models (bool, optional): Optimizes memory usage by clearing the architecture</span>
+<span class="sd">                of `ArchaiModel` after each iteration. Defaults to True.</span>
+<span class="sd">            save_pareto_model_weights: If `True`, saves the weights of the pareto models.</span>
 <span class="sd">            seed: Random seed.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -496,6 +501,8 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">history_size</span> <span class="o">=</span> <span class="n">history_size</span>
 
         <span class="c1"># Utils</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear_evaluated_models</span> <span class="o">=</span> <span class="n">clear_evaluated_models</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_pareto_model_weights</span> <span class="o">=</span> <span class="n">save_pareto_model_weights</span>        
         <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span> <span class="o">=</span> <span class="n">SearchResults</span><span class="p">(</span><span class="n">search_space</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
@@ -601,8 +608,16 @@ document.write(`
 
             <span class="c1"># Saves search iteration results</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">save_search_state</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;search_state_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">save_pareto_frontier_models</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;pareto_models_iter_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">save_pareto_frontier_models</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;pareto_models_iter_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+                <span class="n">save_weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_pareto_model_weights</span>
+            <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">save_all_2d_pareto_evolution_plots</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
+
+            <span class="c1"># Clears models from memory if needed</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">clear_evaluated_models</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Optimzing memory usage ...&quot;</span><span class="p">)</span>
+                <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">iter_members</span><span class="p">]</span>
 
             <span class="c1"># Samples subset of models from the history buffer</span>
             <span class="n">history_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_pop</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">history_size</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_pop</span><span class="p">)))</span>
@@ -676,7 +691,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 07, 2023.
+  Last updated on Mar 13, 2023.
   <br/>
 </p>
   </div>
