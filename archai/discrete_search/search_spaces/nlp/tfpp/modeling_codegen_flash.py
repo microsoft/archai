@@ -30,9 +30,7 @@ class CodeGenFlashConfig(CodeGenConfig):
     ) -> None:
         super().__init__(*args, **kwargs)
 
-        self.vocab_size = self.vocab_size = int(
-            math.ceil(self.vocab_size / pad_vocab_size_multiple) * pad_vocab_size_multiple
-        )
+        self.vocab_size = int(math.ceil(self.vocab_size / pad_vocab_size_multiple) * pad_vocab_size_multiple)
         self.use_flash_attn = use_flash_attn
         self.use_flash_fused_mlp = use_flash_fused_mlp
 
@@ -41,11 +39,8 @@ class CodeGenFlashEmbedding(nn.Module):
     def __init__(self, config: CodeGenFlashConfig) -> None:
         super().__init__()
 
-        self.embed_dim = config.n_embd
-        self.vocab_size = config.vocab_size
-        self.wte = nn.Embedding(config.vocab_size, self.embed_dim)
+        self.wte = nn.Embedding(config.vocab_size, config.n_embd)
         self.drop = nn.Dropout(config.embd_pdrop)
-        self.rotary_dim = min(config.rotary_dim, config.n_ctx // config.num_attention_heads)
 
     def forward(self, input_ids: torch.LongTensor) -> torch.FloatTensor:
         input_shape = input_ids.size()
@@ -62,9 +57,10 @@ class CodeGenFlashBlock(nn.Module):
         super().__init__()
 
         inner_dim = config.n_inner if config.n_inner is not None else 4 * config.n_embd
+        rotary_dim = min(config.rotary_dim, config.n_ctx // config.num_attention_heads)
+
         self.use_flash_attn = config.use_flash_attn
         self.resid_pdrop = config.resid_pdrop
-        self.rotary_dim = min(config.rotary_dim, config.n_ctx // config.num_attention_heads)
         self.ln_1 = nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon)
 
         if not self.use_flash_attn:
@@ -80,7 +76,7 @@ class CodeGenFlashBlock(nn.Module):
                 dropout=config.attn_pdrop,
                 softmax_scale=1.0 if not config.scale_attn_weights else head_dim ** (-0.5),
                 causal=True,
-                rotary_emb_dim=self.rotary_dim,
+                rotary_emb_dim=rotary_dim,
                 fused_bias_fc=True,
                 use_flash_attn=True,
                 return_residual=False,
@@ -99,16 +95,18 @@ class CodeGenFlashBlock(nn.Module):
     def forward(self, hidden_states: torch.FloatTensor) -> torch.FloatTensor:
         residual = hidden_states
         hidden_states = self.ln_1(hidden_states)
+
         attn_outputs = self.attn(hidden_states)
-        attn_output = attn_outputs[0]
+        if isinstance(attn_outputs, tuple):
+            attn_outputs = attn_outputs[0]
 
         feed_forward_hidden_states = self.mlp(hidden_states)
 
         if self.use_flash_attn:
-            attn_output = nn.Dropout(self.resid_pdrop)(attn_output)
+            attn_outputs = nn.Dropout(self.resid_pdrop)(attn_outputs)
             feed_forward_hidden_states = nn.Dropout(self.resid_pdrop)(feed_forward_hidden_states)
 
-        hidden_states = attn_output + feed_forward_hidden_states + residual
+        hidden_states = attn_outputs + feed_forward_hidden_states + residual
 
         return hidden_states
 
