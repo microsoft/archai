@@ -63,6 +63,7 @@ class CodeGenFlashBlock(nn.Module):
 
         inner_dim = config.n_inner if config.n_inner is not None else 4 * config.n_embd
         self.use_flash_attn = config.use_flash_attn
+        self.resid_pdrop = config.resid_pdrop
         self.rotary_dim = min(config.rotary_dim, config.n_ctx // config.num_attention_heads)
         self.ln_1 = nn.LayerNorm(config.n_embd, eps=config.layer_norm_epsilon)
 
@@ -104,8 +105,8 @@ class CodeGenFlashBlock(nn.Module):
         feed_forward_hidden_states = self.mlp(hidden_states)
 
         if self.use_flash_attn:
-            attn_output = nn.Dropout(self.residual_pdrop)(attn_output)
-            feed_forward_hidden_states = nn.Dropout(self.residual_pdrop)(feed_forward_hidden_states)
+            attn_output = nn.Dropout(self.resid_pdrop)(attn_output)
+            feed_forward_hidden_states = nn.Dropout(self.resid_pdrop)(feed_forward_hidden_states)
 
         hidden_states = attn_output + feed_forward_hidden_states + residual
 
