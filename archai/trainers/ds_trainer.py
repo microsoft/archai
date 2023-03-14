@@ -105,7 +105,6 @@ class DsTrainer(TrainerBase):
         dataset: Dataset,
         sampler: Optional[Sampler] = None,
         shuffle: Optional[bool] = False,
-        pin_memory: Optional[bool] = True,
     ) -> DataLoader:
         if sampler is None:
             sampler = DistributedSampler(
@@ -116,7 +115,12 @@ class DsTrainer(TrainerBase):
             )
 
         return DataLoader(
-            dataset, sampler=sampler, drop_last=True, batch_size=self.engine.micro_batch_size, pin_memory=pin_memory
+            dataset,
+            batch_size=self.engine.micro_batch_size,
+            sampler=sampler,
+            num_workers=self.args.dataloader_num_workers,
+            pin_memory=self.args.dataloader_pin_memory,
+            drop_last=True,
         )
 
     @overrides
@@ -132,15 +136,17 @@ class DsTrainer(TrainerBase):
         logger.debug(f"Training arguments: {self.args.to_dict()}")
 
         current_step = 0
-
         if resume_from_checkpoint:
             logger.info(f"Loading from checkpoint: {resume_from_checkpoint}")
-            _, self.client_state = self.engine.load_checkpoint(
-                resume_from_checkpoint,
-                load_optimizer_states=resume_optimizer_state,
-                load_lr_scheduler_states=resume_lr_scheduler_state,
-            )
-            current_step = self.client_state["step"]
+            try:
+                _, self.client_state = self.engine.load_checkpoint(
+                    resume_from_checkpoint,
+                    load_optimizer_states=resume_optimizer_state,
+                    load_lr_scheduler_states=resume_lr_scheduler_state,
+                )
+                current_step = self.client_state["step"]
+            except:
+                pass
 
         train_dataloader = self._get_dataloader(self.train_dataset, shuffle=True)
         train_iterator = iter(RepeatingLoader(train_dataloader))
