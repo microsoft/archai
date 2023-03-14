@@ -12,6 +12,7 @@ dependencies:
     - azure-storage-blob
     - azure-data-tables
     - azure.identity
+    - matplotlib
     - mldesigner
     - mlflow
     - torchvision
