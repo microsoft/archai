@@ -149,8 +149,18 @@ def main():
 
     results = algo.search()
     pareto = results.get_pareto_frontier()["models"]
-    top_models = [str(a.archid) for a in pareto]
-    json.dump(top_models, open(os.path.join(local_output, 'pareto.json'), 'w'))
+    top_models = []
+    for m in pareto:
+        config = m.metadata['config']
+        m.arch = MyModel(config)
+        d = config.to_dict()
+        id = str(m.archid)
+        d['archid'] = id
+        top_models += [d]
+
+    with open(os.path.join(local_output, 'pareto.json'), 'w') as f:
+        f.write(json.dumps(top_models, indent=2))
+
     print(f"Doing full training on {len(pareto)} best models")
 
     full_training = AmlTrainingValAccuracy(compute_cluster_name=compute_name,
@@ -173,18 +183,20 @@ def main():
 
     # save name of top models
     print('Top model results: ')
-    results = {
-        'init_num_models': init_num_models,
-        'partial_training_epochs': partial_training_epochs,
-        'full_training_epochs': full_training_epochs,
-    }
     names = full_training.job_names
     for i, m in enumerate(pareto):
         name = names[i]
         val_acc = accuracies[i]
-        archid = top_models[i]
-        results[name] = {'archid': archid, 'val_acc': val_acc}
+        d = top_models[i]
+        d['val_acc'] = val_acc
+        d['job_id'] = name
 
+    results = {
+        'init_num_models': init_num_models,
+        'partial_training_epochs': partial_training_epochs,
+        'full_training_epochs': full_training_epochs,
+        'top_models': top_models
+    }
     indented = json.dumps(results, indent=2)
     print(indented)
     with open(os.path.join(local_output, 'top_models.json'), 'w') as f:
