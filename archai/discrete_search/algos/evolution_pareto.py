@@ -257,6 +257,7 @@ class EvolutionParetoSearch(Searcher):
             logger.info(f"Found {len(pareto)} members.")
 
             # Saves search iteration results
+            # NOTE: There is a dependency on these file naming schemas on archai.common.notebook_helper
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
             self.search_state.save_pareto_frontier_models(str(self.output_dir / f"pareto_models_iter_{self.iter_num}"))
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))

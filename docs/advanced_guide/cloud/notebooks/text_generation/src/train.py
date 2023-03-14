@@ -16,9 +16,9 @@ from archai.trainers.nlp.hf_trainer import HfTrainer
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Trains a Pareto architecture from Transformer-Flex.")
+    parser = argparse.ArgumentParser(description="Trains a GPT2 architecture.")
 
-    parser.add_argument("pareto_config_path", type=str, help="Path to the Pareto architecture configuration file.")
+    parser.add_argument("arch_config_path", type=str, help="Path to the architecture configuration file.")
 
     parser.add_argument(
         "-o",
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     )
 
     pareto_config = {}
-    with open(args.pareto_config_path, "r") as f:
+    with open(args.arch_config_path, "r") as f:
         pareto_config = json.load(f)
 
     config = GPT2Config(n_positions=1024, bos_token_id=0, eos_token_id=0, **pareto_config)
