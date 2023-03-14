@@ -79,6 +79,7 @@ class Trainer:
         self.val_acc = val_acc
         return val_acc
 
+
 def main():
     # input and output arguments
     parser = argparse.ArgumentParser()
@@ -87,12 +88,12 @@ def main():
     parser.add_argument("--storage_account_name", required=True, type=str, help="Azure model store name")
     parser.add_argument("--save_models", action='store_true', help="save models to azure storage")
     parser.add_argument("--model_params", type=str, help="json string containing model parameters")
-    parser.add_argument("--data_dir", type=str, help="location of dataset")
+    parser.add_argument("--data_dir", type=str, help="location of dataset", default='dataset')
     parser.add_argument("--subscription", type=str, help="subscription of workspace")
     parser.add_argument("--resource_group", type=str, help="resource group of workspace")
     parser.add_argument("--workspace", type=str, help="the workspace name")
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
-    parser.add_argument("--output", type=str, help="place to write the results")
+    parser.add_argument("--output", type=str, help="place to write the results", default='output')
 
     args = parser.parse_args()
 
@@ -127,7 +128,7 @@ def main():
 
         shape = trainer.input_shape
         # add batch and channel dimensions
-        shape = [1,1] + list(shape)
+        shape = [1, 1] + list(shape)
 
         if save_models:
             # this writes the results to the output folder.
@@ -150,11 +151,13 @@ def main():
         e['val_acc'] = float(val_acc)
         e['status'] = 'trained'
         store.update_status_entity(e)
+        print(f"Training job completed successfully with validation accuracy {val_acc}")
     except Exception as ex:
         print(f"Training job failed: {ex}")
         e['status'] = 'failed'
         e['error'] = str(ex)
         store.update_status_entity(e)
+        print(f"Training job failed with err {ex}")
 
 
 if __name__ == "__main__":

@@ -7,11 +7,12 @@ from archai.discrete_search.api import SearchObjectives
 from archai.discrete_search.evaluators import AvgOnnxLatency, TorchFlops
 from archai.discrete_search.evaluators import TorchNumParameters
 from archai.discrete_search.algos import EvolutionParetoSearch
-from cnn_search_space import CNNSearchSpace
+from archai.discrete_search.search_spaces.config import ArchParamTree, ConfigSearchSpace, DiscreteChoice
 from aml_training_evaluator import AmlTrainingValAccuracy
 from azure.ai.ml.identity import AzureMLOnBehalfOfCredential
 from azure.identity import DefaultAzureCredential
 from azure.ai.ml import MLClient
+from model import MyModel
 
 
 def main():
@@ -24,8 +25,8 @@ def main():
     parser.add_argument("--output_dir", type=str, help="path to output data")
     parser.add_argument("--local_output", type=str, help="optional path to local output data (default output_dir)")
     parser.add_argument("--init_num_models", type=int, default=10, help="Number of initial models to evaluate")
-    parser.add_argument("--partial_training_epochs", type=int, default=0.01, help="Number of epochs for partial training")
-    parser.add_argument("--full_training_epochs", type=int, default=10, help="Number of epochs for final training")
+    parser.add_argument("--partial_training_epochs", type=float, default=0.01, help="Number of epochs for partial training")
+    parser.add_argument("--full_training_epochs", type=float, default=10, help="Number of epochs for final training")
 
     args = parser.parse_args()
 
@@ -44,7 +45,6 @@ def main():
     print(f"Data dir: {data_dir}")
     print(f"Output dir: {output_dir}")
 
-
     identity = AzureMLOnBehalfOfCredential()
     if args.config:
         print("Using AzureMLOnBehalfOfCredential...")
@@ -58,8 +58,17 @@ def main():
         config = json.load(open(config_file, 'r'))
         identity = DefaultAzureCredential()
 
-    space = CNNSearchSpace()
+    # setup the ConfigSearchSpace from given ArchParamTree configuration.
+    arch_param_tree = ArchParamTree({
+        'nb_layers': DiscreteChoice(list(range(1, 13))),
+        'kernel_size': DiscreteChoice([1, 3, 5, 7]),
+        'hidden_dim': DiscreteChoice([16, 32, 64, 128])
+    })
 
+    space = ConfigSearchSpace(MyModel, arch_param_tree, mutation_prob=0.3)
+
+    # Make sure we have permission to access the ml_client, this will be needed in the
+    # AmlTrainingValAccuracy evaluator so it can create child pipelines.
     subscription = config['subscription_id']
     resource_group = config['resource_group']
     workspace_name = config['workspace_name']
@@ -73,9 +82,10 @@ def main():
         workspace_name
     )
 
-    ds = ml_client.datastores.get('datasets')
+    ml_client.datastores.get('datasets')
     print(f"Successfully found dataset from workspace {workspace_name} in resource group {resource_group}")
 
+    # create our search objectives
     search_objectives = SearchObjectives()
 
     search_objectives.add_constraint(
@@ -88,9 +98,7 @@ def main():
         # Objective function name (will be used in plots and reports)
         name='ONNX Latency (ms)',
         # ModelEvaluator object that will be used to evaluate the model
-        # TODO: add device parameter when this is merged into the main branch.
-        # model_evaluator=AvgOnnxLatency(input_shape=(1, 1, 28, 28), num_trials=3, device='cpu'),
-        model_evaluator=AvgOnnxLatency(input_shape=(1, 1, 28, 28), num_trials=3),
+        model_evaluator=AvgOnnxLatency(input_shape=(1, 1, 28, 28), num_trials=3, device='cpu'),
         # Optimization direction, `True` for maximization or `False` for minimization
         higher_is_better=False,
         # Whether this objective should be considered 'compute intensive' or not.
@@ -142,6 +150,7 @@ def main():
     results = algo.search()
     pareto = results.get_pareto_frontier()["models"]
     top_models = [str(a.archid) for a in pareto]
+    json.dump(top_models, open(os.path.join(local_output, 'pareto.json'), 'w'))
     print(f"Doing full training on {len(pareto)} best models")
 
     full_training = AmlTrainingValAccuracy(compute_cluster_name=compute_name,
@@ -174,7 +183,7 @@ def main():
         name = names[i]
         val_acc = accuracies[i]
         archid = top_models[i]
-        results[name] = { 'archid': archid, 'val_acc': val_acc }
+        results[name] = {'archid': archid, 'val_acc': val_acc}
 
     indented = json.dumps(results, indent=2)
     print(indented)

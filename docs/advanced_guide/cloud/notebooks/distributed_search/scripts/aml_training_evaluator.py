@@ -13,7 +13,6 @@ import tempfile
 from shutil import copyfile
 
 
-
 class AmlTrainingValAccuracy(AsyncModelEvaluator):
     def __init__(self,
                  compute_cluster_name,
@@ -62,17 +61,14 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
 
     @overrides
     def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
-        if arch.archid:
-            self.models += [arch.archid]
-        else:
-            self.models += [arch.arch.get_archid()]
+        self.models += [arch.arch.get_archid()]
 
     def make_train_model_command(self, id, output_path, archid, code_dir, training_epochs):
         args = \
-            f'--name {id} '     + \
-            f'--storage_account_key "{self.storage_account_key}" '     + \
-            f'--storage_account_name "{self.storage_account_name}" '     + \
-            f'--model_params "{archid}" '     + \
+            f'--name {id} ' + \
+            f'--storage_account_key "{self.storage_account_key}" ' + \
+            f'--storage_account_name "{self.storage_account_name}" ' + \
+            f'--model_params "{archid}" ' + \
             f'--subscription "{self.ml_client.subscription_id}" ' + \
             f'--resource_group "{self.ml_client.resource_group_name}" ' + \
             f'--workspace "{self.ml_client.workspace_name}" ' + \
@@ -91,7 +87,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
 
             # The source folder of the component
             code=code_dir,
-            identity = UserIdentityConfiguration(),
+            identity=UserIdentityConfiguration(),
             command="""python3 train.py \
                     --data_dir "${{inputs.data}}" \
                     --output ${{outputs.results}} """ + args,
@@ -100,7 +96,6 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
-
         snapshot = self.models
         self.models = []  # reset for next run.
         self.job_names = []
@@ -148,6 +143,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         completed = {}
         waiting = list(self.job_names)
         start = time.time()
+        failed = 0
         while len(waiting) > 0:
             for i in range(len(waiting) - 1, -1, -1):
                 id = waiting[i]
@@ -155,6 +151,10 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 if e is not None and 'status' in e and (e['status'] == 'trained' or e['status'] == 'failed'):
                     del waiting[i]
                     completed[id] = e
+                    if e['status'] == 'failed':
+                        error = e['error']
+                        print(f'Training job {id} failed with error: {error}')
+                        failed += 1
 
             status = self.ml_client.jobs.get(pipeline_job.name).status
             if status == 'Completed':
@@ -173,9 +173,12 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         # awesome - they all completed!
         if len(completed) == 0:
             if time.time() > self.timeout + start:
-                raise Exception(f'Partial Training Pipeline times out after {self.timeout} seconds')
+                raise Exception(f'Partial Training Pipeline timed out after {self.timeout} seconds')
             else:
-                raise Exception('Partial Training Pipeline failed')
+                raise Exception('Partial Training Pipeline failed to start')
+
+        if failed == len(completed):
+            raise Exception('Partial Training Pipeline failed all jobs')
 
         results = []
         for id in self.job_names:
