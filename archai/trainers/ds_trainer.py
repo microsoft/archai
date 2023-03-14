@@ -98,8 +98,14 @@ class DsTrainer(TrainerBase):
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
 
+        self.client_state = {"step": 0}
+
     def _get_dataloader(
-        self, dataset: Dataset, sampler: Optional[Sampler] = None, shuffle: Optional[bool] = False
+        self,
+        dataset: Dataset,
+        sampler: Optional[Sampler] = None,
+        shuffle: Optional[bool] = False,
+        pin_memory: Optional[bool] = True,
     ) -> DataLoader:
         if sampler is None:
             sampler = DistributedSampler(
@@ -109,20 +115,38 @@ class DsTrainer(TrainerBase):
                 shuffle=shuffle,
             )
 
-        return DataLoader(dataset, sampler=sampler, drop_last=True, batch_size=self.engine.micro_batch_size)
+        return DataLoader(
+            dataset, sampler=sampler, drop_last=True, batch_size=self.engine.micro_batch_size, pin_memory=pin_memory
+        )
 
     @overrides
-    def train(self) -> None:
+    def train(
+        self,
+        resume_from_checkpoint: Optional[str] = None,
+        resume_optimizer_state: Optional[bool] = True,
+        resume_lr_scheduler_state: Optional[bool] = True,
+    ) -> None:
         """Train a model."""
 
         logger.info("Starting training ...")
         logger.debug(f"Training arguments: {self.args.to_dict()}")
 
+        current_step = 0
+
+        if resume_from_checkpoint:
+            logger.info(f"Loading from checkpoint: {resume_from_checkpoint}")
+            _, self.client_state = self.engine.load_checkpoint(
+                resume_from_checkpoint,
+                load_optimizer_states=resume_optimizer_state,
+                load_lr_scheduler_states=resume_lr_scheduler_state,
+            )
+            current_step = self.client_state["step"]
+
         train_dataloader = self._get_dataloader(self.train_dataset, shuffle=True)
         train_iterator = iter(RepeatingLoader(train_dataloader))
         train_time = time.time()
 
-        for step in range(self.args.max_steps):
+        for step in range(current_step, self.args.max_steps):
             step_time = time.time()
             loss = self.engine.train_batch(data_iter=train_iterator)
             step_time = time.time() - step_time
@@ -176,7 +200,8 @@ class DsTrainer(TrainerBase):
 
             do_periodic_checkpoint = (step + 1) % self.args.save_steps == 0
             if do_periodic_checkpoint:
-                self.engine.save_checkpoint(self.args.output_dir, step + 1)
+                self.client_state["step"] = step + 1
+                self.engine.save_checkpoint(self.args.output_dir, step + 1, client_state=self.client_state)
 
         train_time = time.time() - train_time
 
