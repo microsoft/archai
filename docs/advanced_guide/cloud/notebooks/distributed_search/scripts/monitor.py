@@ -50,6 +50,9 @@ class JobCompletionMonitor:
                         error = e['error']
                         print(f'Training job {id} failed with error: {error}')
                         failed += 1
+                    else:
+                        msg = f"{e['val_acc']}" if 'val_acc' in e else ''
+                        print(f'Training job {id} completed with validation accuracy: {msg}')
 
             if pipeline_name:
                 status = self.ml_client.jobs.get(pipeline_name).status

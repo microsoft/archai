@@ -92,15 +92,20 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 self.model_names += [model_id]
                 self.model_archs[model_id] = archid
                 output_path = f'{self.models_path}/{model_id}'
-                train_job = make_train_model_command(self.store.storage_account_key, self.store.storage_account_name,
-                                                     self.ml_client.subscription_id, self.ml_client.resource_group_name, self.ml_client.workspace_name,
-                                                     model_id, output_path, archid, code_dir, self.training_epochs, self.environment_name)(
+                train_job = make_train_model_command(
+                    output_path, code_dir, self.environment_name,
+                    self.store.storage_account_name, self.store.storage_account_key,
+                    self.ml_client.subscription_id, self.ml_client.resource_group_name, self.ml_client.workspace_name,
+                    model_id, archid, self.training_epochs)(
                     data=data_input
                 )
+
+                print('-------------------------------------------------------------------------------')
+                print(train_job)
+                print(f'Launching job {train_job.name} for model {model_id}')
                 e = self.store.get_status(model_id)
                 e['job_id'] = train_job.name
                 self.store.update_status_entity(e)
-                print('Launching job {train_job.name} for model {model_id}')
                 outputs[model_id] = train_job.outputs.results
 
             return outputs

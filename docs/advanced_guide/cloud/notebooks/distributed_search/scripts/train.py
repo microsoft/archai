@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 import argparse
 import os
+import sys
 import json
 import math
 import torch
@@ -97,6 +98,9 @@ def main():
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
     parser.add_argument("--output", type=str, help="place to write the results", default='output')
 
+    cmd_line = '\n'.join(sys.argv)
+    print(f'Training arguments: {cmd_line}')
+
     args = parser.parse_args()
 
     save_models = args.save_models
@@ -155,11 +159,11 @@ def main():
         store.update_status_entity(e)
         print(f"Training job completed successfully with validation accuracy {val_acc}")
     except Exception as ex:
-        print(f"Training job failed: {ex}")
+        print(f"Training job failed with err {str(ex)}")
         e['status'] = 'failed'
         e['error'] = str(ex)
         store.update_status_entity(e)
-        print(f"Training job failed with err {ex}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

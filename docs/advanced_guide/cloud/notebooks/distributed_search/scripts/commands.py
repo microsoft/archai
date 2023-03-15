@@ -5,28 +5,30 @@ from azure.ai.ml import MLClient, Input, Output
 from azure.ai.ml.entities import UserIdentityConfiguration
 import json
 import os
-from typing import Dict
 from mldesigner.dsl import dynamic
 import uuid
 from model import MyModel
 from store import ArchaiStore
 from archai.discrete_search.search_spaces.config import ArchConfig
 
-TRAINING_TIMEOUT = 3600  # one hour should be enough!
 
-
-def make_train_model_command(id, storage_account_key, storage_account_name, subscription_id, resource_group_name, workspace_name, output_path, archid, code_dir, training_epochs, environment_name):
+def make_train_model_command(output_path, code_dir, environment_name, id, storage_account_name, storage_account_key, subscription_id, resource_group_name, workspace_name, archid, training_epochs):
     """ This is a parametrized command for training a given model architecture.  We will stamp these out to create a distributed training pipeline. """
     args = \
-        f'--name {id} ' + \
-        f'--storage_account_key "{storage_account_key}" ' + \
+        f'--name "{id}" ' + \
         f'--storage_account_name "{storage_account_name}" ' + \
+        f'--storage_account_key "{storage_account_key}" ' + \
         f'--model_params "{archid}" ' + \
         f'--subscription "{subscription_id}" ' + \
         f'--resource_group "{resource_group_name}" ' + \
         f'--workspace "{workspace_name}" ' + \
         f'--epochs "{training_epochs}" ' + \
         '--save_models '
+
+    print("Args:", args.replace('--', '\n--'))
+    print(f'code_dir: {code_dir}')
+    print(f'environment: {environment_name}')
+
     return command(
         name=f'train_{id}',
         display_name=f'train {id}',
@@ -73,14 +75,15 @@ def make_monitor_command(hex_config, code_dir, environment_name, timeout=3600):
 
 def make_dynamic_training_subgraph(results_path: str,
                                    environment_name : str,
-                                   storage_account_key : str,
                                    storage_account_name : str,
+                                   storage_account_key : str,
                                    subscription_id : str,
                                    resource_group_name : str,
                                    workspace_name : str,
                                    hex_config: str,
                                    scripts_dir : str,
-                                   full_epochs : float):
+                                   full_epochs : float,
+                                   timeout=3600):
     """ Create a dynamic subgraph that does not populate full training jobs until we know what all the top models are after the search completes.
     The top_models_folder is provided as an input along with the prepared dataset.  It returns the validation accuracy results """
 
@@ -102,7 +105,7 @@ def make_dynamic_training_subgraph(results_path: str,
         with open(pareto_file) as f:
             top_models = json.load(f)
 
-        store = ArchaiStore(storage_account_key, storage_account_name)
+        store = ArchaiStore(storage_account_name, storage_account_key)
 
         model_ids = []
         for a in top_models['top_models']:
@@ -112,14 +115,20 @@ def make_dynamic_training_subgraph(results_path: str,
                 model_id = 'id_' + str(uuid.uuid4()).replace('-', '_')
                 model_ids += [model_id]
                 output_path = f'{results_path}/{model_id}'
-                train_job = make_train_model_command(storage_account_key, storage_account_name, subscription_id, resource_group_name, workspace_name, 'full_training', output_path, archid, scripts_dir, full_epochs, environment_name)(
+
+                train_job = make_train_model_command(
+                    output_path, scripts_dir, environment_name,
+                    model_id, storage_account_name, storage_account_key, subscription_id, resource_group_name,
+                    workspace_name, archid, full_epochs)(
                     data=data
                 )
+                print('------------------------------------------------------------------------')
+                print(train_job)
                 e = store.get_status(model_id)
                 e['job_id'] = train_job.name
                 store.update_status_entity(e)
 
-        monitor_node = make_monitor_command(hex_config, scripts_dir, environment_name, TRAINING_TIMEOUT)(
+        monitor_node = make_monitor_command(hex_config, scripts_dir, environment_name, timeout)(
             model_ids=",".join(model_ids)
         )
 
