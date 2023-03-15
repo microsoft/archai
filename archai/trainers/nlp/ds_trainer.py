@@ -33,6 +33,41 @@ def _create_deepspeed_config() -> Dict[str, Any]:
     }
 
 
+class StatefulDistributedSampler(DistributedSampler):
+    """Distributed sampler that supports resuming from a given step."""
+
+    def __init__(
+        self,
+        dataset: Dataset,
+        num_replicas: Optional[int] = None,
+        rank: Optional[int] = None,
+        shuffle: Optional[bool] = True,
+        seed: Optional[int] = 0,
+        drop_last: Optional[bool] = False,
+        total_consumed_samples: Optional[int] = 0,
+    ) -> None:
+        """Initialize the sampler.
+
+        Args:
+            dataset: Dataset to be sampled.
+            num_replicas: Number of replicas.
+            rank: Rank of the current process.
+            shuffle: Whether to shuffle the dataset.
+            seed: Random seed.
+            drop_last: Whether to drop the last batch if it is smaller than the batch size.
+            total_consumed_samples: Total number of samples consumed.
+
+        """
+
+        super().__init__(dataset, num_replicas=num_replicas, rank=rank, shuffle=shuffle, seed=seed, drop_last=drop_last)
+
+        self.total_consumed_samples = total_consumed_samples
+
+    def __iter__(self) -> Iterator:
+        indices = list(super().__iter__())
+        return iter(indices[((self.total_consumed_samples // self.num_replicas) % self.num_samples) :])
+
+
 class DsTrainer(TrainerBase):
     """DeepSpeed trainer."""
 
@@ -99,7 +134,7 @@ class DsTrainer(TrainerBase):
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
 
-        self.client_state = {"step": 0}
+        self.client_state = {"step": 0, "total_consumed_samples": 0}
 
     @property
     def data_parallel_world_size(self) -> int:
@@ -122,13 +157,15 @@ class DsTrainer(TrainerBase):
         dataset: Dataset,
         sampler: Optional[Sampler] = None,
         shuffle: Optional[bool] = False,
+        total_consumed_samples: Optional[int] = 0,
     ) -> DataLoader:
         if sampler is None:
-            sampler = DistributedSampler(
+            sampler = StatefulDistributedSampler(
                 dataset,
                 num_replicas=self.data_parallel_world_size,
                 rank=self.data_parallel_rank,
                 shuffle=shuffle,
+                total_consumed_samples=total_consumed_samples,
             )
 
         return DataLoader(
@@ -214,6 +251,8 @@ class DsTrainer(TrainerBase):
         logger.debug(f"Training arguments: {self.args.to_dict()}")
 
         current_step = 0
+        total_consumed_samples = 0
+
         if resume_from_checkpoint:
             logger.info(f"Loading from checkpoint: {resume_from_checkpoint}")
             try:
@@ -223,10 +262,15 @@ class DsTrainer(TrainerBase):
                     load_lr_scheduler_states=resume_lr_scheduler_state,
                 )
                 current_step = self.client_state["step"]
+                total_consumed_samples = self.client_state["total_consumed_samples"]
             except:
                 pass
 
-        train_dataloader = self._get_dataloader(self.train_dataset, shuffle=True)
+        train_dataloader = self._get_dataloader(
+            self.train_dataset,
+            shuffle=True,
+            total_consumed_samples=total_consumed_samples,
+        )
         train_iterator = iter(RepeatingLoader(train_dataloader))
         train_time = time.time()
 
@@ -290,6 +334,7 @@ class DsTrainer(TrainerBase):
             do_periodic_checkpoint = (step + 1) % self.args.save_steps == 0
             if do_periodic_checkpoint:
                 self.client_state["step"] = step + 1
+                self.client_state["total_consumed_samples"] = self.engine.global_samples
                 self.engine.save_checkpoint(self.args.output_dir, step + 1, client_state=self.client_state)
 
         train_time = time.time() - train_time
