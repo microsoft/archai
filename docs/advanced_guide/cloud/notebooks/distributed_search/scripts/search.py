@@ -151,17 +151,17 @@ def main():
 
     results = algo.search()
     pareto = results.get_pareto_frontier()["models"]
-    top_models = []
+    pareto_models = []
     for m in pareto:
         config = m.metadata['config']
         m.arch = MyModel(config)
         d = config.to_dict()
         id = str(m.archid)
         d['archid'] = id
-        top_models += [d]
+        pareto_models += [d]
 
     with open(os.path.join(local_output, 'pareto.json'), 'w') as f:
-        f.write(json.dumps(top_models, indent=2))
+        f.write(json.dumps(pareto_models, indent=2))
 
 
 if __name__ == "__main__":

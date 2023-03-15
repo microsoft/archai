@@ -55,7 +55,7 @@ Top model results:
   },
 ```
 
-And the next cell in the notebook will download this file named 'top_models.json'.
+And the next cell in the notebook will download this file named 'models.json'.
 
 You can run the last cell of the notebook to compare the inference accuracy of the top
 model using the ONNX runtime locally on the resulting downloaded .onnx model.

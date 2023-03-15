@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 
 import os
+import json
 from typing import List, Optional, Union
 from overrides import overrides
 import uuid
@@ -10,9 +11,10 @@ from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
 from azure.ai.ml import MLClient, command, Input, Output, dsl
 from store import ArchaiStore
-from shutil import copyfile
+from shutil import copyfile, rmtree
 from monitor import JobCompletionMonitor
 from commands import make_train_model_command
+from model import MyModel
 
 
 class AmlTrainingValAccuracy(AsyncModelEvaluator):
@@ -54,10 +56,13 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         """
         scripts_dir = os.path.dirname(os.path.abspath(__file__))
         code_dir = 'temp_code'
-        os.makedirs(code_dir, exist_ok=True)
+        if os.path.isdir(code_dir):
+            rmtree(code_dir)  # make sure old files are gone!
+        os.makedirs(code_dir)
         for file in os.listdir(scripts_dir):
             path = os.path.join(scripts_dir, file)
             if os.path.isfile(path):
+                print(f"copying source file : {path} to {code_dir}")
                 copyfile(path, os.path.join(code_dir, file))
         return code_dir
 
@@ -93,18 +98,21 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                 self.model_archs[model_id] = archid
                 output_path = f'{self.models_path}/{model_id}'
                 train_job = make_train_model_command(
-                    output_path, code_dir, self.environment_name,
+                    output_path, code_dir, self.environment_name, model_id,
                     self.store.storage_account_name, self.store.storage_account_key,
                     self.ml_client.subscription_id, self.ml_client.resource_group_name, self.ml_client.workspace_name,
-                    model_id, archid, self.training_epochs)(
+                    archid, self.training_epochs)(
                     data=data_input
                 )
 
-                print('-------------------------------------------------------------------------------')
-                print(train_job)
-                print(f'Launching job {train_job.name} for model {model_id}')
+                print(f'Launching training job for model {model_id}')
                 e = self.store.get_status(model_id)
-                e['job_id'] = train_job.name
+                model = MyModel.from_archid(archid)
+                e["nb_layers"] = model.nb_layers
+                e["kernel_size"] = model.kernel_size
+                e["hidden_dim"] = model.hidden_dim
+                e['status'] = 'preparing'
+                e['epochs'] = self.training_epochs
                 self.store.update_status_entity(e)
                 outputs[model_id] = train_job.outputs.results
 
@@ -115,19 +123,28 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         )
 
         # submit the pipeline job
-        self.ml_client.jobs.create_or_update(
+        pipeline_job = self.ml_client.jobs.create_or_update(
             pipeline,
             # Project's name
             experiment_name=self.experiment_name,
         )
 
+        job_id = pipeline_job.name
+        print(f'Started training pipeline: {job_id}')
+
         # wait for the job to finish
-        monitor = JobCompletionMonitor(self.store, self.ml_client, self.timeout)
+        monitor = JobCompletionMonitor(self.store, self.ml_client, job_id, self.timeout)
         results = monitor.wait(self.model_names)
 
-        for i, val_acc in enumerate(results):
+        results_path = f'{self.models_path}/{self.experiment_name}/models.json'
+        with open(results_path, 'w') as f:
+            f.write(json.dumps(results, indent=2))
+
+        accuracies = []
+        for i, m in enumerate(results['models']):
+            val_acc = m['val_acc']
             id = self.model_names[i]
             archid = self.model_archs[id]
             self.result_cache[archid] = val_acc
 
-        return results
+        return accuracies

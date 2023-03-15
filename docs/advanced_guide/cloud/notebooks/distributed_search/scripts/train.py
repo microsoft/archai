@@ -98,8 +98,7 @@ def main():
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
     parser.add_argument("--output", type=str, help="place to write the results", default='output')
 
-    cmd_line = '\n'.join(sys.argv)
-    print(f'Training arguments: {cmd_line}')
+    pipeline_id = os.getenv('AZUREML_ROOT_RUN_ID')
 
     args = parser.parse_args()
 
@@ -108,6 +107,8 @@ def main():
 
     if save_models and not os.path.exists(output_folder):
         os.makedirs(output_folder, exist_ok=True)
+
+    print(f'Training model: {args.name} with architecture {args.model_params}')
 
     name = args.name
     store = ArchaiStore(args.storage_account_name, args.storage_account_key)
@@ -126,6 +127,10 @@ def main():
         e['nb_layers'] = model.nb_layers
         e['kernel_size'] = model.kernel_size
         e['hidden_dim'] = model.hidden_dim
+        e['epochs'] = epochs
+        if pipeline_id is not None:
+            e['pipeline_id'] = pipeline_id
+
         store.update_status_entity(e)
 
         trainer = Trainer(training_epochs=epochs, lr=1e-4, device='cuda')

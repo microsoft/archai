@@ -14,20 +14,16 @@ from archai.discrete_search.search_spaces.config import ArchConfig
 
 def make_train_model_command(output_path, code_dir, environment_name, id, storage_account_name, storage_account_key, subscription_id, resource_group_name, workspace_name, archid, training_epochs):
     """ This is a parametrized command for training a given model architecture.  We will stamp these out to create a distributed training pipeline. """
-    args = \
-        f'--name "{id}" ' + \
+
+    args = f'--name "{id}" ' + \
         f'--storage_account_name "{storage_account_name}" ' + \
         f'--storage_account_key "{storage_account_key}" ' + \
-        f'--model_params "{archid}" ' + \
         f'--subscription "{subscription_id}" ' + \
         f'--resource_group "{resource_group_name}" ' + \
         f'--workspace "{workspace_name}" ' + \
+        f'--model_params "{archid}" ' + \
         f'--epochs "{training_epochs}" ' + \
         '--save_models '
-
-    print("Args:", args.replace('--', '\n--'))
-    print(f'code_dir: {code_dir}')
-    print(f'environment: {environment_name}')
 
     return command(
         name=f'train_{id}',
@@ -73,42 +69,44 @@ def make_monitor_command(hex_config, code_dir, environment_name, timeout=3600):
     )
 
 
-def make_dynamic_training_subgraph(results_path: str,
-                                   environment_name : str,
-                                   storage_account_name : str,
-                                   storage_account_key : str,
-                                   subscription_id : str,
-                                   resource_group_name : str,
-                                   workspace_name : str,
-                                   hex_config: str,
-                                   scripts_dir : str,
-                                   full_epochs : float,
-                                   timeout=3600):
+def make_dynamic_training_subgraph(results_path, environment_name, storage_account_name, storage_account_key,
+                                   subscription_id, resource_group_name, workspace_name,
+                                   hex_config, scripts_dir, full_epochs, timeout=3600):
     """ Create a dynamic subgraph that does not populate full training jobs until we know what all the top models are after the search completes.
-    The top_models_folder is provided as an input along with the prepared dataset.  It returns the validation accuracy results """
+    The models_folder is provided as an input along with the prepared dataset.  It returns the validation accuracy results """
+    args = \
+        f'--results_path "{results_path}" ' + \
+        f'--environment_name "{environment_name}" ' + \
+        f'--storage_account_name "{storage_account_name}" ' + \
+        f'--storage_account_key "{storage_account_key}" ' + \
+        f'--subscription "{subscription_id}" ' + \
+        f'--resource_group "{resource_group_name}" ' + \
+        f'--workspace "{workspace_name}" ' + \
+        f'--scripts_dir "{scripts_dir}" ' + \
+        f'--full_epochs "{full_epochs}" '
 
     @dynamic
     def dynamic_training_subgraph(
-        top_models_folder: Input(type="uri_folder"),
+        models_folder: Input(type="uri_folder"),
         data: Input(type="uri_folder")
     ) -> Output(type="uri_file"):
-        """This dynamic subgraph will kick off a training job for each model in the input_top_models file.
+        """This dynamic subgraph will kick off a training job for each model in the models file.
 
-        :param top_models_folder: Location of teh pareto.json file.
+        :param models_folder: Location of the pareto.json file.
         :param data: Dataset to use to train the models.
         """
         # Read list of silos from a json file input
         # Note: calling `pipeline_input.result()` inside @dynamic will return actual value of the input.
         # In this case, input_silos is an PipelineInput object, so we need to call `result()` to get the actual value.
-        path = top_models_folder.result()
+        path = models_folder.result()
         pareto_file = os.path.join(path, 'pareto.json')
         with open(pareto_file) as f:
-            top_models = json.load(f)
+            pareto_models = json.load(f)
 
         store = ArchaiStore(storage_account_name, storage_account_key)
 
         model_ids = []
-        for a in top_models['top_models']:
+        for a in pareto_models:
             if type(a) is dict and 'nb_layers' in a:
                 model = MyModel(ArchConfig(a))
                 archid = model.get_archid()
@@ -116,16 +114,18 @@ def make_dynamic_training_subgraph(results_path: str,
                 model_ids += [model_id]
                 output_path = f'{results_path}/{model_id}'
 
-                train_job = make_train_model_command(
-                    output_path, scripts_dir, environment_name,
-                    model_id, storage_account_name, storage_account_key, subscription_id, resource_group_name,
+                make_train_model_command(
+                    output_path, scripts_dir, environment_name, model_id,
+                    storage_account_name, storage_account_key, subscription_id, resource_group_name,
                     workspace_name, archid, full_epochs)(
                     data=data
                 )
-                print('------------------------------------------------------------------------')
-                print(train_job)
                 e = store.get_status(model_id)
-                e['job_id'] = train_job.name
+                e["nb_layers"] = model.nb_layers
+                e["kernel_size"] = model.kernel_size
+                e["hidden_dim"] = model.hidden_dim
+                e['status'] = 'preparing'
+                e['epochs'] = full_epochs
                 store.update_status_entity(e)
 
         monitor_node = make_monitor_command(hex_config, scripts_dir, environment_name, timeout)(
