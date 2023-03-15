@@ -63,7 +63,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         os.makedirs(code_dir)
         for file in os.listdir(scripts_dir):
             path = os.path.join(scripts_dir, file)
-            if os.path.isfile(path):
+            if os.path.isfile(path) and file.endswith('.py'):
                 print(f"copying source file : {path} to {code_dir}")
                 copyfile(path, os.path.join(code_dir, file))
         return code_dir
@@ -132,7 +132,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         )
 
         job_id = pipeline_job.name
-        print(f'Started training pipeline: {job_id}')
+        print(f'AmlTrainingValAccuracy: Started training pipeline: {job_id}')
 
         # wait for the job to finish
         monitor = JobCompletionMonitor(self.store, self.ml_client, job_id, self.timeout)
@@ -142,6 +142,12 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         with open(results_path, 'w') as f:
             f.write(json.dumps(results, indent=2))
 
+        # save the archai log.
+        log = 'archai.log'
+        if os.path.isfile(log):
+            copyfile(log, f'{self.local_output}/{log}')
+
+        # extract the array of accuracies for our return value.
         accuracies = []
         for i, m in enumerate(results['models']):
             val_acc = m['val_acc']
@@ -150,5 +156,5 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
             self.result_cache[archid] = val_acc
             accuracies += [val_acc]
 
-        print(f'fetch_all returning : {accuracies}')
+        print(f'AmlTrainingValAccuracy: fetch_all returning : {accuracies}')
         return accuracies

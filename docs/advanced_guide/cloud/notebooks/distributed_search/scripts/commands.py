@@ -1,13 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 from azure.ai.ml import command
-from azure.ai.ml import MLClient, Input, Output
+from azure.ai.ml import Input, Output
 from azure.ai.ml.entities import UserIdentityConfiguration
 import json
 import os
 from mldesigner.dsl import dynamic
 import uuid
-from model import MyModel
 from store import ArchaiStore
 from archai.discrete_search.search_spaces.config import ArchConfig
 
