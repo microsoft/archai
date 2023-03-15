@@ -68,7 +68,7 @@ class DsTrainer(TrainerBase):
 
         if args is None:
             args = DsTrainingArguments(_create_deepspeed_config())
-        # assert isinstance(args, DsTrainingArguments), "`args` should be an instance of `DsTrainingArguments`."
+        assert isinstance(args, DsTrainingArguments), "`args` should be an instance of `DsTrainingArguments`."
         self.args = args
 
         if self.args.pipe_parallel_size > 0:
