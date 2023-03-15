@@ -14,8 +14,8 @@ from archai.discrete_search.search_spaces.nlp.tfpp.modeling_codegen_flash import
     CodeGenFlashSequential,
     LMHeadLoss,
 )
-from archai.trainers.ds_trainer import DsTrainer
-from archai.trainers.ds_training_args import DsTrainingArguments
+from archai.trainers.nlp.ds_trainer import DsTrainer
+from archai.trainers.nlp.ds_training_args import DsTrainingArguments
 
 
 def parse_args() -> argparse.Namespace:

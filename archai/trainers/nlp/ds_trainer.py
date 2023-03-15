@@ -3,7 +3,7 @@
 
 import math
 import time
-from typing import Any, Dict, Iterable, Optional, Tuple, Union
+from typing import Any, Dict, Iterable, Iterator, Optional, Tuple, Union
 
 import deepspeed
 import mlflow
@@ -18,7 +18,7 @@ from torch.utils.data.distributed import DistributedSampler
 
 from archai.api.trainer_base import TrainerBase
 from archai.common.ordered_dict_logger import OrderedDictLogger
-from archai.trainers.ds_training_args import DsTrainingArguments
+from archai.trainers.nlp.ds_training_args import DsTrainingArguments
 
 logger = OrderedDictLogger(source=__name__)
 
@@ -26,7 +26,7 @@ logger = OrderedDictLogger(source=__name__)
 def _create_deepspeed_config() -> Dict[str, Any]:
     return {
         "train_batch_size": 256,
-        "train_micro_batch_size_per_gpu": 8,
+        "train_micro_batch_size_per_gpu": 2,
         "fp16": {"enabled": True, "initial_scale_power": 12},
         "zero_optimization": {"stage": 0},
         "optimizer": {"type": "AdamW", "params": {"lr": 5e-5, "betas": [0.9, 0.999], "eps": 1e-8}},
@@ -68,19 +68,20 @@ class DsTrainer(TrainerBase):
 
         if args is None:
             args = DsTrainingArguments(_create_deepspeed_config())
-        assert isinstance(args, DsTrainingArguments), "`args` should be an instance of `DsTrainingArguments`."
+        # assert isinstance(args, DsTrainingArguments), "`args` should be an instance of `DsTrainingArguments`."
         self.args = args
 
-        assert isinstance(
-            model, torch.nn.Sequential
-        ), "`model` should be an instance of `torch.nn.Sequential` for Pipeline Parallelism."
-        model = PipelineModule(
-            layers=model,
-            num_stages=self.args.pipe_parallel_size,
-            loss_fn=self.args.pipe_parallel_loss_fn,
-            partition_method=self.args.pipe_parallel_partition_method,
-            activation_checkpoint_interval=self.args.pipe_parallel_activation_checkpoint_steps,
-        )
+        if self.args.pipe_parallel_size > 0:
+            assert isinstance(
+                model, torch.nn.Sequential
+            ), "`model` should be an instance of `torch.nn.Sequential` for Pipeline Parallelism."
+            model = PipelineModule(
+                layers=model,
+                num_stages=self.args.pipe_parallel_size,
+                loss_fn=self.args.pipe_parallel_loss_fn,
+                partition_method=self.args.pipe_parallel_partition_method,
+                activation_checkpoint_interval=self.args.pipe_parallel_activation_checkpoint_steps,
+            )
 
         self.engine, _, _, _ = deepspeed.initialize(
             model=model,
@@ -100,6 +101,22 @@ class DsTrainer(TrainerBase):
 
         self.client_state = {"step": 0}
 
+    @property
+    def data_parallel_world_size(self) -> int:
+        """Return the data parallel world size."""
+
+        if self.engine.mpu:
+            return self.engine.mpu.get_data_parallel_world_size()
+        return None
+
+    @property
+    def data_parallel_rank(self) -> int:
+        """Return the data parallel rank of the current process."""
+
+        if self.engine.mpu:
+            return self.engine.mpu.get_data_parallel_rank()
+        return None
+
     def _get_dataloader(
         self,
         dataset: Dataset,
@@ -109,19 +126,73 @@ class DsTrainer(TrainerBase):
         if sampler is None:
             sampler = DistributedSampler(
                 dataset,
-                num_replicas=self.engine.dp_world_size,
-                rank=self.engine.mpu.get_data_parallel_rank(),
+                num_replicas=self.data_parallel_world_size,
+                rank=self.data_parallel_rank,
                 shuffle=shuffle,
             )
 
         return DataLoader(
             dataset,
-            batch_size=self.engine.micro_batch_size,
+            batch_size=self.engine.train_micro_batch_size_per_gpu(),
             sampler=sampler,
             num_workers=self.args.dataloader_num_workers,
             pin_memory=self.args.dataloader_pin_memory,
             drop_last=True,
         )
+
+    def train_batch_without_pipe_parallel(self, data_iter: Optional[Iterator] = None) -> torch.Tensor:
+        """Train a batch without pipeline parallelism.
+
+        Args:
+            data_iter: Data iterator.
+
+        Returns:
+            Loss tensor.
+
+        """
+
+        gradient_accumulation_steps = self.engine.gradient_accumulation_steps()
+        total_loss = 0.0
+
+        for _ in range(gradient_accumulation_steps):
+            input_ids, _ = next(data_iter)
+            input_ids = input_ids.to(self.engine.device)
+
+            outputs = self.engine(input_ids, labels=input_ids)
+            loss = outputs[0].mean()
+
+            self.engine.backward(loss)
+            self.engine.step()
+
+            total_loss += loss
+
+        return total_loss / gradient_accumulation_steps
+
+    def eval_batch_without_pipe_parallel(self, data_iter: Optional[Iterator] = None) -> torch.Tensor:
+        """Evaluate a batch without pipeline parallelism.
+
+        Args:
+            data_iter: Data iterator.
+
+        Returns:
+            Loss tensor.
+
+        """
+
+        with torch.no_grad():
+            gradient_accumulation_steps = self.engine.gradient_accumulation_steps()
+            total_loss = 0.0
+
+            for _ in range(gradient_accumulation_steps):
+                input_ids, _ = next(data_iter)
+                input_ids = input_ids.to(self.engine.device)
+
+                outputs = self.engine(input_ids, labels=input_ids)
+                loss = outputs[0].mean()
+
+                total_loss += loss
+
+        return total_loss / gradient_accumulation_steps
 
     @overrides
     def train(
@@ -130,7 +201,14 @@ class DsTrainer(TrainerBase):
         resume_optimizer_state: Optional[bool] = True,
         resume_lr_scheduler_state: Optional[bool] = True,
     ) -> None:
-        """Train a model."""
+        """Train a model.
+
+        Args:
+            resume_from_checkpoint: Path to checkpoint to resume training from.
+            resume_optimizer_state: Whether to resume optimizer state.
+            resume_lr_scheduler_state: Whether to resume learning rate scheduler state.
+
+        """
 
         logger.info("Starting training ...")
         logger.debug(f"Training arguments: {self.args.to_dict()}")
@@ -154,7 +232,12 @@ class DsTrainer(TrainerBase):
 
         for step in range(current_step, self.args.max_steps):
             step_time = time.time()
-            loss = self.engine.train_batch(data_iter=train_iterator)
+
+            if self.args.pipe_parallel_size > 0:
+                loss = self.engine.train_batch(data_iter=train_iterator)
+            else:
+                loss = self.train_batch_without_pipe_parallel(data_iter=train_iterator)
+
             step_time = time.time() - step_time
 
             if self.engine.global_rank == 0:
@@ -176,9 +259,9 @@ class DsTrainer(TrainerBase):
                 do_periodic_logging = (step + 1) % self.args.logging_steps == 0
                 if do_periodic_logging:
                     logger.info(
-                        f"Step: {step + 1} | Time: {step_time:.3f} | "
-                        + f"LR: {learning_rate} | Samples/s: {samples_per_second:.3f} | "
-                        + f"Loss: {float_loss:.3f} | PPL: {math.exp(float_loss):.3f}"
+                        f"Step: {step + 1} | LR: {learning_rate} | "
+                        + f"Loss: {float_loss:.3f} | Samples/s: {samples_per_second:.3f} | "
+                        + f"PPL: {math.exp(float_loss):.3f}"
                     )
 
             do_periodic_eval = (step + 1) % self.args.eval_steps == 0
@@ -199,7 +282,7 @@ class DsTrainer(TrainerBase):
                         step=eval_idx,
                     )
                     logger.info(
-                        f"Eval: {eval_idx} | Time: {eval_time:.3f} | "
+                        f"Eval: {eval_idx} | Seconds: {eval_time:.3f} | "
                         + f"Samples/s: {eval_samples_per_second:.3f} | Loss: {eval_loss:.3f} | "
                         + f"PPL: {math.exp(eval_loss):.3f}"
                     )
@@ -234,7 +317,10 @@ class DsTrainer(TrainerBase):
         eval_loss, eval_time = 0.0, time.time()
 
         for _ in range(n_eval_steps):
-            loss = self.engine.eval_batch(data_iter=eval_iterator)
+            if self.args.pipe_parallel_size > 0:
+                loss = self.engine.eval_batch(data_iter=eval_iterator)
+            else:
+                loss = self.eval_batch_without_pipe_parallel(data_iter=eval_iterator)
             eval_loss += loss.mean().item()
 
         eval_loss /= n_eval_steps
