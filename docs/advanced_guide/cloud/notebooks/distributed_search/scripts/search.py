@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import argparse
 import torch
 import json
@@ -26,7 +28,7 @@ def main():
     parser.add_argument("--local_output", type=str, help="optional path to local output data (default output_dir)")
     parser.add_argument("--init_num_models", type=int, default=10, help="Number of initial models to evaluate")
     parser.add_argument("--partial_training_epochs", type=float, default=0.01, help="Number of epochs for partial training")
-    parser.add_argument("--full_training_epochs", type=float, default=10, help="Number of epochs for final training")
+    # parser.add_argument("--full_training_epochs", type=float, default=10, help="Number of epochs for final training")
 
     args = parser.parse_args()
 
@@ -37,7 +39,7 @@ def main():
     output_dir = args.output_dir
     init_num_models = args.init_num_models
     partial_training_epochs = args.partial_training_epochs
-    full_training_epochs = args.full_training_epochs
+    # full_training_epochs = args.full_training_epochs
 
     print("Starting search with: ")
     print(f"Environment: {environment_name}")
@@ -160,47 +162,6 @@ def main():
 
     with open(os.path.join(local_output, 'pareto.json'), 'w') as f:
         f.write(json.dumps(top_models, indent=2))
-
-    print(f"Doing full training on {len(pareto)} best models")
-
-    full_training = AmlTrainingValAccuracy(compute_cluster_name=compute_name,
-                                           environment_name=environment_name,  # AML environment name
-                                           datastore_path=data_dir,  # AML datastore path
-                                           models_path=output_dir,
-                                           storage_account_key=storage_account_key,  # for ArchaiStore
-                                           storage_account_name=storage_account_name,
-                                           experiment_name=experiment_name,
-                                           ml_client=ml_client,
-                                           save_models=True,
-                                           partial_training=False,
-                                           training_epochs=full_training_epochs)
-
-    for m in pareto:
-        full_training.send(m, None)
-
-    # wait for all jobs to finish
-    accuracies = full_training.fetch_all()
-
-    # save name of top models
-    print('Top model results: ')
-    names = full_training.job_names
-    for i, m in enumerate(pareto):
-        name = names[i]
-        val_acc = accuracies[i]
-        d = top_models[i]
-        d['val_acc'] = val_acc
-        d['job_id'] = name
-
-    results = {
-        'init_num_models': init_num_models,
-        'partial_training_epochs': partial_training_epochs,
-        'full_training_epochs': full_training_epochs,
-        'top_models': top_models
-    }
-    indented = json.dumps(results, indent=2)
-    print(indented)
-    with open(os.path.join(local_output, 'top_models.json'), 'w') as f:
-        f.write(indented)
 
 
 if __name__ == "__main__":

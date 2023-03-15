@@ -73,12 +73,17 @@ So how does all this work.  The overall architecture looks like this:
 
 ![arch](images/workflow.png)
 
-Where the main search pipeline launches [search.py](scripts/search.py) script on a cheap
-CPU virtual machine since it doesn't need much horse power.  This search.py script
-plugs the [aml_training_evaluator.py](scripts/aml_training_evaluator.py) into the
-`EvolutionParetoSearch` objectives, and the `AmlTrainingValAccuracy` is an
-`AsyncModelEvaluator` meaning that the search algorith calls `send` to pass all the
-models in the current iteration then it calls `fetch_all` to get the results.
+Where the main search pipeline launches [search.py](scripts/search.py) script on a cheap CPU virtual
+machine since it doesn't need much horse power.  This search pipeline starts with a quick data-prep
+step to ensure our dataset is in a shared Azure blob store, then it does the Archai search.  When
+the search is complete we have a `pareto.json` file containing the id's of the best models, and we
+then kick off a full training run for those models using a `dynamic_graph` node in the search
+pipeline.
+
+This `search.py` script plugs the [aml_training_evaluator.py](scripts/aml_training_evaluator.py)
+into the `EvolutionParetoSearch` objectives, and the `AmlTrainingValAccuracy` is an
+`AsyncModelEvaluator` meaning that the search algorithm calls `send` to pass all the models in the
+current iteration then it calls `fetch_all` to get the results.
 
 So it is the `fetch_all` method then that creates a new AML pipeline for that iteration,
 dynamically adding a partial training job for each model, each one of those commands

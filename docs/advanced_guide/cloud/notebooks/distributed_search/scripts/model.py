@@ -1,4 +1,5 @@
-import json
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 from torch import nn
 import torch
 from archai.discrete_search.search_spaces.config import ArchConfig

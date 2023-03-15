@@ -1,16 +1,18 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import os
 from typing import List, Optional, Union
 from overrides import overrides
 import uuid
-import time
 from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
 from azure.ai.ml import MLClient, command, Input, Output, dsl
-from azure.ai.ml.entities import UserIdentityConfiguration
 from store import ArchaiStore
-import tempfile
 from shutil import copyfile
+from monitor import JobCompletionMonitor
+from commands import make_train_model_command
 
 
 class AmlTrainingValAccuracy(AsyncModelEvaluator):
@@ -63,43 +65,12 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
     def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
         self.models += [arch.arch.get_archid()]
 
-    def make_train_model_command(self, id, output_path, archid, code_dir, training_epochs):
-        args = \
-            f'--name {id} ' + \
-            f'--storage_account_key "{self.storage_account_key}" ' + \
-            f'--storage_account_name "{self.storage_account_name}" ' + \
-            f'--model_params "{archid}" ' + \
-            f'--subscription "{self.ml_client.subscription_id}" ' + \
-            f'--resource_group "{self.ml_client.resource_group_name}" ' + \
-            f'--workspace "{self.ml_client.workspace_name}" ' + \
-            f'--epochs "{training_epochs}" '
-        if self.save_models:
-            args += '--save_models '
-        return command(
-            name=f'train_{id}',
-            display_name=f'train {id}',
-            inputs={
-                "data": Input(type="uri_folder")
-            },
-            outputs={
-                "results": Output(type="uri_folder", path=output_path, mode="rw_mount")
-            },
-
-            # The source folder of the component
-            code=code_dir,
-            identity=UserIdentityConfiguration(),
-            command="""python3 train.py \
-                    --data_dir "${{inputs.data}}" \
-                    --output ${{outputs.results}} """ + args,
-            environment=self.environment_name,
-            )
-
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
         snapshot = self.models
         self.models = []  # reset for next run.
-        self.job_names = []
-        self.job_archids = {}
+        self.model_names = []
+        self.model_archs = {}
 
         training_type = 'partial' if self.partial_training else 'full'
         print(f"AmlTrainingValAccuracy: Starting {training_type} training on {len(snapshot)} models")
@@ -117,14 +88,20 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
             for archid in snapshot:
                 if archid in self.result_cache:
                     print(f'### Already trained the model architecture {archid} ???')
-                job_id = 'id_' + str(uuid.uuid4()).replace('-', '_')
-                self.job_names += [job_id]
-                self.job_archids[job_id] = archid
-                output_path = f'{self.models_path}/{job_id}'
-                train_job = self.make_train_model_command(job_id, output_path, archid, code_dir, self.training_epochs)(
+                model_id = 'id_' + str(uuid.uuid4()).replace('-', '_')
+                self.model_names += [model_id]
+                self.model_archs[model_id] = archid
+                output_path = f'{self.models_path}/{model_id}'
+                train_job = make_train_model_command(self.store.storage_account_key, self.store.storage_account_name,
+                                                     self.ml_client.subscription_id, self.ml_client.resource_group_name, self.ml_client.workspace_name,
+                                                     model_id, output_path, archid, code_dir, self.training_epochs, self.environment_name)(
                     data=data_input
                 )
-                outputs[job_id] = train_job.outputs.results
+                e = self.store.get_status(model_id)
+                e['job_id'] = train_job.name
+                self.store.update_status_entity(e)
+                print('Launching job {train_job.name} for model {model_id}')
+                outputs[model_id] = train_job.outputs.results
 
             return outputs
 
@@ -133,66 +110,19 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         )
 
         # submit the pipeline job
-        pipeline_job = self.ml_client.jobs.create_or_update(
+        self.ml_client.jobs.create_or_update(
             pipeline,
             # Project's name
             experiment_name=self.experiment_name,
         )
 
         # wait for the job to finish
-        completed = {}
-        waiting = list(self.job_names)
-        start = time.time()
-        failed = 0
-        while len(waiting) > 0:
-            for i in range(len(waiting) - 1, -1, -1):
-                id = waiting[i]
-                e = self.store.get_existing_status(id)
-                if e is not None and 'status' in e and (e['status'] == 'trained' or e['status'] == 'failed'):
-                    del waiting[i]
-                    completed[id] = e
-                    if e['status'] == 'failed':
-                        error = e['error']
-                        print(f'Training job {id} failed with error: {error}')
-                        failed += 1
+        monitor = JobCompletionMonitor(self.store, self.ml_client, self.timeout)
+        results = monitor.wait(self.model_names)
 
-            status = self.ml_client.jobs.get(pipeline_job.name).status
-            if status == 'Completed':
-                # ok, all jobs are done, which means if we still have waiting tasks then they failed to
-                # even start.
-                break
-            elif status == 'Failed':
-                raise Exception('Partial Training Pipeline failed')
+        for i, val_acc in enumerate(results):
+            id = self.model_names[i]
+            archid = self.model_archs[id]
+            self.result_cache[archid] = val_acc
 
-            if len(waiting) > 0:
-                if time.time() > self.timeout + start:
-                    break
-                print("AmlTrainingValAccuracy: Waiting 20 seconds for partial training to complete...")
-                time.sleep(20)
-
-        # awesome - they all completed!
-        if len(completed) == 0:
-            if time.time() > self.timeout + start:
-                raise Exception(f'Partial Training Pipeline timed out after {self.timeout} seconds')
-            else:
-                raise Exception('Partial Training Pipeline failed to start')
-
-        if failed == len(completed):
-            raise Exception('Partial Training Pipeline failed all jobs')
-
-        results = []
-        for id in self.job_names:
-            e = completed[id] if id in completed else {}
-            if 'val_acc' in e:
-                val_acc = float(e['val_acc'])
-                results += [val_acc]
-                archid = self.job_archids[id]
-                self.result_cache[archid] = val_acc
-            else:
-                # this one failed so just return a zero accuracy
-                results += [float(0)]
-
-        timespan = time.strftime('%H:%M:%S', time.gmtime(time.time() - start))
-        print(f'AmlTrainingValAccuracy: Distributed training completed in {timespan} seconds')
-        print(f'AmlTrainingValAccuracy: returning {len(results)} results: {results}')
         return results

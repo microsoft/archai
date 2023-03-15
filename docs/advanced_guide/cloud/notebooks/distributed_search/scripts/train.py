@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import argparse
 import os
 import json
@@ -149,7 +151,7 @@ def main():
 
         # post updated progress to our unified status table.
         e['val_acc'] = float(val_acc)
-        e['status'] = 'trained'
+        e['status'] = 'completed'
         store.update_status_entity(e)
         print(f"Training job completed successfully with validation accuracy {val_acc}")
     except Exception as ex:
