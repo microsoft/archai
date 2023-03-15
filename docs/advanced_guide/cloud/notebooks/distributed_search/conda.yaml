@@ -15,6 +15,7 @@ dependencies:
     - matplotlib
     - mldesigner
     - mlflow
+    - torch
     - torchvision
     - torchaudio
     - "archai[dev] @ git+https://github.com/microsoft/archai.git"

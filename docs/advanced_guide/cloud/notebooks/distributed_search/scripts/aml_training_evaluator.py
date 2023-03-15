@@ -23,6 +23,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
                  environment_name,
                  datastore_path,
                  models_path,
+                 local_output,
                  storage_account_key,
                  storage_account_name,
                  experiment_name,
@@ -37,6 +38,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         self.environment_name = environment_name
         self.datastore_path = datastore_path
         self.models_path = models_path
+        self.local_output = local_output
         self.storage_account_key = storage_account_key
         self.storage_account_name = storage_account_name
         self.experiment_name = experiment_name
@@ -136,7 +138,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         monitor = JobCompletionMonitor(self.store, self.ml_client, job_id, self.timeout)
         results = monitor.wait(self.model_names)
 
-        results_path = f'{self.models_path}/{self.experiment_name}/models.json'
+        results_path = f'{self.local_output}/models.json'
         with open(results_path, 'w') as f:
             f.write(json.dumps(results, indent=2))
 
@@ -146,5 +148,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
             id = self.model_names[i]
             archid = self.model_archs[id]
             self.result_cache[archid] = val_acc
+            accuracies += [val_acc]
 
+        print(f'fetch_all returning : {accuracies}')
         return accuracies

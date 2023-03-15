@@ -108,8 +108,11 @@ def make_dynamic_training_subgraph(results_path, environment_name, storage_accou
         model_ids = []
         for a in pareto_models:
             if type(a) is dict and 'nb_layers' in a:
-                model = MyModel(ArchConfig(a))
-                archid = model.get_archid()
+                config = ArchConfig(a)
+                nb_layers = config.pick("nb_layers")
+                kernel_size = config.pick("kernel_size")
+                hidden_dim = config.pick("hidden_dim")
+                archid = f'({nb_layers}, {kernel_size}, {hidden_dim})'
                 model_id = 'id_' + str(uuid.uuid4()).replace('-', '_')
                 model_ids += [model_id]
                 output_path = f'{results_path}/{model_id}'
@@ -121,9 +124,9 @@ def make_dynamic_training_subgraph(results_path, environment_name, storage_accou
                     data=data
                 )
                 e = store.get_status(model_id)
-                e["nb_layers"] = model.nb_layers
-                e["kernel_size"] = model.kernel_size
-                e["hidden_dim"] = model.hidden_dim
+                e["nb_layers"] = nb_layers
+                e["kernel_size"] = kernel_size
+                e["hidden_dim"] = hidden_dim
                 e['status'] = 'preparing'
                 e['epochs'] = full_epochs
                 store.update_status_entity(e)

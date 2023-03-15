@@ -117,12 +117,17 @@ def main():
         constraint=(0.0, 1e9)
     )
 
+    local_output = args.local_output
+    if not local_output:
+        local_output = args.output_dir
+
     search_objectives.add_objective(
         name='AmlTrainingValAccuracy',
         model_evaluator=AmlTrainingValAccuracy(compute_cluster_name=compute_name,
                                                environment_name=environment_name,  # AML environment name
                                                datastore_path=data_dir,  # AML datastore path
                                                models_path=output_dir,
+                                               local_output=local_output,
                                                storage_account_key=storage_account_key,  # for ArchaiStore
                                                storage_account_name=storage_account_name,
                                                experiment_name=experiment_name,
@@ -134,9 +139,6 @@ def main():
         compute_intensive=True
     )
 
-    local_output = args.local_output
-    if not local_output:
-        local_output = args.output_dir
 
     algo = EvolutionParetoSearch(
         space,
