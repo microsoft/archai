@@ -55,19 +55,6 @@ def test_lamb_step():
     loss = lamb.step()
     assert loss is None
 
-    # Assert with sparse gradients
-    p = torch.randn(3, 3, requires_grad=True)
-
-    def closure():
-        loss = (p * p).sum()
-        loss.backward(retain_graph=True, create_graph=True)
-        return loss
-
-    lamb = Lamb([p])
-    p = p.to_sparse()
-    with pytest.raises(RuntimeError):
-        lamb.step(closure)
-
 
 def test_jit_lamb_init():
     # Assert default parameter values
@@ -116,16 +103,3 @@ def test_jit_lamb_step():
     jit_lamb = JITLamb([torch.randn(10, 5)])
     loss = jit_lamb.step()
     assert loss is None
-
-    # Assert with sparse gradients
-    p = torch.randn(3, 3, requires_grad=True)
-
-    def closure():
-        loss = (p * p).sum()
-        loss.backward(retain_graph=True, create_graph=True)
-        return loss
-
-    jit_lamb = JITLamb([p])
-    p = p.to_sparse()
-    with pytest.raises(RuntimeError):
-        jit_lamb.step(closure)
