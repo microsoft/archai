@@ -15,6 +15,8 @@ def get_results(store, blob_path, output_folder):
 def download_models(store, blob_folder, output_folder, models):
     for id in models:
         sub_folder = os.path.join(output_folder, id)
+        if os.path.isdir(sub_folder):
+            rmtree(sub_folder)
         os.makedirs(sub_folder, exist_ok=True)
         store.download(os.path.join(blob_folder, id), sub_folder)
 

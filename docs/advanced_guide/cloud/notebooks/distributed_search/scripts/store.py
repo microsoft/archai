@@ -342,6 +342,10 @@ class ArchaiStore:
                 local_file = os.path.join(folder, file_name)
 
             if download:
+                dir = os.path.dirname(os.path.realpath(local_file))
+                if os.path.isfile(dir):
+                    os.unlink(dir)
+                os.makedirs(dir, exist_ok=True)
                 print(f"Downloading file: {file_name} to {local_file} ...")
                 blob_client = container.get_blob_client(blob)
                 try:

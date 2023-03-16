@@ -86,7 +86,7 @@ def make_training_pipeline_command(description, hex_config, code_dir, compute_cl
         },
         code=code_dir,
         identity=UserIdentityConfiguration(),
-        command="""python3 training_pipeline.py
+        command="""python3 training_pipeline.py \
             --models_path "${{inputs.models}}" \
             --datastore_path "${{inputs.data}}" \
             --results_path "${{outputs.results}}" """ + fixed_args,

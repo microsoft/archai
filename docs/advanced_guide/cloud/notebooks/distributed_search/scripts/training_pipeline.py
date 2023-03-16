@@ -25,7 +25,7 @@ def start_training_pipeline(description, ml_client, store, model_architectures, 
         compute=compute_cluster_name,
         description=description,
     )
-    def mnist_partial_training_pipeline(
+    def partial_training_pipeline(
         data_input
     ):
         outputs = {}
@@ -54,7 +54,7 @@ def start_training_pipeline(description, ml_client, store, model_architectures, 
 
         return outputs
 
-    training_pipeline = mnist_partial_training_pipeline(
+    training_pipeline = partial_training_pipeline(
         data_input=Input(type="uri_folder", path=datastore_path)
     )
 
