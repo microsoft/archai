@@ -6,7 +6,10 @@ from azure.ai.ml import Input, Output
 from azure.ai.ml.entities import UserIdentityConfiguration
 
 
-def make_train_model_command(output_path, code_dir, environment_name, id, storage_account_name, storage_account_key, subscription_id, resource_group_name, workspace_name, archid, training_epochs):
+def make_train_model_command(output_path, code_dir, environment_name, id,
+                             storage_account_name, storage_account_key,
+                             subscription_id, resource_group_name, workspace_name,
+                             archid, training_epochs):
     """ This is a parametrized command for training a given model architecture.  We will stamp these out to create a distributed training pipeline. """
 
     args = f'--name "{id}" ' + \
@@ -74,6 +77,7 @@ def make_training_pipeline_command(description, hex_config, code_dir, compute_cl
                 f'--experiment_name "{experiment_name}" ' + \
                 f'--environment_name "{environment_name}" ' + \
                 f'--datastore_uri "{datastore_uri}" ' + \
+                f'--results_uri "${results_uri}" ' + \
                 f'--epochs "{training_epochs}" '
 
     return command(
@@ -90,7 +94,6 @@ def make_training_pipeline_command(description, hex_config, code_dir, compute_cl
         code=code_dir,
         identity=UserIdentityConfiguration(),
         command="""python3 training_pipeline.py \
-            --models_path "${{inputs.models}}" \
-            --results_uri "${{outputs.results}}" """ + fixed_args,
+            --models_path "${{inputs.models}}"  """ + fixed_args,
         environment=environment_name,
     )

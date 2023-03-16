@@ -26,7 +26,10 @@ def main():
     parser.add_argument('--config', type=str, help='bin hexed config json info for MLClient')
     parser.add_argument("--output_dir", type=str, help="path to output data")
     parser.add_argument("--local_output", type=str, help="optional path to local output data (default output_dir)")
+    parser.add_argument("--search_iterations", type=int, default=10, help="Number of evolutionary search iterations")
     parser.add_argument("--init_num_models", type=int, default=10, help="Number of initial models to evaluate")
+    parser.add_argument("--max_unseen_population", type=int, default=10, help="Maximum number of unseen models to evaluate in each iteration.")
+
     parser.add_argument("--partial_training_epochs", type=float, default=0.01, help="Number of epochs for partial training")
     # parser.add_argument("--full_training_epochs", type=float, default=10, help="Number of epochs for final training")
 
@@ -39,6 +42,7 @@ def main():
     output_dir = args.output_dir
     init_num_models = args.init_num_models
     partial_training_epochs = args.partial_training_epochs
+    iterations = args.search_iterations
 
     print("Starting search with: ")
     print(f"Environment: {environment_name}")
@@ -140,7 +144,8 @@ def main():
         search_objectives,
         None,
         local_output,
-        num_iters=5,
+        num_iters=iterations,
+        max_unseen_population=max_unseen_population,
         init_num_models=init_num_models,
         seed=int(time.time()),
         save_pareto_model_weights=False  # we are doing distributed training!
