@@ -43,6 +43,7 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
         e["nb_layers"] = nb_layers
         e["kernel_size"] = kernel_size
         e["hidden_dim"] = hidden_dim
+        e['experiment'] = experiment_name
         e['status'] = 'preparing'
         e['epochs'] = training_epochs
         store.update_status_entity(e)

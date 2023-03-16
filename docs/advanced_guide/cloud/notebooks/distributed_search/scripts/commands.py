@@ -24,9 +24,13 @@ def make_train_model_command(output_path, code_dir, environment_name, id,
     if save_models:
         args += '--save_models '
 
+    # training is not deterministic, so we set is_deterministic=False which disables pipeline caching.
+    # https://azureml-pipelines-doc-1p.azurewebsites.net/how_tos/ml_professionals/debugging/reuse_issue_debugging.html
+
     return command(
         name=f'train_{id}',
         display_name=f'train {id}',
+        is_deterministic=False,
         inputs={
             "data": Input(type="uri_folder")
         },
@@ -49,10 +53,15 @@ def make_monitor_command(hex_config, code_dir, results_uri, environment_name, ti
      and returns the validation accuracy results """
     fixed_args = f'--config "{hex_config}" ' + \
                  f'--timeout {timeout} '
+
+    # training is not deterministic, so we set is_deterministic=False which disables pipeline caching.
+    # https://azureml-pipelines-doc-1p.azurewebsites.net/how_tos/ml_professionals/debugging/reuse_issue_debugging.html
+
     return command(
         name="wait",
         display_name="Wait for training to complete",
         description="Waits for all distributed training jobs to complete.",
+        is_deterministic=False,
         inputs={
             "models": Input(type="uri_folder"),
             "training_results": Input(type="uri_folder")
@@ -84,10 +93,14 @@ def make_training_pipeline_command(description, hex_config, code_dir, compute_cl
     if save_models:
         fixed_args += '--save_models '
 
+    # training is not deterministic, so we set is_deterministic=False which disables pipeline caching.
+    # https://azureml-pipelines-doc-1p.azurewebsites.net/how_tos/ml_professionals/debugging/reuse_issue_debugging.html
+
     return command(
         name="training",
         display_name=description,
         description="Starts a separate pipeline to do parallel partial training of a given set of models.",
+        is_deterministic=False,
         inputs={
             "models": Input(type="uri_folder", path=results_uri),
             "data": Input(type="uri_folder")
