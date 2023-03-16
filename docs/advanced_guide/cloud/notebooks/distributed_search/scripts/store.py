@@ -9,6 +9,7 @@ import datetime
 import platform
 from azure.data.tables import TableServiceClient, UpdateMode, EntityProperty, EdmType
 from azure.storage.blob import BlobClient, ContainerClient
+from shutil import rmtree
 
 
 CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
@@ -342,9 +343,12 @@ class ArchaiStore:
                 local_file = os.path.join(folder, file_name)
 
             if download:
-                dir = os.path.dirname(os.path.realpath(local_file))
+                local_file = os.path.realpath(local_file)
+                dir = os.path.dirname(local_file)
                 if os.path.isfile(dir):
                     os.unlink(dir)
+                elif os.path.isdir(local_file):
+                    rmtree(local_file)
                 os.makedirs(dir, exist_ok=True)
                 print(f"Downloading file: {file_name} to {local_file} ...")
                 blob_client = container.get_blob_client(blob)

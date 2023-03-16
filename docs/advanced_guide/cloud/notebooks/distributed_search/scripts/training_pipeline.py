@@ -12,9 +12,16 @@ from azure.ai.ml import dsl
 from utils import copy_code_folder
 
 
-def start_training_pipeline(description, ml_client, store, model_architectures, compute_cluster_name, datastore_path,
-                            models_path, experiment_name, environment_name, training_epochs):
-    print("Training models: {model_architectures}")
+def start_training_pipeline(description, ml_client, store, model_architectures,
+                            compute_cluster_name, datastore_uri, results_uri,
+                            experiment_name, environment_name, training_epochs):
+    print(f"Training models: {model_architectures}")
+    print(f"Cluster: {compute_cluster_name}")
+    print(f"Dataset: {datastore_uri}")
+    print(f"Output: {results_uri}")
+    print(f"Env: {environment_name}")
+    print(f"Epochs: {training_epochs}")
+
     code_dir = copy_code_folder()
     model_names = []
     for archid in model_architectures:
@@ -25,14 +32,14 @@ def start_training_pipeline(description, ml_client, store, model_architectures, 
         compute=compute_cluster_name,
         description=description,
     )
-    def partial_training_pipeline(
+    def parallel_training_pipeline(
         data_input
     ):
         outputs = {}
         for i, archid in enumerate(model_architectures):
             model_id = model_names[i]
 
-            output_path = f'{models_path}/{model_id}'
+            output_path = f'{results_uri}/{model_id}'
             train_job = make_train_model_command(
                 output_path, code_dir, environment_name, model_id,
                 store.storage_account_name, store.storage_account_key,
@@ -54,8 +61,8 @@ def start_training_pipeline(description, ml_client, store, model_architectures, 
 
         return outputs
 
-    training_pipeline = partial_training_pipeline(
-        data_input=Input(type="uri_folder", path=datastore_path)
+    training_pipeline = parallel_training_pipeline(
+        data_input=Input(type="uri_folder", path=datastore_uri)
     )
 
     # submit the pipeline job
@@ -74,8 +81,8 @@ def main():
     parser.add_argument("--description", type=str, help="the pipeline description")
     parser.add_argument("--models_path", help="Location of our models.json file.")
     parser.add_argument("--compute_cluster_name", help="name of compute cluster to use")
-    parser.add_argument("--datastore_path", help="location of dataset")
-    parser.add_argument("--results_path", help="location to store the trained models")
+    parser.add_argument("--datastore_uri", help="location of dataset datastore")
+    parser.add_argument("--results_uri", help="location to store the trained models")
     parser.add_argument("--experiment_name", help="name of AML experiment")
     parser.add_argument("--environment_name", help="AML conda environment to use")
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
@@ -84,6 +91,7 @@ def main():
     args = parser.parse_args()
 
     path = args.models_path
+    print("Reading pareto.json from {path}")
     pareto_file = os.path.join(path, 'pareto.json')
     with open(pareto_file) as f:
         pareto_models = json.load(f)
@@ -127,8 +135,8 @@ def main():
     store = ArchaiStore(storage_account_name, storage_account_key)
 
     start_training_pipeline(args.description, ml_client, store, model_architectures,
-                            args.compute_cluster_name, args.datastore_path, args.results_path, args.experiment_name,
-                            args.environment_name, args.epochs)
+                            args.compute_cluster_name, args.datastore_uri, args.results_uri,
+                            args.experiment_name, args.environment_name, args.epochs)
 
 
 if __name__ == "__main__":

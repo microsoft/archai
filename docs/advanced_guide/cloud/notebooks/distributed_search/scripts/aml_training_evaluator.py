@@ -60,11 +60,11 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
 
         training_type = 'partial' if self.partial_training else 'full'
         print(f"AmlTrainingValAccuracy: Starting {training_type} training on {len(snapshot)} models")
-
+        description = "AmlTrainingValAccuracy partial training"
         pipeline_job, model_names = start_training_pipeline(
-            "mnist archai partial training",
-            self.ml_client, self.store, snapshot, self.compute_cluster_name, self.datastore_path,
-            self.models_path, self.experiment_name, self.environment_name, self.training_epochs)
+            description,  self.ml_client, self.store, snapshot,
+            self.compute_cluster_name, self.datastore_path, self.models_path,
+            self.experiment_name, self.environment_name, self.training_epochs)
 
         job_id = pipeline_job.name
         print(f'AmlTrainingValAccuracy: Started training pipeline: {job_id}')

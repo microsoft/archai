@@ -9,6 +9,7 @@ from azure.ai.ml.identity import AzureMLOnBehalfOfCredential
 from azure.identity import DefaultAzureCredential
 from store import ArchaiStore
 from azure.ai.ml import MLClient
+from azure.ai.ml import dsl
 
 
 class JobCompletionMonitor:
@@ -37,10 +38,13 @@ class JobCompletionMonitor:
                         error = e['error']
                         print(f'Training job {id} failed with error: {error}')
                         failed += 1
+                        self.store.update_status_entity(e)
                     else:
                         msg = f"{e['val_acc']}" if 'val_acc' in e else ''
                         print(f'Training job {id} completed with validation accuracy: {msg}')
-                    self.store.update_status_entity(e)
+
+            if len(waiting) == 0:
+                break
 
             # check the overall pipeline status just in case training jobs failed to even start.
             pipeline_status = None
@@ -109,13 +113,24 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='bin hexed config json info for MLClient')
     parser.add_argument('--timeout', type=int, help='pipeline timeout in seconds (default 1 hour)', default=3600)
-    parser.add_argument('--job_names', required=True, help='comma separated list of job ids to monitor in the status table)')
+    parser.add_argument('--model_path', required=True, help='mounted path containing the models.json file')
     parser.add_argument('--output', required=True, help='folder to write the results to)')
 
     args = parser.parse_args()
     output = args.output
     timeout = args.timeout
-    job_names = [x.strip() for x in args.job_names.split(',')]
+    model_path = args.model_path
+
+    print(f"Monitor running with model_path={model_path}")
+    if not os.path.isdir(model_path):
+        raise Exception("### directory not found")
+
+    models_file = os.path.join(model_path, 'models.json')
+    if not os.path.isfile(models_file):
+        raise Exception("### 'models.json' not found in --model_path")
+
+    models = json.load(open(models_file))
+    model_ids = [m['id'] for m in models['models']]
 
     identity = AzureMLOnBehalfOfCredential()
     if args.config:
@@ -146,7 +161,7 @@ def main():
     store = ArchaiStore(storage_account_name, storage_account_key)
 
     monitor = JobCompletionMonitor(store, ml_client, timeout=timeout)
-    results = monitor.wait(job_names)
+    results = monitor.wait(model_ids)
     if output is not None:
         with open(os.path.join(output, 'models.json'), 'w') as f:
             f.write(json.dumps(results, indent=2))

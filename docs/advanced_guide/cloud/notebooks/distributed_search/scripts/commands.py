@@ -35,11 +35,11 @@ def make_train_model_command(output_path, code_dir, environment_name, id, storag
         identity=UserIdentityConfiguration(),
         command="""python3 train.py \
                 --data_dir "${{inputs.data}}" \
-                --output ${{outputs.results}} """ + args
+                --output "${{outputs.results}}" """ + args
     )
 
 
-def make_monitor_command(hex_config, code_dir, environment_name, timeout=3600):
+def make_monitor_command(hex_config, code_dir, results_uri, environment_name, timeout=3600):
     """ This command waits up to some timeout for all the given training jobs to complete
      and returns the validation accuracy results """
     fixed_args = f'--config "{hex_config}" ' + \
@@ -49,28 +49,31 @@ def make_monitor_command(hex_config, code_dir, environment_name, timeout=3600):
         display_name="Wait for training to complete",
         description="Waits for all distributed training jobs to complete.",
         inputs={
-            "model_ids": Input(type="str")
+            "models": Input(type="uri_folder"),
+            "training_results": Input(type="uri_folder")
         },
         outputs={
-            "results": Output(type="uri_file")
+            "results": Output(type="uri_file", path=results_uri, mode="rw_mount")
         },
         code=code_dir,
         identity=UserIdentityConfiguration(),
-        command="""python3 monitor.py
-            --job_names "${{inputs.model_ids}}" \
-            --results "${{outputs.results}} """ + fixed_args,
+        command="""python3 monitor.py \
+            --model_path "${{inputs.models}}" \
+            --output "${{outputs.results}}" """ + fixed_args,
         environment=environment_name,
     )
 
 
-def make_training_pipeline_command(description, hex_config, code_dir, compute_cluster_name, experiment_name,
-                                   results_path, environment_name, training_epochs):
+def make_training_pipeline_command(description, hex_config, code_dir, compute_cluster_name,
+                                   datastore_uri, results_uri, experiment_name,
+                                   environment_name, training_epochs):
 
     fixed_args = f'--config "{hex_config}" ' + \
                 f'--description "{description}" ' + \
                 f'--compute_cluster_name "{compute_cluster_name}" ' + \
                 f'--experiment_name "{experiment_name}" ' + \
                 f'--environment_name "{environment_name}" ' + \
+                f'--datastore_uri "{datastore_uri}" ' + \
                 f'--epochs "{training_epochs}" '
 
     return command(
@@ -82,13 +85,12 @@ def make_training_pipeline_command(description, hex_config, code_dir, compute_cl
             "data": Input(type="uri_folder")
         },
         outputs={
-            "results": Output(type="uri_folder", path=results_path, mode="rw_mount")
+            "results": Output(type="uri_folder", path=results_uri, mode="rw_mount")
         },
         code=code_dir,
         identity=UserIdentityConfiguration(),
         command="""python3 training_pipeline.py \
             --models_path "${{inputs.models}}" \
-            --datastore_path "${{inputs.data}}" \
-            --results_path "${{outputs.results}}" """ + fixed_args,
+            --results_uri "${{outputs.results}}" """ + fixed_args,
         environment=environment_name,
     )
