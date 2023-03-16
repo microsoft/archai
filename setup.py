@@ -45,7 +45,7 @@ dependencies = [
     "tokenizers>=0.10.3",
     "torchvision",
     "tqdm",
-    "transformers>=4.25.1",
+    "transformers>=4.27.1",
 ]
 dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)?$)", x)[0] for x in dependencies)}
 
