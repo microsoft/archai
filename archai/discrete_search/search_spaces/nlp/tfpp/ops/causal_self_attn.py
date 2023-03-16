@@ -66,8 +66,6 @@ class CausalSelfAttention(nn.Module):
         self.op_size = (self.hidden_size // total_heads) * op_heads
         self.max_positions = max_positions
         
-        self.scale_attn_weights = hf_config.scale_attn_weights
-
         self.attn_dropout = nn.Dropout(hf_config.attn_pdrop)
 
         self.scale_attn = torch.sqrt(torch.tensor(self.head_size, dtype=torch.float32)).to(torch.get_default_dtype())
