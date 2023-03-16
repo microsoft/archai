@@ -12,19 +12,18 @@ from azure.ai.ml import MLClient, command, Input, Output, dsl
 from store import ArchaiStore
 from shutil import copyfile
 from monitor import JobCompletionMonitor
-from commands import start_training_pipeline
+from training_pipeline import start_training_pipeline
 from utils import copy_code_folder
 
 
 class AmlTrainingValAccuracy(AsyncModelEvaluator):
     def __init__(self,
+                 config,
                  compute_cluster_name,
                  environment_name,
                  datastore_path,
                  models_path,
                  local_output,
-                 storage_account_key,
-                 storage_account_name,
                  experiment_name,
                  ml_client: MLClient,
                  save_models: bool = True,
@@ -38,14 +37,16 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         self.datastore_path = datastore_path
         self.models_path = models_path
         self.local_output = local_output
-        self.storage_account_key = storage_account_key
-        self.storage_account_name = storage_account_name
+        self.config = config
         self.experiment_name = experiment_name
         self.models = []
         self.save_models = save_models
         self.ml_client = ml_client
         self.timeout = timeout_seconds
         self.store = None
+
+        storage_account_key = config['storage_account_key']
+        storage_account_name = config['storage_account_name']
         self.store = ArchaiStore(storage_account_name, storage_account_key)
 
     @overrides
@@ -60,13 +61,10 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         training_type = 'partial' if self.partial_training else 'full'
         print(f"AmlTrainingValAccuracy: Starting {training_type} training on {len(snapshot)} models")
 
-        code_dir = copy_code_folder()
-
         pipeline_job, model_names = start_training_pipeline(
             "mnist archai partial training",
             self.ml_client, self.store, snapshot, self.compute_cluster_name, self.datastore_path,
-            self.models_path, self.experiment_name, code_dir, self.environment_name,
-            self.training_epochs)
+            self.models_path, self.experiment_name, self.environment_name, self.training_epochs)
 
         job_id = pipeline_job.name
         print(f'AmlTrainingValAccuracy: Started training pipeline: {job_id}')

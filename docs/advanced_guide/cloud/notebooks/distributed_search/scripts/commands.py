@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
+import json
 from azure.ai.ml import command
 from azure.ai.ml import Input, Output
 from azure.ai.ml.entities import UserIdentityConfiguration
@@ -58,5 +59,36 @@ def make_monitor_command(hex_config, code_dir, environment_name, timeout=3600):
         command="""python3 monitor.py
             --job_names "${{inputs.model_ids}}" \
             --results "${{outputs.results}} """ + fixed_args,
+        environment=environment_name,
+    )
+
+
+def make_training_pipeline_command(description, hex_config, code_dir, compute_cluster_name, experiment_name,
+                                   results_path, environment_name, training_epochs):
+
+    fixed_args = f'--config "{hex_config}" ' + \
+                f'--description "{description}" ' + \
+                f'--compute_cluster_name "{compute_cluster_name}" ' + \
+                f'--experiment_name "{experiment_name}" ' + \
+                f'--environment_name "{environment_name}" ' + \
+                f'--epochs "{training_epochs}" '
+
+    return command(
+        name="training",
+        display_name="Distributed model training pipeline",
+        description="Starts a separate pipeline to do distributed partial training of a given set of models.",
+        inputs={
+            "models": Input(type="uri_folder"),
+            "data": Input(type="uri_folder")
+        },
+        outputs={
+            "results": Output(type="uri_folder", path=results_path, mode="rw_mount")
+        },
+        code=code_dir,
+        identity=UserIdentityConfiguration(),
+        command="""python3 training_pipeline.py
+            --models_path "${{inputs.models}}" \
+            --datastore_path "${{inputs.data}}" \
+            --results_path "${{outputs.results}}" """ + fixed_args,
         environment=environment_name,
     )

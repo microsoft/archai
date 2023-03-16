@@ -73,8 +73,6 @@ def main():
     subscription = config['subscription_id']
     resource_group = config['resource_group']
     workspace_name = config['workspace_name']
-    storage_account_key = config['storage_account_key']
-    storage_account_name = config['storage_account_name']
 
     ml_client = MLClient(
         identity,
@@ -122,13 +120,12 @@ def main():
 
     search_objectives.add_objective(
         name='AmlTrainingValAccuracy',
-        model_evaluator=AmlTrainingValAccuracy(compute_cluster_name=compute_name,
+        model_evaluator=AmlTrainingValAccuracy(config=config,
+                                               compute_cluster_name=compute_name,
                                                environment_name=environment_name,  # AML environment name
                                                datastore_path=data_dir,  # AML datastore path
                                                models_path=output_dir,
                                                local_output=local_output,
-                                               storage_account_key=storage_account_key,  # for ArchaiStore
-                                               storage_account_name=storage_account_name,
                                                experiment_name=experiment_name,
                                                ml_client=ml_client,
                                                save_models=False,  # these partially trained models are not useful
@@ -137,7 +134,6 @@ def main():
         higher_is_better=True,
         compute_intensive=True
     )
-
 
     algo = EvolutionParetoSearch(
         space,

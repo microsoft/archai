@@ -34,7 +34,8 @@ def download_best_models(store, blob_folder, output_folder):
 
         download_models(store, blob_folder, output_folder, list(best_models.keys()))
 
-def copy_code_folder(self):
+
+def copy_code_folder():
     """ Copies the code folder into a separate folder.  This is needed otherwise the pipeline will fail with
     UserError: The code snapshot was modified in blob storage, which could indicate tampering.
     If this was unintended, you can create a new snapshot for the run. To do so, edit any

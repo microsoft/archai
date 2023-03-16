@@ -12,9 +12,9 @@ from azure.ai.ml import dsl
 from utils import copy_code_folder
 
 
-def start_training_pipeline(ml_client, store, description, model_architectures, compute_cluster_name, datastore_path,
+def start_training_pipeline(description, ml_client, store, model_architectures, compute_cluster_name, datastore_path,
                             models_path, experiment_name, environment_name, training_epochs):
-
+    print("Training models: {model_architectures}")
     code_dir = copy_code_folder()
     model_names = []
     for archid in model_architectures:
@@ -126,7 +126,7 @@ def main():
 
     store = ArchaiStore(storage_account_name, storage_account_key)
 
-    start_training_pipeline(ml_client, store, "parallel training pipeline", model_architectures,
+    start_training_pipeline(args.description, ml_client, store, model_architectures,
                             args.compute_cluster_name, args.datastore_path, args.results_path, args.experiment_name,
                             args.environment_name, args.epochs)
 
