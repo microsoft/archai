@@ -69,6 +69,10 @@ class DsTrainingArguments:
         default=0, metadata={"help": "Number of steps between pipeline parallelism activation checkpoins."}
     )
 
+    dataloader_pin_memory: bool = field(default=True, metadata={"help": "Whether to pin the data loader memory."})
+
+    dataloader_num_workers: int = field(default=0, metadata={"help": "Number of subprocesses to use for data loading."})
+
     def __post_init__(self) -> None:
         """Override post-initialization with custom instructions."""
 
