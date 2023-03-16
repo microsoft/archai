@@ -39,7 +39,6 @@ def main():
     output_dir = args.output_dir
     init_num_models = args.init_num_models
     partial_training_epochs = args.partial_training_epochs
-    # full_training_epochs = args.full_training_epochs
 
     print("Starting search with: ")
     print(f"Environment: {environment_name}")
