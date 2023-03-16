@@ -117,7 +117,7 @@ def main():
     args = parser.parse_args()
 
     path = args.models_path
-    print("Reading pareto.json from {path}")
+    print(f"Reading pareto.json from {path}")
     pareto_file = os.path.join(path, 'pareto.json')
     with open(pareto_file) as f:
         pareto_models = json.load(f)

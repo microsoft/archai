@@ -86,7 +86,7 @@ def make_training_pipeline_command(description, hex_config, code_dir, compute_cl
         display_name="Distributed model training pipeline",
         description="Starts a separate pipeline to do distributed partial training of a given set of models.",
         inputs={
-            "models": Input(type="uri_folder"),
+            "models": Input(type="uri_folder", path=results_uri),
             "data": Input(type="uri_folder")
         },
         outputs={
@@ -95,7 +95,7 @@ def make_training_pipeline_command(description, hex_config, code_dir, compute_cl
         code=code_dir,
         identity=UserIdentityConfiguration(),
         command="""python3 training_pipeline.py \
-            --output_path "${{outputs.results}}"
+            --output_path "${{outputs.results}}" \
             --models_path "${{inputs.models}}"  """ + fixed_args,
         environment=environment_name,
     )
