@@ -77,8 +77,9 @@ def make_training_pipeline_command(description, hex_config, code_dir, compute_cl
                 f'--experiment_name "{experiment_name}" ' + \
                 f'--environment_name "{environment_name}" ' + \
                 f'--datastore_uri "{datastore_uri}" ' + \
-                f'--results_uri "${results_uri}" ' + \
+                f'--results_uri "{results_uri}" ' + \
                 f'--epochs "{training_epochs}" '
+    output_path = results_uri + '/' + experiment_name
 
     return command(
         name="training",
@@ -89,11 +90,12 @@ def make_training_pipeline_command(description, hex_config, code_dir, compute_cl
             "data": Input(type="uri_folder")
         },
         outputs={
-            "results": Output(type="uri_folder", path=results_uri, mode="rw_mount")
+            "results": Output(type="uri_folder", path=output_path, mode="rw_mount")
         },
         code=code_dir,
         identity=UserIdentityConfiguration(),
         command="""python3 training_pipeline.py \
+            --output_path "${{outputs.results}}"
             --models_path "${{inputs.models}}"  """ + fixed_args,
         environment=environment_name,
     )

@@ -43,6 +43,7 @@ def main():
     init_num_models = args.init_num_models
     partial_training_epochs = args.partial_training_epochs
     iterations = args.search_iterations
+    max_unseen_population = args.max_unseen_population
 
     print("Starting search with: ")
     print(f"Environment: {environment_name}")

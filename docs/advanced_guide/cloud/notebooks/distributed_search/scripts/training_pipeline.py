@@ -13,7 +13,7 @@ from utils import copy_code_folder
 
 
 def start_training_pipeline(description, ml_client, store, model_architectures,
-                            compute_cluster_name, datastore_uri, results_uri,
+                            compute_cluster_name, datastore_uri, results_uri, output_folder,
                             experiment_name, environment_name, training_epochs):
     print(f"Training models: {model_architectures}")
     print(f"Cluster: {compute_cluster_name}")
@@ -27,6 +27,33 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
     for archid in model_architectures:
         model_id = 'id_' + str(uuid.uuid4()).replace('-', '_')
         model_names += [model_id]
+
+    # create new status rows and models.json for these new jobs.
+    models = []
+    for i, archid in enumerate(model_architectures):
+        model_id = model_names[i]
+        print(f'Launching training job for model {model_id}')
+        e = store.get_status(model_id)
+        nb_layers,  kernel_size, hidden_dim = eval(archid)
+        e["nb_layers"] = nb_layers
+        e["kernel_size"] = kernel_size
+        e["hidden_dim"] = hidden_dim
+        e['status'] = 'preparing'
+        e['epochs'] = training_epochs
+        store.update_status_entity(e)
+        models += [{
+            'id': model_id,
+            'status': 'training',
+            'nb_layers': nb_layers,
+            'kernel_size': kernel_size,
+            'hidden_dim': hidden_dim,
+            'epochs': training_epochs,
+            'val_acc': e['val_acc'] if 'val_acc' in e else 0.0
+        }]
+
+    results = {
+        'models': models
+    }
 
     @dsl.pipeline(
         compute=compute_cluster_name,
@@ -48,15 +75,6 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
                 data=data_input
             )
 
-            print(f'Launching training job for model {model_id}')
-            e = store.get_status(model_id)
-            nb_layers,  kernel_size, hidden_dim = eval(archid)
-            e["nb_layers"] = nb_layers
-            e["kernel_size"] = kernel_size
-            e["hidden_dim"] = hidden_dim
-            e['status'] = 'preparing'
-            e['epochs'] = training_epochs
-            store.update_status_entity(e)
             outputs[model_id] = train_job.outputs.results
 
         return outputs
@@ -71,6 +89,14 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
         experiment_name=experiment_name,
     )
 
+    # Write the new list of pending models so that the make_monitor_command
+    # knows what to wait for.
+    print("Writing updated models.json: ")
+    print(json.dumps(results, indent=2))
+    results_path = f'{output_folder}/models.json'
+    with open(results_path, 'w') as f:
+        f.write(json.dumps(results, indent=2))
+
     return (pipeline_job, model_names)
 
 
@@ -83,10 +109,10 @@ def main():
     parser.add_argument("--compute_cluster_name", help="name of compute cluster to use")
     parser.add_argument("--datastore_uri", help="location of dataset datastore")
     parser.add_argument("--results_uri", help="location to store the trained models")
+    parser.add_argument("--output_path", help="location to store the list of new models")
     parser.add_argument("--experiment_name", help="name of AML experiment")
     parser.add_argument("--environment_name", help="AML conda environment to use")
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
-    parser.add_argument("--output", type=str, help="place to write the results", default='output')
 
     args = parser.parse_args()
 
@@ -135,7 +161,7 @@ def main():
     store = ArchaiStore(storage_account_name, storage_account_key)
 
     start_training_pipeline(args.description, ml_client, store, model_architectures,
-                            args.compute_cluster_name, args.datastore_uri, args.results_uri,
+                            args.compute_cluster_name, args.datastore_uri, args.results_uri, args.output_path,
                             args.experiment_name, args.environment_name, args.epochs)
 
 

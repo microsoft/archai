@@ -63,7 +63,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         description = "AmlTrainingValAccuracy partial training"
         pipeline_job, model_names = start_training_pipeline(
             description,  self.ml_client, self.store, snapshot,
-            self.compute_cluster_name, self.datastore_path, self.models_path,
+            self.compute_cluster_name, self.datastore_path, self.models_path, self.local_output,
             self.experiment_name, self.environment_name, self.training_epochs)
 
         job_id = pipeline_job.name
