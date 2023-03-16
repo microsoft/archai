@@ -145,7 +145,7 @@ def main():
         search_objectives,
         None,
         local_output,
-        num_iters=5,
+        num_iters=1,
         init_num_models=init_num_models,
         seed=int(time.time()),
         save_pareto_model_weights=False  # we are doing distributed training!

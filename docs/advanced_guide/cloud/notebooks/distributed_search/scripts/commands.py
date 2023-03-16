@@ -73,18 +73,8 @@ def make_dynamic_training_subgraph(results_path, environment_name, storage_accou
                                    hex_config, scripts_dir, full_epochs, timeout=3600):
     """ Create a dynamic subgraph that does not populate full training jobs until we know what all the top models are after the search completes.
     The models_folder is provided as an input along with the prepared dataset.  It returns the validation accuracy results """
-    args = \
-        f'--results_path "{results_path}" ' + \
-        f'--environment_name "{environment_name}" ' + \
-        f'--storage_account_name "{storage_account_name}" ' + \
-        f'--storage_account_key "{storage_account_key}" ' + \
-        f'--subscription "{subscription_id}" ' + \
-        f'--resource_group "{resource_group_name}" ' + \
-        f'--workspace "{workspace_name}" ' + \
-        f'--scripts_dir "{scripts_dir}" ' + \
-        f'--full_epochs "{full_epochs}" '
 
-    @dynamic
+    @dynamic(environment=f'azureml:{environment_name}')
     def dynamic_training_subgraph(
         models_folder: Input(type="uri_folder"),
         data: Input(type="uri_folder")
