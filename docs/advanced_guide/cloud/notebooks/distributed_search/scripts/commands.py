@@ -9,7 +9,7 @@ from azure.ai.ml.entities import UserIdentityConfiguration
 def make_train_model_command(output_path, code_dir, environment_name, id,
                              storage_account_name, storage_account_key,
                              subscription_id, resource_group_name, workspace_name,
-                             archid, training_epochs):
+                             archid, training_epochs, save_models):
     """ This is a parametrized command for training a given model architecture.  We will stamp these out to create a distributed training pipeline. """
 
     args = f'--name "{id}" ' + \
@@ -19,8 +19,10 @@ def make_train_model_command(output_path, code_dir, environment_name, id,
         f'--resource_group "{resource_group_name}" ' + \
         f'--workspace "{workspace_name}" ' + \
         f'--model_params "{archid}" ' + \
-        f'--epochs "{training_epochs}" ' + \
-        '--save_models '
+        f'--epochs "{training_epochs}" '
+
+    if save_models:
+        args += '--save_models '
 
     return command(
         name=f'train_{id}',
@@ -69,7 +71,7 @@ def make_monitor_command(hex_config, code_dir, results_uri, environment_name, ti
 
 def make_training_pipeline_command(description, hex_config, code_dir, compute_cluster_name,
                                    datastore_uri, results_uri, experiment_name,
-                                   environment_name, training_epochs):
+                                   environment_name, training_epochs, save_models):
 
     fixed_args = f'--config "{hex_config}" ' + \
                 f'--description "{description}" ' + \
@@ -79,18 +81,19 @@ def make_training_pipeline_command(description, hex_config, code_dir, compute_cl
                 f'--datastore_uri "{datastore_uri}" ' + \
                 f'--results_uri "{results_uri}" ' + \
                 f'--epochs "{training_epochs}" '
-    output_path = results_uri + '/' + experiment_name
+    if save_models:
+        fixed_args += '--save_models '
 
     return command(
         name="training",
-        display_name="Distributed model training pipeline",
-        description="Starts a separate pipeline to do distributed partial training of a given set of models.",
+        display_name=description,
+        description="Starts a separate pipeline to do parallel partial training of a given set of models.",
         inputs={
             "models": Input(type="uri_folder", path=results_uri),
             "data": Input(type="uri_folder")
         },
         outputs={
-            "results": Output(type="uri_folder", path=output_path, mode="rw_mount")
+            "results": Output(type="uri_folder", path=results_uri, mode="rw_mount")
         },
         code=code_dir,
         identity=UserIdentityConfiguration(),

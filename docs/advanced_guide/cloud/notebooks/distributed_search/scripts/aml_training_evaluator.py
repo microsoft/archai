@@ -64,7 +64,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         pipeline_job, model_names = start_training_pipeline(
             description,  self.ml_client, self.store, snapshot,
             self.compute_cluster_name, self.datastore_path, self.models_path, self.local_output,
-            self.experiment_name, self.environment_name, self.training_epochs)
+            self.experiment_name, self.environment_name, self.training_epochs, save_models=False)
 
         job_id = pipeline_job.name
         print(f'AmlTrainingValAccuracy: Started training pipeline: {job_id}')

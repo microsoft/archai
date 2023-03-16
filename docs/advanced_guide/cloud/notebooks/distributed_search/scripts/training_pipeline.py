@@ -14,7 +14,7 @@ from utils import copy_code_folder
 
 def start_training_pipeline(description, ml_client, store, model_architectures,
                             compute_cluster_name, datastore_uri, results_uri, output_folder,
-                            experiment_name, environment_name, training_epochs):
+                            experiment_name, environment_name, training_epochs, save_models):
     print(f"Training models: {model_architectures}")
     print(f"Cluster: {compute_cluster_name}")
     print(f"Dataset: {datastore_uri}")
@@ -27,6 +27,11 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
     for archid in model_architectures:
         model_id = 'id_' + str(uuid.uuid4()).replace('-', '_')
         model_names += [model_id]
+
+    root_uri = results_uri
+    i = root_uri.rfind('/')
+    if i > 0:
+        root_uri = root_uri[:i]
 
     # create new status rows and models.json for these new jobs.
     models = []
@@ -66,12 +71,12 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
         for i, archid in enumerate(model_architectures):
             model_id = model_names[i]
 
-            output_path = f'{results_uri}/{model_id}'
+            output_path = f'{root_uri}/{model_id}'
             train_job = make_train_model_command(
                 output_path, code_dir, environment_name, model_id,
                 store.storage_account_name, store.storage_account_key,
                 ml_client.subscription_id, ml_client.resource_group_name, ml_client.workspace_name,
-                archid, training_epochs)(
+                archid, training_epochs, save_models)(
                 data=data_input
             )
 
@@ -113,6 +118,7 @@ def main():
     parser.add_argument("--experiment_name", help="name of AML experiment")
     parser.add_argument("--environment_name", help="AML conda environment to use")
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
+    parser.add_argument("--save_models", help="AML conda environment to use", action="store_true")
 
     args = parser.parse_args()
 
@@ -162,7 +168,7 @@ def main():
 
     start_training_pipeline(args.description, ml_client, store, model_architectures,
                             args.compute_cluster_name, args.datastore_uri, args.results_uri, args.output_path,
-                            args.experiment_name, args.environment_name, args.epochs)
+                            args.experiment_name, args.environment_name, args.epochs, args.save_models)
 
 
 if __name__ == "__main__":
