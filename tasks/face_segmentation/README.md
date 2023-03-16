@@ -1,19 +1,22 @@
 # Face Segmentation
 
-## Face Synthetics
+The purpose of this example/tutorial is to demonstrate how to perform multi-objective NAS for image segmentation models using Archai. This approach allows us to optimize the model's performance with respect to multiple objectives, such as Intersection Over Union (IOU) and inference time for various deployment targets. Specifically, we will focus on performing the search for both regular CPU targets and Qualcomm's Snapdragon processor, enabling us to optimize the models for deployment on mobile devices as well.
 
+## Dataset
 
-This example is based on the [FaceSynthetics](https://github.com/microsoft/FaceSynthetics) dataset, which consists on 100,000 512 x 512 images of syntetic face images with semantic segmentation labels and facial landmark annotations. We will use this dataset to train face segmentation models according to the 19 per-pixel labels available (background, skin, nose, right_eye, left_eye, right_brow, left_brow, right_ear, left_ear, mouth_interior, top_lip, bottom_lip, neck, hair, beard, clothing, glasses, headwear, facewear).
+We will use the Face Synthetics dataset for this example. The dataset comprises 100,000 512x512 synthetic face images, each annotated with 19 per-pixel semantic segmentation labels. These labels cover various aspects of the face, including background, skin, eyes, ears, nose, lips, clothing, and headwear.
 
 ![Face Synthetics](assets/face_synthetics.png)
 
 ## Search Space
 
-The search space used for this example is based on the [Stacked HourglassNet architecture](https://arxiv.org/abs/1603.06937). The search space consists in 
+The search space used for this example is based on the [Stacked HourglassNet architecture](https://arxiv.org/abs/1603.06937). The search space consists in 3 different block types: `downsample`, `upsample` and `skip`, with each block type containing one or more possible operations. Additionally, `downsample` blocks also control the number of channels.
 
 ![HourglassNet search space](assets/search_space.png)
 
-## Search
+## Running NAS
+
+### CPU Latency Target
 
 To run a search job, use the following command
 
@@ -24,7 +27,11 @@ python3 --dataset_dir FACE_SYNTHETICS_DIR --output_dir output_dir
 To change the search parameters, either change the file in (confs/search_config.yaml)[confs/search_config.yaml] or create a new one and set `--search_config MY_NEW_CONFIG.yaml`.
 By default, `search.py` will run multiple partial training jobs using Ray (2 jobs per GPU). To change the number of gpus per job, set `--gpus_per_job`, or use the `--serial_training` flag to disable parallel training jobs altogether.
 
-### Search Results
+### Snapdragon Latency Target
+
+
+
+## Search Results
 
 ![pareto_evolution](assets/pareto_evolution.png)
 
