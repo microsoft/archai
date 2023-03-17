@@ -13,7 +13,7 @@ from archai.trainers.nlp.hf_trainer import HfTrainer
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Trains an OPT using fast data loading and the Hugging Face trainer.")
+    parser = argparse.ArgumentParser(description="Trains an OPT model using the Hugging Face trainer.")
 
     parser.add_argument(
         "-dn",
@@ -31,17 +31,11 @@ def parse_args() -> argparse.Namespace:
         help="Configuration name of the dataset to use (via the datasets library).",
     )
 
-    parser.add_argument("-seq", "--seq_len", type=int, default=192, help="Sequence length.")
-
     parser.add_argument("-ls", "--logging_steps", type=int, default=10, help="Number of steps between logs.")
 
     parser.add_argument("-es", "--eval_steps", type=int, default=100, help="Number of steps between evaluations.")
 
     parser.add_argument("-bsz", "--per_device_train_batch_size", type=int, default=64, help="Batch size per device.")
-
-    parser.add_argument("-lr", "--learning_rate", type=float, default=0.01, help="Learning rate.")
-
-    parser.add_argument("-wd", "--weight_decay", type=float, default=0.0, help="Weight decay.")
 
     parser.add_argument("-n", "--max_steps", type=int, default=1, help="Maximum number of steps.")
 
@@ -53,7 +47,7 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    tokenizer = AutoTokenizer.from_pretrained("facebook/opt-350m", model_max_length=args.seq_len)
+    tokenizer = AutoTokenizer.from_pretrained("facebook/opt-350m")
     collator = FastDataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
     dataset_provider = FastHfDatasetProvider.from_hub(
@@ -62,11 +56,11 @@ if __name__ == "__main__":
         tokenizer=tokenizer,
     )
 
-    train_dataset = dataset_provider.get_train_dataset(seq_len=args.seq_len)
-    eval_dataset = dataset_provider.get_val_dataset(seq_len=args.seq_len)
+    train_dataset = dataset_provider.get_train_dataset(seq_len=2048)
+    eval_dataset = dataset_provider.get_val_dataset(seq_len=2048)
 
     config = OPTConfig(
-        n_positions=args.seq_len,
+        n_positions=2048,
         hidden_size=768,
         num_hidden_layers=12,
         num_attention_heads=12,
@@ -82,9 +76,13 @@ if __name__ == "__main__":
         logging_steps=args.logging_steps,
         eval_steps=args.eval_steps,
         per_device_train_batch_size=args.per_device_train_batch_size,
-        learning_rate=args.learning_rate,
-        weight_decay=args.weight_decay,
+        learning_rate=3e-4,
+        adam_beta1=0.9,
+        adam_beta2=0.999,
+        adam_epsilon=1e-8,
+        weight_decay=0.1,
         max_steps=args.max_steps,
+        save_steps=args.save_steps,
     )
     trainer = HfTrainer(
         model=model,
