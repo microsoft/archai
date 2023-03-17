@@ -18,7 +18,7 @@ class DsTrainingArguments:
 
     Args:
         output_dir: Output folder.
-        config: DeepSpeed configuration (dictionary or path to JSON file).
+        ds_config: DeepSpeed configuration (dictionary or path to JSON file).
         do_eval: Whether to enable evaluation.
         max_steps: Maximum number of training steps.
         logging_steps: Number of steps between logs.
