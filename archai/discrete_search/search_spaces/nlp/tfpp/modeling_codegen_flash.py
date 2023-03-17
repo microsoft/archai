@@ -74,7 +74,7 @@ class CodeGenFlashBlock(nn.Module):
                 cross_attn=False,
                 bias=True,
                 dropout=config.attn_pdrop,
-                softmax_scale=1.0 if not config.scale_attn_weights else head_dim ** (-0.5),
+                softmax_scale=head_dim ** (-0.5),
                 causal=True,
                 rotary_emb_dim=rotary_dim,
                 fused_bias_fc=True,
