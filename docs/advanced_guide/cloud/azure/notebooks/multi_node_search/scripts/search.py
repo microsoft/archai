@@ -159,7 +159,7 @@ def main():
                                           ml_client=ml_client,
                                           save_models=False,  # these partially trained models are not useful
                                           partial_training=True,
-                                          training_epochs=partial_training_epochs),
+                                          training_epochs=partial_training_epochs)
 
     results = search(amlEvaluator, space, local_output, init_num_models, iterations, max_unseen_population)
 
