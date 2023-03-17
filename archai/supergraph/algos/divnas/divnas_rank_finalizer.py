@@ -6,7 +6,6 @@ from typing import Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 import torch
 from overrides import overrides
 from torch import nn
@@ -22,6 +21,7 @@ from archai.supergraph.nas.finalizers import Finalizers
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.model_desc import CellDesc, EdgeDesc, ModelDesc, NodeDesc
 from archai.supergraph.nas.operations import Zero
+from archai.supergraph.utils.heatmap import heatmap
 
 logger = get_global_logger()
 
@@ -160,7 +160,7 @@ class DivnasRankFinalizers(Finalizers):
 
         # save diagnostic information to disk
         expdir = get_expdir()
-        sns.heatmap(cov_top_ops, annot=True, fmt='.1g', cmap='coolwarm')
+        heatmap(cov_top_ops, fmt='.1g', cmap='coolwarm')
         savename = os.path.join(
             expdir, f'cell_{cell.desc.id}_node_{node_id}_cov.png')
         plt.savefig(savename)

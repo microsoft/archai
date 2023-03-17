@@ -55,7 +55,7 @@ class DsTrainingArguments:
 
     eval_steps: int = field(default=500, metadata={"help": "Number of steps between evaluations."})
 
-    pipe_parallel: bool = field(default=False, metadata={"help": "Whether to use pipeline parallelism."})
+    eval_max_steps: int = field(default=None, metadata={"help": "Number of maximum steps during evaluation."})
 
     pipe_parallel_size: int = field(default=1, metadata={"help": "Size of pipeline parallelism."})
 
@@ -68,6 +68,10 @@ class DsTrainingArguments:
     pipe_parallel_activation_checkpoint_steps: int = field(
         default=0, metadata={"help": "Number of steps between pipeline parallelism activation checkpoins."}
     )
+
+    dataloader_pin_memory: bool = field(default=True, metadata={"help": "Whether to pin the data loader memory."})
+
+    dataloader_num_workers: int = field(default=0, metadata={"help": "Number of subprocesses to use for data loading."})
 
     def __post_init__(self) -> None:
         """Override post-initialization with custom instructions."""

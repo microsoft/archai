@@ -30,6 +30,7 @@ class AvgOnnxLatency(ModelEvaluator):
         rand_range: Optional[Tuple[float, float]] = (0.0, 1.0),
         export_kwargs: Optional[Dict[str, Any]] = None,
         device: Optional[str] = 'cpu',
+        device: Optional[str] = 'cpu',
         inf_session_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the evaluator.
@@ -60,6 +61,7 @@ class AvgOnnxLatency(ModelEvaluator):
         self.num_trials = num_trials
         self.export_kwargs = export_kwargs or dict()
         self.inf_session_kwargs = inf_session_kwargs or dict()
+        self.device = device
         self.device = device
 
     @overrides

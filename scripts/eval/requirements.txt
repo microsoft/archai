@@ -1,0 +1,3 @@
+natsort
+git+https://github.com/microsoft/archai.git#egg=archai[dev,deepspeed]
+git+https://github.com/microsoft/archai.git@main#subdirectory=research/lm_eval_harness
