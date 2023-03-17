@@ -1,9 +1,15 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import argparse
 import os
 from archai.datasets.cv.mnist_dataset_provider import MnistDatasetProvider
 
 
 def main():
+    """ This script is in a different folder from the other scripts because this way ensures
+    maximum reuse of the output dataset during the development of your other training script.
+    Often times those need more debugging and this will save on cloud compute by maximizing
+    the reuse of this node in each submitted Azure ML pipeline """
     # input and output arguments
     print("Starting prep_data_store...")
     parser = argparse.ArgumentParser()

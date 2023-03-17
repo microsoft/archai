@@ -17,7 +17,9 @@ CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 
 class ArchaiStore:
     """ArchaiStore wraps the Azure 'status' Table and associated Blob Storage used to provide a backing
-    store and collated status for long running Archai search jobs."""
+    store and collated status for long running jobs.  This is actually a general purpose utility class
+    that could be used for anything.  The ''status' table support a locking concept that allows the
+    status table to be used as a way or coordinating jobs across multiple machines """
     def __init__(self, storage_account_name, storage_account_key, blob_container_name='models', status_table_name='status'):
         self.storage_account_key = storage_account_key
         self.storage_account_name = storage_account_name

@@ -17,6 +17,62 @@ from azure.ai.ml import MLClient
 from model import MyModel
 
 
+def search(amlEvaluator: AmlTrainingValAccuracy, space, local_output, init_num_models, iterations, max_unseen_population):
+    """ Run an Archai EvolutionParetoSearch using some cheap objectives and the more expensive
+    AmlTrainingValAccuracy model evaluator.  """
+
+    # create our search objectives
+    search_objectives = SearchObjectives()
+
+    search_objectives.add_constraint(
+        'Number of parameters',
+        TorchNumParameters(),
+        constraint=(0.0, 1e6)
+    )
+
+    search_objectives.add_objective(
+        # Objective function name (will be used in plots and reports)
+        name='ONNX Latency (ms)',
+        # ModelEvaluator object that will be used to evaluate the model
+        model_evaluator=AvgOnnxLatency(input_shape=(1, 1, 28, 28), num_trials=3, device='cpu'),
+        # Optimization direction, `True` for maximization or `False` for minimization
+        higher_is_better=False,
+        # Whether this objective should be considered 'compute intensive' or not.
+        compute_intensive=False
+    )
+
+    search_objectives.add_objective(
+        name='FLOPs',
+        model_evaluator=TorchFlops(torch.randn(1, 1, 28, 28)),
+        higher_is_better=False,
+        compute_intensive=False,
+        # We may optionally add a constraint.
+        # Architectures outside this range will be ignored by the search algorithm
+        constraint=(0.0, 1e9)
+    )
+
+    search_objectives.add_objective(
+        name='AmlTrainingValAccuracy',
+        model_evaluator=amlEvaluator,
+        higher_is_better=True,
+        compute_intensive=True
+    )
+
+    algo = EvolutionParetoSearch(
+        space,
+        search_objectives,
+        None,
+        local_output,
+        num_iters=iterations,
+        max_unseen_population=max_unseen_population,
+        init_num_models=init_num_models,
+        seed=int(time.time()),
+        save_pareto_model_weights=False  # we are training elsewhere, can't do this locally!
+    )
+
+    return algo.search()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_dir", type=str, help="path to prepared dataset")
@@ -89,70 +145,24 @@ def main():
     ml_client.datastores.get('datasets')
     print(f"Successfully found dataset from workspace {workspace_name} in resource group {resource_group}")
 
-    # create our search objectives
-    search_objectives = SearchObjectives()
-
-    search_objectives.add_constraint(
-        'Number of parameters',
-        TorchNumParameters(),
-        constraint=(0.0, 1e6)
-    )
-
-    search_objectives.add_objective(
-        # Objective function name (will be used in plots and reports)
-        name='ONNX Latency (ms)',
-        # ModelEvaluator object that will be used to evaluate the model
-        model_evaluator=AvgOnnxLatency(input_shape=(1, 1, 28, 28), num_trials=3, device='cpu'),
-        # Optimization direction, `True` for maximization or `False` for minimization
-        higher_is_better=False,
-        # Whether this objective should be considered 'compute intensive' or not.
-        compute_intensive=False
-    )
-
-    search_objectives.add_objective(
-        name='FLOPs',
-        model_evaluator=TorchFlops(torch.randn(1, 1, 28, 28)),
-        higher_is_better=False,
-        compute_intensive=False,
-        # We may optionally add a constraint.
-        # Architectures outside this range will be ignored by the search algorithm
-        constraint=(0.0, 1e9)
-    )
-
     local_output = args.local_output
     if not local_output:
         local_output = args.output_dir
 
-    search_objectives.add_objective(
-        name='AmlTrainingValAccuracy',
-        model_evaluator=AmlTrainingValAccuracy(config=config,
-                                               compute_cluster_name=compute_name,
-                                               environment_name=environment_name,  # AML environment name
-                                               datastore_path=data_dir,  # AML datastore path
-                                               models_path=output_dir,
-                                               local_output=local_output,
-                                               experiment_name=experiment_name,
-                                               ml_client=ml_client,
-                                               save_models=False,  # these partially trained models are not useful
-                                               partial_training=True,
-                                               training_epochs=partial_training_epochs),
-        higher_is_better=True,
-        compute_intensive=True
-    )
+    amlEvaluator = AmlTrainingValAccuracy(config=config,
+                                          compute_cluster_name=compute_name,
+                                          environment_name=environment_name,  # AML environment name
+                                          datastore_path=data_dir,  # AML datastore path
+                                          models_path=output_dir,
+                                          local_output=local_output,
+                                          experiment_name=experiment_name,
+                                          ml_client=ml_client,
+                                          save_models=False,  # these partially trained models are not useful
+                                          partial_training=True,
+                                          training_epochs=partial_training_epochs),
 
-    algo = EvolutionParetoSearch(
-        space,
-        search_objectives,
-        None,
-        local_output,
-        num_iters=iterations,
-        max_unseen_population=max_unseen_population,
-        init_num_models=init_num_models,
-        seed=int(time.time()),
-        save_pareto_model_weights=False  # we are doing distributed training!
-    )
+    results = search(amlEvaluator, space, local_output, init_num_models, iterations, max_unseen_population)
 
-    results = algo.search()
     pareto = results.get_pareto_frontier()["models"]
     pareto_models = []
     for m in pareto:

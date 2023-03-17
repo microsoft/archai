@@ -13,6 +13,9 @@ from azure.ai.ml import dsl
 
 
 class JobCompletionMonitor:
+    """ This helper class uses the ArchaiStore to monitor the status of some long running
+    training operations and the status of the Azure ML pipeline those jobs are running in
+    and waits for them to finish (either successfully or with a failure)"""
     def __init__(self, store : ArchaiStore, ml_client : MLClient, pipeline_id=None, timeout=3600):
         self.store = store
         self.ml_client = ml_client
@@ -20,7 +23,8 @@ class JobCompletionMonitor:
         self.pipeline_id = pipeline_id
 
     def wait(self, model_ids: List[str]) -> List[Dict[str, str]]:
-        """ wait for all the training jobs to finish and return the validation accuracies """
+        """ wait for all the training jobs to finish and return a list of dictionaries
+        containing details about each model including their training validation accuracies """
         completed = {}
         waiting = list(model_ids)
         start = time.time()

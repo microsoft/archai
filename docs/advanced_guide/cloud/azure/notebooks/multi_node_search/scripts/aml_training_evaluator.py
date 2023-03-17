@@ -60,6 +60,9 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
 
         training_type = 'partial' if self.partial_training else 'full'
         print(f"AmlTrainingValAccuracy: Starting {training_type} training on {len(snapshot)} models")
+
+        # train all the models listed in the snapshot on a GPU cluster so we get much training
+        # happening in parallel which greatly reduces the overall Archai Search process.
         description = "AmlTrainingValAccuracy partial training"
         pipeline_job, model_names = start_training_pipeline(
             description,  self.ml_client, self.store, snapshot,
@@ -69,20 +72,25 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         job_id = pipeline_job.name
         print(f'AmlTrainingValAccuracy: Started training pipeline: {job_id}')
 
-        # wait for the job to finish
+        # wait for all the parallel training jobs to finish
         monitor = JobCompletionMonitor(self.store, self.ml_client, job_id, self.timeout)
         results = monitor.wait(model_names)
 
+        # save the results to the output folder (which is mapped by the AML pipeline to our
+        # blob store under the container 'models' in the folder named the same as the
+        # experiment_name)
         results_path = f'{self.local_output}/models.json'
         with open(results_path, 'w') as f:
             f.write(json.dumps(results, indent=2))
 
-        # save the archai log.
+        # save the archai log also which can be handy for debugging later.
         log = 'archai.log'
         if os.path.isfile(log):
             copyfile(log, f'{self.local_output}/{log}')
 
-        # extract the array of accuracies for our return value.
+        # extract the array of accuracies for our return value this is the metric that the
+        # Archai search needs to figure out which models to continue to evolve and which are
+        # not so good.
         accuracies = []
         for i, m in enumerate(results['models']):
             val_acc = m['val_acc']

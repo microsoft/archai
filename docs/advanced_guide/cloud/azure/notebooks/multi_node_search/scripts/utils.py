@@ -13,6 +13,7 @@ def get_results(store, blob_path, output_folder):
 
 
 def download_models(store, blob_folder, output_folder, models):
+    """ Download the .onnx models from our blob store """
     for id in models:
         sub_folder = os.path.join(output_folder, id)
         if os.path.isdir(sub_folder):
@@ -22,12 +23,14 @@ def download_models(store, blob_folder, output_folder, models):
 
 
 def show_results(output_folder):
+    """ Disable .png images in our Jupyter notebook """
     for name in os.listdir(output_folder):
         if name.endswith(".png"):
             display(Image(filename=os.path.join(output_folder, name)))
 
 
 def download_best_models(store, blob_folder, output_folder):
+    """ Download the models listed in a results.json file """
     results_file = os.path.join(output_folder, "results.json")
     if os.path.isfile(results_file):
         best_models = json.load(open(results_file, "r"))

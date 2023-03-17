@@ -13,6 +13,7 @@ from store import ArchaiStore
 
 
 class Trainer:
+    """ This class performs the actual pytorch training of a given model """
     def __init__(self, training_epochs: float = 1.0, lr: float = 1e-4, device: str = 'cpu'):
         self.training_epochs = training_epochs
         self.device = device
@@ -84,7 +85,8 @@ class Trainer:
 
 
 def main():
-    # input and output arguments
+    """ This program trains a model, exports the model as onnx and updates the status of this
+    training job in an Azure storage table. """
     parser = argparse.ArgumentParser()
     parser.add_argument("--name", required=True, type=str, help="The globally unique name of this model")
     parser.add_argument("--storage_account_key", required=True, type=str, help="Azure model store key")

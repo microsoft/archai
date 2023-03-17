@@ -15,6 +15,12 @@ from utils import copy_code_folder
 def start_training_pipeline(description, ml_client, store, model_architectures,
                             compute_cluster_name, datastore_uri, results_uri, output_folder,
                             experiment_name, environment_name, training_epochs, save_models):
+    """ Creates a new Azure ML Pipeline for training a set of models, updating the status of
+    these jobs in a given Azure Storage Table.  This command does not wait for those jobs to
+    finish.  For that use the monitor.py script which monitors the same Azure Storage Table
+    to find out when the jobs have all finished.  The train.py script will update the table
+    when each training job completes. """
+
     print(f"Training models: {model_architectures}")
     print(f"Cluster: {compute_cluster_name}")
     print(f"Dataset: {datastore_uri}")

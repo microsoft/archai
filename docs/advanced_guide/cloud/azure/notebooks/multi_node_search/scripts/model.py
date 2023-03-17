@@ -6,6 +6,11 @@ from archai.discrete_search.search_spaces.config import ArchConfig
 
 
 class MyModel(nn.Module):
+    """ This is a simple CNN model that can learn how to do MNIST classification.
+    It is parametrized by a given ArchConfig that defines number of layers, the
+    convolution kernel size, and the number of features.
+    """
+
     def __init__(self, arch_config: ArchConfig):
         super().__init__()
 
