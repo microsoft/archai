@@ -1,0 +1,9 @@
+azure-ai-ml==1.5.0a20230215003
+azure-storage-blob
+azure-data-tables
+azure-identity
+mldesigner
+mlflow
+torchvision
+torchaudio
+--extra-index-url https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-python/pypi/simple/

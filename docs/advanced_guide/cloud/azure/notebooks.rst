@@ -7,4 +7,4 @@ This page is under development.
    :hidden:
    :maxdepth: 2
 
-   Notebooks <azure/notebooks>
+   Multi node search <notebooks/multi_node_search>

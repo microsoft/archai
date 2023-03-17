@@ -151,3 +151,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Azure notebooks
+mlruns/
+dataroot/
+temp_code/
+mnist_test_run*/
