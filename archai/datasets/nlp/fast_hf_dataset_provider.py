@@ -8,11 +8,11 @@ import pickle
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import torch
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 from datasets.dataset_dict import DatasetDict
 from overrides import overrides
 from transformers import AutoTokenizer, DataCollatorForLanguageModeling
@@ -65,9 +65,32 @@ class FastHfDatasetProvider(DatasetProvider):
         self.tokenizer = tokenizer
 
     @staticmethod
+    def _create_splits(dataset_dict: DatasetDict, validation_split: float, seed: int) -> DatasetDict:
+        if "validation" not in dataset_dict:
+            logger.info("Creating validation split ...")
+
+            validation_split = validation_split or 0.1
+            tmp_dataset_dict = dataset_dict["train"].train_test_split(
+                test_size=validation_split, shuffle=True, seed=seed
+            )
+            dataset_dict["train"] = tmp_dataset_dict["train"]
+            dataset_dict["validation"] = tmp_dataset_dict["test"]
+
+        if "test" not in dataset_dict:
+            logger.info("Creating test split ...")
+
+            tmp_dataset_dict = dataset_dict["validation"].train_test_split(test_size=0.25, shuffle=True, seed=seed)
+            dataset_dict["validation"] = tmp_dataset_dict["train"]
+            dataset_dict["test"] = tmp_dataset_dict["test"]
+
+        return dataset_dict
+
+    @staticmethod
     def _encode_dataset(
         dataset_dict: DatasetDict,
         tokenizer: AutoTokenizer,
+        mapping_fn: Callable[[Any], Dict[str, Any]],
+        mapping_fn_kwargs: Dict[str, Any],
         mapping_column_name: List[str],
         use_eos_token: bool,
         dtype: np.dtype,
@@ -76,15 +99,18 @@ class FastHfDatasetProvider(DatasetProvider):
         logger.info("Encoding dataset ...")
         logger.info(f"Number of workers: {num_workers} | EOS token: {use_eos_token}")
 
+        mapping_fn = mapping_fn or tokenize_concatenated_dataset
+        mapping_fn_kwargs = mapping_fn_kwargs or {
+            "tokenizer": tokenizer,
+            "mapping_column_name": mapping_column_name,
+            "use_eos_token": use_eos_token,
+            "dtype": dtype,
+        }
+
         column_names = dataset_dict["train"].column_names
         encoded_dataset_dict = dataset_dict.map(
-            tokenize_concatenated_dataset,
-            fn_kwargs={
-                "tokenizer": tokenizer,
-                "mapping_column_name": mapping_column_name,
-                "use_eos_token": use_eos_token,
-                "dtype": dtype,
-            },
+            mapping_fn,
+            fn_kwargs=mapping_fn_kwargs,
             batched=True,
             num_proc=num_workers,
             remove_columns=column_names,
@@ -136,14 +162,13 @@ class FastHfDatasetProvider(DatasetProvider):
         return cache_files
 
     @classmethod
-    def from_hub(
+    def from_disk(
         cls: FastHfDatasetProvider,
-        dataset_name: str,
-        dataset_config_name: Optional[str] = None,
-        data_dir: Optional[str] = None,
+        dataset_file_path: str,
         tokenizer: Optional[AutoTokenizer] = None,
         tokenizer_name: Optional[str] = None,
-        tokenizer_max_length: Optional[int] = None,
+        mapping_fn: Optional[Callable[[Any], Dict[str, Any]]] = None,
+        mapping_fn_kwargs: Optional[Dict[str, Any]] = None,
         mapping_column_name: Optional[List[str]] = None,
         validation_split: Optional[float] = 0.0,
         seed: Optional[int] = 42,
@@ -152,16 +177,18 @@ class FastHfDatasetProvider(DatasetProvider):
         use_shared_memory: Optional[bool] = True,
         cache_dir: Optional[str] = "cache",
     ) -> FastHfDatasetProvider:
-        """Load a dataset provider by downloading and encoding data from Hugging Face Hub.
+        """Load a dataset provider by loading and encoding data from disk.
 
         Args:
-            dataset_name: Name of the dataset.
-            dataset_config_name: Name of the dataset configuration.
-            data_dir: Path to the data directory.
+            dataset_file_path: Path to the dataset file stored in disk.
             tokenizer: Instance of tokenizer to use.
             tokenizer_name: Name of the tokenizer, if `tokenizer` has not been passed.
-            tokenizer_max_length: Maximum length of the tokenized sequences.
-            mapping_column_name: The columns in `dataset` that should be tokenized.
+            mapping_fn: A function that maps the dataset. If not provided,
+                the default `tokenize_concatenated_dataset` function will be used.
+            mapping_fn_kwargs: Keyword arguments to pass to `mapping_fn`.
+            mapping_column_name: The columns in the dataset to be tokenized.
+                If `str`, only one column will be tokenized.
+                If `List[str]`, multiple columns will be tokenized.
             validation_split: Fraction of the dataset to use for validation.
             seed: Random seed.
             num_workers: Number of workers to use for encoding.
@@ -176,9 +203,6 @@ class FastHfDatasetProvider(DatasetProvider):
 
         assert xor(tokenizer, tokenizer_name), "`tokenizer` and `tokenizer_name` are mutually exclusive."
         tokenizer = tokenizer or AutoTokenizer.from_pretrained(tokenizer_name)
-        if tokenizer_max_length:
-            logger.warn(f"New maximum length set for the tokenizer: {tokenizer_max_length}.")
-            tokenizer.model_max_length = tokenizer_max_length
 
         dtype = np.uint16 if tokenizer.vocab_size < 64 * 1024 else np.int32
         use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
@@ -188,32 +212,128 @@ class FastHfDatasetProvider(DatasetProvider):
             logger.warn(f"Cache: {cache_dir} already exists and will be overritten.")
         cache_dir.mkdir(parents=True, exist_ok=True)
 
-        # Ensure that the downloaded dataset is always a dictionary
+        # Ensure that loaded dataset is always a dictionary
+        logger.info(f"Loading dataset from: {dataset_file_path}")
+        disk_dataset_dict = load_from_disk(dataset_file_path)
+        if not isinstance(disk_dataset_dict, DatasetDict):
+            disk_dataset_dict = DatasetDict({"train": disk_dataset_dict})
+
+        # Ensure that `validation` and `test` splits are available
+        disk_dataset_dict = FastHfDatasetProvider._create_splits(disk_dataset_dict, validation_split, seed)
+
+        encoded_dataset_dict = FastHfDatasetProvider._encode_dataset(
+            disk_dataset_dict,
+            tokenizer,
+            mapping_fn,
+            mapping_fn_kwargs,
+            mapping_column_name,
+            use_eos_token,
+            dtype,
+            num_workers,
+        )
+        processed_dataset_dict = FastHfDatasetProvider._process_dataset_to_memory(
+            encoded_dataset_dict, cache_dir, dtype, num_workers, use_shared_memory
+        )
+
+        cache_files = FastHfDatasetProvider._save_dataset(
+            processed_dataset_dict, tokenizer, cache_dir, use_shared_memory
+        )
+
+        with open(cache_dir / "config.json", "w") as f:
+            json.dump(
+                {
+                    "dataset_file_path": dataset_file_path,
+                    "tokenizer": {
+                        "name_or_path": tokenizer.name_or_path,
+                        "model_max_length": None,
+                    },
+                    "mapping_column_name": mapping_column_name or ["text"],
+                    "validation_split": validation_split,
+                    "seed": seed,
+                    "use_eos_token": use_eos_token,
+                },
+                f,
+            )
+
+        return FastHfDatasetProvider(*cache_files, tokenizer=tokenizer)
+
+    @classmethod
+    def from_hub(
+        cls: FastHfDatasetProvider,
+        dataset_name: str,
+        dataset_config_name: Optional[str] = None,
+        data_dir: Optional[str] = None,
+        data_files: Optional[Union[List[str], Dict[str, Union[str, List[str]]]]] = None,
+        tokenizer: Optional[AutoTokenizer] = None,
+        tokenizer_name: Optional[str] = None,
+        mapping_fn: Optional[Callable[[Any], Dict[str, Any]]] = None,
+        mapping_fn_kwargs: Optional[Dict[str, Any]] = None,
+        mapping_column_name: Optional[List[str]] = None,
+        validation_split: Optional[float] = 0.0,
+        seed: Optional[int] = 42,
+        num_workers: Optional[int] = 1,
+        use_eos_token: Optional[bool] = True,
+        use_shared_memory: Optional[bool] = True,
+        cache_dir: Optional[str] = "cache",
+    ) -> FastHfDatasetProvider:
+        """Load a dataset provider by downloading and encoding data from Hugging Face Hub.
+
+        Args:
+            dataset_name: Name of the dataset.
+            dataset_config_name: Name of the dataset configuration.
+            data_dir: Path to the data directory.
+            data_files: Path to the source data file(s).
+            tokenizer: Instance of tokenizer to use.
+            tokenizer_name: Name of the tokenizer, if `tokenizer` has not been passed.
+            mapping_fn: A function that maps the dataset. If not provided,
+                the default `tokenize_concatenated_dataset` function will be used.
+            mapping_fn_kwargs: Keyword arguments to pass to `mapping_fn`.
+            mapping_column_name: The columns in the dataset to be tokenized.
+                If `str`, only one column will be tokenized.
+                If `List[str]`, multiple columns will be tokenized.
+            validation_split: Fraction of the dataset to use for validation.
+            seed: Random seed.
+            num_workers: Number of workers to use for encoding.
+            use_eos_token: Whether to use EOS token to separate sequences.
+            use_shared_memory: Whether to use shared memory for caching.
+            cache_dir: Root path to the cache directory.
+
+        Returns:
+            Dataset provider.
+
+        """
+
+        assert xor(tokenizer, tokenizer_name), "`tokenizer` and `tokenizer_name` are mutually exclusive."
+        tokenizer = tokenizer or AutoTokenizer.from_pretrained(tokenizer_name)
+
+        dtype = np.uint16 if tokenizer.vocab_size < 64 * 1024 else np.int32
+        use_shared_memory = use_shared_memory and ALLOW_SHARED_MEMORY
+
+        cache_dir = Path(cache_dir)
+        if cache_dir.is_dir():
+            logger.warn(f"Cache: {cache_dir} already exists and will be overritten.")
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # Ensure that downloaded dataset is always a dictionary
         logger.info("Downloading dataset ...")
-        hub_dataset_dict = load_dataset(dataset_name, name=dataset_config_name, data_dir=data_dir)
+        hub_dataset_dict = load_dataset(
+            dataset_name, name=dataset_config_name, data_dir=data_dir, data_files=data_files
+        )
         if not isinstance(hub_dataset_dict, DatasetDict):
             hub_dataset_dict = DatasetDict({"train": hub_dataset_dict})
 
         # Ensure that `validation` and `test` splits are available
-        if "validation" not in hub_dataset_dict:
-            logger.info("Creating validation split ...")
-
-            validation_split = validation_split or 0.1
-            tmp_dataset_dict = hub_dataset_dict["train"].train_test_split(
-                test_size=validation_split, shuffle=True, seed=seed
-            )
-            hub_dataset_dict["train"] = tmp_dataset_dict["train"]
-            hub_dataset_dict["validation"] = tmp_dataset_dict["test"]
-
-        if "test" not in hub_dataset_dict:
-            logger.info("Creating test split ...")
-
-            tmp_dataset_dict = hub_dataset_dict["validation"].train_test_split(test_size=0.25, shuffle=True, seed=seed)
-            hub_dataset_dict["validation"] = tmp_dataset_dict["train"]
-            hub_dataset_dict["test"] = tmp_dataset_dict["test"]
+        hub_dataset_dict = FastHfDatasetProvider._create_splits(hub_dataset_dict, validation_split, seed)
 
         encoded_dataset_dict = FastHfDatasetProvider._encode_dataset(
-            hub_dataset_dict, tokenizer, mapping_column_name, use_eos_token, dtype, num_workers
+            hub_dataset_dict,
+            tokenizer,
+            mapping_fn,
+            mapping_fn_kwargs,
+            mapping_column_name,
+            use_eos_token,
+            dtype,
+            num_workers,
         )
         processed_dataset_dict = FastHfDatasetProvider._process_dataset_to_memory(
             encoded_dataset_dict, cache_dir, dtype, num_workers, use_shared_memory
@@ -231,7 +351,7 @@ class FastHfDatasetProvider(DatasetProvider):
                     "data_dir": data_dir,
                     "tokenizer": {
                         "name_or_path": tokenizer.name_or_path,
-                        "model_max_length": tokenizer.model_max_length,
+                        "model_max_length": None,
                     },
                     "mapping_column_name": mapping_column_name or ["text"],
                     "validation_split": validation_split,

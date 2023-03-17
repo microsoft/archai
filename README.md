@@ -97,7 +97,7 @@ from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
 
 algo = EvolutionParetoSearch(
    space,
-   objectives,
+   search_objectives,
    None,
    "tmp",
    num_iters=5,

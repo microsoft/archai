@@ -58,7 +58,7 @@ We use the `EvolutionParetoSearch` algorithm to conduct the search:
 
     algo = EvolutionParetoSearch(
         space,
-        objectives,
+        search_objectives,
         None,
         "tmp",
         num_iters=5,
