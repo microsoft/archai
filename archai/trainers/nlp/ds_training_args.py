@@ -17,8 +17,8 @@ class DsTrainingArguments:
     """Define arguments used in the DeepSpeed training pipeline.
 
     Args:
-        config: DeepSpeed configuration (dictionary or path to JSON file).
         output_dir: Output folder.
+        config: DeepSpeed configuration (dictionary or path to JSON file).
         do_eval: Whether to enable evaluation.
         max_steps: Maximum number of training steps.
         logging_steps: Number of steps between logs.
@@ -35,9 +35,11 @@ class DsTrainingArguments:
 
     """
 
-    config: Union[dict, str] = field(metadata={"help": "DeepSpeed configuration (dictionary or path to JSON file)."})
+    output_dir: str = field(metadata={"help": "Output folder."})
 
-    output_dir: str = field(default="~/logdir", metadata={"help": "Output folder."})
+    ds_config: Union[dict, str] = field(
+        default_factory=dict, metadata={"help": "DeepSpeed configuration (dictionary or path to JSON file)."}
+    )
 
     do_eval: bool = field(default=True, metadata={"help": "Whether to enable evaluation."})
 
@@ -76,11 +78,11 @@ class DsTrainingArguments:
     def __post_init__(self) -> None:
         """Override post-initialization with custom instructions."""
 
-        if isinstance(self.config, str):
-            with open(self.config, "r") as f:
-                self.config = json.load(f)
-
         self.output_dir = get_full_path(self.output_dir)
+
+        if isinstance(self.ds_config, str):
+            with open(self.ds_config, "r") as f:
+                self.ds_config = json.load(f)
 
         torch.manual_seed(self.seed)
         deepspeed.runtime.utils.set_random_seed(self.seed)
