@@ -14,31 +14,24 @@ The search space used for this example is based on the [Stacked HourglassNet arc
 
 ![HourglassNet search space](assets/search_space.png)
 
-## Running NAS
-
-### CPU Latency Target
+## Running NAS (CPU Latency Target)
 
 To run a search job, use the following command
 
 ```shell
-python3 --dataset_dir FACE_SYNTHETICS_DIR --output_dir output_dir
+python3 search.py --dataset_dir FACE_SYNTHETICS_DIR --output_dir output_dir
 ```
 
 To change the search parameters, either change the file in (confs/search_config.yaml)[confs/search_config.yaml] or create a new one and set `--search_config MY_NEW_CONFIG.yaml`.
 By default, `search.py` will run multiple partial training jobs using Ray (2 jobs per GPU). To change the number of gpus per job, set `--gpus_per_job`, or use the `--serial_training` flag to disable parallel training jobs altogether.
 
-### Snapdragon Latency Target
-
-
-
-## Search Results
-
 ![pareto_evolution](assets/pareto_evolution.png)
 
 The selected architectures can be found inside the [archs/](archs/) folder or in the table below:
 
+### Results
 
-| Architecture                             	| One Epoch Validation IOU 	| ONNX Latency (ms) 	| Search iteration 	|
+| Architecture                             	| One Epoch Validation IOU 	| ONNX Latency (s) 	| Search iteration 	|
 |------------------------------------------	|--------------------------	|-------------------	|------------------	|
 | [d650d48bdc83e75ae6ace9f20c17caa65fb5048a](archs/d650d48bdc83e75ae6ace9f20c17caa65fb5048a.json) 	| 0.784                    	| 0.070              	| 9                	|
 | [07d670b8f76d8b9ca1e39379798d8b0046695b6a](archs/07d670b8f76d8b9ca1e39379798d8b0046695b6a.json) 	| 0.769                    	| 0.035             	| 6                	|
@@ -56,6 +49,11 @@ The selected architectures can be found inside the [archs/](archs/) folder or in
 | [de9067fa95074057353c67f62036a5b395a2d6a2](archs/de9067fa95074057353c67f62036a5b395a2d6a2.json) 	| 0.554                    	| 0.009             	| 8                	|
 | [be543f6a3d1eadc9a42496f0b40871d82d4931df](archs/be543f6a3d1eadc9a42496f0b40871d82d4931df.json) 	| 0.516                    	| 0.007             	| 8                	|
 
+
+## Running NAS (Snapdragon Latency Target)
+
+
+### Results
 
 ## Final Training
 

@@ -1,3 +1,4 @@
+import os
 import itertools
 from pathlib import Path
 from argparse import ArgumentParser
@@ -12,6 +13,7 @@ from archai.discrete_search.algos import (
     RandomSearch, RegularizedEvolutionSearch
 )
 from archai.discrete_search.evaluators.onnx_model import AvgOnnxLatency
+from archai.discrete_search.evaluators.remote_azure_benchmark import RemoteAzureBenchmarkEvaluator
 from archai.discrete_search.evaluators.ray import RayParallelEvaluator
 
 from search_space.hgnet import HgnetSegmentationSearchSpace
@@ -65,19 +67,43 @@ if __name__ == '__main__':
         **ss_config.get('params', {}),
     )
 
+    input_shape = (1, search_space.in_channels, *search_space.img_size[::-1])
+
     # Search objectives
     so = SearchObjectives()
 
-    so.add_objective(
-        'CPU ONNX Latency (s)',
-        AvgOnnxLatency(
-            input_shape=(1, search_space.in_channels, *search_space.img_size[::-1]), 
-            export_kwargs={'opset_version': 11}
-        ),
-        higher_is_better=False,
-        compute_intensive=False,
-        constraint=[0, 5]
-    )
+    target_config = search_config.get('target', {})
+    target_name = target_config.pop('name', 'cpu')
+    assert target_name in ['cpu', 'snp']
+
+    if target_name == 'cpu':
+        so.add_objective(
+            'CPU ONNX Latency (s)',
+            AvgOnnxLatency(
+                input_shape=input_shape, export_kwargs={'opset_version': 11}
+            ),
+            higher_is_better=False,
+            compute_intensive=False,
+            constraint=[0, 5]
+        )
+    else:
+        # Gets connection string from env variable
+        target_config['connection_string'] = os.environ[
+            target_config.pop('connection_str_env_var')
+        ]
+
+        evaluator = RemoteAzureBenchmarkEvaluator(
+            input_shape=input_shape, 
+            onnx_export_kwargs={'opset_version': 11},
+            **target_config
+        )
+
+        so.add_objective(
+            'SNP Quantized Latency (s)',
+            evaluator,
+            higher_is_better=False,
+            compute_intensive=True
+        )
 
     partial_tr_obj = PartialTrainingValIOU(
         tr_epochs=args.partial_tr_epochs,

@@ -34,3 +34,6 @@ search:
       num_crossovers: 10
       max_unseen_population: 50
       num_random_mix: 5
+
+  target: 
+    name: cpu
