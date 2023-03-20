@@ -29,7 +29,6 @@ def test_stateful_distributed_sampler():
     expected_indices = [i for i in range(50, 100)]
     assert list(iter(sampler)) == expected_indices
 
-
     # Assert that the correct subset of indices is returned with more than one replica
     sampler = StatefulDistributedSampler(dataset, num_replicas=2, rank=0, shuffle=False, total_consumed_samples=80)
     expected_indices = [i for i in range(80, 100, 2)]
