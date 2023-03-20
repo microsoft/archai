@@ -20,7 +20,7 @@ Before you can start training models, you need to install Archai. To do so, you 
 
 *Please note that DeepSpeed is not compatible with Windows.*
 
-Alternatively, you can use Docker to build a Docker image with Archai and all the necessary dependencies. Simply follow the instructions in the `Dockerfile` provided in this folder.
+Alternatively, you can use Docker to build a Docker image with Archai and all the necessary dependencies. Simply follow the instructions in the [Dockerfile](https://github.com/microsoft/archai/blob/main/docker/Dockerfile.flash).
 
 ## Data Preparation
 
