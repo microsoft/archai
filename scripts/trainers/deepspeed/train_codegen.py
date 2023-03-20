@@ -19,7 +19,23 @@ from archai.trainers.nlp.ds_training_args import DsTrainingArguments
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Trains a CodeGen-350M model with DeepSpeed.")
+    parser = argparse.ArgumentParser(description="Trains a CodeGen model with DeepSpeed.")
+
+    parser.add_argument(
+        "-dn",
+        "--dataset_name",
+        type=str,
+        default="wikitext",
+        help="Name of the dataset to use (via the datasets library).",
+    )
+
+    parser.add_argument(
+        "-dcn",
+        "--dataset_config_name",
+        type=str,
+        default="wikitext-103-raw-v1",
+        help="Configuration name of the dataset to use (via the datasets library).",
+    )
 
     parser.add_argument(
         "-ds",
@@ -65,8 +81,8 @@ if __name__ == "__main__":
     collator = FastDataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
     dataset_provider = FastHfDatasetProvider.from_hub(
-        "wikitext",
-        dataset_config_name="wikitext-103-raw-v1",
+        args.dataset_name,
+        dataset_config_name=args.dataset_config_name,
         tokenizer=tokenizer,
     )
     train_dataset = dataset_provider.get_train_dataset(seq_len=2048)
@@ -87,7 +103,8 @@ if __name__ == "__main__":
     print(f"Total parameters: {sum(p.numel() for p in model.parameters())}")
 
     training_args = DsTrainingArguments(
-        args.ds_config_path,
+        "ds-codegen",
+        ds_config=args.ds_config_path,
         local_rank=args.local_rank,
         max_steps=1000,
         logging_steps=10,
