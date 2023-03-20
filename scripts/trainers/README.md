@@ -9,13 +9,13 @@ Before you can start training models, you need to install Archai. To do so, you 
 1. Open your terminal and run the following command:
 
     ```bash
-    pip install --user git+https://github.com/microsoft/archai.git#egg=archai[nlp]
+    pip install --user git+https://github.com/microsoft/archai.git#egg=archai[dev]
     ```
 
 2. If you plan to use DeepSpeed and Flash-Attention, run this command instead:
 
     ```bash
-    pip install --user git+https://github.com/microsoft/archai.git#egg=archai[nlp,deepspeed,flash-attn]
+    pip install --user git+https://github.com/microsoft/archai.git#egg=archai[dev,deepspeed,flash-attn]
     ```
 
 *Please note that DeepSpeed is not compatible with Windows.*
