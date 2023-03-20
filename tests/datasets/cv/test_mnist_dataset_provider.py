@@ -12,17 +12,17 @@ def test_mnist_dataset_provider():
 
     # Assert that we can individually load training, validation and test datasets
     train_dataset = dataset_provider.get_train_dataset()
-    assert len(train_dataset) > 0
+    assert len(train_dataset) == 60000
     assert isinstance(train_dataset[0][0], torch.Tensor)
     assert isinstance(train_dataset[0][1], int)
 
     val_dataset = dataset_provider.get_val_dataset()
-    assert len(val_dataset) > 0
+    assert len(val_dataset) == 10000
     assert isinstance(val_dataset[0][0], torch.Tensor)
     assert isinstance(val_dataset[0][1], int)
 
     test_dataset = dataset_provider.get_test_dataset()
-    assert len(test_dataset) > 0
+    assert len(test_dataset) == 10000
     assert isinstance(test_dataset[0][0], torch.Tensor)
     assert isinstance(test_dataset[0][1], int)
 
