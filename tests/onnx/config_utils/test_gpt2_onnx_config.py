@@ -33,14 +33,21 @@ def dummy_config_gpt2_flex():
 def test_gpt2_onnx_config(dummy_config_gpt2):
     # Assert that default values are set correctly
     gpt2_onnx_config = GPT2OnnxConfig(dummy_config_gpt2)
+    assert gpt2_onnx_config.num_layers == 3
     assert gpt2_onnx_config.is_ort_graph_optimizable is True
     assert gpt2_onnx_config.ort_graph_optimizer_args == (4, 32)
 
 
 def test_gpt2_flex_onnx_config(dummy_config_gpt2_flex):
+    gpt2_flex_onnx_config = GPT2FlexOnnxConfig(dummy_config_gpt2_flex, use_past=True)
+
+    # Assert that default values are set correctly
+    assert gpt2_flex_onnx_config.num_layers == 3
+    assert gpt2_flex_onnx_config.is_ort_graph_optimizable is True
+    assert gpt2_flex_onnx_config.ort_graph_optimizer_args == (4, 32)
+
     # Assert that dummy inputs are generated correctly
-    onnx_config = GPT2FlexOnnxConfig(dummy_config_gpt2_flex, use_past=True)
-    inputs = onnx_config.generate_dummy_inputs(batch_size=3, seq_len=4, past_seq_len=2)
+    inputs = gpt2_flex_onnx_config.generate_dummy_inputs(batch_size=3, seq_len=4, past_seq_len=2)
     assert torch.equal(inputs["input_ids"], torch.zeros((3, 4), dtype=torch.long))
     assert torch.equal(inputs["past_key_values"][0], torch.zeros((2, 3, 4, 2, 8)))
     assert torch.equal(inputs["past_key_values"][1], torch.zeros((2, 3, 4, 2, 8)))
