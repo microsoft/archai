@@ -546,15 +546,6 @@ class LSHSelfAttention(nn.Module, EfficientAttentionMixin):
         del query_key_vectors
 
         # get attention probs
-        def rotate_half(x):
-            x = rearrange(x, 'b ... (r d) -> b (...) r d', r = 2)
-            x1, x2 = x.unbind(dim = -2)
-            return torch.cat((-x2, x1), dim = -1)
-
-        def apply_rotary_pos_emb(q, k, freqs):
-            q, k = map(lambda t: (t * freqs.cos()) + (rotate_half(t) * freqs.sin()), (q, k))
-            return q, k
-
         out_vectors, logits, attention_probs = self._attend(
             query_vectors=query_vectors,
             key_vectors=key_vectors,
