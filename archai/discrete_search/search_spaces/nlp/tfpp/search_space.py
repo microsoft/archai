@@ -32,11 +32,15 @@ class TfppSearchSpace(ConfigSearchSpace):
                  mixed_ops: bool = True, 
                  homogeneous: bool = False,
                  seed: Optional[int] = None,
+                 disable_cache: bool = True,
                  **hf_config_kwargs) -> None:
         op_subset = {
             op_name: op for op_name, op in OPS.items()
             if op_name in (op_subset or list(OPS.keys())) and not op.deprecated
         }
+
+        if disable_cache:
+            hf_config_kwargs['use_cache'] = False
 
         if mixed_ops:
             op_allocations = get_attn_head_simplex(total_heads, list(op_subset.keys()), grid_scale=2)
