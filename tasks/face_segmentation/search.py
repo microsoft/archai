@@ -84,7 +84,7 @@ if __name__ == '__main__':
             ),
             higher_is_better=False,
             compute_intensive=False,
-            constraint=[0, 5]
+            constraint=[0, 0.5]
         )
     else:
         # Gets connection string from env variable
@@ -96,6 +96,15 @@ if __name__ == '__main__':
             input_shape=input_shape, 
             onnx_export_kwargs={'opset_version': 11},
             **target_config
+        )
+
+        # Adds the same constraint so we don't sample models that are too large
+        so.add_constraint(
+            'CPU ONNX Latency (s)',
+            AvgOnnxLatency(
+                input_shape=input_shape, export_kwargs={'opset_version': 11}
+            ),
+            constraint=[0, 0.5]
         )
 
         so.add_objective(
