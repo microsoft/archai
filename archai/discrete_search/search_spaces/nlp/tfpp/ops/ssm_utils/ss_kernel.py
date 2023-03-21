@@ -1,10 +1,9 @@
 """ 
-[2023-01-05] Extracted the SSKernel class from
+2023.01.05 Extracted the SSKernel class from
 https://github.com/HazyResearch/state-spaces/blob/06dbbdfd0876501a7f12bf3262121badbc7658af/src/models/sequence/ss/kernel.py
 We add option to use the shift kernel, and remove the option of SSKernelNPLR
-"""
 
-"""SSM convolution kernels.
+SSM convolution kernels.
 SSKernel wraps different kernels with common options and handles the initialization.
 """
 
