@@ -4,84 +4,10 @@ import argparse
 import os
 import sys
 import json
-import math
-import torch
-from torch import nn
+import pytorch_lightning as pl
 from model import MyModel
-from archai.datasets.cv.mnist_dataset_provider import MnistDatasetProvider
+from mnist_data_module import MNistDataModule
 from store import ArchaiStore
-
-
-class Trainer:
-    """ This class performs the actual pytorch training of a given model """
-    def __init__(self, training_epochs: float = 1.0, lr: float = 1e-4, device: str = 'cpu'):
-        self.training_epochs = training_epochs
-        self.device = device
-        self.lr = lr
-        self.model = None
-        self.val_acc = None
-        self.input_shape = None
-
-    def train(self, model, dataset_provider, progress_bar=False) -> float:
-        # Loads the dataset
-        tr_data = dataset_provider.get_train_dataset()
-        val_data = dataset_provider.get_val_dataset()
-
-        self.input_shape = tr_data.data[0].shape
-
-        tr_dl = torch.utils.data.DataLoader(tr_data, batch_size=16, shuffle=True, num_workers=4)
-        val_dl = torch.utils.data.DataLoader(val_data, batch_size=16, shuffle=False, num_workers=4)
-
-        # Training settings
-        optimizer = torch.optim.Adam(model.parameters(), lr=self.lr)
-        criterion = nn.CrossEntropyLoss()
-
-        model.train()
-        model.to(self.device)
-
-        # Partial training
-        epoch_iter = range(math.ceil(self.training_epochs))
-        if progress_bar:
-            from tqdm import tqdm
-            epoch_iter = tqdm(epoch_iter, desc=f'Training model {model.get_archid()}')
-
-        for epoch_nb in epoch_iter:
-            # Early stops for fractional values of training epochs (e.g, 0.2)
-            early_stop = len(tr_dl) + 1
-            if 0 < (self.training_epochs - epoch_nb) < 1:
-                early_stop = int((self.training_epochs - epoch_nb) * len(tr_dl))
-
-            for i, (x, y) in enumerate(tr_dl):
-                if i >= early_stop:
-                    break
-
-                optimizer.zero_grad()
-
-                pred = model(x.to(self.device))
-                loss = criterion(pred, y.to(self.device))
-
-                loss.backward()
-                optimizer.step()
-
-        # Evaluates final model
-        model.eval()
-
-        with torch.no_grad():
-            val_pred, val_target = [], []
-
-            for x, y in val_dl:
-                val_pred.append(model(x.to(self.device)).argmax(axis=1).to('cpu'))
-                val_target.append(y.to('cpu'))
-
-            val_pred, val_target = torch.cat(val_pred, axis=0), torch.cat(val_target, axis=0)
-            val_acc = (val_pred.squeeze() == val_target.squeeze()).numpy().mean()
-
-        # Returns model to cpu
-        model.cpu()
-
-        self.model = model
-        self.val_acc = val_acc
-        return val_acc
 
 
 def main():
@@ -135,18 +61,16 @@ def main():
 
         store.update_status_entity(e)
 
-        trainer = Trainer(training_epochs=epochs, lr=1e-4, device='cuda')
-        dataset_provider = MnistDatasetProvider(root=args.data_dir)
-        val_acc = trainer.train(model, dataset_provider, progress_bar=True)
-
-        shape = trainer.input_shape
-        # add batch and channel dimensions
-        shape = [1, 1] + list(shape)
+        data = MNistDataModule(args.data_dir)
+        logger = pl.loggers.TensorBoardLogger('logs', name='mnist')
+        trainer = pl.Trainer(accelerator='gpu', max_epochs=1, logger=logger, log_every_n_steps=1)
+        trainer.fit(model, data)
+        result = trainer.validate(model, data)
+        val_acc = result[0]['accuracy']
 
         if save_models:
             # this writes the results to the output folder.
-            model.export_onnx(shape, os.path.join(output_folder, 'model.onnx'))
-
+            model.export_onnx(data.input_shape, os.path.join(output_folder, 'model.onnx'))
             config = {
                 'name': name,
                 'vac_acc': val_acc,
