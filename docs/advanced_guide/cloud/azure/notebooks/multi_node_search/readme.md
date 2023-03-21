@@ -32,12 +32,14 @@ Azure ML automatically keeps the GPU cluster busy feeding all the models until t
 In this case we create an 8 node GPU cluster, and so you will see the jobs completing in batches of 8.
 
 You can see all the pipelines created dynamically by the search using your Azure ML Pipelines
-dashboard. Here you see 5 iterations followed by a final full training job:
+dashboard. Below you see 5 partial training iterations followed by a final full training job and
+since we have an 8-gpu cluster doing the work the entire job finished in 1 hour 14 minutes. It did
+partial training on a total of 65 models, and full training on 32.
 
 ![dashboard](images/dashboard.png)
 
 You can also run the cell titled `Plots` in the notebook multiple times to watch how the pareto curves are
-shaping up, you will see something like this after 5 iterations have completed:
+shaping up, you will see something like this after 5 iterations have completed.
 
 ![pareto](images/epochs1.png)
 
@@ -90,7 +92,7 @@ current iteration then it calls `fetch_all` to get the results.
 
 So it is the `fetch_all` method that creates a new AML pipeline for that iteration,
 dynamically adding a partial training job for each model, each one of those commands
-invokes [train.py](scripts/train.py).
+invokes [train.py](scripts/train.py).  `train.py` uses [Pytorch Lightning](https://lightning.ai/docs/pytorch/stable/) to train the model, which means the model is a `LightningModule`.
 
 But how does each partial training job send results back to the master search pipeline
 you might ask? Great question, I'm glad you asked. The training jobs are given access

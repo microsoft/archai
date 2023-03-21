@@ -1,5 +1,5 @@
 from archai.trainers.cv.pl_trainer import PlTrainer
-
+from pytorch_lightning.callbacks import TQDMProgressBar
 import torch
 from torch import nn
 import math
@@ -66,7 +66,7 @@ def main():
         "hidden_dim": 64
     })
     model = MyModel(config)
-    trainer = pl.Trainer(accelerator='gpu', max_epochs=1, logger=logger)
+    trainer = pl.Trainer(accelerator='gpu', max_epochs=1, logger=logger, callbacks=[TQDMProgressBar(refresh_rate=100)])
     trainer.fit(model, data)
     result = trainer.validate(model, data)
     accuracy = result[0]['accuracy']

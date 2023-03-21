@@ -4,10 +4,22 @@ import argparse
 import os
 import sys
 import json
-import pytorch_lightning as pl
+from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import TQDMProgressBar
 from model import MyModel
 from mnist_data_module import MNistDataModule
 from store import ArchaiStore
+import mlflow
+
+
+def print_auto_logged_info(r):
+    tags = {k: v for k, v in r.data.tags.items() if not k.startswith("mlflow.")}
+    artifacts = [f.path for f in mlflow.MlflowClient().list_artifacts(r.info.run_id, "model")]
+    print("run_id: {}".format(r.info.run_id))
+    print("artifacts: {}".format(artifacts))
+    print("params: {}".format(r.data.params))
+    print("metrics: {}".format(r.data.metrics))
+    print("tags: {}".format(tags))
 
 
 def main():
@@ -62,9 +74,12 @@ def main():
         store.update_status_entity(e)
 
         data = MNistDataModule(args.data_dir)
-        logger = pl.loggers.TensorBoardLogger('logs', name='mnist')
-        trainer = pl.Trainer(accelerator='gpu', max_epochs=1, logger=logger, log_every_n_steps=1)
-        trainer.fit(model, data)
+        trainer = Trainer(accelerator='gpu', max_epochs=1, callbacks=[TQDMProgressBar(refresh_rate=100)])
+        mlflow.pytorch.autolog()
+        with mlflow.start_run() as run:
+            trainer.fit(model, data)
+        print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
+
         result = trainer.validate(model, data)
         val_acc = result[0]['accuracy']
 

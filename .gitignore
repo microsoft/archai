@@ -157,3 +157,4 @@ mlruns/
 dataroot/
 temp_code/
 mnist_test_run*/
+logs/
