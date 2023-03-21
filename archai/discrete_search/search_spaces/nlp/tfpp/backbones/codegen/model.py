@@ -29,73 +29,13 @@ from transformers.models.codegen.configuration_codegen import CodeGenConfig
 from transformers.models.codegen.modeling_codegen import CodeGenPreTrainedModel
 
 from archai.discrete_search.search_spaces.config import ArchConfig
-from archai.discrete_search.search_spaces.nlp.tfpp.mixed_attention import MixedAttentionBlock
-
+from .block import CodeGenBlock
 
 logger = logging.get_logger(__name__)
 
-
-class CodeGenMLP(nn.Module):
-    def __init__(self, hidden_size, intermediate_size, config):  # in MLP: intermediate_size= 4 * embed_dim
-        super().__init__()
-
-        self.fc_in = nn.Linear(hidden_size, intermediate_size)
-        self.fc_out = nn.Linear(intermediate_size, hidden_size)
-
-        self.act = ACT2FN[config.activation_function]
-        self.dropout = nn.Dropout(config.resid_pdrop)
-
-    def forward(self, hidden_states: Optional[torch.FloatTensor]) -> torch.FloatTensor:
-        hidden_states = self.fc_in(hidden_states)
-        hidden_states = self.act(hidden_states)
-        hidden_states = self.fc_out(hidden_states)
-        hidden_states = self.dropout(hidden_states)
-        return hidden_states
-
-
-# Copied from transformers.models.gptj.modeling_gptj.GPTJBlock with GPTJ->CodeGen
-class CodeGenBlock(nn.Module):
-    def __init__(self, arch_config, hf_config, hidden_size):
-        super().__init__()
-        inner_dim = arch_config.pick('d_inner')
-
-        self.ln_1 = nn.LayerNorm(hidden_size, eps=hf_config.layer_norm_epsilon)
-        self.attn = MixedAttentionBlock(arch_config, hf_config, hidden_size=hidden_size) # CodeGenAttention(hf_config) # Trocar para Mixed attn
-        self.mlp = CodeGenMLP(hidden_size, inner_dim, hf_config)
-
-    def forward(
-        self,
-        hidden_states: Optional[torch.FloatTensor],
-        layer_past: Optional[Tuple[torch.Tensor]] = None,
-        attention_mask: Optional[torch.FloatTensor] = None,
-        head_mask: Optional[torch.FloatTensor] = None,
-        use_cache: Optional[bool] = False,
-        output_attentions: Optional[bool] = False,
-        bin_attention_mask: Optional[torch.FloatTensor] = None
-    ) -> Union[Tuple[torch.Tensor], Optional[Tuple[torch.Tensor, Tuple[torch.FloatTensor, ...]]]]:
-        residual = hidden_states
-        hidden_states = self.ln_1(hidden_states)
-        attn_outputs = self.attn(
-            hidden_states,
-            layer_past=layer_past,
-            attention_mask=attention_mask,
-            head_mask=head_mask,
-            use_cache=use_cache,
-            output_attentions=output_attentions,
-            bin_attention_mask=bin_attention_mask
-        )
-        attn_output = attn_outputs[0]  # output_attn: a, present, (attentions)
-        outputs = attn_outputs[1:]
-
-        feed_forward_hidden_states = self.mlp(hidden_states)
-        hidden_states = attn_output + feed_forward_hidden_states + residual
-
-        if use_cache:
-            outputs = (hidden_states,) + outputs
-        else:
-            outputs = (hidden_states,) + outputs[1:]
-
-        return outputs  # hidden_states, present, (attentions)
+_CHECKPOINT_FOR_DOC = "Salesforce/codegen-2B-mono"
+_CONFIG_FOR_DOC = "CodeGenConfig"
+_TOKENIZER_FOR_DOC = "GPT2Tokenizer"
 
 
 class CodeGenModel(CodeGenPreTrainedModel):
@@ -106,11 +46,15 @@ class CodeGenModel(CodeGenPreTrainedModel):
         self.hidden_size = arch_config.pick('hidden_size')
         self.vocab_size = hf_config.vocab_size
         self.wte = nn.Embedding(hf_config.vocab_size, self.hidden_size)
-        self.drop = nn.Dropout(hf_config.embd_pdrop)
+
+        self.embd_pdrop = hf_config.embd_pdrop
+        self.resid_pdrop = hf_config.resid_pdrop
+        self.embed_dropout = nn.Dropout(hf_config.embd_pdrop)
 
         self.h = nn.ModuleList([
-            CodeGenBlock(block_config, hf_config, self.hidden_size)
-            for _, block_config in enumerate(arch_config.pick('hidden_layers'))
+            CodeGenBlock(
+                block_config, hf_config, self.hidden_size
+            ) for block_config in arch_config.pick('hidden_layers')
         ])
 
         self.ln_f = nn.LayerNorm(self.hidden_size, eps=hf_config.layer_norm_epsilon)
@@ -131,6 +75,12 @@ class CodeGenModel(CodeGenPreTrainedModel):
     def set_input_embeddings(self, new_embeddings):
         self.wte = new_embeddings
 
+    @add_code_sample_docstrings(
+        processor_class=_TOKENIZER_FOR_DOC,
+        checkpoint=_CHECKPOINT_FOR_DOC,
+        output_type=BaseModelOutputWithPast,
+        config_class=_CONFIG_FOR_DOC,
+    )
     def forward(
         self,
         input_ids: Optional[torch.LongTensor] = None,
@@ -182,9 +132,9 @@ class CodeGenModel(CodeGenPreTrainedModel):
             position_ids = torch.arange(past_length, input_shape[-1] + past_length, dtype=torch.long, device=device)
             position_ids = position_ids.unsqueeze(0).view(-1, input_shape[-1])
 
-        # Attention mask.
         bin_attention_mask = attention_mask
-        
+
+        # Attention mask.
         if attention_mask is not None:
             if batch_size <= 0:
                 raise ValueError("batch_size has to be defined and > 0")
@@ -226,13 +176,14 @@ class CodeGenModel(CodeGenPreTrainedModel):
             token_type_embeds = self.wte(token_type_ids)
             hidden_states = hidden_states + token_type_embeds
 
-        hidden_states = self.drop(hidden_states)
-
+        hidden_states = self.embed_dropout(hidden_states)
         output_shape = input_shape + (hidden_states.size(-1),)
 
         presents = () if use_cache else None
         all_self_attentions = () if output_attentions else None
         all_hidden_states = () if output_hidden_states else None
+        residual = None
+
         for i, (block, layer_past) in enumerate(zip(self.h, past_key_values)):
 
             if output_hidden_states:
@@ -254,7 +205,7 @@ class CodeGenModel(CodeGenPreTrainedModel):
 
                     return custom_forward
 
-                outputs = torch.utils.checkpoint.checkpoint(
+                hidden_states = torch.utils.checkpoint.checkpoint(
                     create_custom_forward(block),
                     hidden_states,
                     None,
@@ -263,7 +214,7 @@ class CodeGenModel(CodeGenPreTrainedModel):
                     bin_attention_mask
                 )
             else:
-                outputs = block(
+                hidden_states = block(
                     hidden_states,
                     layer_past=layer_past,
                     attention_mask=attention_mask,
@@ -273,12 +224,11 @@ class CodeGenModel(CodeGenPreTrainedModel):
                     bin_attention_mask=bin_attention_mask
                 )
 
-            hidden_states = outputs[0]
             if use_cache is True:
-                presents = presents + (outputs[1],)
+                raise NotImplementedError
 
             if output_attentions:
-                all_self_attentions = all_self_attentions + (outputs[2 if use_cache else 1],)
+                raise NotImplementedError
 
         hidden_states = self.ln_f(hidden_states)
 
