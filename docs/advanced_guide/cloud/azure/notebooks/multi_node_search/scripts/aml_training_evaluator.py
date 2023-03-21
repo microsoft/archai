@@ -9,7 +9,7 @@ from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
 from azure.ai.ml import MLClient, command, Input, Output, dsl
-from store import ArchaiStore
+from archai.common.store import ArchaiStore
 from shutil import copyfile
 from monitor import JobCompletionMonitor
 from training_pipeline import start_training_pipeline

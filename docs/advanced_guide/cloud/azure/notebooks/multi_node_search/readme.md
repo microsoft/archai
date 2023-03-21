@@ -109,3 +109,60 @@ by the partial training.
 
 The `AmlTrainingValAccuracy` evaluator collects these numbers and returns them to the
 search algorithm which will use them to select the best models to iterate on.
+
+## Scripts
+
+The code behind this notebook is organized into the following folders:
+
+### data_prep
+
+`prep_data_store.py` this script contains the code that runs in the data prep Azure ML pipeline component.
+It's job in life is to move the training dataset from the MnistDatasetProvider into the cloud using
+the mounted Azure blob store location given as a command line argument.  Azure ML makes this look
+like a local folder, but in fact, it is automatically copied to an azure blob store by Azure ML because
+the path has `mode="rw_mount"` in the pipeline component definition.  This is a cool feature of Azure ML
+that makes it super simple to test all these scripts locally, but then they all "just work" when
+running in the cloud.
+
+This script is in a different folder from the other scripts because this way ensures maximum reuse
+of the output dataset during the development of your other training script. Often times those need
+more debugging and this will save on cloud compute by maximizing the reuse of this node in each
+submitted Azure ML pipeline
+
+### scripts
+
+`aml_training_evaluator.py` provides the class `AmlTrainingValAccuracy` which implements the Archai
+`AsyncModelEvaluator` interface.  This is the core of this entire tutorial, showing how to use the
+`AsyncModelEvaluator` interface to get parallel training happening on an Azure ML GPU cluster.
+
+`commands.py` provides some of the Azure ML pipeline `command`s used in the
+[multi_node_search](multi_node_search.ipynb) notebook, moved here just so the notebook doesn't
+become overly verbose.
+
+`mnist_data_module.py` provides a Pytorch `LightningDataModule` wrapper on the `MnistDatasetProvider`
+so we can use the Pytorch Lightning `Trainer`.
+
+`model.py` this is our configurable pytorch CNN model that is also a `LightningModule`. This class builds
+different model architectures during the Archai search
+
+`monitor.py` this provides a `JobCompletionMonitor` class that monitors the status of training jobs in
+our Azure Storage Table returning all the validation accuracies when the jobs are complete.
+This is used by the `AmlTrainingValAccuracy` model evaluator.
+
+`search.py` this is the main Archai search component that will run in our Azure ML pipeline.  It
+uses the `AmlTrainingValAccuracy` model evaluator as a search objective among others.  It is also
+designed so it can run locally for debugging, with the training happening in the cloud.
+
+`train.py` this is the model training script that uses the Pytorch Lightning `Trainer` to train a
+specific model architecture.  This will be used across all the nodes of your GPU cluster to train as
+many jobs in parallel as you want.  It reports status to the Azure Storage Table so that the
+`JobCompletionMonitor` knows when they finish and what the validation accuracy was.
+
+`training_pipeline.py` this script can start an entirely new Azure ML Pipeline for doing some
+parallel training of models, where each training component uses `train.py`.  This same script is
+used to kick off partial training from the `AmlTrainingValAccuracy` and the final full training run
+performed in the main pipeline defined in the [multi_node_search](multi_node_search.ipynb) notebook.
+
+`utils.py` a few small helper functions used by the notebook, moved here just to reduce the notebook
+size.
+

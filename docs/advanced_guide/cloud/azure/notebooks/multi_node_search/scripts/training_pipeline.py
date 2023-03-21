@@ -2,7 +2,7 @@ import argparse
 import uuid
 import json
 import os
-from store import ArchaiStore
+from archai.common.store import ArchaiStore
 from commands import make_train_model_command
 from azure.ai.ml import Input, MLClient
 from azure.ai.ml.identity import AzureMLOnBehalfOfCredential

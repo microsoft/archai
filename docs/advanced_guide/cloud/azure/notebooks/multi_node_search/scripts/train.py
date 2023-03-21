@@ -8,7 +8,7 @@ from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import TQDMProgressBar
 from model import MyModel
 from mnist_data_module import MNistDataModule
-from store import ArchaiStore
+from archai.common.store import ArchaiStore
 import mlflow
 
 

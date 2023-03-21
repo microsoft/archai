@@ -7,7 +7,7 @@ import os
 from typing import List, Dict
 from azure.ai.ml.identity import AzureMLOnBehalfOfCredential
 from azure.identity import DefaultAzureCredential
-from store import ArchaiStore
+from archai.common.store import ArchaiStore
 from azure.ai.ml import MLClient
 from azure.ai.ml import dsl
 
