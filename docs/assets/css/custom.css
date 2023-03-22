@@ -30,7 +30,6 @@ a.navbar-brand > img {
 .tab-set > label:hover {
     color: var(--primary) !important;
 }
-
-#site-navigation .bd-sidebar__bottom {
-    margin-bottom: 0 !important;
+.tab-content {
+    width: 100% !important;
 }
