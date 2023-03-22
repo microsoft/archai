@@ -3,17 +3,22 @@
 '''
 
 import math
-from typing import Optional
 from functools import partial
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from transformers import PretrainedConfig
 from einops import rearrange
 import opt_einsum as oe
-
 from archai.discrete_search.search_spaces.config import ArchConfig
-from transformers import PretrainedConfig
+
+from ..utils import get_optim_flag
+
+try:
+    from .fftconv_ import fftconv_func
+except ImportError:
+    fftconv_func = None
 
 optimized = True
 
@@ -22,7 +27,7 @@ if optimized:
 else:
     contract = torch.einsum
 
-def get_initializer(name: str, activation: Optional[str] = None):
+def get_initializer(name, activation=None):
     if activation in [ None, 'id', 'identity', 'linear', 'modrelu' ]:
         nonlinearity = 'linear'
     elif activation in ['relu', 'tanh', 'sigmoid']:
@@ -75,7 +80,7 @@ class TransposedLinear(nn.Module):
     Assumes shape (B, D, L), where L can be 1 or more axis
     """
 
-    def __init__(self, d_input: int, d_output: int, bias: bool = True):
+    def __init__(self, d_input, d_output, bias=True):
         super().__init__()
 
         self.weight = nn.Parameter(torch.empty(d_output, d_input))
@@ -91,7 +96,7 @@ class TransposedLinear(nn.Module):
         else:
             self.bias = 0.0
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x):
         num_axis = len(x.shape[2:])  # num_axis in L, for broadcasting bias
         y = contract('b u ..., v u -> b v ...', x, self.weight) + \
             self.bias.view(-1, *[1]*num_axis)
@@ -105,7 +110,7 @@ class TransposedLN(nn.Module):
     This is slow and a dedicated CUDA/Triton implementation shuld provide substantial end-to-end speedup
     """
 
-    def __init__(self, d: int, scalar: bool = True):
+    def __init__(self, d, scalar=True):
         super().__init__()
         self.scalar = scalar
         if self.scalar:
@@ -116,7 +121,7 @@ class TransposedLN(nn.Module):
         else:
             self.ln = nn.LayerNorm(d)
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x):
         if self.scalar:
             # calc. stats over D dim / channels
             s, m = torch.std_mean(x, dim=1, unbiased=False, keepdim=True)
@@ -128,7 +133,7 @@ class TransposedLN(nn.Module):
         return y
 
 
-def Activation(activation: Optional[str] = None, size: Optional[int] = None, dim: int = -1):
+def Activation(activation=None, size=None, dim=-1):
     if activation in [None, 'id', 'identity', 'linear']:
         return nn.Identity()
     elif activation == 'tanh':
@@ -153,14 +158,13 @@ def Activation(activation: Optional[str] = None, size: Optional[int] = None, dim
 
 
 def LinearActivation(
-    d_input: int,
-    d_output: int, bias: bool = True,
-    zero_bias_init: bool = False,
-    transposed: bool = False,
-    initializer: Optional[str] = None,
-    activation: Optional[str] = None,
-    activate: bool = False,  # Apply activation as part of this module
-    weight_norm: bool = False,
+    d_input, d_output, bias=True,
+    zero_bias_init=False,
+    transposed=False,
+    initializer=None,
+    activation=None,
+    activate=False,  # Apply activation as part of this module
+    weight_norm=False,
     **kwargs,
 ):
     """ Returns a linear nn.Module with control over axes order, initialization, and activation """
@@ -194,9 +198,9 @@ def LinearActivation(
 class Normalization(nn.Module):
     def __init__(
         self,
-        d: int,
-        transposed: bool = False, # Length dimension is -1 or -2
-        _name_: str = 'layer',
+        d,
+        transposed=False, # Length dimension is -1 or -2
+        _name_='layer',
         **kwargs
     ):
         super().__init__()
@@ -227,7 +231,7 @@ class Normalization(nn.Module):
             self.norm = nn.Identity()
         else: raise NotImplementedError
 
-    def forward(self, x: torch.Tensor):
+    def forward(self, x):
         # Handle higher dimension logic
         shape = x.shape
         if self.transposed:
@@ -247,7 +251,7 @@ class Normalization(nn.Module):
         x = x.view(shape)
         return x
 
-    def step(self, x: torch.Tensor, **kwargs):
+    def step(self, x, **kwargs):
         assert self._name_ in ["layer", "none"]
         if self.transposed: x = x.unsqueeze(-1)
         x = self.forward(x)
@@ -260,24 +264,25 @@ class GConv(nn.Module):
 
     def __init__(
         self,
-        d_model: int,
-        d_state: int = 64,
-        l_max: int = 1,  # Maximum length of sequence. Fine if not provided: the kernel will keep doubling in length until longer than sequence. However, this can be marginally slower if the true length is not a power of 2
-        channels: int = 1,  # maps 1-dim to C-dim
-        bidirectional: bool = False,
+        d_model,
+        d_state=64,
+        l_max=1,  # Maximum length of sequence. Fine if not provided: the kernel will keep doubling in length until longer than sequence. However, this can be marginally slower if the true length is not a power of 2
+        channels=1,  # maps 1-dim to C-dim
+        bidirectional=False,
         # Arguments for FF
-        activation: str = 'gelu',  # activation in between SS and FF
-        ln: bool = False,  # Extra normalization
-        postact: Optional[str] = None,  # activation after FF
-        initializer: Optional[str] =None,  # initializer on FF
-        weight_norm: bool = False,  # weight normalization on FF
-        hyper_act: Optional[str] = None,  # Use a "hypernetwork" multiplication
-        dropout: float = 0.0,
-        transposed: bool = True,  # axis ordering (B, L, D) or (B, D, L)
-        verbose: bool = False,
-        shift: bool = False,
-        linear: bool = False,
-        mode: str = "cat_randn",
+        activation='gelu',  # activation in between SS and FF
+        ln=False,  # Extra normalization
+        postact=None,  # activation after FF
+        initializer=None,  # initializer on FF
+        weight_norm=False,  # weight normalization on FF
+        hyper_act=None,  # Use a "hypernetwork" multiplication
+        use_fast_fftconv=False,
+        dropout=0.0,
+        transposed=True,  # axis ordering (B, L, D) or (B, D, L)
+        verbose=False,
+        shift=False,
+        linear=False,
+        mode="cat_randn",
         # SSM Kernel arguments
         **kernel_args,
     ):
@@ -305,6 +310,10 @@ class GConv(nn.Module):
         self.mode = mode
         self.l_max = l_max
         self.verbose = verbose
+        self.use_fast_fftconv = use_fast_fftconv
+        if self.use_fast_fftconv:
+            assert fftconv_func is not None, 'Need to install fftconv'
+            assert self.channels == 1, 'channel must be 1 for fast FFTConv'
 
         # optional multiplicative modulation GLU-style
         # https://arxiv.org/abs/2002.05202
@@ -386,7 +395,28 @@ class GConv(nn.Module):
         self.register_buffer('kernel_norm_initialized',
                              torch.tensor(0, dtype=torch.bool))
 
-    # absorbs return_output and transformer src mask
+    def fft_conv(self, u, k, L):
+        if self.use_fast_fftconv:
+            k = rearrange(k, '1 h l -> h l')
+            dropout_mask = None
+            # No GeLU after the SSM
+            # We want output_hbl=True so that y has the same layout as u
+            y = fftconv_func(u, k, self.D.squeeze(0), dropout_mask, False, False, True)
+            y = rearrange(rearrange(y, 'b h l -> h b l'), 'h b l -> b h l')
+            # y = rearrange(y, 'b h l -> b 1 h l')
+            return y
+    
+        k_f = torch.fft.rfft(k, n=2*L)  # (C H L)
+        u_f = torch.fft.rfft(u, n=2*L)  # (B H L)
+        # k_f.unsqueeze(-4) * u_f.unsqueeze(-3) # (B C H L)
+        y_f = contract('bhl,chl->bchl', u_f, k_f)
+        y = torch.fft.irfft(y_f, n=2*L)[..., :L]  # (B C H L)
+        # Compute D term in state space equation - essentially a skip connection
+        y = y + contract('bhl,ch->bchl', u, self.D)
+
+        # Reshape to flatten channels
+        return rearrange(y, '... c h l -> ... (c h) l')
+
     def forward(self, u, return_kernel=False):
         """
         u: (B H L) if self.transposed else (B L H)
@@ -397,6 +427,8 @@ class GConv(nn.Module):
         if not self.transposed:
             u = u.transpose(-1, -2)
         L = u.size(-1)
+        if self.use_fast_fftconv and L % 2 != 0:
+            u = F.pad(u, (0, 1))
 
         kernel_list = []
         interpolate_mode = 'nearest' if 'nearest' in self.mode else 'linear'
@@ -451,18 +483,8 @@ class GConv(nn.Module):
             k0, k1 = rearrange(k, '(s c) h l -> s c h l', s=2)
             k = F.pad(k0, (0, L)) \
                 + F.pad(k1.flip(-1), (L, 0)) \
-
-        k_f = torch.fft.rfft(k, n=2*L)  # (C H L)
-        u_f = torch.fft.rfft(u, n=2*L)  # (B H L)
-        # k_f.unsqueeze(-4) * u_f.unsqueeze(-3) # (B C H L)
-        y_f = contract('bhl,chl->bchl', u_f, k_f)
-        y = torch.fft.irfft(y_f, n=2*L)[..., :L]  # (B C H L)
-
-        # Compute D term in state space equation - essentially a skip connection
-        y = y + contract('bhl,ch->bchl', u, self.D)
-
-        # Reshape to flatten channels
-        y = rearrange(y, '... c h l -> ... (c h) l')
+        
+        y = self.fft_conv(u, k, L)
 
         if not self.linear:
             y = self.dropout(self.activation(y))
@@ -504,6 +526,7 @@ class SGConv(nn.Module):
         
         # Architecture params
         self.kernel_size = arch_config.pick('kernel_size')
+        self.use_fast_fftconv = get_optim_flag(hf_config, 'fast_fftconv')
         self.channels = 1
         
         self.op_size = op_heads * (hidden_size // total_heads)
@@ -515,6 +538,7 @@ class SGConv(nn.Module):
         self.sgconv = GConv(
             self.op_size, l_max=hf_config.max_position_embeddings,
             channels=self.channels, kernel_dim=self.kernel_size,
+            use_fast_fftconv=self.use_fast_fftconv,
             transposed=False, verbose=False
         )
 
@@ -523,3 +547,24 @@ class SGConv(nn.Module):
     def forward(self, x: torch.Tensor, **kwargs):
         output, _ = self.sgconv(self.in_proj(x))
         return self.act(output), None
+
+if __name__ == '__main__':
+    B = 2  # batch size
+    H = 768  # d_model
+    L = 2048 # sequence length
+    device = 'cuda'
+
+    import torch.utils.benchmark as benchmark
+
+    flash_layer = GConv(d_model=H, l_max=L, kernel_dim=128, use_fast_fftconv=True, transposed=False).to(device)
+    layer = GConv(d_model=H, l_max=L, kernel_dim=128, use_fast_fftconv=False, transposed=False).to(device)
+    u = torch.randn(B, L, H, device=device, dtype=torch.float32, requires_grad=True)
+
+    t0 = benchmark.Timer(
+            stmt='flash_layer(u)',
+            globals={'flash_layer': flash_layer, 'u': u})
+    t1 = benchmark.Timer(
+            stmt='layer(u)',
+            globals={'layer': layer, 'u': u})
+    print(t0.timeit(100))
+    print(t1.timeit(100))
