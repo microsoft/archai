@@ -39,6 +39,6 @@ Regularized Evolution
 Successive Halving
 ------------------
 
-.. automodule:: archai.discrete_search.algos.sucessive_halving
+.. automodule:: archai.discrete_search.algos.successive_halving
    :members:
    :undoc-members:

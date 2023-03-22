@@ -43,15 +43,15 @@ Rank Finalizer
    :members:
    :undoc-members:
 
-Div-Based Operations
---------------------
+Div-Based Operators
+-------------------
 
 .. automodule:: archai.supergraph.algos.divnas.divop
    :members:
    :undoc-members:
 
-Sequential Operations
----------------------
+Sequential Operators
+--------------------
 
 .. automodule:: archai.supergraph.algos.divnas.seqopt
    :members:

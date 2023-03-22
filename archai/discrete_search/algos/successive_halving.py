@@ -19,7 +19,7 @@ logger = OrderedDictLogger(source=__name__)
 
 
 class SuccessiveHalvingSearch(Searcher):
-    """Sucessive Halving algorithm"""
+    """Successive Halving algorithm"""
 
     def __init__(
         self,
@@ -33,7 +33,7 @@ class SuccessiveHalvingSearch(Searcher):
         budget_multiplier: Optional[float] = 2.0,
         seed: Optional[int] = 1,
     ) -> None:
-        """Initialize the Sucessive Halving.
+        """Initialize the Successive Halving.
 
         Args:
             search_space: Discrete search space.

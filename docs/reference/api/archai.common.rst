@@ -1,6 +1,27 @@
 Common Packages
 ===============
 
+APEX Utilities
+--------------
+
+.. automodule:: archai.common.apex_utils
+   :members:
+   :undoc-members:
+
+Atomic File Handler
+-------------------
+
+.. automodule:: archai.common.atomic_file_handler
+   :members:
+   :undoc-members:
+
+Common
+------
+
+.. automodule:: archai.common.common
+   :members:
+   :undoc-members:
+
 Configuration
 -------------
 
@@ -8,10 +29,10 @@ Configuration
    :members:
    :undoc-members:
 
-Configuration (Utilities)
--------------------------
+Delimited Text
+--------------
 
-.. automodule:: archai.common.config_utils
+.. automodule:: archai.common.delimited_text
    :members:
    :undoc-members:
 
@@ -36,6 +57,27 @@ File-Related (Utilities)
    :members:
    :undoc-members:
 
+ML Performance (Utilities)
+--------------------------
+
+.. automodule:: archai.common.ml_perf_utils
+   :members:
+   :undoc-members:
+
+ML (Utilities)
+--------------
+
+.. automodule:: archai.common.ml_utils
+   :members:
+   :undoc-members:
+
+Model Summary
+-------------
+
+.. automodule:: archai.common.model_summary
+   :members:
+   :undoc-members:
+
 Ordered Dict Logger
 -------------------
 
@@ -50,9 +92,30 @@ Ordered Dict Logger (Utilities)
    :members:
    :undoc-members:
 
+Stopwatch
+---------
+
+.. automodule:: archai.common.stopwatch
+   :members:
+   :undoc-members:
+
 Timing
 ------
 
 .. automodule:: archai.common.timing
+   :members:
+   :undoc-members:
+
+Utilities
+---------
+
+.. automodule:: archai.common.utils
+   :members:
+   :undoc-members:
+
+YAML (Utilities)
+----------------
+
+.. automodule:: archai.common.yaml_utils
    :members:
    :undoc-members:
