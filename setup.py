@@ -7,7 +7,7 @@ import re
 from setuptools import find_packages, setup
 
 dependencies = [
-    "azure-ai-ml>=1.4.0",
+    "azure-ai-ml>=1.5.0",
     "azure-data-tables",
     "azure-identity",
     "azure-storage-blob",
