@@ -10,6 +10,7 @@ from archai.discrete_search.evaluators import AvgOnnxLatency, TorchFlops
 from archai.discrete_search.evaluators import TorchNumParameters
 from archai.discrete_search.algos import EvolutionParetoSearch
 from archai.discrete_search.search_spaces.config import ArchParamTree, ConfigSearchSpace, DiscreteChoice
+from archai.discrete_search.api.search_space import EvolutionarySearchSpace
 from aml_training_evaluator import AmlTrainingValAccuracy
 from azure.ai.ml.identity import AzureMLOnBehalfOfCredential
 from azure.identity import DefaultAzureCredential
@@ -17,9 +18,14 @@ from azure.ai.ml import MLClient
 from model import MyModel
 
 
-def search(amlEvaluator: AmlTrainingValAccuracy, space, local_output, init_num_models, iterations, max_unseen_population):
-    """ Run an Archai EvolutionParetoSearch using some cheap objectives and the more expensive
-    AmlTrainingValAccuracy model evaluator.  """
+def search(amlEvaluator: AmlTrainingValAccuracy,
+           space: EvolutionarySearchSpace,
+           local_output : str,
+           init_num_models : int,
+           iterations: int,
+           max_unseen_population : int):
+    """ Run an Archai EvolutionParetoSearch over the given search space, and search options, optimizing the model
+    using objectives for ONNX Latency, FLOPs, and the AmlTrainingValAccuracy model evaluator.  """
 
     # create our search objectives
     search_objectives = SearchObjectives()

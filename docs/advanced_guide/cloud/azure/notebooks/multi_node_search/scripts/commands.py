@@ -11,7 +11,7 @@ def make_train_model_command(output_path, code_dir, environment_name, id,
                              subscription_id, resource_group_name, workspace_name,
                              archid, training_epochs, save_models):
     """ This is a parametrized command for training a given model architecture.
-    We will stamp these out to create a distributed training pipeline, where one
+    We will stamp these out to create a distributed training pipeline, with one
     command per model architecture that we need to train. """
 
     fixed_args = f'--name "{id}" ' + \

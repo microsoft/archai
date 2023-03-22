@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 import os
 import json
+from glob import glob
 from IPython.display import display, Image
 from shutil import copyfile, rmtree
 
@@ -51,9 +52,8 @@ def copy_code_folder():
     if os.path.isdir(code_dir):
         rmtree(code_dir)  # make sure old files are gone!
     os.makedirs(code_dir)
-    for file in os.listdir(scripts_dir):
-        path = os.path.join(scripts_dir, file)
-        if os.path.isfile(path) and file.endswith('.py'):
-            print(f"copying source file : {path} to {code_dir}")
-            copyfile(path, os.path.join(code_dir, file))
+    for path in glob(os.path.join(scripts_dir, '*.py')):
+        file = os.path.basename(path)
+        print(f"copying source file : {file} to {code_dir}")
+        copyfile(path, os.path.join(code_dir, file))
     return code_dir

@@ -17,18 +17,30 @@ class JobCompletionMonitor:
     training operations and the status of the Azure ML pipeline those jobs are running in
     and waits for them to finish (either successfully or with a failure)"""
     def __init__(self, store : ArchaiStore, ml_client : MLClient, pipeline_id=None, timeout=3600):
+        """
+        Initialize a JobCompletionMonitor instance.
+        :param store: an instance of ArchaiStore to monitor the status of some long running training operations
+        :param ml_client: an instance of MLClient to check the status of the Azure ML pipeline those jobs are running in
+        :param pipeline_id: (optional) the ID of the Azure ML pipeline to monitor, if not provided we can get this from the ArchaiStore.
+        :param timeout: (optional) the timeout in seconds
+        """
         self.store = store
         self.ml_client = ml_client
         self.timeout = timeout
         self.pipeline_id = pipeline_id
 
     def wait(self, model_ids: List[str]) -> List[Dict[str, str]]:
-        """ wait for all the training jobs to finish and return a list of dictionaries
-        containing details about each model including their training validation accuracies """
+        """
+        Wait for all the training jobs to finish and return a list of dictionaries
+        containing details about each model, including their training validation accuracies.
+        :param model_ids: a list of training job IDs
+        :return: a list of dictionaries containing details about each model
+        """
         completed = {}
         waiting = list(model_ids)
         start = time.time()
         failed = 0
+
         while len(waiting) > 0:
             for i in range(len(waiting) - 1, -1, -1):
                 id = waiting[i]
