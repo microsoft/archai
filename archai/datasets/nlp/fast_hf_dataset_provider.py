@@ -139,7 +139,7 @@ class FastHfDatasetProvider(DatasetProvider):
     ) -> Tuple[Path, Path, Path]:
         logger.info(f"Saving dataset to: {cache_dir}")
 
-        cache_files = ()
+        cache_files = {}
         for split, dataset in dataset_dict.items():
             np.save(cache_dir / f"{split}.npy", dataset)
 
@@ -154,7 +154,7 @@ class FastHfDatasetProvider(DatasetProvider):
                 dataset._mmap.close()
                 Path(cache_dir / f"{split}.bin").unlink()
 
-            cache_files += (cache_dir / f"{split}.npy",)
+            cache_files[f'{split}_file'] = cache_dir / f"{split}.npy"
 
         with open(cache_dir / "tokenizer.pkl", "wb") as f:
             pickle.dump(tokenizer, f)
@@ -255,7 +255,7 @@ class FastHfDatasetProvider(DatasetProvider):
                 f,
             )
 
-        return FastHfDatasetProvider(*cache_files, tokenizer=tokenizer)
+        return FastHfDatasetProvider(**cache_files, tokenizer=tokenizer)
 
     @classmethod
     def from_hub(
@@ -361,7 +361,7 @@ class FastHfDatasetProvider(DatasetProvider):
                 f,
             )
 
-        return FastHfDatasetProvider(*cache_files, tokenizer=tokenizer)
+        return FastHfDatasetProvider(**cache_files, tokenizer=tokenizer)
 
     @classmethod
     def from_cache(cls: FastHfDatasetProvider, cache_dir: str) -> FastHfDatasetProvider:
