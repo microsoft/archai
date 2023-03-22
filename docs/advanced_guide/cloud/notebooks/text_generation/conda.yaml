@@ -5,4 +5,4 @@ dependencies:
   - python=3.10
   - pip
   - pip:
-    - "archai[dev] @ git+https://github.com/microsoft/archai.git"
+    - "archai[cv,nlp] @ git+https://github.com/microsoft/archai.git"
