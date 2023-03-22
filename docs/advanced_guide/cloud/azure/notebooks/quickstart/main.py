@@ -46,6 +46,7 @@ def main():
         args.output_dir,
         num_iters=5,
         init_num_models=10,
+        save_pareto_model_weights=False,
         seed=1234,
     )
 
