@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import tempfile
 from archai.common.store import ArchaiStore
 
@@ -19,13 +20,15 @@ def test_store():
         e = store.get_status('foo')
         assert e['status'] == 'new'
         e['status'] = 'running'
-        e['accuracy'] = 1.234
+        e['accuracy'] = np.array([1.234])[0]  # test np.float
+        e['params'] = 9223372036854775800
         store.update_status_entity(e)
 
         e = store.get_status('foo')
         assert e['status'] == 'running'
         assert e['accuracy'] == 1.234
-        entities = store.get_all_status_entities()
+        assert e['params'] == 9223372036854775800
+        entities = store.get_all_status_entities('status', 'running')
         assert len(entities) == 1
 
         store.delete_status_entity(e)
@@ -53,3 +56,4 @@ def test_store():
     finally:
         store.delete_blobs('foo')
         store.delete_status_entity(e)
+

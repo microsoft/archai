@@ -7,6 +7,8 @@ import sys
 import logging
 import datetime
 import platform
+import numpy as np
+from torch import Tensor
 from azure.data.tables import TableServiceClient, UpdateMode, EntityProperty, EdmType
 from azure.storage.blob import BlobClient, ContainerClient
 from shutil import rmtree
@@ -32,6 +34,8 @@ class ArchaiStore:
 
     @staticmethod
     def parse_connection_string(storage_connection_string):
+        """ This helper method extracts the storage account name and key pair from a connection string
+        and returns that pair in a tuple.  This pair can then be used to construct an ArchaiStore object """
         parts = storage_connection_string.split(";")
         storage_account_name = None
         storage_account_key = None
@@ -53,11 +57,13 @@ class ArchaiStore:
         return (storage_account_name, storage_account_key)
 
     def get_utc_date(self):
+        """ This handy function can be used to put a UTC timestamp column in your entity, like a 'model_date' column, for example. """
         current_date = datetime.datetime.now()
         current_date = current_date.replace(tzinfo=datetime.timezone.utc)
         return current_date.isoformat()
 
     def _get_node_id(self):
+        """ Return a unique name for the current machine which is used as the lock identity """
         return platform.node()
 
     def _get_status_table_service(self):
@@ -108,7 +114,7 @@ class ArchaiStore:
         try:
             # find all properties (just use list_entities?)
             for e in table_client.query_entities(query_filter=query):
-                entities += [e]
+                entities += [self._wrap_numeric_types(e)]
 
         except Exception as e:
             print(f"### error reading table: {e}")
@@ -116,10 +122,14 @@ class ArchaiStore:
         return entities
 
     def get_status(self, name):
+        """ Get or create a new status entity with the given name.
+        The returned entity is a python dictionary where the name can be retrieved
+        using e['name'], you can then add keys to that dictionary and call update_status_entity. """
         table_client = self._get_table_client()
 
         try:
             entity = table_client.get_entity(partition_key='main', row_key=name)
+            entity = self._unwrap_numeric_types(entity)
         except Exception:
             entity = {
                 'PartitionKey': 'main',
@@ -129,27 +139,61 @@ class ArchaiStore:
             }
         return entity
 
+    def _wrap_numeric_types(self, entity):
+        e = {}
+        for k in entity.keys():
+            v = entity[k]
+            if isinstance(v, int):
+                e[k] = EntityProperty(v, EdmType.INT64)
+            elif isinstance(v, float):
+                e[k] = float(v)  # this is casting np.float to float.
+            else:
+                e[k] = v
+        return e
+
+    def _unwrap_numeric_types(self, entity):
+        e = {}
+        for k in entity.keys():
+            v = entity[k]
+            if isinstance(v, EntityProperty):
+                e[k] = v.value
+            else:
+                e[k] = v
+        return e
+
     def get_existing_status(self, name):
+        """ Find the given entity by name, and return it, or return None if the name is not found."""
         table_client = self._get_table_client()
         try:
             entity = table_client.get_entity(partition_key='main', row_key=name)
+            entity = self._unwrap_numeric_types(entity)
         except Exception:
             return None
         return entity
 
     def get_updated_status(self, e):
+        """ Return an updated version of the entity by querying the table again, this way you
+        can pick up any changes that another process may have made. """
         table_client = self._get_table_client()
         try:
-            return table_client.get_entity(partition_key=e['PartitionKey'], row_key=e['RowKey'])
+            entity = table_client.get_entity(partition_key=e['PartitionKey'], row_key=e['RowKey'])
+            entity = self._unwrap_numeric_types(entity)
         except Exception:
             return None
+        return entity
 
     def update_status_entity(self, entity):
+        """ The entity can store strings, bool, float, int, datetime """
+        # Note that for things larger than Int32 we need to use EntityProperty with EdmType.INT64, and
+        # so we do that automatically here for the user so they don't have to, and get entity will turn
+        # the result back into a python integer than can be larger than Int32.
         table_client = self._get_table_client()
+        entity = self._wrap_numeric_types(entity)
         table_client.upsert_entity(entity=entity, mode=UpdateMode.REPLACE)
 
     def merge_status_entity(self, entity):
         table_client = self._get_table_client()
+        entity = self._wrap_numeric_types(entity)
         table_client.update_entity(entity=entity, mode=UpdateMode.MERGE)
 
     def update_status(self, name, status, priority=None):
@@ -157,6 +201,7 @@ class ArchaiStore:
 
         try:
             entity = table_client.get_entity(partition_key='main', row_key=name)
+            entity = self._unwrap_numeric_types(entity)
         except Exception:
             entity = {
                 'PartitionKey': 'main',
