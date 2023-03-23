@@ -44,7 +44,7 @@ def main():
         search_objectives,
         None,
         args.output_dir,
-        num_iters=5,
+        num_iters=3,
         init_num_models=10,
         save_pareto_model_weights=False,
         seed=1234,

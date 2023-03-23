@@ -3,7 +3,7 @@ type: command
 compute: nas-cpu-cluster-D14-v2
 inputs:
   model_type: gpt2
-  num_iters: 1
+  num_iters: 2
   init_num_models: 5
   num_random_mix: 5
   max_unseen_population: 100
