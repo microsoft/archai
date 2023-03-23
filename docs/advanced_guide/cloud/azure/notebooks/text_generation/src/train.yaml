@@ -1,0 +1,17 @@
+display_name: Train a Pareto architecture from Transformer-Flex
+type: command
+compute: nas-gpu-cluster-NC6
+inputs:
+  arch_config_path:
+    type: uri_file
+    path: azureml://full/path/to/architecture/configuration/file
+outputs:
+  output_dir:
+    type: uri_folder
+code: .
+environment:
+  azureml:aml-archai:0.0.1
+command: >-
+  python train.py
+  ${{inputs.arch_config_path}}
+  --output_dir ${{outputs.output_dir}}
