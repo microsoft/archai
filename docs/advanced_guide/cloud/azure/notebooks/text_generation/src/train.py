@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-    dataset_provider = HfHubDatasetProvider(dataset="wikitext", subset="wikitext-2-raw-v1")
+    dataset_provider = HfHubDatasetProvider(dataset_name="wikitext", dataset_config_name="wikitext-2-raw-v1")
 
     train_dataset = dataset_provider.get_train_dataset()
 

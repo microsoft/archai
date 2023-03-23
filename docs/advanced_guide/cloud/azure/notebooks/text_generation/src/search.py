@@ -125,6 +125,7 @@ if __name__ == "__main__":
         max_unseen_population=args.max_unseen_population,
         mutations_per_parent=args.mutations_per_parent,
         num_crossovers=args.num_crossovers,
+        save_pareto_model_weights=False,
         seed=args.seed,
     )
     algo.search()

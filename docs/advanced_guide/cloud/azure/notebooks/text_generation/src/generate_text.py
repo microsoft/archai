@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 import argparse
-
+from pathlib import Path
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -27,7 +27,8 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         device = "cuda"
 
-    model = AutoModelForCausalLM.from_pretrained(args.pre_trained_model_path).to(device)
+    full_path = max(Path(args.pre_trained_model_path).glob("checkpoint-*"), key=lambda x: int(x.stem.split("-")[-1]))
+    model = AutoModelForCausalLM.from_pretrained(full_path).to(device)
     model.config.use_cache = True
 
     tokenizer = AutoTokenizer.from_pretrained(args.hub_tokenizer_path)

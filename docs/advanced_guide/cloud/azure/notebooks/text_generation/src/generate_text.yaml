@@ -12,7 +12,7 @@ outputs:
     type: uri_file
 code: .
 environment:
-  azureml:aml-archai:0.1.0
+  azureml:aml-archai:0.0.1
 command: >-
   python generate_text.py
   ${{inputs.pre_trained_model_path}}
