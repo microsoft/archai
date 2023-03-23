@@ -7,6 +7,9 @@ import re
 from setuptools import find_packages, setup
 
 dependencies = [
+    "azure-data-tables",
+    "azure-identity",
+    "azure-storage-blob",
     "datasets>=2.4.0",
     "deepspeed",
     "einops",
@@ -81,7 +84,13 @@ extras_require["docs"] = filter_dependencies(
     "sphinxcontrib-programoutput",
     "sphinxcontrib-mermaid",
 )
-extras_require["tests"] = filter_dependencies("flake8", "pytest")
+extras_require["tests"] = filter_dependencies(
+    "azure-data-tables",
+    "azure-identity",
+    "azure-storage-blob",
+    "flake8",
+    "pytest"
+)
 
 extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
 if os.name != "nt":
