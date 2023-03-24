@@ -1,6 +1,23 @@
 Natural Language Processing
 ===========================
 
+DeepSpeed
+---------
+
+Trainer
+^^^^^^^
+
+.. automodule:: archai.trainers.nlp.ds_trainer
+   :members:
+   :undoc-members:
+
+Training Arguments
+^^^^^^^^^^^^^^^^^^
+
+.. automodule:: archai.trainers.nlp.ds_training_args
+   :members:
+   :undoc-members:
+
 Hugging Face
 ------------
 

@@ -20,31 +20,11 @@ The default installation only includes the core functionality of Archai, e.g., N
 
 * Computer Vision: ``pip install archai[cv]``.
 * Natural Language Processing: ``pip install archai[nlp]``.
-* Built-in Modules (cv + nlp): ``pip install archai[all]``.
+* DeepSpeed: ``pip install archai[deepspeed]``.
+* Flash-Attention: ``pip install archai[flash-attn]``.
 * Documentation and Notebooks: ``pip install archai[docs]``.
 * Unit Tests: ``pip install archai[tests]``.
 * Development: ``pip install archai[dev]``.
-
-Source
-------
-
-Installing from source ensures that the latest version of the package is used, including any unpublished changes that have not yet been released on PyPI. This allows developers to stay up-to-date with the latest changes, and ensure that their code is compatible with the latest version of the package.
-
-.. tab:: Linux/MacOS
-
-    .. code-block:: sh
-
-        git clone https://github.com/microsoft/archai.git
-        cd archai/scripts
-        install.sh
-
-.. tab:: Windows
-
-    .. code-block:: bat
-
-        git clone https://github.com/microsoft/archai.git
-        cd archai/scripts
-        .\install.bat
 
 Docker
 ------

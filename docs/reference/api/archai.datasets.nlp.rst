@@ -23,6 +23,20 @@ Dataset Provider (Utilities)
    :members:
    :undoc-members:
 
+Fast Dataset Provider
+^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: archai.datasets.nlp.fast_hf_dataset_provider
+   :members:
+   :undoc-members:
+
+Fast Dataset Provider (Utilities)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: archai.datasets.nlp.fast_hf_dataset_provider_utils
+   :members:
+   :undoc-members:
+
 NVIDIA
 ------
 
