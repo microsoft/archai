@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, Union
 from archai.discrete_search.search_spaces.config.discrete_choice import DiscreteChoice
 
 
-def flatten_dict(odict: Dict[str, Any]) -> OrderedDict:
+def flatten_dict(odict: Dict[str, Any]) -> dict:
     """Flatten a nested dictionary into a single level dictionary.
 
     Args:
@@ -18,12 +18,12 @@ def flatten_dict(odict: Dict[str, Any]) -> OrderedDict:
 
     """
 
-    fdict = OrderedDict()
+    fdict = dict()
 
     def _flatten(prefix: str, d: Dict[str, Any]) -> Dict[str, Any]:
         prefix = prefix + "." if prefix else prefix
 
-        if isinstance(d, OrderedDict):
+        if isinstance(d, dict):
             for k, v in d.items():
                 flat_v = _flatten(prefix + k, v)
 
@@ -35,6 +35,25 @@ def flatten_dict(odict: Dict[str, Any]) -> OrderedDict:
     _flatten("", odict)
 
     return fdict
+
+
+def order_dict_keys(base_dict: OrderedDict, target_dict: Dict[str, Any]) -> OrderedDict:
+    """Order the keys of a target dictionary based on a base dictionary.
+
+    Args:
+        base_dict (OrderedDict[str, Any]): Dictionary with the desired key order.
+        target_dict (Dict[str, Any]): Dictionary to be ordered.
+
+    Returns:
+        OrderedDict[str, Any]: Ordered version of `target_dict` dictionary.
+    """
+    ordered_dict = OrderedDict()
+
+    for k in base_dict:
+        if k in target_dict:
+            ordered_dict[k] = target_dict[k]
+
+    return ordered_dict
 
 
 def replace_ptree_choices(
