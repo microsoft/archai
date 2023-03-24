@@ -52,7 +52,7 @@ def main():
 
     name = args.name
     store = ArchaiStore(args.storage_account_name, args.storage_account_key)
-    e = store.update_status(name, 'training')
+    e = store.lock(name, 'training')
 
     epochs = args.epochs
 
@@ -61,7 +61,7 @@ def main():
         if model is None:
             e['status'] = 'failed'
             e['error'] = 'invalid model parameters'
-            store.update_status_entity(e)
+            store.merge_status_entity(e)
             return
 
         e['nb_layers'] = model.nb_layers
@@ -71,7 +71,7 @@ def main():
         if pipeline_id is not None:
             e['pipeline_id'] = pipeline_id
 
-        store.update_status_entity(e)
+        store.merge_status_entity(e)
 
         data = MNistDataModule(args.data_dir)
         trainer = Trainer(accelerator='gpu', max_epochs=1, callbacks=[TQDMProgressBar(refresh_rate=100)])
@@ -102,13 +102,13 @@ def main():
         # post updated progress to our unified status table.
         e['val_acc'] = float(val_acc)
         e['status'] = 'completed'
-        store.update_status_entity(e)
+        store.merge_status_entity(e)
         print(f"Training job completed successfully with validation accuracy {val_acc}")
     except Exception as ex:
         print(f"Training job failed with err {str(ex)}")
         e['status'] = 'failed'
         e['error'] = str(ex)
-        store.update_status_entity(e)
+        store.unlock_entity(e)
         sys.exit(1)
 
 

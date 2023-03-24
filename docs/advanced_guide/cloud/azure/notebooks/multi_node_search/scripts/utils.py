@@ -5,15 +5,16 @@ import json
 from glob import glob
 from IPython.display import display, Image
 from shutil import copyfile, rmtree
+from archai.common.common import ArchaiStore
 
 
-def get_results(store, blob_path, output_folder):
+def get_results(store : ArchaiStore, blob_path, output_folder):
     """ Fetch the pareto fully trained models and show the results """
     os.makedirs(blob_path, exist_ok=True)
     store.download(blob_path, output_folder)
 
 
-def download_models(store, blob_folder, output_folder, models):
+def download_models(store : ArchaiStore, blob_folder, output_folder, models):
     """ Download the .onnx models from our blob store """
     for id in models:
         sub_folder = os.path.join(output_folder, id)
@@ -30,7 +31,7 @@ def show_results(output_folder):
             display(Image(filename=os.path.join(output_folder, name)))
 
 
-def download_best_models(store, blob_folder, output_folder):
+def download_best_models(store : ArchaiStore, blob_folder, output_folder):
     """ Download the models listed in a results.json file """
     results_file = os.path.join(output_folder, "results.json")
     if os.path.isfile(results_file):

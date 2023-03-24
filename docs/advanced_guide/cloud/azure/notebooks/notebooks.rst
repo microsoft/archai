@@ -7,4 +7,6 @@ This page is under development.
    :hidden:
    :maxdepth: 2
 
-   Parllel Search <multi_node_search/readme.md>
+   Quickstart <quickstart/quickstart.ipynb>
+   Text Generation <text_generation/text_generation.ipynb>
+   Multi-Node Search <multi_node_search/readme.md>
