@@ -1,7 +1,7 @@
 Computer Vision
 ===============
 
-This page is under development.
+Archai is a platform for building, training, and deploying Computer Vision (CV) models. This document provides an overview of the CV pipeline with Archai, including details on datasets, trainers, ONNX, and quantization.
 
 .. toctree::
    :hidden:
