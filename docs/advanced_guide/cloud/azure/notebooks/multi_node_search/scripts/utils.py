@@ -21,6 +21,7 @@ def download_models(store : ArchaiStore, blob_folder, output_folder, models):
         if os.path.isdir(sub_folder):
             rmtree(sub_folder)
         os.makedirs(sub_folder, exist_ok=True)
+        print(f'Downloading results for model: {id}')
         store.download(os.path.join(blob_folder, id), sub_folder)
 
 

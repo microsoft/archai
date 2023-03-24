@@ -490,7 +490,6 @@ class ArchaiStore:
                 elif os.path.isdir(local_file):
                     rmtree(local_file)
                 os.makedirs(dir, exist_ok=True)
-                print(f"Downloading file: {file_name} to {local_file} ...")
                 blob_client = container.get_blob_client(blob)
                 try:
                     with open(local_file, 'wb') as f:
@@ -498,7 +497,7 @@ class ArchaiStore:
                         f.write(data.readall())
                     downloaded += [local_file]
                 except Exception as e:
-                    print(f"### Error downloading to local file: {e}")
+                    print(f"### Error downloading blob '{blob}' to local file: {e}")
                 if specific_file:
                     break
 
