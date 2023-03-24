@@ -7,7 +7,7 @@ import re
 from setuptools import find_packages, setup
 
 dependencies = [
-    "azure-ai-ml>=1.5.0",
+    "azure-ai-ml>=1.5.0a20230215003",
     "azure-data-tables",
     "azure-identity",
     "azure-storage-blob",
@@ -17,6 +17,7 @@ dependencies = [
     "einops",
     "flake8>=5.0.4",
     "flash-attn",
+    "fftconv @ git+https://github.com/HazyResearch/H3.git#egg=fftconv&subdirectory=csrc/fftconv",
     "gorilla>=0.4.0",
     "h5py",
     "hyperopt",
@@ -73,7 +74,7 @@ extras_require["cv"] = filter_dependencies(
 extras_require["nlp"] = filter_dependencies("datasets", "einops", "opt_einsum", "tokenizers", "transformers")
 
 extras_require["deepspeed"] = filter_dependencies("deepspeed", "mlflow")
-extras_require["flash-attn"] = filter_dependencies("flash-attn")
+extras_require["flash-attn"] = filter_dependencies("flash-attn", "fftconv")
 
 extras_require["docs"] = filter_dependencies(
     "nbimporter",
@@ -87,7 +88,13 @@ extras_require["docs"] = filter_dependencies(
     "sphinxcontrib-programoutput",
     "sphinxcontrib-mermaid",
 )
-extras_require["tests"] = filter_dependencies("flake8", "pytest")
+extras_require["tests"] = filter_dependencies(
+    "azure-data-tables",
+    "azure-identity",
+    "azure-storage-blob",
+    "flake8",
+    "pytest"
+)
 
 extras_require["aml"] = filter_dependencies(
     "azure-ai-ml",

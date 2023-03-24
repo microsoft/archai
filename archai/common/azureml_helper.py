@@ -46,14 +46,14 @@ def create_compute_cluster(
         size (str, optional): VM Family of the compute cluster. Defaults to "Standard_D14_v2".
         min_instances (int, optional): Minimum running nodes when there is no job running. Defaults to 0.
         max_instances (int, optional): Maximum number of nodes in the cluster. Defaults to 4.
-        idle_time_before_scale_down (int, optional): How many seconds will the node running after the job termination. Defaults to 180.
+        idle_time_before_scale_down (int, optional): How many seconds will the node be allowed to run after the job termination. Defaults to 180.
         tier (str, optional): Dedicated or LowPriority. The latter is cheaper but there is a chance of job termination. Defaults to "Dedicated".
 
     Returns:
-        None
+        Compute: Compute object
     """
     try:
-        cpu_cluster = ml_client.compute.get(compute_name)
+        compute_cluster = ml_client.compute.get(compute_name)
         print(f"You already have a cluster named {compute_name}, we'll reuse it as is.")
     except Exception:
         cpu_compute = AmlCompute(
@@ -67,8 +67,10 @@ def create_compute_cluster(
             **kwargs
         )
 
-        cpu_cluster = ml_client.compute.begin_create_or_update(cpu_compute).result()
-        print(f"AMLCompute with name {cpu_cluster.name} is created, the compute size is {cpu_cluster.size}")
+        compute_cluster = ml_client.compute.begin_create_or_update(cpu_compute).result()
+        print(f"AMLCompute with name {compute_cluster.name} is created, the compute size is {compute_cluster.size}")
+
+    return compute_cluster
 
 
 def create_environment_from_file(
@@ -77,7 +79,7 @@ def create_environment_from_file(
         description: Optional[str] = "Custom environment for Archai",
         tags: Optional[Dict[str, Any]] = None,
         conda_file: Optional[str] = "conda.yaml",
-        image: Optional[str] = "mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest",
+        image: Optional[str] = None,
         version: Optional[str] = "0.1.0",
         **kwargs) -> Environment:
     """ Creates an environment from a conda file
@@ -88,7 +90,7 @@ def create_environment_from_file(
         description (str, optional): Description of the environment. Defaults to "Custom environment for Archai".
         tags (Dict[str, Any], optional): Tags for the environment, e.g. {"archai": "1.0.0"}. Defaults to None.
         conda_file (str, optional): Path to the conda file. Defaults to "conda.yaml".
-        image (str, optional): Docker image for the environment. Defaults to "mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest".
+        image (str, optional): Docker image for the environment.
         version (str, optional): Version of the environment. Defaults to "0.1.0".
 
     Returns:

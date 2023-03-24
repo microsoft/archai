@@ -23,7 +23,7 @@ from archai.trainers.nlp.ds_training_args import DsTrainingArguments
 logger = OrderedDictLogger(source=__name__)
 
 
-def _create_deepspeed_config() -> Dict[str, Any]:
+def _create_base_config() -> Dict[str, Any]:
     return {
         "train_batch_size": 256,
         "train_micro_batch_size_per_gpu": 2,
@@ -102,7 +102,7 @@ class DsTrainer(TrainerBase):
         deepspeed.init_distributed()
 
         if args is None:
-            args = DsTrainingArguments(_create_deepspeed_config())
+            args = DsTrainingArguments("tmp", ds_config=_create_base_config())
         assert isinstance(args, DsTrainingArguments), "`args` should be an instance of `DsTrainingArguments`."
         self.args = args
 
@@ -125,7 +125,7 @@ class DsTrainer(TrainerBase):
             lr_scheduler=lr_scheduler,
             mpu=mpu,
             dist_init_required=dist_init_required,
-            config=self.args.config,
+            config=self.args.ds_config,
         )
 
         if self.engine.global_rank == 0:

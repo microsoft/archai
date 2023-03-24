@@ -7,6 +7,8 @@ import sys
 import logging
 import datetime
 import platform
+import numpy as np
+from torch import Tensor
 from azure.data.tables import TableServiceClient, UpdateMode, EntityProperty, EdmType
 from azure.storage.blob import BlobClient, ContainerClient
 from shutil import rmtree
@@ -16,10 +18,21 @@ CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 
 
 class ArchaiStore:
-    """ArchaiStore wraps the Azure 'status' Table and associated Blob Storage used to provide a backing
-    store and collated status for long running jobs.  This is actually a general purpose utility class
-    that could be used for anything.  The ''status' table support a locking concept that allows the
-    status table to be used as a way or coordinating jobs across multiple machines """
+    """ArchaiStore wraps an Azure 'status' Table and associated Blob Storage used to provide a backing
+    store and collating status for long running jobs.  This is actually a general purpose utility class
+    that could be used for anything.
+
+    The naming scheme is such that each Entity in the table has a 'name' property which is a simple
+    friendly name or a guid, and this row will have an associated folder in the blob storage container
+    with the same name where models and other peripheral files can be stored.
+
+    The 'status' table supports a locking concept that allows the status table to be used as a way of
+    coordinating jobs across multiple machines where each machine grabs free work, locks that row until
+    the work is done, uploads new files, and updates the status to 'complete' then unlocks that row.
+    So this ArchaiStore can be used as the backing store for a simple distributed job scheduler.
+
+    This also has a convenient command line interface provided below.
+    """
     def __init__(self, storage_account_name, storage_account_key, blob_container_name='models', status_table_name='status'):
         self.storage_account_key = storage_account_key
         self.storage_account_name = storage_account_name
@@ -32,6 +45,8 @@ class ArchaiStore:
 
     @staticmethod
     def parse_connection_string(storage_connection_string):
+        """ This helper method extracts the storage account name and key pair from a connection string
+        and returns that pair in a tuple.  This pair can then be used to construct an ArchaiStore object """
         parts = storage_connection_string.split(";")
         storage_account_name = None
         storage_account_key = None
@@ -53,11 +68,13 @@ class ArchaiStore:
         return (storage_account_name, storage_account_key)
 
     def get_utc_date(self):
+        """ This handy function can be used to put a UTC timestamp column in your entity, like a 'model_date' column, for example. """
         current_date = datetime.datetime.now()
         current_date = current_date.replace(tzinfo=datetime.timezone.utc)
         return current_date.isoformat()
 
     def _get_node_id(self):
+        """ Return a unique name for the current machine which is used as the lock identity """
         return platform.node()
 
     def _get_status_table_service(self):
@@ -108,7 +125,7 @@ class ArchaiStore:
         try:
             # find all properties (just use list_entities?)
             for e in table_client.query_entities(query_filter=query):
-                entities += [e]
+                entities += [self._wrap_numeric_types(e)]
 
         except Exception as e:
             print(f"### error reading table: {e}")
@@ -116,10 +133,14 @@ class ArchaiStore:
         return entities
 
     def get_status(self, name):
+        """ Get or create a new status entity with the given name.
+        The returned entity is a python dictionary where the name can be retrieved
+        using e['name'], you can then add keys to that dictionary and call update_status_entity. """
         table_client = self._get_table_client()
 
         try:
             entity = table_client.get_entity(partition_key='main', row_key=name)
+            entity = self._unwrap_numeric_types(entity)
         except Exception:
             entity = {
                 'PartitionKey': 'main',
@@ -129,41 +150,79 @@ class ArchaiStore:
             }
         return entity
 
+    def _wrap_numeric_types(self, entity):
+        e = {}
+        for k in entity.keys():
+            v = entity[k]
+            if isinstance(v, int):
+                e[k] = EntityProperty(v, EdmType.INT64)
+            elif isinstance(v, float):
+                e[k] = float(v)  # this is casting np.float to float.
+            else:
+                e[k] = v
+        return e
+
+    def _unwrap_numeric_types(self, entity):
+        e = {}
+        for k in entity.keys():
+            v = entity[k]
+            if isinstance(v, EntityProperty):
+                e[k] = v.value
+            else:
+                e[k] = v
+        return e
+
     def get_existing_status(self, name):
+        """ Find the given entity by name, and return it, or return None if the name is not found."""
         table_client = self._get_table_client()
         try:
             entity = table_client.get_entity(partition_key='main', row_key=name)
+            entity = self._unwrap_numeric_types(entity)
         except Exception:
             return None
         return entity
 
     def get_updated_status(self, e):
+        """ Return an updated version of the entity by querying the table again, this way you
+        can pick up any changes that another process may have made. """
         table_client = self._get_table_client()
         try:
-            return table_client.get_entity(partition_key=e['PartitionKey'], row_key=e['RowKey'])
+            entity = table_client.get_entity(partition_key=e['PartitionKey'], row_key=e['RowKey'])
+            entity = self._unwrap_numeric_types(entity)
         except Exception:
             return None
+        return entity
 
     def update_status_entity(self, entity):
+        """ This method replaces everything in the entity store with what you have here.
+        The entity can store strings, bool, float, int, datetime, so anything like a python list
+        is best serialized using json.dumps and stored as a string, the you can use json.loads to
+        parse it later. """
+        # Note that for things larger than Int32 we need to use EntityProperty with EdmType.INT64, and
+        # so we do that automatically here for the user so they don't have to, and get entity will turn
+        # the result back into a python integer than can be larger than Int32.
         table_client = self._get_table_client()
+        entity = self._wrap_numeric_types(entity)
         table_client.upsert_entity(entity=entity, mode=UpdateMode.REPLACE)
 
     def merge_status_entity(self, entity):
+        """ This method merges everything in the entity store with what you have here. So you can
+        add a property without clobbering any other new properties other processes have added in
+        parallel.
+
+        The entity can store strings, bool, float, int, datetime, so anything like a python list
+        is best serialized using json.dumps and stored as a string, the you can use json.loads to
+        parse it later. """
         table_client = self._get_table_client()
+        entity = self._wrap_numeric_types(entity)
         table_client.update_entity(entity=entity, mode=UpdateMode.MERGE)
 
     def update_status(self, name, status, priority=None):
-        table_client = self._get_table_client()
-
-        try:
-            entity = table_client.get_entity(partition_key='main', row_key=name)
-        except Exception:
-            entity = {
-                'PartitionKey': 'main',
-                'RowKey': name,
-                'name': name,
-                'status': status
-            }
+        """ This is a simple wrapper that gets the entity by name, and updates the status field.
+        If you already have the entity then use update_status_entity."""
+        entity = self.get_existing_status(name)
+        if entity is None:
+            entity = self.get_status(name)
             self.update_status_entity(entity)
 
         entity['status'] = status
@@ -173,19 +232,31 @@ class ArchaiStore:
         return entity
 
     def delete_status(self, name):
+        """ Delete the status entry with this name, note this does not delete any associated blobs.
+        See delete_blobs for that.  """
+        e = self.get_existing_status(name)
+        if e is not None:
+            table_client = self._get_table_client()
+            table_client.delete_entity(e)
+
+    def delete_status_entity(self, e):
+        """ Delete the status entry with this name, note this does not delete any associated blobs.
+        See delete_blobs for that.  """
         table_client = self._get_table_client()
+        e = self.get_existing_status(e['name'])
+        if e is not None:
+            table_client.delete_entity(e)
 
-        for e in self.get_all_status_entities():
-            if 'name' in e and e['name'] == name:
-                print(f"Deleting status entity for {name}")
-                table_client.delete_entity(e)
-
-    def upload_blob(self, name, file, blob_name=None):
+    def upload_blob(self, folder_name, file, blob_name=None):
+        """ Upload the given file to the blob store, under the given folder name.
+        The folder name could have multiple parts like 'project/experiment/foo'.
+        By default the blob will use the base file name, but you can override
+        that with the given blob_name if you want to.  """
         filename = os.path.basename(file)
         if blob_name:
-            blob = f"{name}/{blob_name}"
+            blob = f"{folder_name}/{blob_name}"
         else:
-            blob = f"{name}/{filename}"
+            blob = f"{folder_name}/{filename}"
 
         blob_client = self._get_blob_client(blob)
 
@@ -193,10 +264,23 @@ class ArchaiStore:
             blob_client.upload_blob(data, overwrite=True)
 
     def lock(self, name, status):
-        e = self.get_status(name)
+        """ Lock the named entity to this computer identified by platform.node()
+        and set the status to the given status.  This way you can use this ArchaiStore as
+        a way of coordinating the parallel executing of a number of jobs, where each long
+        running job is allocated to a particular node in a distributed cluster using this
+        locking mechanism.  Be sure to call unlock when done, preferably in a try/finally block. """
+        e = self.get_existing_status(name)
+        if e is None:
+            e = self.get_status(name)
+            self.update_status_entity(e)
         return self.lock_entity(e, status)
 
     def lock_entity(self, e, status):
+        """ Lock the given entity to this computer identified by platform.node()
+        and set the status to the given status.  This way you can use this ArchaiStore as
+        a way of coordinating the parallel executing of a number of jobs, where each long
+        running job is allocated to a particular node in a distributed cluster using this
+        locking mechanism.  Be sure to call unlock when done, preferably in a try/finally block. """
         node_id = self._get_node_id()
         if 'node' in e and e['node'] != node_id:
             name = e['name']
@@ -207,16 +291,41 @@ class ArchaiStore:
         self.merge_status_entity(e)
         return e
 
-    def is_locked(self, e):
+    def is_locked(self, name):
+        """ Return true if the entity exists and is locked by anyone (including this computer). """
+        e = self.get_existing_status(name)
+        if e is None:
+            return False
+        return 'node' in e
+
+    def is_locked_by_self(self, name):
+        """ Return true if the entity exists and is locked this computer.  This is handy if the
+        computer restarts and wants to continue processing rows it has already claimed. """
+        e = self.get_existing_status(name)
+        if e is None:
+            return False
+        node_id = self._get_node_id()
+        return 'node' in e and e['node'] == node_id
+
+    def is_locked_by_other(self, name):
+        """ Return true if the entity exists and is locked some other computer.  This will tell
+        the local computer not to touch this row of the table as someone else has it. """
+        e = self.get_existing_status(name)
+        if e is None:
+            return False
         node_id = self._get_node_id()
         return 'node' in e and e['node'] != node_id
 
     def unlock(self, name):
+        """ Unlock the entity (regardless of who owns it - so use carefully, preferably only
+        when is_locked_by_self is true). """
         e = self.get_status(name)
         self.unlock_entity(e)
         return e
 
     def unlock_entity(self, e):
+        """ Unlock the entity (regardless of who owns it - so use carefully, preferably only
+        when is_locked_by_self is true). """
         if 'node' in e:
             del e['node']
             self.update_status_entity(e)
@@ -225,12 +334,14 @@ class ArchaiStore:
         return e
 
     def get_lock(self, entity):
+        """ Find out what computer has the entity locked. """
         if 'node' in entity and entity['node']:
             return entity['node']
         return None
 
     def unlock_all(self, node_name):
-        # fix up the 'date' property for uploaded blobs
+        """ This is a sledge hammer for unlocking all entities, use carefully.
+        This might be necessary if you are moving everything to a new cluster. """
         for e in self.get_all_status_entities():
             name = e['name']
             node = e['node'] if 'node' in e else None
@@ -245,25 +356,53 @@ class ArchaiStore:
                 print(f"Unlocking job {name} on node {node}")
                 self.merge_status_entity(e)
 
-    def batch_upload(self, path, override, reset, priority=0, **kwargs):
-        if not os.path.isdir(path):
-            raise Exception(f'Path not found: {path}')
+    def reset(self, name):
+        """ This resets all properties on the given entity that are not primary keys,
+        'name' or 'status'. This will not touch a node that is locked by another.  """
+        e = self.get_existing_status(name)
+        if not e:
+            print(f"Entity {name} not found")
+        else:
+            self._reset(e)
 
-        # find all the models in the directory
-        models = glob.glob(os.path.join(path, '*.onnx'))
-        if len(models) == 0:
-            print(f"No *.onnx models found in {path}")
+    def _reset(self, e):
+        if self.is_locked_by_other(e):
+            node = self.get_lock(e)
+            print(f"Skipping {e['RowKey']} as it is locked by {node}")
+        elif self._reset_metrics(e):
+            e['status'] = 'reset'
+            print(f"Resetting entity {e['RowKey']}")
+            self.update_status_entity(e)
 
-        for file in models:
-            name = os.path.splitext(os.path.basename(file))[0]
-            if override or not self.get_existing_status(name):
-                self.upload(name, file, reset, priority, **kwargs)
-            else:
-                print(f"Skipping {name} as it already exists")
+    def reset_all(self, name):
+        """ This resets all properties on all entities that are not locked by another.  """
+        for e in self.get_all_status_entities():
+            self._reset(e)
+
+    def _reset_metrics(self, entity):
+        # now clear all data to force a full re-run of everything.
+        modified = False
+        for key in list(entity.keys()):
+            if key != 'PartitionKey' and key != 'RowKey' and key != 'name' and key != 'status' and key != 'node':
+                del entity[key]
+                modified = True
+        return modified
 
     def upload(self, name, path, reset, priority=0, **kwargs):
+        """ Upload a file to the named folder in the blob store associated with this ArchaiStore and
+        add the given named status row in our status table.  It also locks the row with 'uploading'
+        status until the upload is complete which ensures another machine does not try
+        processing work until the upload is finished. The path points to a file or a folder.
+        If a folder it uploads everything in that folder. This can also optionally reset
+        the row, since sometimes you want to upload a new model for training, then reset
+        all the metrics computed on the previous model. The optional priority is just a
+        added as a property on the row which can be used by a distributed job scheduler to
+        prioritize the work that is being queued up in this table. """
         if not name:
-            raise Exception('Model name is missing')
+            raise Exception('Entity name is missing')
+
+        if '/' in name:
+            raise Exception('Entity name cannot contain a slash')
         e = self.get_status(name)
 
         e = self.lock(name, 'uploading')
@@ -297,29 +436,28 @@ class ArchaiStore:
 
         self.unlock_entity(e)
 
-    def reset(self, name):
-        e = self.get_existing_status(name)
-        if not e:
-            print(f"Model {name} not found")
-        else:
-            self._reset(e)
+    def batch_upload(self, path, glob_pattern='*.onnx', override=False, reset=False, priority=0, **kwargs):
+        """ Upload all the matching files in the given path to the blob store
+        where the status table 'name' will be the base name of the files found
+        by the given non-recursive glob_pattern.
+        """
+        if not os.path.isdir(path):
+            raise Exception(f'Path is not a directory: {path}')
 
-    def _reset(self, e):
-        node = self.get_lock(e)
-        if node:
-            print(f"Skipping {e['RowKey']} as it is locked by {node}")
-        elif self._reset_metrics(e):
-            e['status'] = 'reset'
-            print(f"Resetting entity {e['RowKey']}")
-            self.update_status_entity(e)
+        models = glob.glob(os.path.join(path, glob_pattern))
+        if len(models) == 0:
+            print(f"No *.onnx models found in {path}")
 
-    def reset_all(self, name):
-        for e in self.get_all_status_entities():
-            self._reset(e)
+        for file in models:
+            name = os.path.splitext(os.path.basename(file))[0]
+            if override or not self.get_existing_status(name):
+                self.upload(name, file, reset, priority, **kwargs)
+            else:
+                print(f"Skipping {name} as it already exists")
 
-    def download(self, friendly_name, folder, specific_file=None):
-        """ Download files from the given friendly name folder of the blob_container_name.
-        and return the local path to that file including the folder.  If an optional specific_file is
+    def download(self, name, folder, specific_file=None):
+        """ Download files from the given folder name from our associated blob container
+        and return a list of the local paths to all downloaded files.  If an optional specific_file is
         given then it tries to find and download that file only.  Returns a list of local files created. """
         container = self._get_container_client(self.blob_container_name)
         if not container.exists():
@@ -328,7 +466,7 @@ class ArchaiStore:
         if not os.path.isdir(folder):
             os.makedirs(folder)
         local_file = None
-        prefix = f'{friendly_name}/'
+        prefix = f'{name}/'
         downloaded = []
 
         for blob in container.list_blobs(name_starts_with=prefix):
@@ -367,6 +505,7 @@ class ArchaiStore:
         return downloaded
 
     def delete_blobs(self, name, specific_file=None):
+        """ Delete all the blobs associated with the given entity name. """
         container = self._get_container_client(self.blob_container_name)
         prefix = f'{name}/'
         for blob in container.list_blobs(name_starts_with=prefix):
@@ -374,15 +513,6 @@ class ArchaiStore:
             if specific_file and file_name != specific_file:
                 continue
             container.delete_blob(blob)
-
-    def _reset_metrics(self, entity):
-        # now clear all data to force a full re-run of everything.
-        modified = False
-        for key in list(entity.keys()):
-            if key != 'PartitionKey' and key != 'RowKey' and key != 'name' and key != 'status' and key != 'node':
-                del entity[key]
-                modified = True
-        return modified
 
     def print_entities(self, entities, columns=None):
         keys = []

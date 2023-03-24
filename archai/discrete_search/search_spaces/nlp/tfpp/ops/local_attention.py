@@ -15,30 +15,30 @@ TOKEN_SELF_ATTN_VALUE = -5e4
 
 
 class SinusoidalEmbeddings(nn.Module):
-    def __init__(self, dim: int):
+    def __init__(self, dim):
         super().__init__()
         inv_freq = 1. / (10000 ** (torch.arange(0, dim, 2).float() / dim))
         self.register_buffer('inv_freq', inv_freq)
 
-    def forward(self, x: torch.FloatTensor):
+    def forward(self, x):
         n = x.shape[-2]
         t = torch.arange(n, device = x.device).type_as(self.inv_freq)
         freqs = torch.einsum('i , j -> i j', t, self.inv_freq)
         return torch.cat((freqs, freqs), dim=-1)
 
-def rotate_half(x: torch.FloatTensor):
+def rotate_half(x):
     x = rearrange(x, 'b ... (r d) -> b (...) r d', r = 2)
     x1, x2 = x.unbind(dim = -2)
     return torch.cat((-x2, x1), dim = -1)
 
-def apply_rotary_pos_emb(q: torch.FloatTensor, k: torch.FloatTensor, freqs: torch.FloatTensor):
+def apply_rotary_pos_emb(q, k, freqs):
     q, k = map(lambda t: (t * freqs.cos()) + (rotate_half(t) * freqs.sin()), (q, k))
     return q, k
 
-def max_neg_value(tensor: torch.Tensor):
+def max_neg_value(tensor):
     return -torch.finfo(tensor.dtype).max
 
-def pad_to_multiple(tensor: torch.FloatTensor, multiple: int, dim: int = -1, value: float = 0):
+def pad_to_multiple(tensor, multiple, dim=-1, value=0):
     seqlen = tensor.shape[dim]
     m = seqlen / multiple
     if m.is_integer():
@@ -47,7 +47,7 @@ def pad_to_multiple(tensor: torch.FloatTensor, multiple: int, dim: int = -1, val
     pad_offset = (0,) * (-1 - dim) * 2
     return True, F.pad(tensor, (*pad_offset, 0, remainder), value = value)
 
-def look_around(x, backward: int = 1, forward: int = 0, pad_value: float = -1, dim: int = 2):
+def look_around(x, backward = 1, forward = 0, pad_value = -1, dim = 2):
     t = x.shape[1]
     dims = (len(x.shape) - dim) * (0, 0)
     padded_x = F.pad(x, (*dims, backward, forward), value = pad_value)
@@ -58,13 +58,13 @@ def look_around(x, backward: int = 1, forward: int = 0, pad_value: float = -1, d
 class LocalAttention(nn.Module):
     def __init__(
         self,
-        window_size: int,
-        causal: bool = False,
-        look_backward: int = 1,
-        look_forward: Optional[int] = None,
-        dropout: float = 0.,
-        autopad: bool = False,
-        exact_windowsize: bool = False,
+        window_size,
+        causal = False,
+        look_backward = 1,
+        look_forward = None,
+        dropout = 0.,
+        autopad = False,
+        exact_windowsize = False,
         pad_value: int = -1,
         rel_pos_emb_dim: Optional[int] = None,
         **kwargs
@@ -90,8 +90,7 @@ class LocalAttention(nn.Module):
         if rel_pos_emb_dim is not None:  # backwards compatible with old `rel_pos_emb_config` deprecated argument
             self.rel_pos = SinusoidalEmbeddings(rel_pos_emb_dim)
 
-    def forward(self, q: torch.FloatTensor, k: torch.FloatTensor, v: torch.FloatTensor,
-                bin_attention_mask: Optional[torch.FloatTensor] = None):
+    def forward(self, q, k, v, bin_attention_mask: Optional[torch.FloatTensor] = None):
         # https://github.com/arogozhnikov/einops/blob/master/docs/4-pack-and-unpack.ipynb
         (q, packed_shape), (k, _), (v, _) = map(lambda t: pack([t], '* n d'), (q, k, v))
 
@@ -218,8 +217,7 @@ class LocalMHA(nn.Module):
             **kwargs
         )
 
-    def forward(self, hidden_states: torch.FloatTensor,
-                bin_attention_mask: Optional[torch.LongTensor] = None, **kwargs):
+    def forward(self, hidden_states, bin_attention_mask: Optional[torch.LongTensor] = None, **kwargs):
         if self.norm is not None:
             hidden_states = self.norm(hidden_states)
 
