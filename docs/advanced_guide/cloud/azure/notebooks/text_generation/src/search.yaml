@@ -1,0 +1,29 @@
+display_name: Search with Transformer-Flex
+type: command
+compute: nas-cpu-cluster-D14-v2
+inputs:
+  model_type: gpt2
+  num_iters: 2
+  init_num_models: 5
+  num_random_mix: 5
+  max_unseen_population: 100
+  mutations_per_parent: 1
+  num_crossovers: 5
+  seed: 123
+outputs:
+  output_dir:
+    type: uri_folder
+code: .
+environment:
+  azureml:aml-archai:0.0.1
+command: >-
+  python search.py
+  --model_type ${{inputs.model_type}}
+  --num_iters ${{inputs.num_iters}}
+  --init_num_models ${{inputs.init_num_models}}
+  --num_random_mix ${{inputs.num_random_mix}}
+  --max_unseen_population ${{inputs.max_unseen_population}}
+  --mutations_per_parent ${{inputs.mutations_per_parent}}
+  --num_crossovers ${{inputs.num_crossovers}}
+  --seed ${{inputs.seed}}
+  --output_dir ${{outputs.output_dir}}
