@@ -7,9 +7,11 @@ import re
 from setuptools import find_packages, setup
 
 dependencies = [
+    "azure-ai-ml==1.5.0",
     "azure-data-tables",
     "azure-identity",
     "azure-storage-blob",
+    "azureml-mlflow",
     "datasets>=2.4.0",
     "deepspeed",
     "einops",
@@ -19,7 +21,10 @@ dependencies = [
     "gorilla>=0.4.0",
     "h5py",
     "hyperopt",
+    "ipykernel",
+    "jupyter",
     "matplotlib",
+    "mldesigner",
     "mlflow",
     "nbimporter",
     "nbsphinx",
@@ -92,7 +97,22 @@ extras_require["tests"] = filter_dependencies(
     "pytest"
 )
 
-extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
+extras_require["aml"] = filter_dependencies(
+    "azure-ai-ml",
+    "azure-data-tables",
+    "azure-identity",
+    "azure-storage-blob",
+    "azureml-mlflow",
+    "ipykernel",
+    "jupyter",
+    "matplotlib",
+    "mldesigner",
+    "mlflow",
+    "pytorch-lightning",
+    "torchvision"
+)
+
+extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"] + extras_require["aml"]
 if os.name != "nt":
     # Support for DeepSpeed is not available on native Windows
     extras_require["dev"] += extras_require["deepspeed"]

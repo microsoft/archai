@@ -208,11 +208,11 @@ class ArchaiStore:
     def merge_status_entity(self, entity):
         """ This method merges everything in the entity store with what you have here. So you can
         add a property without clobbering any other new properties other processes have added in
-        parallel.
+        parallel.  Merge cannot delete properties, for that you have to use update_status_entity.
 
         The entity can store strings, bool, float, int, datetime, so anything like a python list
         is best serialized using json.dumps and stored as a string, the you can use json.loads to
-        parse it later. """
+        parse it later."""
         table_client = self._get_table_client()
         entity = self._wrap_numeric_types(entity)
         table_client.update_entity(entity=entity, mode=UpdateMode.MERGE)
@@ -490,7 +490,6 @@ class ArchaiStore:
                 elif os.path.isdir(local_file):
                     rmtree(local_file)
                 os.makedirs(dir, exist_ok=True)
-                print(f"Downloading file: {file_name} to {local_file} ...")
                 blob_client = container.get_blob_client(blob)
                 try:
                     with open(local_file, 'wb') as f:
@@ -498,7 +497,7 @@ class ArchaiStore:
                         f.write(data.readall())
                     downloaded += [local_file]
                 except Exception as e:
-                    print(f"### Error downloading to local file: {e}")
+                    print(f"### Error downloading blob '{blob}' to local file: {e}")
                 if specific_file:
                     break
 
