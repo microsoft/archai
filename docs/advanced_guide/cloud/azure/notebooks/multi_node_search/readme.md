@@ -43,7 +43,8 @@ shaping up, you will see something like this after 5 iterations have completed.
 
 ![pareto](images/epochs1.png)
 
-When the search is finished you will see this output in the log showing the top models
+When the search is finished the next cell in the notebook will download the results including a file named 'models.json' that reports the best models found by the search:
+
 
 ```json
 Top model results:
@@ -60,8 +61,6 @@ Top model results:
     "val_acc": 0.2237
   },
 ```
-
-And the next cell in the notebook will download this file named 'models.json'.
 
 You can run the last cell of the notebook to compare the inference accuracy of the top
 model using the ONNX runtime locally on the resulting downloaded .onnx model.
@@ -165,4 +164,3 @@ performed in the main pipeline defined in the [multi_node_search](multi_node_sea
 
 `utils.py` a few small helper functions used by the notebook, moved here just to reduce the notebook
 size.
-

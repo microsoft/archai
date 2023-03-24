@@ -69,8 +69,8 @@ class JobCompletionMonitor:
                     train_job = self.ml_client.jobs.get(self.pipeline_id)
                     if train_job is not None:
                         pipeline_status = train_job.status
-            except:
-                pass
+            except Exception as e:
+                print(f'Error getting pipeline status for pipeline {self.pipeline_id}: {e}')
 
             if pipeline_status is not None:
                 if pipeline_status == 'Completed':
@@ -129,7 +129,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', help='bin hexed config json info for MLClient')
     parser.add_argument('--timeout', type=int, help='pipeline timeout in seconds (default 1 hour)', default=3600)
-    parser.add_argument('--model_path', required=True, help='mounted path containing the models.json file')
+    parser.add_argument('--model_path', required=True, help='mounted path containing the pending.json file')
     parser.add_argument('--output', required=True, help='folder to write the results to)')
 
     args = parser.parse_args()
@@ -141,9 +141,9 @@ def main():
     if not os.path.isdir(model_path):
         raise Exception("### directory not found")
 
-    models_file = os.path.join(model_path, 'models.json')
+    models_file = os.path.join(model_path, 'pending.json')
     if not os.path.isfile(models_file):
-        raise Exception("### 'models.json' not found in --model_path")
+        raise Exception("### 'pending.json' not found in --model_path")
 
     models = json.load(open(models_file))
     model_ids = [m['id'] for m in models['models']]
@@ -179,6 +179,7 @@ def main():
     monitor = JobCompletionMonitor(store, ml_client, timeout=timeout)
     results = monitor.wait(model_ids)
     if output is not None:
+        # save the results with updated validation accuracies to models.json
         with open(os.path.join(output, 'models.json'), 'w') as f:
             f.write(json.dumps(results, indent=2))
 

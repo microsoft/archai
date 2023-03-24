@@ -103,9 +103,9 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
 
     # Write the new list of pending models so that the make_monitor_command
     # knows what to wait for.
-    print("Writing updated models.json: ")
+    print("Writing pending.json: ")
     print(json.dumps(results, indent=2))
-    results_path = f'{output_folder}/models.json'
+    results_path = f'{output_folder}/pending.json'
     with open(results_path, 'w') as f:
         f.write(json.dumps(results, indent=2))
 
@@ -117,11 +117,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, help="optional bin hex encoded config.json file ")
     parser.add_argument("--description", type=str, help="the pipeline description")
-    parser.add_argument("--models_path", help="Location of our models.json file.")
+    parser.add_argument("--models_path", help="Location of our pareto.json file.")
     parser.add_argument("--compute_cluster_name", help="name of compute cluster to use")
     parser.add_argument("--datastore_uri", help="location of dataset datastore")
     parser.add_argument("--results_uri", help="location to store the trained models")
-    parser.add_argument("--output_path", help="location to store the list of new models")
+    parser.add_argument("--output_path", help="location to store the list of pending models (pending.json)")
     parser.add_argument("--experiment_name", help="name of AML experiment")
     parser.add_argument("--environment_name", help="AML conda environment to use")
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
