@@ -77,13 +77,13 @@ class JobCompletionMonitor:
                     # ok, all jobs are done, which means if we still have waiting tasks then they failed to
                     # even start.
                     break
-                elif pipeline_status == 'Failed':
+                elif pipeline_status == 'Failed' or pipeline_status == 'Canceled':
                     for id in waiting:
                         e = self.store.get_status(id)
                         if 'error' not in e:
-                            e['error'] = 'Pipeline failed'
+                            e['error'] = f'Pipeline {pipeline_status}'
                         if 'status' not in e or e['status'] != 'completed':
-                            e['status'] = failed
+                            e['status'] = pipeline_status.lower()
                         self.store.update_status_entity(e)
                     raise Exception('Partial Training Pipeline failed')
 

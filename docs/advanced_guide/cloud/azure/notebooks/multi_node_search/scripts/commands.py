@@ -8,7 +8,6 @@ from azure.ai.ml.entities import UserIdentityConfiguration
 
 def make_train_model_command(output_path, code_dir, environment_name, id,
                              storage_account_name, storage_account_key,
-                             subscription_id, resource_group_name, workspace_name,
                              archid, training_epochs, save_models):
     """ This is a parametrized command for training a given model architecture.
     We will stamp these out to create a distributed training pipeline, with one
@@ -17,9 +16,6 @@ def make_train_model_command(output_path, code_dir, environment_name, id,
     fixed_args = f'--name "{id}" ' + \
         f'--storage_account_name "{storage_account_name}" ' + \
         f'--storage_account_key "{storage_account_key}" ' + \
-        f'--subscription "{subscription_id}" ' + \
-        f'--resource_group "{resource_group_name}" ' + \
-        f'--workspace "{workspace_name}" ' + \
         f'--model_params "{archid}" ' + \
         f'--epochs "{training_epochs}" '
 

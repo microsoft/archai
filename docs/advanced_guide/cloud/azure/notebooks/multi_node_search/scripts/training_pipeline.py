@@ -82,7 +82,6 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
             train_job = make_train_model_command(
                 output_path, code_dir, environment_name, model_id,
                 store.storage_account_name, store.storage_account_key,
-                ml_client.subscription_id, ml_client.resource_group_name, ml_client.workspace_name,
                 archid, training_epochs, save_models)(
                 data=data_input
             )

@@ -33,9 +33,6 @@ def main():
     parser.add_argument("--save_models", action='store_true', help="save models to azure storage")
     parser.add_argument("--model_params", type=str, help="json string containing model parameters")
     parser.add_argument("--data_dir", type=str, help="location of dataset", default='dataset')
-    parser.add_argument("--subscription", type=str, help="subscription of workspace")
-    parser.add_argument("--resource_group", type=str, help="resource group of workspace")
-    parser.add_argument("--workspace", type=str, help="the workspace name")
     parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
     parser.add_argument("--output", type=str, help="place to write the results", default='output')
 
@@ -76,7 +73,7 @@ def main():
 
         data = MNistDataModule(args.data_dir)
         trainer = Trainer(accelerator='gpu', max_epochs=1, callbacks=[TQDMProgressBar(refresh_rate=100)])
-        mlflow.pytorch.autolog()
+        mlflow.pytorch.autolog(log_models=save_models, registered_model_name=name)
         with mlflow.start_run() as run:
             trainer.fit(model, data)
         print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
