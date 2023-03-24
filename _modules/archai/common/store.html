@@ -1,0 +1,1167 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>archai.common.store &#8212; Archai</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/tabs.js"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/archai/common/store';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/_modules/archai/common/store.html" />
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/package_structure.html">Package Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/notebooks.html">Notebooks</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/notebooks/api.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/api/dataset_provider.html">Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/api/trainer_base.html">Trainer (Base)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/notebooks/discrete_search.html">Discrete Search</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/discrete_search/search_space.html">Search Spaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/discrete_search/evaluators.html">Evaluators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/discrete_search/algos.html">Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/discrete_search/config_search.html">Configuration-based Search</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/notebooks/supergraph.html">Supergraph</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/notebooks/cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/cv/cv_dataset_provider.html">Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/cv/pl_trainer.html">PyTorch-Lightining Trainer</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/notebooks/nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/fast_hf_dataset_provider.html">Fast HF Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/hf_dataset_provider.html">HF Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/hf_trainer.html">HF Trainer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/nvidia_dataset_provider.html">NVIDIA Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/nvidia_trainer.html">NVIDIA Trainer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/onnx_export.html">ONNX Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/torch_quantization.html">PyTorch Quantization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../advanced_guide/nas.html">Neural Architecture Search</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/nas/discrete_search.html">Discrete Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/nas/supergraph.html">Supergraph</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../advanced_guide/cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/cv/datasets.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/cv/trainers.html">Trainers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/cv/onnx.html">ONNX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/cv/quantization.html">Quantization</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../advanced_guide/nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/nlp/datasets.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/nlp/trainers.html">Trainers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/nlp/onnx.html">ONNX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/nlp/quantization.html">Quantization</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../advanced_guide/cloud.html">Cloud-Based Search</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced_guide/cloud/azure.html">Azure</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Contributing</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/first_contribution.html">First Time Contributor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing/unit_tests.html">Unit Tests</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Support</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../support/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../support/contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../support/copyright.html">Copyright</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../reference/api.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/api/archai.api.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../reference/api/archai.common.html">Common Packages</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/api/archai.datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.datasets.cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.datasets.cv.transforms.html">Transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.datasets.nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-13"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.datasets.nlp.tokenizer_utils.html">Tokenization Utilities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.html">Discrete Search</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-14"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.api.html">API</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/api/archai.onnx.html">ONNX</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-17"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.onnx.config_utils.html">Configuration Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.onnx.optimization_utils.html">Optimization Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/api/archai.quantization.html">Quantization</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.quantization.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/api/archai.supergraph.html">Supergraph</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.supergraph.algos.html">Algorithms</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-20"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.algos.darts.html">DARTS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.algos.didarts.html">DiDARTS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.algos.divnas.html">DivNAS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.algos.gumbelsoftmax.html">Gumbel-Softmax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.algos.manual.html">Manual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.algos.nasbench101.html">NasBench-101</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.algos.petridish.html">Petridish</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.algos.random.html">Random</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.algos.xnas.html">XNAS</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.supergraph.datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-21"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.datasets.providers.html">Providers</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.supergraph.models.html">Models</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-22"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.supergraph.models.shakeshake.html">ShakeShake</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.supergraph.nas.html">Neural Architecture Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.supergraph.utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../reference/api/archai.trainers.html">Trainers</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-23"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.trainers.cv.html">Computer Vision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.trainers.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/changelog.html">Changelog</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/microsoft/archai" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/common/store.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for archai.common.store</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">platform</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">azure.data.tables</span> <span class="kn">import</span> <span class="n">TableServiceClient</span><span class="p">,</span> <span class="n">UpdateMode</span><span class="p">,</span> <span class="n">EntityProperty</span><span class="p">,</span> <span class="n">EdmType</span>
+<span class="kn">from</span> <span class="nn">azure.storage.blob</span> <span class="kn">import</span> <span class="n">BlobClient</span><span class="p">,</span> <span class="n">ContainerClient</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">rmtree</span>
+
+
+<span class="n">CONNECTION_NAME</span> <span class="o">=</span> <span class="s1">&#39;MODEL_STORAGE_CONNECTION_STRING&#39;</span>
+
+
+<div class="viewcode-block" id="ArchaiStore"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore">[docs]</a><span class="k">class</span> <span class="nc">ArchaiStore</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ArchaiStore wraps an Azure &#39;status&#39; Table and associated Blob Storage used to provide a backing</span>
+<span class="sd">    store and collating status for long running jobs.  This is actually a general purpose utility class</span>
+<span class="sd">    that could be used for anything.</span>
+
+<span class="sd">    The naming scheme is such that each Entity in the table has a &#39;name&#39; property which is a simple</span>
+<span class="sd">    friendly name or a guid, and this row will have an associated folder in the blob storage container</span>
+<span class="sd">    with the same name where models and other peripheral files can be stored.</span>
+
+<span class="sd">    The &#39;status&#39; table supports a locking concept that allows the status table to be used as a way of</span>
+<span class="sd">    coordinating jobs across multiple machines where each machine grabs free work, locks that row until</span>
+<span class="sd">    the work is done, uploads new files, and updates the status to &#39;complete&#39; then unlocks that row.</span>
+<span class="sd">    So this ArchaiStore can be used as the backing store for a simple distributed job scheduler.</span>
+
+<span class="sd">    This also has a convenient command line interface provided below.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span><span class="p">,</span> <span class="n">blob_container_name</span><span class="o">=</span><span class="s1">&#39;models&#39;</span><span class="p">,</span> <span class="n">status_table_name</span><span class="o">=</span><span class="s1">&#39;status&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storage_account_key</span> <span class="o">=</span> <span class="n">storage_account_key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storage_account_name</span> <span class="o">=</span> <span class="n">storage_account_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storage_connection_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;DefaultEndpointsProtocol=https;AccountName=</span><span class="si">{</span><span class="n">storage_account_name</span><span class="si">}</span><span class="s1">;AccountKey=</span><span class="si">{</span><span class="n">storage_account_key</span><span class="si">}</span><span class="s1">;EndpointSuffix=core.windows.net&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blob_container_name</span> <span class="o">=</span> <span class="n">blob_container_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_table_name</span> <span class="o">=</span> <span class="n">status_table_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_client</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">container_client</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ArchaiStore.parse_connection_string"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.parse_connection_string">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_connection_string</span><span class="p">(</span><span class="n">storage_connection_string</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This helper method extracts the storage account name and key pair from a connection string</span>
+<span class="sd">        and returns that pair in a tuple.  This pair can then be used to construct an ArchaiStore object &quot;&quot;&quot;</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">storage_connection_string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+        <span class="n">storage_account_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">storage_account_key</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">part</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">part</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">part</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;AccountName&quot;</span><span class="p">:</span>
+                <span class="n">storage_account_name</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;AccountKey&quot;</span><span class="p">:</span>
+                <span class="n">storage_account_key</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">storage_account_name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;storage_connection_string is missing AccountName part&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">storage_account_key</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;storage_connection_string is missing AccountKey part&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.get_utc_date"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.get_utc_date">[docs]</a>    <span class="k">def</span> <span class="nf">get_utc_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This handy function can be used to put a UTC timestamp column in your entity, like a &#39;model_date&#39; column, for example. &quot;&quot;&quot;</span>
+        <span class="n">current_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">current_date</span> <span class="o">=</span> <span class="n">current_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">current_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_node_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return a unique name for the current machine which is used as the lock identity &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">platform</span><span class="o">.</span><span class="n">node</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_status_table_service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;azure.core.pipeline.policies.http_logging_policy&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">TableServiceClient</span><span class="o">.</span><span class="n">from_connection_string</span><span class="p">(</span><span class="n">conn_str</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">storage_connection_string</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">logging_enable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_table_client</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_client</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_status_table_service</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">table_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">create_table_if_not_exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_table_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_client</span>
+
+    <span class="k">def</span> <span class="nf">_get_container_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">container_client</span><span class="p">:</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;azure.core.pipeline.policies.http_logging_policy&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">container_client</span> <span class="o">=</span> <span class="n">ContainerClient</span><span class="o">.</span><span class="n">from_connection_string</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">storage_connection_string</span><span class="p">,</span>
+                <span class="n">container_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+                <span class="n">logging_enable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">container_client</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">container_client</span><span class="o">.</span><span class="n">create_container</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">container_client</span>
+
+    <span class="k">def</span> <span class="nf">_get_blob_client</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_container_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blob_container_name</span><span class="p">)</span>  <span class="c1"># make sure container exists.</span>
+        <span class="k">return</span> <span class="n">BlobClient</span><span class="o">.</span><span class="n">from_connection_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">storage_connection_string</span><span class="p">,</span> <span class="n">container_name</span><span class="o">=</span><span class="n">container</span><span class="o">.</span><span class="n">container_name</span><span class="p">,</span> <span class="n">blob_name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ArchaiStore.get_all_status_entities"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.get_all_status_entities">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_status_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">not_equal</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get all status entities with optional status column filter.</span>
+<span class="sd">        For example, pass &quot;status=complete&quot; to find all status rows that</span>
+<span class="sd">        have the status &quot;complete&quot;.  Pass not_equal of True if you want</span>
+<span class="sd">        to check the status is not equal to the given value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">table_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_table_client</span><span class="p">()</span>
+
+        <span class="n">entities</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;PartitionKey eq &#39;main&#39;&quot;</span>
+        <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">not_equal</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; and status ne &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; and status eq &#39;</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># find all properties (just use list_entities?)</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">table_client</span><span class="o">.</span><span class="n">query_entities</span><span class="p">(</span><span class="n">query_filter</span><span class="o">=</span><span class="n">query</span><span class="p">):</span>
+                <span class="n">entities</span> <span class="o">+=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap_numeric_types</span><span class="p">(</span><span class="n">e</span><span class="p">)]</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;### error reading table: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">entities</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.get_status"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.get_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get or create a new status entity with the given name.</span>
+<span class="sd">        The returned entity is a python dictionary where the name can be retrieved</span>
+<span class="sd">        using e[&#39;name&#39;], you can then add keys to that dictionary and call update_status_entity. &quot;&quot;&quot;</span>
+        <span class="n">table_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_table_client</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">table_client</span><span class="o">.</span><span class="n">get_entity</span><span class="p">(</span><span class="n">partition_key</span><span class="o">=</span><span class="s1">&#39;main&#39;</span><span class="p">,</span> <span class="n">row_key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unwrap_numeric_types</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;PartitionKey&#39;</span><span class="p">:</span> <span class="s1">&#39;main&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;RowKey&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;new&#39;</span>
+            <span class="p">}</span>
+        <span class="k">return</span> <span class="n">entity</span></div>
+
+    <span class="k">def</span> <span class="nf">_wrap_numeric_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="n">e</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">EntityProperty</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">EdmType</span><span class="o">.</span><span class="n">INT64</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                <span class="n">e</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># this is casting np.float to float.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">e</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">e</span>
+
+    <span class="k">def</span> <span class="nf">_unwrap_numeric_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">entity</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">EntityProperty</span><span class="p">):</span>
+                <span class="n">e</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">e</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">e</span>
+
+<div class="viewcode-block" id="ArchaiStore.get_existing_status"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.get_existing_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_existing_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Find the given entity by name, and return it, or return None if the name is not found.&quot;&quot;&quot;</span>
+        <span class="n">table_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_table_client</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">table_client</span><span class="o">.</span><span class="n">get_entity</span><span class="p">(</span><span class="n">partition_key</span><span class="o">=</span><span class="s1">&#39;main&#39;</span><span class="p">,</span> <span class="n">row_key</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unwrap_numeric_types</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">entity</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.get_updated_status"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.get_updated_status">[docs]</a>    <span class="k">def</span> <span class="nf">get_updated_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return an updated version of the entity by querying the table again, this way you</span>
+<span class="sd">        can pick up any changes that another process may have made. &quot;&quot;&quot;</span>
+        <span class="n">table_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_table_client</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">table_client</span><span class="o">.</span><span class="n">get_entity</span><span class="p">(</span><span class="n">partition_key</span><span class="o">=</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;PartitionKey&#39;</span><span class="p">],</span> <span class="n">row_key</span><span class="o">=</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;RowKey&#39;</span><span class="p">])</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unwrap_numeric_types</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">entity</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.update_status_entity"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.update_status_entity">[docs]</a>    <span class="k">def</span> <span class="nf">update_status_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This method replaces everything in the entity store with what you have here.</span>
+<span class="sd">        The entity can store strings, bool, float, int, datetime, so anything like a python list</span>
+<span class="sd">        is best serialized using json.dumps and stored as a string, the you can use json.loads to</span>
+<span class="sd">        parse it later. &quot;&quot;&quot;</span>
+        <span class="c1"># Note that for things larger than Int32 we need to use EntityProperty with EdmType.INT64, and</span>
+        <span class="c1"># so we do that automatically here for the user so they don&#39;t have to, and get entity will turn</span>
+        <span class="c1"># the result back into a python integer than can be larger than Int32.</span>
+        <span class="n">table_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_table_client</span><span class="p">()</span>
+        <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_numeric_types</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="n">table_client</span><span class="o">.</span><span class="n">upsert_entity</span><span class="p">(</span><span class="n">entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">UpdateMode</span><span class="o">.</span><span class="n">REPLACE</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.merge_status_entity"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.merge_status_entity">[docs]</a>    <span class="k">def</span> <span class="nf">merge_status_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This method merges everything in the entity store with what you have here. So you can</span>
+<span class="sd">        add a property without clobbering any other new properties other processes have added in</span>
+<span class="sd">        parallel.</span>
+
+<span class="sd">        The entity can store strings, bool, float, int, datetime, so anything like a python list</span>
+<span class="sd">        is best serialized using json.dumps and stored as a string, the you can use json.loads to</span>
+<span class="sd">        parse it later. &quot;&quot;&quot;</span>
+        <span class="n">table_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_table_client</span><span class="p">()</span>
+        <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_numeric_types</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="n">table_client</span><span class="o">.</span><span class="n">update_entity</span><span class="p">(</span><span class="n">entity</span><span class="o">=</span><span class="n">entity</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">UpdateMode</span><span class="o">.</span><span class="n">MERGE</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.update_status"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.update_status">[docs]</a>    <span class="k">def</span> <span class="nf">update_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This is a simple wrapper that gets the entity by name, and updates the status field.</span>
+<span class="sd">        If you already have the entity then use update_status_entity.&quot;&quot;&quot;</span>
+        <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_status_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+
+        <span class="n">entity</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span>
+        <span class="k">if</span> <span class="n">priority</span><span class="p">:</span>
+            <span class="n">entity</span><span class="p">[</span><span class="s1">&#39;priority&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">priority</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_status_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">entity</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.delete_status"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.delete_status">[docs]</a>    <span class="k">def</span> <span class="nf">delete_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Delete the status entry with this name, note this does not delete any associated blobs.</span>
+<span class="sd">        See delete_blobs for that.  &quot;&quot;&quot;</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">table_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_table_client</span><span class="p">()</span>
+            <span class="n">table_client</span><span class="o">.</span><span class="n">delete_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.delete_status_entity"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.delete_status_entity">[docs]</a>    <span class="k">def</span> <span class="nf">delete_status_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Delete the status entry with this name, note this does not delete any associated blobs.</span>
+<span class="sd">        See delete_blobs for that.  &quot;&quot;&quot;</span>
+        <span class="n">table_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_table_client</span><span class="p">()</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">table_client</span><span class="o">.</span><span class="n">delete_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.upload_blob"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.upload_blob">[docs]</a>    <span class="k">def</span> <span class="nf">upload_blob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder_name</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">blob_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Upload the given file to the blob store, under the given folder name.</span>
+<span class="sd">        The folder name could have multiple parts like &#39;project/experiment/foo&#39;.</span>
+<span class="sd">        By default the blob will use the base file name, but you can override</span>
+<span class="sd">        that with the given blob_name if you want to.  &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blob_name</span><span class="p">:</span>
+            <span class="n">blob</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">blob_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">blob</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">blob_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_blob_client</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">blob_client</span><span class="o">.</span><span class="n">upload_blob</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.lock"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.lock">[docs]</a>    <span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Lock the named entity to this computer identified by platform.node()</span>
+<span class="sd">        and set the status to the given status.  This way you can use this ArchaiStore as</span>
+<span class="sd">        a way of coordinating the parallel executing of a number of jobs, where each long</span>
+<span class="sd">        running job is allocated to a particular node in a distributed cluster using this</span>
+<span class="sd">        locking mechanism.  Be sure to call unlock when done, preferably in a try/finally block. &quot;&quot;&quot;</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_status_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock_entity</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.lock_entity"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.lock_entity">[docs]</a>    <span class="k">def</span> <span class="nf">lock_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Lock the given entity to this computer identified by platform.node()</span>
+<span class="sd">        and set the status to the given status.  This way you can use this ArchaiStore as</span>
+<span class="sd">        a way of coordinating the parallel executing of a number of jobs, where each long</span>
+<span class="sd">        running job is allocated to a particular node in a distributed cluster using this</span>
+<span class="sd">        locking mechanism.  Be sure to call unlock when done, preferably in a try/finally block. &quot;&quot;&quot;</span>
+        <span class="n">node_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_node_id</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;node&#39;</span> <span class="ow">in</span> <span class="n">e</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">node_id</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The model </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is locked by </span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">e</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status</span>
+        <span class="n">e</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_id</span>  <span class="c1"># lock the row until upload complete</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_status_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.is_locked"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.is_locked">[docs]</a>    <span class="k">def</span> <span class="nf">is_locked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return true if the entity exists and is locked by anyone (including this computer). &quot;&quot;&quot;</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="s1">&#39;node&#39;</span> <span class="ow">in</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.is_locked_by_self"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.is_locked_by_self">[docs]</a>    <span class="k">def</span> <span class="nf">is_locked_by_self</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return true if the entity exists and is locked this computer.  This is handy if the</span>
+<span class="sd">        computer restarts and wants to continue processing rows it has already claimed. &quot;&quot;&quot;</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">node_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_node_id</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s1">&#39;node&#39;</span> <span class="ow">in</span> <span class="n">e</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">node_id</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.is_locked_by_other"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.is_locked_by_other">[docs]</a>    <span class="k">def</span> <span class="nf">is_locked_by_other</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return true if the entity exists and is locked some other computer.  This will tell</span>
+<span class="sd">        the local computer not to touch this row of the table as someone else has it. &quot;&quot;&quot;</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">node_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_node_id</span><span class="p">()</span>
+        <span class="k">return</span> <span class="s1">&#39;node&#39;</span> <span class="ow">in</span> <span class="n">e</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">node_id</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.unlock"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.unlock">[docs]</a>    <span class="k">def</span> <span class="nf">unlock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Unlock the entity (regardless of who owns it - so use carefully, preferably only</span>
+<span class="sd">        when is_locked_by_self is true). &quot;&quot;&quot;</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unlock_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.unlock_entity"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.unlock_entity">[docs]</a>    <span class="k">def</span> <span class="nf">unlock_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Unlock the entity (regardless of who owns it - so use carefully, preferably only</span>
+<span class="sd">        when is_locked_by_self is true). &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;node&#39;</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_status_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">merge_status_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.get_lock"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.get_lock">[docs]</a>    <span class="k">def</span> <span class="nf">get_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Find out what computer has the entity locked. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;node&#39;</span> <span class="ow">in</span> <span class="n">entity</span> <span class="ow">and</span> <span class="n">entity</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">entity</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.unlock_all"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.unlock_all">[docs]</a>    <span class="k">def</span> <span class="nf">unlock_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This is a sledge hammer for unlocking all entities, use carefully.</span>
+<span class="sd">        This might be necessary if you are moving everything to a new cluster. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_status_entities</span><span class="p">():</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;node&#39;</span> <span class="ow">in</span> <span class="n">e</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="s1">&#39;node&#39;</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">node_name</span> <span class="ow">and</span> <span class="n">node_name</span> <span class="o">!=</span> <span class="n">node</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">e</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">changed</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unlocking job </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> on node </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">merge_status_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.reset"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This resets all properties on the given entity that are not primary keys,</span>
+<span class="sd">        &#39;name&#39; or &#39;status&#39;. This will not touch a node that is locked by another.  &quot;&quot;&quot;</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entity </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_locked_by_other</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_lock</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping </span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;RowKey&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> as it is locked by </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reset_metrics</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="n">e</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;reset&#39;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Resetting entity </span><span class="si">{</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;RowKey&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_status_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ArchaiStore.reset_all"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.reset_all">[docs]</a>    <span class="k">def</span> <span class="nf">reset_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This resets all properties on all entities that are not locked by another.  &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_status_entities</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_reset_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+        <span class="c1"># now clear all data to force a full re-run of everything.</span>
+        <span class="n">modified</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s1">&#39;PartitionKey&#39;</span> <span class="ow">and</span> <span class="n">key</span> <span class="o">!=</span> <span class="s1">&#39;RowKey&#39;</span> <span class="ow">and</span> <span class="n">key</span> <span class="o">!=</span> <span class="s1">&#39;name&#39;</span> <span class="ow">and</span> <span class="n">key</span> <span class="o">!=</span> <span class="s1">&#39;status&#39;</span> <span class="ow">and</span> <span class="n">key</span> <span class="o">!=</span> <span class="s1">&#39;node&#39;</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">entity</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">modified</span>
+
+<div class="viewcode-block" id="ArchaiStore.upload"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.upload">[docs]</a>    <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">reset</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Upload a file to the named folder in the blob store associated with this ArchaiStore and</span>
+<span class="sd">        add the given named status row in our status table.  It also locks the row with &#39;uploading&#39;</span>
+<span class="sd">        status until the upload is complete which ensures another machine does not try</span>
+<span class="sd">        processing work until the upload is finished. The path points to a file or a folder.</span>
+<span class="sd">        If a folder it uploads everything in that folder. This can also optionally reset</span>
+<span class="sd">        the row, since sometimes you want to upload a new model for training, then reset</span>
+<span class="sd">        all the metrics computed on the previous model. The optional priority is just a</span>
+<span class="sd">        added as a property on the row which can be used by a distributed job scheduler to</span>
+<span class="sd">        prioritize the work that is being queued up in this table. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Entity name is missing&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Entity name cannot contain a slash&#39;</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lock</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;uploading&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">e</span><span class="p">[</span><span class="s1">&#39;priority&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">priority</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merge_status_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">to_upload</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">to_upload</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)]</span>
+            <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">to_upload</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Path not found: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">to_upload</span><span class="p">:</span>
+                <span class="c1"># upload the file</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Uploading file: </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s1"> to blob: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">upload_blob</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;### upload failed: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># record uploaded status and unlock it.</span>
+        <span class="k">if</span> <span class="n">reset</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_metrics</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">e</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;uploaded&#39;</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">e</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">unlock_entity</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.batch_upload"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.batch_upload">[docs]</a>    <span class="k">def</span> <span class="nf">batch_upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">glob_pattern</span><span class="o">=</span><span class="s1">&#39;*.onnx&#39;</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Upload all the matching files in the given path to the blob store</span>
+<span class="sd">        where the status table &#39;name&#39; will be the base name of the files found</span>
+<span class="sd">        by the given non-recursive glob_pattern.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Path is not a directory: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">models</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">glob_pattern</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No *.onnx models found in </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">override</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">reset</span><span class="p">,</span> <span class="n">priority</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> as it already exists&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.download"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.download">[docs]</a>    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">specific_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Download files from the given folder name from our associated blob container</span>
+<span class="sd">        and return a list of the local paths to all downloaded files.  If an optional specific_file is</span>
+<span class="sd">        given then it tries to find and download that file only.  Returns a list of local files created. &quot;&quot;&quot;</span>
+        <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_container_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blob_container_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">container</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">folder</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+        <span class="n">local_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/&#39;</span>
+        <span class="n">downloaded</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="n">container</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="n">name_starts_with</span><span class="o">=</span><span class="n">prefix</span><span class="p">):</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">blob</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span>
+            <span class="n">download</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="n">specific_file</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">specific_file</span> <span class="o">!=</span> <span class="n">file_name</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">download</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">local_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">download</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">local_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">file_name</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">download</span><span class="p">:</span>
+                <span class="n">local_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">local_file</span><span class="p">)</span>
+                <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">local_file</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">local_file</span><span class="p">):</span>
+                    <span class="n">rmtree</span><span class="p">(</span><span class="n">local_file</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading file: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">local_file</span><span class="si">}</span><span class="s2"> ...&quot;</span><span class="p">)</span>
+                <span class="n">blob_client</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">get_blob_client</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">local_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="n">blob_client</span><span class="o">.</span><span class="n">download_blob</span><span class="p">()</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">readall</span><span class="p">())</span>
+                    <span class="n">downloaded</span> <span class="o">+=</span> <span class="p">[</span><span class="n">local_file</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;### Error downloading to local file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">specific_file</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+        <span class="k">return</span> <span class="n">downloaded</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.delete_blobs"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.delete_blobs">[docs]</a>    <span class="k">def</span> <span class="nf">delete_blobs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">specific_file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Delete all the blobs associated with the given entity name. &quot;&quot;&quot;</span>
+        <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_container_client</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blob_container_name</span><span class="p">)</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">/&#39;</span>
+        <span class="k">for</span> <span class="n">blob</span> <span class="ow">in</span> <span class="n">container</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="n">name_starts_with</span><span class="o">=</span><span class="n">prefix</span><span class="p">):</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">blob</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">):]</span>
+            <span class="k">if</span> <span class="n">specific_file</span> <span class="ow">and</span> <span class="n">file_name</span> <span class="o">!=</span> <span class="n">specific_file</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">delete_blob</span><span class="p">(</span><span class="n">blob</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ArchaiStore.print_entities"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.ArchaiStore.print_entities">[docs]</a>    <span class="k">def</span> <span class="nf">print_entities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entities</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entities</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;PartitionKey&#39;</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;RowKey&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                        <span class="n">keys</span> <span class="o">+=</span> <span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+        <span class="c1"># so we can convert to .csv format</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keys</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entities</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">e</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">EntityProperty</span><span class="p">)</span> <span class="ow">and</span> <span class="n">x</span><span class="o">.</span><span class="n">edm_type</span> <span class="ow">is</span> <span class="n">EdmType</span><span class="o">.</span><span class="n">INT64</span><span class="p">:</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">value</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="status"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.status">[docs]</a><span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Print status in .csv format&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--status&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Optional match for the status column (default None).&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Optional name of single status row to return (default None).&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--not_equal&#39;</span><span class="p">,</span> <span class="s1">&#39;-ne&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Switch the match to a not-equal comparison.&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--locked&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find entities that are locked by a node.&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--cols&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Comma separated list of columns to report (default is to print all)&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="o">.</span><span class="n">parse_connection_string</span><span class="p">(</span><span class="n">con_str</span><span class="p">)</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="p">(</span><span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span><span class="p">)</span>
+    <span class="n">entities</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">get_all_status_entities</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">not_equal</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">locked</span><span class="p">:</span>
+        <span class="n">entities</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entities</span> <span class="k">if</span> <span class="s1">&#39;node&#39;</span> <span class="ow">in</span> <span class="n">e</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;node&#39;</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+        <span class="n">entities</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entities</span> <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">e</span> <span class="ow">and</span> <span class="n">e</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="n">columns</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">cols</span><span class="p">:</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+    <span class="n">store</span><span class="o">.</span><span class="n">print_entities</span><span class="p">(</span><span class="n">entities</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="upload"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.upload">[docs]</a><span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Upload a named model (and optional accompanying files) to azure blob store&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Friendly name of the folder to put this in.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the file to upload to Azure &#39;</span> <span class="o">+</span>
+                        <span class="s1">&#39;or a folder to upload all files in that folder to the same azure blob folder.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--priority&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Optional priority override for this job. &#39;</span> <span class="o">+</span>
+                        <span class="s1">&#39;Larger numbers mean lower priority&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--reset&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Reset stats for the model if it exists already.&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="o">.</span><span class="n">parse_connection_string</span><span class="p">(</span><span class="n">con_str</span><span class="p">)</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="p">(</span><span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span><span class="p">)</span>
+    <span class="n">store</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">priority</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="batch_upload"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.batch_upload">[docs]</a><span class="k">def</span> <span class="nf">batch_upload</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Upload a a set of *.onnx files to the azure blob store&#39;</span> <span class="o">+</span>
+                                     <span class="s1">&#39;using the file name of each onnx file as the friendly folder name in the store.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the folder containing onnx files to upload to Azure &#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--override&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Allow overriding existing models in the store.&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--reset&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Reset stats for any models we are overriding.&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--priority&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Optional priority override for these jobs. &#39;</span> <span class="o">+</span>
+                        <span class="s1">&#39;Larger numbers mean lower priority&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="o">.</span><span class="n">parse_connection_string</span><span class="p">(</span><span class="n">con_str</span><span class="p">)</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="p">(</span><span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span><span class="p">)</span>
+    <span class="n">store</span><span class="o">.</span><span class="n">batch_upload</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">override</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">reset</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">priority</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="download"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.download">[docs]</a><span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Download assets from azure blob store using friendly name.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Friendly name of model to download (if not provided it downloads them all&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--file&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The optional name of the files to download instead of getting them all.&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="o">.</span><span class="n">parse_connection_string</span><span class="p">(</span><span class="n">con_str</span><span class="p">)</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="p">(</span><span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span><span class="p">)</span>
+    <span class="n">friendly_name</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">friendly_name</span><span class="p">:</span>
+        <span class="n">friendly_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">store</span><span class="o">.</span><span class="n">get_all_status_entities</span><span class="p">()]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">friendly_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">friendly_name</span><span class="p">]</span>
+
+    <span class="n">specific_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span>
+    <span class="n">all_files</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">specific_file</span> <span class="k">else</span> <span class="kc">True</span>
+
+    <span class="k">for</span> <span class="n">friendly_name</span> <span class="ow">in</span> <span class="n">friendly_names</span><span class="p">:</span>
+        <span class="n">found</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">friendly_name</span><span class="p">,</span> <span class="n">friendly_name</span><span class="p">,</span> <span class="n">specific_file</span><span class="p">,</span> <span class="n">all_files</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span> <span class="ow">and</span> <span class="n">specific_file</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">specific_file</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="delete"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.delete">[docs]</a><span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Delete a model from azure using its friendly name&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The friendly name allocated by the upload script.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--file&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Delete just the one file associated with the friendly name.&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="o">.</span><span class="n">parse_connection_string</span><span class="p">(</span><span class="n">con_str</span><span class="p">)</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="p">(</span><span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span><span class="p">)</span>
+    <span class="n">store</span><span class="o">.</span><span class="n">delete_blobs</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
+        <span class="n">store</span><span class="o">.</span><span class="n">delete_status</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="reset"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.reset">[docs]</a><span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Reset the named entity.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The friendly name to reset or &quot;*&quot; to reset all rows&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="o">.</span><span class="n">parse_connection_string</span><span class="p">(</span><span class="n">con_str</span><span class="p">)</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="p">(</span><span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
+        <span class="n">store</span><span class="o">.</span><span class="n">reset_all</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">store</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="unlock"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.store.unlock">[docs]</a><span class="k">def</span> <span class="nf">unlock</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Unlock all jobs for given node or unlock all jobs.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--node&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Optional node name (default None).&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="o">.</span><span class="n">parse_connection_string</span><span class="p">(</span><span class="n">con_str</span><span class="p">)</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">ArchaiStore</span><span class="p">(</span><span class="n">storage_account_name</span><span class="p">,</span> <span class="n">storage_account_key</span><span class="p">)</span>
+    <span class="n">store</span><span class="o">.</span><span class="n">unlock_all</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">node</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">con_str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">CONNECTION_NAME</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">con_str</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Please specify your </span><span class="si">{</span><span class="n">CONNECTION_NAME</span><span class="si">}</span><span class="s2"> environment variable.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Expecting a command, one of &#39;status&#39;, &#39;upload&#39;, &#39;batch_upload&#39;, &#39;delete&#39;, &#39;download&#39;, &#39;reset&#39;, &#39;unlock&#39;&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cmd</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+
+    <span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span>
+        <span class="n">status</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s1">&#39;upload&#39;</span><span class="p">:</span>
+        <span class="n">upload</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s1">&#39;batch_upload&#39;</span><span class="p">:</span>
+        <span class="n">batch_upload</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s1">&#39;download&#39;</span><span class="p">:</span>
+        <span class="n">download</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
+        <span class="n">delete</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s1">&#39;reset&#39;</span><span class="p">:</span>
+        <span class="n">reset</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">cmd</span> <span class="o">==</span> <span class="s1">&#39;unlock&#39;</span><span class="p">:</span>
+        <span class="n">unlock</span><span class="p">(</span><span class="n">con_str</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown command: </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">, expecting one of status, upload, download, delete, lock, unlock&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner">
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Microsoft
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on Mar 24, 2023.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div></div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

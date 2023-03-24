@@ -47,11 +47,12 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.discrete_search.search_spaces.config';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.search_spaces.config.html" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="NATS-Bench" href="archai.discrete_search.search_spaces.natsbench_tss.html" />
-    <link rel="prev" title="Search Spaces" href="archai.discrete_search.search_spaces.html" />
+    <link rel="next" title="Computer Vision" href="archai.discrete_search.search_spaces.cv.html" />
+    <link rel="prev" title="Benchmark" href="archai.discrete_search.search_spaces.benchmark.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -229,16 +230,17 @@
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="archai.discrete_search.search_spaces.html">Search Spaces</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.utils.html">Utilities</a></li>
@@ -352,23 +354,6 @@
   <i class="fab fa-github"></i>
   </span>
 <span class="btn__text-container">Repository</span>
-</a>
-</li>
-      
-      
-      
-      
-      <li><a href="https://github.com/microsoft/archai/edit/main/reference/api/archai.discrete_search.search_spaces.config.rst" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
 </a>
 </li>
       
@@ -873,7 +858,7 @@ only generate a new one.</p>
 <span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-archai.discrete_search.search_spaces.config.utils" title="Permalink to this headline">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.config.utils.flatten_dict">
-<span class="sig-prename descclassname"><span class="pre">archai.discrete_search.search_spaces.config.utils.</span></span><span class="sig-name descname"><span class="pre">flatten_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">odict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.OrderedDict</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/config/utils.html#flatten_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.config.utils.flatten_dict" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.discrete_search.search_spaces.config.utils.</span></span><span class="sig-name descname"><span class="pre">flatten_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">odict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/config/utils.html#flatten_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.config.utils.flatten_dict" title="Permalink to this definition">#</a></dt>
 <dd><p>Flatten a nested dictionary into a single level dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -881,6 +866,26 @@ only generate a new one.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Flattened dictionary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.discrete_search.search_spaces.config.utils.order_dict_keys">
+<span class="sig-prename descclassname"><span class="pre">archai.discrete_search.search_spaces.config.utils.</span></span><span class="sig-name descname"><span class="pre">order_dict_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">collections.OrderedDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">collections.OrderedDict</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/config/utils.html#order_dict_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.config.utils.order_dict_keys" title="Permalink to this definition">#</a></dt>
+<dd><p>Order the keys of a target dictionary based on a base dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_dict</strong> (<em>OrderedDict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Dictionary with the desired key order.</p></li>
+<li><p><strong>target_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Dictionary to be ordered.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Ordered version of <cite>target_dict</cite> dictionary.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>OrderedDict[str, Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -933,20 +938,20 @@ only generate a new one.</p>
                   <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="archai.discrete_search.search_spaces.html"
+       href="archai.discrete_search.search_spaces.benchmark.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Search Spaces</p>
+        <p class="prev-next-title">Benchmark</p>
       </div>
     </a>
     <a class="right-next"
-       href="archai.discrete_search.search_spaces.natsbench_tss.html"
+       href="archai.discrete_search.search_spaces.cv.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">NATS-Bench</p>
+        <p class="prev-next-title">Computer Vision</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1003,7 +1008,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

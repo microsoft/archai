@@ -50,6 +50,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/nlp/torch_quantization';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/nlp/torch_quantization.html" />
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -232,16 +233,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
@@ -361,23 +363,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/getting_started/notebooks/nlp/torch_quantization.ipynb" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Fgetting_started/notebooks/nlp/torch_quantization.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -489,7 +474,7 @@ document.write(`
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-03 12:05:52,756 - archai.quantization.ptq — INFO —  Quantizing model ...
+2023-03-21 15:18:12,480 - archai.quantization.ptq — INFO —  Quantizing model ...
 </pre></div></div>
 </div>
 </section>
@@ -520,13 +505,13 @@ document.write(`
 <div class="highlight"><pre>
 Model: 510.391647MB
 Model-QNT: 431.250044MB
-Difference between logits: tensor([[[ -0.3091,  -0.5829,  -0.1439,  ...,   3.1061,   2.7097,  -1.1030],
-         [ -1.3238,  -0.7332,  -3.8590,  ...,  -2.8122,  -3.3422,  -1.6324],
-         [ -2.3850,  -5.1132,  -6.7728,  ...,  -4.2977,  -4.5302,  -1.9685],
+Difference between logits: tensor([[[-0.2147, -0.0618, -0.2794,  ...,  1.0471,  1.0807, -0.8749],
+         [-1.4394, -1.5974, -5.1243,  ..., -3.5922, -2.7616, -1.6151],
+         [-4.1445, -3.5687, -6.8751,  ..., -3.9694, -4.0689, -3.0092],
          ...,
-         [ -1.6885,  -5.1900,  -9.1044,  ...,   1.7422,  -1.2876,   0.9441],
-         [ -5.2036,  -8.5287, -11.4208,  ...,  -3.6595,  -5.0663,  -2.8279],
-         [ -4.3205,  -7.2593, -10.5583,  ...,  -2.6262,  -3.7815,  -1.0048]]],
+         [-2.2967, -4.1277, -9.3187,  ..., -1.6556, -3.2380, -1.3445],
+         [-2.0462, -4.3560, -9.2828,  ..., -2.0148, -2.9403, -1.1727],
+         [-1.5593, -4.3758, -8.6710,  ..., -0.7250, -2.5097, -0.7405]]],
        grad_fn=&lt;SubBackward0&gt;)
 </pre></div></div>
 </div>
@@ -610,7 +595,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

@@ -1,0 +1,865 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv3 &#8212; Archai</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../../../_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../../../../../../_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../../../../../../_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="../../../../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="../../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="../../../../../../../" id="documentation_options" src="../../../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../../../_static/jquery.js"></script>
+    <script src="../../../../../../../_static/underscore.js"></script>
+    <script src="../../../../../../../_static/doctools.js"></script>
+    <script src="../../../../../../../_static/tabs.js"></script>
+    <script src="../../../../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/archai/discrete_search/search_spaces/nlp/tfpp/ops/sgconv3';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/_modules/archai/discrete_search/search_spaces/nlp/tfpp/ops/sgconv3.html" />
+    <link rel="shortcut icon" href="../../../../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../../../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../../../../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../getting_started/package_structure.html">Package Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../../../getting_started/notebooks.html">Notebooks</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../../../getting_started/notebooks/api.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/api/dataset_provider.html">Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/api/trainer_base.html">Trainer (Base)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../../../getting_started/notebooks/discrete_search.html">Discrete Search</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/discrete_search/search_space.html">Search Spaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/discrete_search/evaluators.html">Evaluators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/discrete_search/algos.html">Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/discrete_search/config_search.html">Configuration-based Search</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../getting_started/notebooks/supergraph.html">Supergraph</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../../../getting_started/notebooks/cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/cv/cv_dataset_provider.html">Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/cv/pl_trainer.html">PyTorch-Lightining Trainer</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../../../getting_started/notebooks/nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/nlp/fast_hf_dataset_provider.html">Fast HF Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/nlp/hf_dataset_provider.html">HF Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/nlp/hf_trainer.html">HF Trainer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/nlp/nvidia_dataset_provider.html">NVIDIA Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/nlp/nvidia_trainer.html">NVIDIA Trainer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/nlp/onnx_export.html">ONNX Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../getting_started/notebooks/nlp/torch_quantization.html">PyTorch Quantization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../../../advanced_guide/nas.html">Neural Architecture Search</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/nas/discrete_search.html">Discrete Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/nas/supergraph.html">Supergraph</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../../../advanced_guide/cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/cv/datasets.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/cv/trainers.html">Trainers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/cv/onnx.html">ONNX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/cv/quantization.html">Quantization</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../../../advanced_guide/nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/nlp/datasets.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/nlp/trainers.html">Trainers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/nlp/onnx.html">ONNX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/nlp/quantization.html">Quantization</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../../../advanced_guide/cloud.html">Cloud-Based Search</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../advanced_guide/cloud/azure.html">Azure</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Contributing</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../contributing/first_contribution.html">First Time Contributor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../contributing/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../contributing/unit_tests.html">Unit Tests</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Support</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../support/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../support/contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../support/copyright.html">Copyright</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../../../reference/api.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../reference/api/archai.api.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../../reference/api/archai.common.html">Common Packages</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.datasets.cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.datasets.cv.transforms.html">Transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.datasets.nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-13"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.datasets.nlp.tokenizer_utils.html">Tokenization Utilities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.html">Discrete Search</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-14"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.api.html">API</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.onnx.html">ONNX</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-17"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.onnx.config_utils.html">Configuration Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.onnx.optimization_utils.html">Optimization Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.quantization.html">Quantization</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.quantization.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.html">Supergraph</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.algos.html">Algorithms</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-20"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.algos.darts.html">DARTS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.algos.didarts.html">DiDARTS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.algos.divnas.html">DivNAS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.algos.gumbelsoftmax.html">Gumbel-Softmax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.algos.manual.html">Manual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.algos.nasbench101.html">NasBench-101</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.algos.petridish.html">Petridish</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.algos.random.html">Random</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.algos.xnas.html">XNAS</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-21"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.datasets.providers.html">Providers</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.models.html">Models</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-22"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.models.shakeshake.html">ShakeShake</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.nas.html">Neural Architecture Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.supergraph.utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../../../reference/api/archai.trainers.html">Trainers</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-23"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.trainers.cv.html">Computer Vision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../reference/api/archai.trainers.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../reference/roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../reference/changelog.html">Changelog</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/microsoft/archai" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/discrete_search/search_spaces/nlp/tfpp/ops/sgconv3.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv3</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Modified from S4: https://github.com/HazyResearch/state-spaces/blob/main/src/models/sequence/ss/s4.py</span>
+<span class="c1"># We will release the whole codebase upon acceptance.</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">PretrainedConfig</span>
+<span class="kn">from</span> <span class="nn">einops</span> <span class="kn">import</span> <span class="n">rearrange</span><span class="p">,</span> <span class="n">repeat</span>
+<span class="kn">import</span> <span class="nn">opt_einsum</span> <span class="k">as</span> <span class="nn">oe</span>
+
+<span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.config</span> <span class="kn">import</span> <span class="n">ArchConfig</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">get_optim_flag</span>
+<span class="kn">from</span> <span class="nn">.sgconv</span> <span class="kn">import</span> <span class="n">GConv</span>
+
+<span class="n">optimized</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">if</span> <span class="n">optimized</span><span class="p">:</span>
+    <span class="n">contract</span> <span class="o">=</span> <span class="n">oe</span><span class="o">.</span><span class="n">contract</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">contract</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">einsum</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.fftconv_</span> <span class="kn">import</span> <span class="n">fftconv_func</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">fftconv_func</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="nd">@torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">script</span>
+<span class="k">def</span> <span class="nf">mul_sum</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">q</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GConv3"><a class="viewcode-back" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.nlp.tfpp.html#archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv3.GConv3">[docs]</a><span class="k">class</span> <span class="nc">GConv3</span><span class="p">(</span><span class="n">GConv</span><span class="p">):</span>
+    <span class="n">requires_length</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">d_model</span><span class="p">,</span>
+        <span class="n">d_state</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+        <span class="n">l_max</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Maximum length of sequence. Fine if not provided: the kernel will keep doubling in length until longer than sequence. However, this can be marginally slower if the true length is not a power of 2</span>
+        <span class="n">head_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># maps to head dim in H3</span>
+        <span class="n">channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># maps 1-dim to C-dim</span>
+        <span class="n">bidirectional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="c1"># Arguments for FF</span>
+        <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;gelu&#39;</span><span class="p">,</span>  <span class="c1"># activation in between SS and FF</span>
+        <span class="n">ln</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Extra normalization</span>
+        <span class="n">postact</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># activation after FF</span>
+        <span class="n">initializer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># initializer on FF</span>
+        <span class="n">weight_norm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># weight normalization on FF</span>
+        <span class="n">hyper_act</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Use a &quot;hypernetwork&quot; multiplication</span>
+        <span class="n">use_fast_fftconv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">dropout</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">transposed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># axis ordering (B, L, D) or (B, D, L)</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">shift</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">linear</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;cat_randn&quot;</span><span class="p">,</span>
+        <span class="c1"># SSM Kernel arguments</span>
+        <span class="o">**</span><span class="n">kernel_args</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        d_state: the dimension of the state, also denoted by N</span>
+<span class="sd">        l_max: the maximum sequence length, also denoted by L</span>
+<span class="sd">          if this is not known at model creation, set l_max=1</span>
+<span class="sd">        channels: can be interpreted as a number of &quot;heads&quot;</span>
+<span class="sd">        bidirectional: bidirectional</span>
+<span class="sd">        dropout: standard dropout argument</span>
+<span class="sd">        transposed: choose backbone axis ordering of (B, L, H) or (B, H, L) [B=batch size, L=sequence length, H=hidden dimension]</span>
+
+<span class="sd">        Other options are all experimental and should not need to be configured</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">bidirectional</span> <span class="o">==</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;currently GConv4 does not support bidirectional=True&#39;</span>
+        <span class="k">assert</span> <span class="n">channels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;channels should be set to 1 for GConv3, select number of heads with the head_dim parameter&#39;</span>
+        
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">d_model</span><span class="o">=</span><span class="n">d_model</span><span class="p">,</span> <span class="n">d_state</span><span class="o">=</span><span class="n">d_state</span><span class="p">,</span> <span class="n">l_max</span><span class="o">=</span><span class="n">l_max</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span> 
+                            <span class="n">bidirectional</span><span class="o">=</span><span class="n">bidirectional</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">,</span> <span class="n">ln</span><span class="o">=</span><span class="n">ln</span><span class="p">,</span> 
+                            <span class="n">postact</span><span class="o">=</span><span class="n">postact</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="n">initializer</span><span class="p">,</span> <span class="n">weight_norm</span><span class="o">=</span><span class="n">weight_norm</span><span class="p">,</span>  
+                            <span class="n">hyper_act</span><span class="o">=</span><span class="n">hyper_act</span><span class="p">,</span> <span class="n">use_fast_fftconv</span><span class="o">=</span><span class="n">use_fast_fftconv</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="n">dropout</span><span class="p">,</span>
+                            <span class="n">transposed</span><span class="o">=</span><span class="n">transposed</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="n">shift</span><span class="p">,</span> <span class="n">linear</span><span class="o">=</span><span class="n">linear</span><span class="p">,</span>
+                            <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kernel_args</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">d_model</span> <span class="o">=</span> <span class="n">d_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span>  <span class="o">=</span> <span class="n">head_dim</span>
+        <span class="k">assert</span> <span class="n">d_model</span> <span class="o">%</span> <span class="n">head_dim</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">d_model</span> <span class="o">//</span> <span class="n">head_dim</span>
+        <span class="c1"># if self.use_fast_fftconv and not self.head_dim in [1,8]:</span>
+        <span class="c1">#     print(&#39;fast fftconv only supported for head_dim of 1 or 8&#39;)</span>
+        <span class="c1">#     self.use_fast_fftconv = False</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">)</span>
+
+        <span class="c1"># self.init_scale = kernel_args.get(&#39;init_scale&#39;, 0)</span>
+        <span class="c1"># self.kernel_dim = kernel_args.get(&#39;kernel_dim&#39;, 64)</span>
+        <span class="c1"># self.num_scales = kernel_args.get(&#39;n_scales&#39;, None)</span>
+        <span class="c1"># if self.num_scales is None:</span>
+        <span class="c1">#     self.num_scales = 1 + math.ceil(math.log2(l_max/self.kernel_dim)) - self.init_scale</span>
+        
+        <span class="n">decay_min</span> <span class="o">=</span> <span class="n">kernel_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;decay_min&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">decay_max</span> <span class="o">=</span> <span class="n">kernel_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;decay_max&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_list_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_kernels</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">,</span> <span class="o">**</span><span class="n">kernel_args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">D_key</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_kernels</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="o">**</span><span class="n">kernel_args</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">D</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="s1">&#39;learnable&#39;</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decay_key</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">decay_max</span> <span class="o">-</span> <span class="n">decay_min</span><span class="p">)</span> <span class="o">+</span> <span class="n">decay_min</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decay</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">decay_max</span> <span class="o">-</span> <span class="n">decay_min</span><span class="p">)</span> <span class="o">+</span> <span class="n">decay_min</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;fixed&#39;</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decay_key</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decay</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decay_key</span><span class="o">.</span><span class="n">_optim</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lr&#39;</span><span class="p">:</span> <span class="n">kernel_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lr&#39;</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">decay</span><span class="o">.</span><span class="n">_optim</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lr&#39;</span><span class="p">:</span> <span class="n">kernel_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lr&#39;</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;multiplier_key&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;multiplier&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;multiplier_key&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">decay_min</span><span class="p">,</span> <span class="n">decay_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;multiplier&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">decay_min</span><span class="p">,</span> <span class="n">decay_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;kernel_norm_key&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;kernel_norm_initialized_key&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;kernel_norm&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_buffer</span><span class="p">(</span><span class="s1">&#39;kernel_norm_initialized&#39;</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pw_linear</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">d_model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GConv3.init_kernels"><a class="viewcode-back" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.nlp.tfpp.html#archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv3.GConv3.init_kernels">[docs]</a>    <span class="k">def</span> <span class="nf">init_kernels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="o">**</span><span class="n">kernel_args</span><span class="p">):</span>
+        <span class="n">kernel_list</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ParameterList</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_scales</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;randn&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">:</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_dim</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="s1">&#39;cos&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">:</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_dim</span><span class="p">))</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">h</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="n">torch</span><span class="o">.</span><span class="n">randperm</span><span class="p">(</span><span class="n">h</span><span class="p">),</span> <span class="p">:])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown mode </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">kernel</span><span class="o">.</span><span class="n">_optim</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;lr&#39;</span><span class="p">:</span> <span class="n">kernel_args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lr&#39;</span><span class="p">,</span> <span class="mf">0.001</span><span class="p">),}</span>
+            <span class="n">kernel_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">kernel_list</span></div>
+
+<div class="viewcode-block" id="GConv3.get_kernels_forward"><a class="viewcode-back" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.nlp.tfpp.html#archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv3.GConv3.get_kernels_forward">[docs]</a>    <span class="k">def</span> <span class="nf">get_kernels_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">multiplier</span><span class="p">,</span> <span class="n">kernel_list_init</span><span class="p">):</span>
+        <span class="n">kernel_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">interpolate_mode</span> <span class="o">=</span> <span class="s1">&#39;nearest&#39;</span> <span class="k">if</span> <span class="s1">&#39;nearest&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="k">else</span> <span class="s1">&#39;linear&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;sum&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_scales</span><span class="p">):</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>
+                    <span class="n">F</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+                        <span class="n">kernel_list_init</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                        <span class="n">scale_factor</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_scale</span><span class="p">),</span>
+                        <span class="n">mode</span><span class="o">=</span><span class="n">interpolate_mode</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_dim</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_scales</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_scale</span><span class="p">)</span> <span class="o">-</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">kernel_dim</span><span class="o">*</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_scale</span><span class="p">)),</span>
+                <span class="p">)</span> <span class="o">*</span> <span class="n">multiplier</span> <span class="o">**</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_scales</span> <span class="o">-</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">kernel_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">kernel_list</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;cat&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_scales</span><span class="p">):</span>
+                <span class="n">kernel</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+                    <span class="n">kernel_list_init</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                    <span class="n">scale_factor</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_scale</span><span class="p">),</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="n">interpolate_mode</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">*</span> <span class="n">multiplier</span> <span class="o">**</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_scales</span> <span class="o">-</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">kernel_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">kernel_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown mode </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">k</span></div>
+    
+    
+    <span class="c1"># absorbs return_output and transformer src mask</span>
+<div class="viewcode-block" id="GConv3.forward"><a class="viewcode-back" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.nlp.tfpp.html#archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv3.GConv3.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">return_kernel</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        u: (B H L) if self.transposed else (B L H)</span>
+<span class="sd">        state: (H N) never needed unless you know what you&#39;re doing</span>
+
+<span class="sd">        Returns: same shape as u</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">transposed</span><span class="p">:</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_fast_fftconv</span> <span class="ow">and</span> <span class="n">L</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">k_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kernels_forward</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">multiplier_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_list_key</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kernels_forward</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">multiplier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_list</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;learnable&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">:</span>
+            <span class="n">k_key</span> <span class="o">=</span> <span class="n">k_key</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">decay_key</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">k_key</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">k_key</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">decay</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="n">k</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_norm_initialized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kernel_norm_key</span> <span class="o">=</span> <span class="n">k_key</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kernel_norm_initialized_key</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">k</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kernel_norm</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kernel_norm_initialized</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">k</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key Kernel norm: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_norm_key</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">}</span><span class="s2">, Kernel norm: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_norm</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key Kernel size: </span><span class="si">{</span><span class="n">k_key</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="si">}</span><span class="s2">, Kernel size: </span><span class="si">{</span><span class="n">k</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">k_key</span> <span class="o">=</span> <span class="n">k_key</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="n">L</span><span class="p">]</span> <span class="k">if</span> <span class="n">k_key</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">L</span> <span class="k">else</span> <span class="n">F</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">k_key</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span> <span class="o">-</span> <span class="n">k_key</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="n">L</span><span class="p">]</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">L</span> <span class="k">else</span> <span class="n">F</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">L</span> <span class="o">-</span> <span class="n">k</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)))</span>
+
+        <span class="n">k_key</span> <span class="o">=</span> <span class="n">k_key</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_norm_key</span>  <span class="c1"># * (L / self.l_max) ** 0.5</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">k</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_norm</span>  <span class="c1"># * (L / self.l_max) ** 0.5</span>
+
+        <span class="c1"># Convolution</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bidirectional</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="c1"># compute key, query, and value</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="s1">&#39;b h l -&gt; h (b l)&#39;</span><span class="p">)</span>  <span class="c1"># (H B*L)</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q_proj</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">dtype</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">is_autocast_enabled</span><span class="p">()</span>
+                 <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">get_autocast_gpu_dtype</span><span class="p">())</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_proj</span><span class="o">.</span><span class="n">weight</span> <span class="o">@</span> <span class="n">u</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_proj</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_proj</span><span class="o">.</span><span class="n">weight</span> <span class="o">@</span> <span class="n">u</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">k_proj</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># (H B*L)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_proj</span><span class="o">.</span><span class="n">weight</span> <span class="o">@</span> <span class="n">u</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">v_proj</span><span class="o">.</span><span class="n">bias</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">query</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">rearrange</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;h (b l) -&gt; b h l&#39;</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">L</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">query</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">]]</span>
+
+        <span class="c1"># first conv</span>
+        <span class="n">k_key</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">k_key</span><span class="p">,</span> <span class="s1">&#39;1 h l -&gt; h l&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_fast_fftconv</span><span class="p">:</span>
+            <span class="n">dropout_mask</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># No GeLU after the SSM</span>
+            <span class="c1"># We want output_hbl=True so that k has the same layout as q and v for the next</span>
+            <span class="c1"># fftconv</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">fftconv_func</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">k_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">D_key</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">dropout_mask</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># This line below looks like it doesn&#39;t do anything, but it gets the stride right</span>
+            <span class="c1"># for the case batch_size=1. In that case k has stride (L, L, 1), but q and v has</span>
+            <span class="c1"># stride (H * L, L, 1). The two strides are equivalent because batch_size=1, but</span>
+            <span class="c1"># the C++ code doesn&#39;t like that.</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">rearrange</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;b h l -&gt; h b l&#39;</span><span class="p">),</span> <span class="s1">&#39;h b l -&gt; b h l&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fft_size</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">L</span> 
+            <span class="n">k_key_f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">k_key</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">fft_size</span><span class="p">)</span>  <span class="c1"># (H L+1)</span>
+            <span class="n">key_f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">fft_size</span><span class="p">)</span>  <span class="c1"># (B H L+1)</span>
+            <span class="n">y_f</span> <span class="o">=</span> <span class="n">contract</span><span class="p">(</span><span class="s1">&#39;bhl,hl-&gt;bhl&#39;</span><span class="p">,</span> <span class="n">key_f</span><span class="p">,</span> <span class="n">k_key_f</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">y_f</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">fft_size</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="n">L</span><span class="p">]</span>  <span class="c1"># (B H L)</span>
+            <span class="c1"># Compute D term in state space equation - essentially a skip connection</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">contract</span><span class="p">(</span><span class="s1">&#39;bhl,1h-&gt;bhl&#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">D_key</span><span class="p">)</span>
+
+        <span class="c1"># second conv</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s1">&#39;1 h l -&gt; h l&#39;</span><span class="p">)</span> <span class="c1"># (H L)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_fast_fftconv</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">8</span><span class="p">]:</span>
+                <span class="n">dropout_mask</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="c1"># No GeLU after the SSM</span>
+                <span class="c1"># Set output_hbl_layout=True since we&#39;ll be doing a matmul right after</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">fftconv_func</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">dropout_mask</span><span class="p">,</span> 
+                                <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kv</span> <span class="o">=</span> <span class="p">(</span><span class="n">rearrange</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;b (h d1) l -&gt; b d1 1 h l&#39;</span><span class="p">,</span> <span class="n">d1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">)</span>
+                        <span class="o">*</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;b (h d2) l -&gt; b 1 d2 h l&#39;</span><span class="p">,</span> <span class="n">d2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">))</span>  <span class="c1"># B d1 d2 h L</span>
+                <span class="n">kv</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">kv</span><span class="p">,</span> <span class="s1">&#39;b d1 d2 h l -&gt; b (d1 d2 h) l&#39;</span><span class="p">)</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">repeat</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s1">&#39;h l -&gt; d h l&#39;</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+                <span class="n">k</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s1">&#39;d h l -&gt; (d h) l&#39;</span><span class="p">)</span>
+                <span class="n">D</span> <span class="o">=</span> <span class="n">repeat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> <span class="s1">&#39;1 h -&gt; d h&#39;</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+                <span class="n">D</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="s1">&#39;d h -&gt; (d h)&#39;</span><span class="p">)</span>
+
+                <span class="n">y</span> <span class="o">=</span> <span class="n">fftconv_func</span><span class="p">(</span><span class="n">kv</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;b (d1 d2 h) l -&gt; b d1 d2 h l&#39;</span><span class="p">,</span> <span class="n">d1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">,</span> <span class="n">d2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">)</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="s1">&#39;b (h d1) l -&gt; b d1 1 h l&#39;</span><span class="p">,</span> <span class="n">d1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">)</span>
+                <span class="c1"># einsum is way slower than multiply and then sum.</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">mul_sum</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;b d h l -&gt; b (d h) l&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fft_size</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">L</span>
+            <span class="n">kv</span> <span class="o">=</span> <span class="p">(</span><span class="n">rearrange</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;b (h d1) l -&gt; b d1 1 h l&#39;</span><span class="p">,</span> <span class="n">d1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">)</span>
+                    <span class="o">*</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;b (h d2) l -&gt; b 1 d2 h l&#39;</span><span class="p">,</span> <span class="n">d2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">))</span>  <span class="c1"># B d1 d2 h L</span>
+            <span class="n">kv_f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">kv</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">fft_size</span><span class="p">)</span> <span class="o">/</span> <span class="n">fft_size</span>
+            <span class="n">k_f</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">fft_size</span><span class="p">)</span>  <span class="c1"># H L+1</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">kv_f</span> <span class="o">*</span> <span class="n">k_f</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">fft_size</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;forward&#39;</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="n">L</span><span class="p">]</span>  <span class="c1"># B d1 d2 h L</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">kv</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">D</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># B d1 d2 h L</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="s1">&#39;b (h d1) l -&gt; b d1 1 h l&#39;</span><span class="p">,</span> <span class="n">d1</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span><span class="p">)</span>
+            <span class="c1"># einsum is way slower than multiply and then sum.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">head_dim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">mul_sum</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;b d h l -&gt; b (d h) l&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">rearrange</span><span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">query</span><span class="p">,</span> <span class="s1">&#39;b 1 1 h l -&gt; b h l&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Reshape to flatten channels</span>
+        <span class="c1"># y = rearrange(y, &#39;... c h l -&gt; ... (c h) l&#39;)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">transposed</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_linear</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="c1"># y = self.pw_linear(y)</span>
+
+        <span class="k">if</span> <span class="n">return_kernel</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">y</span><span class="p">,</span> <span class="n">k</span>
+        <span class="k">return</span> <span class="n">y</span><span class="p">,</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">d_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">d_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">state_to_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="k">lambda</span> <span class="n">state</span><span class="p">:</span> <span class="n">rearrange</span><span class="p">(</span><span class="s1">&#39;... h n -&gt; ... (h n)&#39;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SGConv3"><a class="viewcode-back" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.nlp.tfpp.html#archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv3.SGConv3">[docs]</a><span class="k">class</span> <span class="nc">SGConv3</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch_config</span><span class="p">:</span> <span class="n">ArchConfig</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">total_heads</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">op_heads</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> 
+                 <span class="n">hf_config</span><span class="p">:</span> <span class="n">PretrainedConfig</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">hidden_size</span> <span class="o">%</span> <span class="n">total_heads</span> <span class="o">==</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_heads</span> <span class="o">=</span> <span class="n">total_heads</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">op_heads</span> <span class="o">=</span> <span class="n">op_heads</span>
+        
+        <span class="c1"># Architecture params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="n">arch_config</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;kernel_size&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_fast_fftconv</span> <span class="o">=</span> <span class="n">get_optim_flag</span><span class="p">(</span><span class="n">hf_config</span><span class="p">,</span> <span class="s1">&#39;fast_fftconv&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="mi">1</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">op_size</span> <span class="o">=</span> <span class="n">op_heads</span> <span class="o">*</span> <span class="p">(</span><span class="n">hidden_size</span> <span class="o">//</span> <span class="n">total_heads</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">GLU</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sgconv</span> <span class="o">=</span> <span class="n">GConv3</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">op_size</span><span class="p">,</span> <span class="n">l_max</span><span class="o">=</span><span class="n">hf_config</span><span class="o">.</span><span class="n">max_position_embeddings</span><span class="p">,</span>
+            <span class="n">head_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">op_heads</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span> <span class="n">kernel_dim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span>
+            <span class="n">use_fast_fftconv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">use_fast_fftconv</span><span class="p">,</span>
+            <span class="n">transposed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">act</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(</span><span class="n">approximate</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SGConv3.forward"><a class="viewcode-back" href="../../../../../../../reference/api/archai.discrete_search.search_spaces.nlp.tfpp.html#archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv3.SGConv3.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">output</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sgconv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">in_proj</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">output</span><span class="p">),</span> <span class="kc">None</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># batch size</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="mi">768</span>  <span class="c1"># d_model</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="mi">2048</span> <span class="c1"># sequence length</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="s1">&#39;cuda&#39;</span>
+
+    <span class="kn">import</span> <span class="nn">torch.utils.benchmark</span> <span class="k">as</span> <span class="nn">benchmark</span>
+
+    <span class="n">flash_layer</span> <span class="o">=</span> <span class="n">GConv3</span><span class="p">(</span><span class="n">d_model</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">l_max</span><span class="o">=</span><span class="n">L</span><span class="p">,</span> <span class="n">head_dim</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">kernel_dim</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">use_fast_fftconv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transposed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="n">GConv3</span><span class="p">(</span><span class="n">d_model</span><span class="o">=</span><span class="n">H</span><span class="p">,</span> <span class="n">l_max</span><span class="o">=</span><span class="n">L</span><span class="p">,</span> <span class="n">head_dim</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">kernel_dim</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">use_fast_fftconv</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transposed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">t0</span> <span class="o">=</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span>
+            <span class="n">stmt</span><span class="o">=</span><span class="s1">&#39;flash_layer(u)&#39;</span><span class="p">,</span>
+            <span class="nb">globals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;flash_layer&#39;</span><span class="p">:</span> <span class="n">flash_layer</span><span class="p">,</span> <span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">u</span><span class="p">})</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">benchmark</span><span class="o">.</span><span class="n">Timer</span><span class="p">(</span>
+            <span class="n">stmt</span><span class="o">=</span><span class="s1">&#39;layer(u)&#39;</span><span class="p">,</span>
+            <span class="nb">globals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;layer&#39;</span><span class="p">:</span> <span class="n">layer</span><span class="p">,</span> <span class="s1">&#39;u&#39;</span><span class="p">:</span> <span class="n">u</span><span class="p">})</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">t0</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">t1</span><span class="o">.</span><span class="n">timeit</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner">
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Microsoft
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on Mar 24, 2023.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div></div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../../../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="../../../../../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -50,6 +50,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/nlp/onnx_export';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/nlp/onnx_export.html" />
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -232,16 +233,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
@@ -361,23 +363,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/getting_started/notebooks/nlp/onnx_export.ipynb" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Fgetting_started/notebooks/nlp/onnx_export.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -458,7 +443,7 @@ document.write(`
 <h2>Loading the Model<a class="headerlink" href="#Loading-the-Model" title="Permalink to this headline">#</a></h2>
 <p>The first step is to load any NLP-related model. In this notebook, we will be using a pre-trained GPT-2 model from the Hugging Face’s Hub.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">GPT2LMHeadModel</span>
@@ -480,7 +465,7 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">atol</span></code>: Tolerance between input and exported model.</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.common.file_utils</span> <span class="kn">import</span> <span class="n">calculate_onnx_model_size</span>
@@ -505,7 +490,7 @@ document.write(`
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-03 12:00:00,748 - archai.onnx.export — INFO —  Exporting model: model.onnx
+2023-03-21 15:16:14,303 - archai.onnx.export — INFO —  Exporting model: model.onnx
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -513,7 +498,7 @@ document.write(`
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-c:\Users\gderosa\Anaconda3\envs\archai\lib\site-packages\transformers\models\gpt2\modeling_gpt2.py:317: TracerWarning: Iterating over a tensor might cause the trace to be incorrect. Passing a tensor of different shape won&#39;t change the number of iterations executed (and might lead to errors or silently give incorrect results).
+c:\Users\gderosa\Anaconda3\envs\archai\lib\site-packages\transformers\models\gpt2\modeling_gpt2.py:318: TracerWarning: Iterating over a tensor might cause the trace to be incorrect. Passing a tensor of different shape won&#39;t change the number of iterations executed (and might lead to errors or silently give incorrect results).
   past_key, past_value = layer_past
 </pre></div></div>
 </div>
@@ -522,49 +507,49 @@ c:\Users\gderosa\Anaconda3\envs\archai\lib\site-packages\transformers\models\gpt
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-03 12:00:14,042 - archai.onnx.export — INFO —  Validating model ...
-2023-02-03 12:00:14,042 - archai.onnx.onnx_loader — INFO —  Loading model: model.onnx
-2023-02-03 12:00:15,894 - archai.onnx.export — DEBUG —  Matched outputs: {&#39;present_3&#39;, &#39;present_0&#39;, &#39;present_8&#39;, &#39;present_6&#39;, &#39;present_11&#39;, &#39;present_1&#39;, &#39;present_5&#39;, &#39;present_7&#39;, &#39;present_4&#39;, &#39;present_10&#39;, &#39;present_2&#39;, &#39;present_9&#39;, &#39;probs&#39;}
-2023-02-03 12:00:15,897 - archai.onnx.export — DEBUG —  Validating output: probs
-2023-02-03 12:00:15,900 - archai.onnx.export — DEBUG —  Matched shape: (2, 50257) (ONNX) and (2, 50257) (reference)
-2023-02-03 12:00:15,906 - archai.onnx.export — DEBUG —  Matched difference: 1.0133e-06 &lt; 0.0001
-2023-02-03 12:00:15,910 - archai.onnx.export — DEBUG —  Validating output: present_0
-2023-02-03 12:00:15,910 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,916 - archai.onnx.export — DEBUG —  Matched difference: 2.8610e-06 &lt; 0.0001
-2023-02-03 12:00:15,916 - archai.onnx.export — DEBUG —  Validating output: present_1
-2023-02-03 12:00:15,921 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,924 - archai.onnx.export — DEBUG —  Matched difference: 4.8876e-06 &lt; 0.0001
-2023-02-03 12:00:15,924 - archai.onnx.export — DEBUG —  Validating output: present_2
-2023-02-03 12:00:15,928 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,929 - archai.onnx.export — DEBUG —  Matched difference: 4.2915e-06 &lt; 0.0001
-2023-02-03 12:00:15,932 - archai.onnx.export — DEBUG —  Validating output: present_3
-2023-02-03 12:00:15,935 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,938 - archai.onnx.export — DEBUG —  Matched difference: 1.2398e-05 &lt; 0.0001
-2023-02-03 12:00:15,940 - archai.onnx.export — DEBUG —  Validating output: present_4
-2023-02-03 12:00:15,943 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,945 - archai.onnx.export — DEBUG —  Matched difference: 1.3351e-05 &lt; 0.0001
-2023-02-03 12:00:15,946 - archai.onnx.export — DEBUG —  Validating output: present_5
-2023-02-03 12:00:15,946 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,954 - archai.onnx.export — DEBUG —  Matched difference: 7.6294e-06 &lt; 0.0001
-2023-02-03 12:00:15,954 - archai.onnx.export — DEBUG —  Validating output: present_6
-2023-02-03 12:00:15,954 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,954 - archai.onnx.export — DEBUG —  Matched difference: 1.3351e-05 &lt; 0.0001
-2023-02-03 12:00:15,962 - archai.onnx.export — DEBUG —  Validating output: present_7
-2023-02-03 12:00:15,962 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,966 - archai.onnx.export — DEBUG —  Matched difference: 7.6294e-06 &lt; 0.0001
-2023-02-03 12:00:15,970 - archai.onnx.export — DEBUG —  Validating output: present_8
-2023-02-03 12:00:15,972 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,973 - archai.onnx.export — DEBUG —  Matched difference: 9.0599e-06 &lt; 0.0001
-2023-02-03 12:00:15,976 - archai.onnx.export — DEBUG —  Validating output: present_9
-2023-02-03 12:00:15,978 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,982 - archai.onnx.export — DEBUG —  Matched difference: 8.5831e-06 &lt; 0.0001
-2023-02-03 12:00:15,984 - archai.onnx.export — DEBUG —  Validating output: present_10
-2023-02-03 12:00:15,987 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,990 - archai.onnx.export — DEBUG —  Matched difference: 7.1526e-06 &lt; 0.0001
-2023-02-03 12:00:15,990 - archai.onnx.export — DEBUG —  Validating output: present_11
-2023-02-03 12:00:15,993 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
-2023-02-03 12:00:15,996 - archai.onnx.export — DEBUG —  Matched difference: 6.9141e-06 &lt; 0.0001
-Model: 499.16927MB
+2023-03-21 15:16:28,808 - archai.onnx.export — INFO —  Validating model ...
+2023-03-21 15:16:28,808 - archai.onnx.onnx_loader — INFO —  Loading model: model.onnx
+2023-03-21 15:16:30,917 - archai.onnx.export — DEBUG —  Matched outputs: {&#39;present_0&#39;, &#39;present_9&#39;, &#39;present_5&#39;, &#39;present_7&#39;, &#39;present_6&#39;, &#39;present_10&#39;, &#39;present_3&#39;, &#39;present_4&#39;, &#39;present_8&#39;, &#39;present_11&#39;, &#39;present_2&#39;, &#39;present_1&#39;, &#39;probs&#39;}
+2023-03-21 15:16:30,925 - archai.onnx.export — DEBUG —  Validating output: probs
+2023-03-21 15:16:30,927 - archai.onnx.export — DEBUG —  Matched shape: (2, 50257) (ONNX) and (2, 50257) (reference)
+2023-03-21 15:16:30,933 - archai.onnx.export — DEBUG —  Matched difference: 1.0133e-06 &lt; 0.0001
+2023-03-21 15:16:30,933 - archai.onnx.export — DEBUG —  Validating output: present_0
+2023-03-21 15:16:30,935 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:30,935 - archai.onnx.export — DEBUG —  Matched difference: 2.8610e-06 &lt; 0.0001
+2023-03-21 15:16:30,941 - archai.onnx.export — DEBUG —  Validating output: present_1
+2023-03-21 15:16:30,942 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:30,943 - archai.onnx.export — DEBUG —  Matched difference: 4.8876e-06 &lt; 0.0001
+2023-03-21 15:16:30,944 - archai.onnx.export — DEBUG —  Validating output: present_2
+2023-03-21 15:16:30,944 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:30,948 - archai.onnx.export — DEBUG —  Matched difference: 4.2915e-06 &lt; 0.0001
+2023-03-21 15:16:30,950 - archai.onnx.export — DEBUG —  Validating output: present_3
+2023-03-21 15:16:30,950 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:30,954 - archai.onnx.export — DEBUG —  Matched difference: 1.2398e-05 &lt; 0.0001
+2023-03-21 15:16:30,954 - archai.onnx.export — DEBUG —  Validating output: present_4
+2023-03-21 15:16:30,958 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:30,959 - archai.onnx.export — DEBUG —  Matched difference: 1.3351e-05 &lt; 0.0001
+2023-03-21 15:16:30,959 - archai.onnx.export — DEBUG —  Validating output: present_5
+2023-03-21 15:16:30,966 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:30,969 - archai.onnx.export — DEBUG —  Matched difference: 7.6294e-06 &lt; 0.0001
+2023-03-21 15:16:30,969 - archai.onnx.export — DEBUG —  Validating output: present_6
+2023-03-21 15:16:30,969 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:30,975 - archai.onnx.export — DEBUG —  Matched difference: 1.3351e-05 &lt; 0.0001
+2023-03-21 15:16:30,979 - archai.onnx.export — DEBUG —  Validating output: present_7
+2023-03-21 15:16:30,979 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:30,982 - archai.onnx.export — DEBUG —  Matched difference: 7.6294e-06 &lt; 0.0001
+2023-03-21 15:16:30,982 - archai.onnx.export — DEBUG —  Validating output: present_8
+2023-03-21 15:16:30,982 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:30,988 - archai.onnx.export — DEBUG —  Matched difference: 9.0599e-06 &lt; 0.0001
+2023-03-21 15:16:30,991 - archai.onnx.export — DEBUG —  Validating output: present_9
+2023-03-21 15:16:30,991 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:30,996 - archai.onnx.export — DEBUG —  Matched difference: 8.5831e-06 &lt; 0.0001
+2023-03-21 15:16:30,999 - archai.onnx.export — DEBUG —  Validating output: present_10
+2023-03-21 15:16:31,001 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:31,003 - archai.onnx.export — DEBUG —  Matched difference: 7.1526e-06 &lt; 0.0001
+2023-03-21 15:16:31,005 - archai.onnx.export — DEBUG —  Validating output: present_11
+2023-03-21 15:16:31,005 - archai.onnx.export — DEBUG —  Matched shape: (2, 2, 12, 16, 64) (ONNX) and (2, 2, 12, 16, 64) (reference)
+2023-03-21 15:16:31,008 - archai.onnx.export — DEBUG —  Matched difference: 6.9141e-06 &lt; 0.0001
+Model: 499.167738MB
 </pre></div></div>
 </div>
 </section>
@@ -573,7 +558,7 @@ Model: 499.16927MB
 <p>For Transformer-based models, ONNX Runtime offers a set of post-optimization tools that enables node fusion and hence, a more optimized graph. Thus, we can call <code class="docutils literal notranslate"><span class="pre">optimize_onnx()</span></code> passing the path of the previously exported ONNX model.</p>
 <p><em>The prints compares the models’ sizes, but is highly recommended to use an external graph inspection tool, such as Netron.</em></p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.onnx.optimization</span> <span class="kn">import</span> <span class="n">optimize_onnx</span>
@@ -588,9 +573,8 @@ Model: 499.16927MB
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-03 12:00:18,152 - archai.onnx.optimization — INFO —  Optimizing model: model.onnx
-failed in shape inference &lt;class &#39;AssertionError&#39;&gt;
-Model-OPT: 497.792916MB
+2023-03-21 15:16:32,958 - archai.onnx.optimization — INFO —  Optimizing model: model.onnx
+Model-OPT: 498.940725MB
 </pre></div></div>
 </div>
 </section>
@@ -599,7 +583,7 @@ Model-OPT: 497.792916MB
 <p>Finally, either the exported or post-optimized models can be dynamically quantized using the <code class="docutils literal notranslate"><span class="pre">dynamic_quantization_onnx()</span></code> method.</p>
 <p>Nevertheless, please note that if the model has not been pre-trained with Quantization Aware Training (QAT), it might produce different logits and have its performance diminished.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">archai.quantization.ptq</span> <span class="kn">import</span> <span class="n">dynamic_quantization_onnx</span>
@@ -609,13 +593,253 @@ Model-OPT: 497.792916MB
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2023-03-21 15:16:49,535 - archai.quantization.ptq — INFO —  Quantizing model: model-opt.onnx
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.0/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.0/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.0/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.0/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.0/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.0/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.1/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.1/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.1/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.1/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.1/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.1/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.2/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.2/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.2/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.2/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.2/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.2/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.3/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.3/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.3/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.3/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.3/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.3/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.4/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.4/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.4/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.4/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.4/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.4/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.5/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.5/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.5/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.5/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.5/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.5/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.6/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.6/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.6/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.6/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.6/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.6/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.7/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.7/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.7/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.7/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.7/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.7/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.8/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.8/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.8/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.8/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.8/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.8/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.9/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.9/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.9/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.9/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.9/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.9/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.10/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.10/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.10/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.10/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ignore MatMul due to non constant B: /[/transformer/h.10/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.10/attn/MatMul_1]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:Failed to infer data type of tensor: /transformer/h.11/attn/Reshape_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.11/attn/Reshape_1_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.11/attn/Reshape_2_output_0. Please add data type info for this tensor if your model has customized operators.
+WARNING:root:Failed to infer data type of tensor: /transformer/h.11/attn/MatMul_1_output_0. Please add data type info for this tensor if your model has customized operators.
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-03 12:00:27,645 - archai.quantization.ptq — INFO —  Quantizing model: model-opt.onnx
-Model-QNT: 124.886064MB
+Ignore MatMul due to non constant B: /[/transformer/h.11/attn/MatMul]
+Ignore MatMul due to non constant B: /[/transformer/h.11/attn/MatMul_1]
+Model-QNT: 126.068565MB
 </pre></div></div>
 </div>
 </section>
@@ -699,7 +923,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

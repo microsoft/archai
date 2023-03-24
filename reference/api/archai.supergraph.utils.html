@@ -47,6 +47,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.supergraph.utils';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.supergraph.utils.html" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -229,16 +230,17 @@
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.utils.html">Utilities</a></li>
@@ -358,23 +360,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/reference/api/archai.supergraph.utils.rst" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Freference/api/archai.supergraph.utils.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -433,22 +418,14 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#apex-utilities">APEX Utilities</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#atomic-file-handler">Atomic File Handler</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.augmented_searcher">Augmented Searcher</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.augmented_trainer">Augmented Trainer</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.checkpoint">Checkpoint</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common">Common</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#delimited-text">Delimited Text</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.heatmap">Heatmap</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.metrics">Metrics</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ml-performance-utilities">ML Performance (Utilities)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ml-utilities">ML (Utilities)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-summary">Model Summary</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.multi_optim">Multi-Optimizer</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stopwatch">Stopwatch</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.tester">Tester</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.trainer">Trainer</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Utilities</a></li>
 </ul>
             </nav>
         </div>
@@ -462,12 +439,6 @@ document.write(`
                   
   <section id="utilities">
 <h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">#</a></h1>
-<section id="apex-utilities">
-<h2>APEX Utilities<a class="headerlink" href="#apex-utilities" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="atomic-file-handler">
-<h2>Atomic File Handler<a class="headerlink" href="#atomic-file-handler" title="Permalink to this headline">#</a></h2>
-</section>
 <section id="module-archai.supergraph.utils.augmented_searcher">
 <span id="augmented-searcher"></span><h2>Augmented Searcher<a class="headerlink" href="#module-archai.supergraph.utils.augmented_searcher" title="Permalink to this headline">#</a></h2>
 <dl class="py function">
@@ -531,17 +502,33 @@ Invariant: checkpoint remains dirty until commit() is called.</p>
 </dd></dl>
 
 </section>
-<section id="common">
-<h2>Common<a class="headerlink" href="#common" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="delimited-text">
-<h2>Delimited Text<a class="headerlink" href="#delimited-text" title="Permalink to this headline">#</a></h2>
+<section id="module-archai.supergraph.utils.heatmap">
+<span id="heatmap"></span><h2>Heatmap<a class="headerlink" href="#module-archai.supergraph.utils.heatmap" title="Permalink to this headline">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.supergraph.utils.heatmap.heatmap">
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.utils.heatmap.</span></span><span class="sig-name descname"><span class="pre">heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">matplotlib.axes._axes.Axes</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ytick_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'{x:.2f}'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/utils/heatmap.html#heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.utils.heatmap.heatmap" title="Permalink to this definition">#</a></dt>
+<dd><p>Plot a heatmap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – Data to plot.</p></li>
+<li><p><strong>ax</strong> – Axis to plot on.</p></li>
+<li><p><strong>xtick_labels</strong> – Labels for the x-axis.</p></li>
+<li><p><strong>ytick_labels</strong> – Labels for the y-axis.</p></li>
+<li><p><strong>cbar_kwargs</strong> – Keyword arguments to pass to the color bar.</p></li>
+<li><p><strong>cbar_label</strong> – Label for the color bar.</p></li>
+<li><p><strong>fmt</strong> – Format of the annotations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-archai.supergraph.utils.metrics">
 <span id="metrics"></span><h2>Metrics<a class="headerlink" href="#module-archai.supergraph.utils.metrics" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.utils.metrics.Metrics">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.utils.metrics.</span></span><span class="sig-name descname"><span class="pre">Metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">archai.common.apex_utils.ApexUtils</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/utils/metrics.html#Metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.utils.metrics.Metrics" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.utils.metrics.</span></span><span class="sig-name descname"><span class="pre">Metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.common.html#archai.common.apex_utils.ApexUtils" title="archai.common.apex_utils.ApexUtils"><span class="pre">archai.common.apex_utils.ApexUtils</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger_freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/utils/metrics.html#Metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.utils.metrics.Metrics" title="Permalink to this definition">#</a></dt>
 <dd><p>Record top1, top5, loss metrics, track best so far.</p>
 <p>There are 3 levels of metrics:
 1. Run level - these for the one call of ‘fit’, example, best top1
@@ -753,15 +740,6 @@ while validation metrics is in val_metrics</p>
 </dd></dl>
 
 </section>
-<section id="ml-performance-utilities">
-<h2>ML Performance (Utilities)<a class="headerlink" href="#ml-performance-utilities" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="ml-utilities">
-<h2>ML (Utilities)<a class="headerlink" href="#ml-utilities" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="model-summary">
-<h2>Model Summary<a class="headerlink" href="#model-summary" title="Permalink to this headline">#</a></h2>
-</section>
 <section id="module-archai.supergraph.utils.multi_optim">
 <span id="multi-optimizer"></span><h2>Multi-Optimizer<a class="headerlink" href="#module-archai.supergraph.utils.multi_optim" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
@@ -811,14 +789,11 @@ while validation metrics is in val_metrics</p>
 </dd></dl>
 
 </section>
-<section id="stopwatch">
-<h2>Stopwatch<a class="headerlink" href="#stopwatch" title="Permalink to this headline">#</a></h2>
-</section>
 <section id="module-archai.supergraph.utils.tester">
 <span id="tester"></span><h2>Tester<a class="headerlink" href="#module-archai.supergraph.utils.tester" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.utils.tester.Tester">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.utils.tester.</span></span><span class="sig-name descname"><span class="pre">Tester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">archai.common.apex_utils.ApexUtils</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/utils/tester.html#Tester"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.utils.tester.Tester" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.utils.tester.</span></span><span class="sig-name descname"><span class="pre">Tester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apex</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.apex_utils.ApexUtils" title="archai.common.apex_utils.ApexUtils"><span class="pre">archai.common.apex_utils.ApexUtils</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/utils/tester.html#Tester"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.utils.tester.Tester" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.utils.tester.Tester.test">
 <span class="sig-name descname"><span class="pre">test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">test_dl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.utils.data.dataloader.DataLoader</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.supergraph.utils.metrics.Metrics" title="archai.supergraph.utils.metrics.Metrics"><span class="pre">archai.supergraph.utils.metrics.Metrics</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/utils/tester.html#Tester.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.utils.tester.Tester.test" title="Permalink to this definition">#</a></dt>
@@ -945,9 +920,6 @@ while validation metrics is in val_metrics</p>
 </dd></dl>
 
 </section>
-<section id="id1">
-<h2>Utilities<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h2>
-</section>
 </section>
 
 
@@ -992,22 +964,14 @@ while validation metrics is in val_metrics</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#apex-utilities">APEX Utilities</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#atomic-file-handler">Atomic File Handler</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.augmented_searcher">Augmented Searcher</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.augmented_trainer">Augmented Trainer</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.checkpoint">Checkpoint</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common">Common</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#delimited-text">Delimited Text</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.heatmap">Heatmap</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.metrics">Metrics</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ml-performance-utilities">ML Performance (Utilities)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ml-utilities">ML (Utilities)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-summary">Model Summary</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.multi_optim">Multi-Optimizer</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#stopwatch">Stopwatch</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.tester">Tester</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.utils.trainer">Trainer</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Utilities</a></li>
 </ul>
   </nav></div>
 
@@ -1040,7 +1004,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

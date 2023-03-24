@@ -47,10 +47,11 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.discrete_search.evaluators';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.evaluators.html" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Natural Language Processing" href="archai.discrete_search.evaluators.nlp.html" />
+    <link rel="next" title="Benchmark" href="archai.discrete_search.evaluators.benchmark.html" />
     <link rel="prev" title="API" href="archai.discrete_search.api.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -229,16 +230,17 @@
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 current active has-children"><a class="current reference internal" href="#">Evaluators</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.utils.html">Utilities</a></li>
@@ -358,23 +360,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/reference/api/archai.discrete_search.evaluators.rst" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Freference/api/archai.discrete_search.evaluators.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -434,12 +419,11 @@ document.write(`
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.functional">Functional</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lookup-table">Lookup Table</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.onnx_model">ONNX Model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.progressive_training">Progressive Training</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler">PyTorch Profiler</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.ray">Ray</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#remote-azure-benchmark">Remote Azure Benchmark</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.remote_azure_benchmark">Remote Azure Benchmark</a></li>
 </ul>
             </nav>
         </div>
@@ -455,6 +439,10 @@ document.write(`
 <h1>Evaluators<a class="headerlink" href="#evaluators" title="Permalink to this headline">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html">Benchmark</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html#module-archai.discrete_search.evaluators.benchmark.natsbench_tss">NATS-Bench</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html#module-archai.discrete_search.evaluators.nlp.parameters">Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html#module-archai.discrete_search.evaluators.nlp.transformer_flex_latency">Transformer-Flex Latency</a></li>
@@ -499,9 +487,6 @@ passed <cite>budget</cite> value accordingly.</p></li>
 
 </dd></dl>
 
-</section>
-<section id="lookup-table">
-<h2>Lookup Table<a class="headerlink" href="#lookup-table" title="Permalink to this headline">#</a></h2>
 </section>
 <section id="module-archai.discrete_search.evaluators.onnx_model">
 <span id="onnx-model"></span><h2>ONNX Model<a class="headerlink" href="#module-archai.discrete_search.evaluators.onnx_model" title="Permalink to this headline">#</a></h2>
@@ -805,8 +790,51 @@ this type of search algorithm, the implementation of <cite>send()</cite> must us
 </dd></dl>
 
 </section>
-<section id="remote-azure-benchmark">
-<h2>Remote Azure Benchmark<a class="headerlink" href="#remote-azure-benchmark" title="Permalink to this headline">#</a></h2>
+<section id="module-archai.discrete_search.evaluators.remote_azure_benchmark">
+<span id="remote-azure-benchmark"></span><h2>Remote Azure Benchmark<a class="headerlink" href="#module-archai.discrete_search.evaluators.remote_azure_benchmark" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.remote_azure_benchmark.</span></span><span class="sig-name descname"><span class="pre">RemoteAzureBenchmarkEvaluator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blob_container_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_retries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retry_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_export_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/remote_azure_benchmark.html#RemoteAzureBenchmarkEvaluator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator" title="Permalink to this definition">#</a></dt>
+<dd><p>Simple adapter for benchmarking architectures asynchronously on Azure.</p>
+<p>This adapter uploads an ONNX model to a Azure Blob storage container and
+records the model entry on the respective Azure Table.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator.table_client">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">table_client</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></em><a class="headerlink" href="#archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator.table_client" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the table client.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator.send">
+<span class="sig-name descname"><span class="pre">send</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_provider</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.api.html#archai.api.dataset_provider.DatasetProvider" title="archai.api.dataset_provider.DatasetProvider"><span class="pre">archai.api.dataset_provider.DatasetProvider</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/remote_azure_benchmark.html#RemoteAzureBenchmarkEvaluator.send"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator.send" title="Permalink to this definition">#</a></dt>
+<dd><p>Send an evaluation job for a given (model, dataset, budget) triplet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arch</strong> – Model to be evaluated.</p></li>
+<li><p><strong>dataset</strong> – A dataset provider object.</p></li>
+<li><p><strong>budget</strong> – A budget multiplier value, used by search algorithms like <cite>SuccessiveHalving</cite>
+to specify how much compute should be spent in this evaluation. In order to use
+this type of search algorithm, the implementation of <cite>send()</cite> must use the passed
+<cite>budget</cite> value accordingly.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator.fetch_all">
+<span class="sig-name descname"><span class="pre">fetch_all</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/remote_azure_benchmark.html#RemoteAzureBenchmarkEvaluator.fetch_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator.fetch_all" title="Permalink to this definition">#</a></dt>
+<dd><p>Fetch all evaluation results from the job queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of evaluation results. Each result is a <cite>float</cite> or <cite>None</cite> if evaluation job failed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -829,11 +857,11 @@ this type of search algorithm, the implementation of <cite>send()</cite> must us
       </div>
     </a>
     <a class="right-next"
-       href="archai.discrete_search.evaluators.nlp.html"
+       href="archai.discrete_search.evaluators.benchmark.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Natural Language Processing</p>
+        <p class="prev-next-title">Benchmark</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -853,12 +881,11 @@ this type of search algorithm, the implementation of <cite>send()</cite> must us
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.functional">Functional</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lookup-table">Lookup Table</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.onnx_model">ONNX Model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.progressive_training">Progressive Training</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler">PyTorch Profiler</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.ray">Ray</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#remote-azure-benchmark">Remote Azure Benchmark</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.remote_azure_benchmark">Remote Azure Benchmark</a></li>
 </ul>
   </nav></div>
 
@@ -891,7 +918,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

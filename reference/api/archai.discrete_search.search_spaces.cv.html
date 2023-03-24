@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Segmentation DAG &#8212; Archai</title>
+    <title>Computer Vision &#8212; Archai</title>
   
   
   
@@ -46,12 +46,13 @@
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.discrete_search.search_spaces.segmentation_dag';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.discrete_search.search_spaces.cv';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.search_spaces.cv.html" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Utilities" href="archai.discrete_search.utils.html" />
-    <link rel="prev" title="Transformer-Flex" href="archai.discrete_search.search_spaces.nlp.transformer_flex.html" />
+    <link rel="next" title="Segmentation DAG" href="archai.discrete_search.search_spaces.cv.segmentation_dag.html" />
+    <link rel="prev" title="Configuration-Based" href="archai.discrete_search.search_spaces.config.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -229,16 +230,17 @@
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="archai.discrete_search.search_spaces.html">Search Spaces</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4 current active"><a class="current reference internal" href="#">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.utils.html">Utilities</a></li>
@@ -358,24 +360,7 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/reference/api/archai.discrete_search.search_spaces.segmentation_dag.rst" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
-      <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Freference/api/archai.discrete_search.search_spaces.segmentation_dag.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Freference/api/archai.discrete_search.search_spaces.cv.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -410,9 +395,7 @@ document.write(`
   </button>
 `);
 </script>
-<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="fa-solid fa-list"></span>
-</label>
+
 </div></div>
       
     </div>
@@ -423,21 +406,11 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Segmentation DAG</h1>
+    <h1>Computer Vision</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
-            <div>
-                <h2> Sections </h2>
-            </div>
-            <nav aria-label="Page">
-                <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model">Model</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operators">Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#search-space">Search Space</a></li>
-</ul>
-            </nav>
         </div>
     </div>
 </div>
@@ -447,17 +420,18 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="segmentation-dag">
-<h1>Segmentation DAG<a class="headerlink" href="#segmentation-dag" title="Permalink to this headline">#</a></h1>
-<section id="model">
-<h2>Model<a class="headerlink" href="#model" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="operators">
-<h2>Operators<a class="headerlink" href="#operators" title="Permalink to this headline">#</a></h2>
-</section>
-<section id="search-space">
-<h2>Search Space<a class="headerlink" href="#search-space" title="Permalink to this headline">#</a></h2>
-</section>
+  <section id="computer-vision">
+<h1>Computer Vision<a class="headerlink" href="#computer-vision" title="Permalink to this headline">#</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.segmentation_dag.html">Segmentation DAG</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.segmentation_dag.html#module-archai.discrete_search.search_spaces.cv.segmentation_dag.model">Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.segmentation_dag.html#module-archai.discrete_search.search_spaces.cv.segmentation_dag.ops">Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.segmentation_dag.html#module-archai.discrete_search.search_spaces.cv.segmentation_dag.search_space">Search Space</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </section>
 
 
@@ -470,20 +444,20 @@ document.write(`
                   <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="archai.discrete_search.search_spaces.nlp.transformer_flex.html"
+       href="archai.discrete_search.search_spaces.config.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Transformer-Flex</p>
+        <p class="prev-next-title">Configuration-Based</p>
       </div>
     </a>
     <a class="right-next"
-       href="archai.discrete_search.utils.html"
+       href="archai.discrete_search.search_spaces.cv.segmentation_dag.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Utilities</p>
+        <p class="prev-next-title">Segmentation DAG</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -493,22 +467,6 @@ document.write(`
             </div>
             
             
-              
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-  <div class="sidebar-secondary-item">
-  <div class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> Sections
-  </div>
-  <nav class="bd-toc-nav page-toc">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model">Model</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operators">Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#search-space">Search Space</a></li>
-</ul>
-  </nav></div>
-
-</div></div>
               
             
           </div>
@@ -537,7 +495,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

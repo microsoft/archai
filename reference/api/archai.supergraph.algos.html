@@ -47,6 +47,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.supergraph.algos';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.supergraph.algos.html" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -229,16 +230,17 @@
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.utils.html">Utilities</a></li>
@@ -358,23 +360,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/reference/api/archai.supergraph.algos.rst" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Freference/api/archai.supergraph.algos.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -460,8 +445,8 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.divnas.html#module-archai.supergraph.algos.divnas.divnas_finalizers">Finalizers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.divnas.html#module-archai.supergraph.algos.divnas.divnas_model_desc_builder">Model Description Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.divnas.html#module-archai.supergraph.algos.divnas.divnas_rank_finalizer">Rank Finalizer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.divnas.html#module-archai.supergraph.algos.divnas.divop">Div-Based Operations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.divnas.html#module-archai.supergraph.algos.divnas.seqopt">Sequential Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.divnas.html#module-archai.supergraph.algos.divnas.divop">Div-Based Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.divnas.html#module-archai.supergraph.algos.divnas.seqopt">Sequential Operators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.divnas.html#module-archai.supergraph.algos.divnas.wmr">Randomized Weighted Majority</a></li>
 </ul>
 </li>
@@ -470,7 +455,7 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.gumbelsoftmax.html#module-archai.supergraph.algos.gumbelsoftmax.gs_exp_runner">Experiment Runner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.gumbelsoftmax.html#module-archai.supergraph.algos.gumbelsoftmax.gs_finalizers">Finalizers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.gumbelsoftmax.html#module-archai.supergraph.algos.gumbelsoftmax.gs_model_desc_builder">Model Description Builder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.gumbelsoftmax.html#module-archai.supergraph.algos.gumbelsoftmax.gs_op">Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.gumbelsoftmax.html#module-archai.supergraph.algos.gumbelsoftmax.gs_op">Operators</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="archai.supergraph.algos.manual.html">Manual</a><ul>
@@ -480,24 +465,24 @@ document.write(`
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html">NasBench-101</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.base_ops">Base Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.base_ops">Base Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.nasbench101_op">Operators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.config">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.graph_util">Graph Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.graph_util">Graph (Utilities)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.model_builder">Model Builder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder">Model Description Builder</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.model_matrix">Model Matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.model_metrics_pb2">Model Metrics (PB-2)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.model_spec">Model Specification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.model">Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.nasbench101_exp_runner">Experiment Runner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder">Model Description Builder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.nasbench101.html#module-archai.supergraph.algos.nasbench101.nasbench101_op">Operations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="archai.supergraph.algos.petridish.html">Petridish</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.petridish.html#module-archai.supergraph.algos.petridish.evaluater_petridish">Evaluater</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.petridish.html#module-archai.supergraph.algos.petridish.petridish_exp_runner">Experiment Runner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.petridish.html#module-archai.supergraph.algos.petridish.petridish_model_desc_builder">Model Description Builder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.petridish.html#module-archai.supergraph.algos.petridish.petridish_op">Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.petridish.html#module-archai.supergraph.algos.petridish.petridish_op">Operators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.petridish.html#module-archai.supergraph.algos.petridish.petridish_utils">Utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.petridish.html#module-archai.supergraph.algos.petridish.searcher_petridish">Searcher</a></li>
 </ul>
@@ -511,7 +496,7 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.xnas.html#module-archai.supergraph.algos.xnas.xnas_arch_trainer">Architecture Trainer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.xnas.html#module-archai.supergraph.algos.xnas.xnas_exp_runner">Experiment Runner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.xnas.html#module-archai.supergraph.algos.xnas.xnas_model_desc_builder">Model Description Builder</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.xnas.html#module-archai.supergraph.algos.xnas.xnas_op">Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archai.supergraph.algos.xnas.html#module-archai.supergraph.algos.xnas.xnas_op">Operators</a></li>
 </ul>
 </li>
 </ul>
@@ -579,7 +564,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

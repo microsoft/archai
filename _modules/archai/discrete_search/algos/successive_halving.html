@@ -8,7 +8,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>archai.discrete_search.algos.sucessive_halving &#8212; Archai</title>
+    <title>archai.discrete_search.algos.successive_halving &#8212; Archai</title>
   
   
   
@@ -45,7 +45,8 @@
     <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/archai/discrete_search/algos/sucessive_halving';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/archai/discrete_search/algos/successive_halving';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/_modules/archai/discrete_search/algos/successive_halving.html" />
     <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -226,16 +227,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
@@ -355,7 +357,7 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/discrete_search/algos/sucessive_halving.html&body=Your%20issue%20content%20here." target="_blank"
+      <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/discrete_search/algos/successive_halving.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -415,7 +417,7 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <h1>Source code for archai.discrete_search.algos.sucessive_halving</h1><div class="highlight"><pre>
+  <h1>Source code for archai.discrete_search.algos.successive_halving</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
@@ -436,8 +438,8 @@ document.write(`
 <span class="n">logger</span> <span class="o">=</span> <span class="n">OrderedDictLogger</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="SuccessiveHalvingSearch"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.sucessive_halving.SuccessiveHalvingSearch">[docs]</a><span class="k">class</span> <span class="nc">SuccessiveHalvingSearch</span><span class="p">(</span><span class="n">Searcher</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sucessive Halving algorithm&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SuccessiveHalvingSearch"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.successive_halving.SuccessiveHalvingSearch">[docs]</a><span class="k">class</span> <span class="nc">SuccessiveHalvingSearch</span><span class="p">(</span><span class="n">Searcher</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Successive Halving algorithm&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -451,7 +453,7 @@ document.write(`
         <span class="n">budget_multiplier</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
         <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the Sucessive Halving.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the Successive Halving.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            search_space: Discrete search space.</span>
@@ -489,7 +491,7 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SuccessiveHalvingSearch.search"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.sucessive_halving.SuccessiveHalvingSearch.search">[docs]</a>    <span class="nd">@overrides</span>
+<div class="viewcode-block" id="SuccessiveHalvingSearch.search"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.successive_halving.SuccessiveHalvingSearch.search">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchResults</span><span class="p">:</span>
         <span class="n">current_budget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_budget</span>
         <span class="n">population</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">init_num_models</span><span class="p">)]</span>
@@ -582,7 +584,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

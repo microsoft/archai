@@ -46,6 +46,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/archai/discrete_search/search_spaces/config/utils';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/_modules/archai/discrete_search/search_spaces/config/utils.html" />
     <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
@@ -226,16 +227,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
@@ -425,7 +427,7 @@ document.write(`
 <span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.config.discrete_choice</span> <span class="kn">import</span> <span class="n">DiscreteChoice</span>
 
 
-<div class="viewcode-block" id="flatten_dict"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html#archai.discrete_search.search_spaces.config.utils.flatten_dict">[docs]</a><span class="k">def</span> <span class="nf">flatten_dict</span><span class="p">(</span><span class="n">odict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
+<div class="viewcode-block" id="flatten_dict"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html#archai.discrete_search.search_spaces.config.utils.flatten_dict">[docs]</a><span class="k">def</span> <span class="nf">flatten_dict</span><span class="p">(</span><span class="n">odict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Flatten a nested dictionary into a single level dictionary.</span>
 
 <span class="sd">    Args:</span>
@@ -436,12 +438,12 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">fdict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="n">fdict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_flatten</span><span class="p">(</span><span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="n">prefix</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="k">if</span> <span class="n">prefix</span> <span class="k">else</span> <span class="n">prefix</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">flat_v</span> <span class="o">=</span> <span class="n">_flatten</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 
@@ -453,6 +455,25 @@ document.write(`
     <span class="n">_flatten</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">odict</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">fdict</span></div>
+
+
+<div class="viewcode-block" id="order_dict_keys"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html#archai.discrete_search.search_spaces.config.utils.order_dict_keys">[docs]</a><span class="k">def</span> <span class="nf">order_dict_keys</span><span class="p">(</span><span class="n">base_dict</span><span class="p">:</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">target_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">OrderedDict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Order the keys of a target dictionary based on a base dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        base_dict (OrderedDict[str, Any]): Dictionary with the desired key order.</span>
+<span class="sd">        target_dict (Dict[str, Any]): Dictionary to be ordered.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        OrderedDict[str, Any]: Ordered version of `target_dict` dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ordered_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">base_dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">target_dict</span><span class="p">:</span>
+            <span class="n">ordered_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">ordered_dict</span></div>
 
 
 <div class="viewcode-block" id="replace_ptree_choices"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html#archai.discrete_search.search_spaces.config.utils.replace_ptree_choices">[docs]</a><span class="k">def</span> <span class="nf">replace_ptree_choices</span><span class="p">(</span>
@@ -569,7 +590,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

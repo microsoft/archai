@@ -1,0 +1,923 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>archai.datasets.nlp.fast_hf_dataset_provider &#8212; Archai</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/tabs.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/archai/datasets/nlp/fast_hf_dataset_provider';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/_modules/archai/datasets/nlp/fast_hf_dataset_provider.html" />
+    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/package_structure.html">Package Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../getting_started/notebooks.html">Notebooks</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../getting_started/notebooks/api.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/api/dataset_provider.html">Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/api/trainer_base.html">Trainer (Base)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../getting_started/notebooks/discrete_search.html">Discrete Search</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/search_space.html">Search Spaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/evaluators.html">Evaluators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/algos.html">Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/discrete_search/config_search.html">Configuration-based Search</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../getting_started/notebooks/supergraph.html">Supergraph</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../getting_started/notebooks/cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/cv/cv_dataset_provider.html">Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/cv/pl_trainer.html">PyTorch-Lightining Trainer</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../getting_started/notebooks/nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/fast_hf_dataset_provider.html">Fast HF Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/hf_dataset_provider.html">HF Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/hf_trainer.html">HF Trainer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/nvidia_dataset_provider.html">NVIDIA Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/nvidia_trainer.html">NVIDIA Trainer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/onnx_export.html">ONNX Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/torch_quantization.html">PyTorch Quantization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../advanced_guide/nas.html">Neural Architecture Search</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/nas/discrete_search.html">Discrete Search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/nas/supergraph.html">Supergraph</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../advanced_guide/cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/cv/datasets.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/cv/trainers.html">Trainers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/cv/onnx.html">ONNX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/cv/quantization.html">Quantization</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../advanced_guide/nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/nlp/datasets.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/nlp/trainers.html">Trainers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/nlp/onnx.html">ONNX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/nlp/quantization.html">Quantization</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../advanced_guide/cloud.html">Cloud-Based Search</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../advanced_guide/cloud/azure.html">Azure</a></li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Contributing</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/first_contribution.html">First Time Contributor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../contributing/unit_tests.html">Unit Tests</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Support</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../support/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../support/contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../support/copyright.html">Copyright</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../reference/api.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../reference/api/archai.api.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../reference/api/archai.common.html">Common Packages</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../reference/api/archai.datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../reference/api/archai.datasets.cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.datasets.cv.transforms.html">Transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../reference/api/archai.datasets.nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-13"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.datasets.nlp.tokenizer_utils.html">Tokenization Utilities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.html">Discrete Search</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-14"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.api.html">API</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../reference/api/archai.onnx.html">ONNX</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-17"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.onnx.config_utils.html">Configuration Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.onnx.optimization_utils.html">Optimization Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../reference/api/archai.quantization.html">Quantization</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.quantization.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../reference/api/archai.supergraph.html">Supergraph</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.html">Algorithms</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-20"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.darts.html">DARTS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.didarts.html">DiDARTS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.divnas.html">DivNAS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.gumbelsoftmax.html">Gumbel-Softmax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.manual.html">Manual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.nasbench101.html">NasBench-101</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.petridish.html">Petridish</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.random.html">Random</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.algos.xnas.html">XNAS</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../reference/api/archai.supergraph.datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-21"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.datasets.providers.html">Providers</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../reference/api/archai.supergraph.models.html">Models</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-22"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../reference/api/archai.supergraph.models.shakeshake.html">ShakeShake</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.supergraph.nas.html">Neural Architecture Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.supergraph.utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../reference/api/archai.trainers.html">Trainers</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-23"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.trainers.cv.html">Computer Vision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../reference/api/archai.trainers.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../reference/changelog.html">Changelog</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/microsoft/archai" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2F_modules/archai/datasets/nlp/fast_hf_dataset_provider.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for archai.datasets.nlp.fast_hf_dataset_provider</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
+<span class="c1"># Licensed under the MIT license.</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span><span class="p">,</span> <span class="n">load_from_disk</span>
+<span class="kn">from</span> <span class="nn">datasets.dataset_dict</span> <span class="kn">import</span> <span class="n">DatasetDict</span>
+<span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
+<span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">DataCollatorForLanguageModeling</span>
+
+<span class="kn">from</span> <span class="nn">archai.api.dataset_provider</span> <span class="kn">import</span> <span class="n">DatasetProvider</span>
+<span class="kn">from</span> <span class="nn">archai.common.ordered_dict_logger</span> <span class="kn">import</span> <span class="n">OrderedDictLogger</span>
+<span class="kn">from</span> <span class="nn">archai.datasets.nlp.fast_hf_dataset_provider_utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FastHfDataset</span><span class="p">,</span>
+    <span class="n">SHMArray</span><span class="p">,</span>
+    <span class="n">process_with_memory_map_files</span><span class="p">,</span>
+    <span class="n">process_with_shared_memory</span><span class="p">,</span>
+    <span class="n">xor</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">archai.datasets.nlp.hf_dataset_provider_utils</span> <span class="kn">import</span> <span class="n">tokenize_concatenated_dataset</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">OrderedDictLogger</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">major</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">minor</span> <span class="o">&gt;=</span> <span class="mi">8</span><span class="p">:</span>
+    <span class="n">ALLOW_SHARED_MEMORY</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Shared memory is not available in Python &lt; 3.8.&quot;</span><span class="p">)</span>
+    <span class="n">ALLOW_SHARED_MEMORY</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<div class="viewcode-block" id="FastHfDatasetProvider"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.fast_hf_dataset_provider.FastHfDatasetProvider">[docs]</a><span class="k">class</span> <span class="nc">FastHfDatasetProvider</span><span class="p">(</span><span class="n">DatasetProvider</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fast Hugging Face-based dataset provider.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">train_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">validation_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">test_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize Fast Hugging Face-based dataset provider.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            train_file: Path to the training array file (.npy).</span>
+<span class="sd">            validation_file: Path to the validation array file (.npy).</span>
+<span class="sd">            test_file: Path to the test array file (.npy).</span>
+<span class="sd">            tokenizer: Instance of tokenizer to use.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_file</span> <span class="o">=</span> <span class="n">train_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validation_file</span> <span class="o">=</span> <span class="n">validation_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_file</span> <span class="o">=</span> <span class="n">test_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_create_splits</span><span class="p">(</span><span class="n">dataset_dict</span><span class="p">:</span> <span class="n">DatasetDict</span><span class="p">,</span> <span class="n">validation_split</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetDict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;validation&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset_dict</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating validation split ...&quot;</span><span class="p">)</span>
+
+            <span class="n">validation_split</span> <span class="o">=</span> <span class="n">validation_split</span> <span class="ow">or</span> <span class="mf">0.1</span>
+            <span class="n">tmp_dataset_dict</span> <span class="o">=</span> <span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span>
+                <span class="n">test_size</span><span class="o">=</span><span class="n">validation_split</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span>
+            <span class="p">)</span>
+            <span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_dataset_dict</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span>
+            <span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_dataset_dict</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;test&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dataset_dict</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating test split ...&quot;</span><span class="p">)</span>
+
+            <span class="n">tmp_dataset_dict</span> <span class="o">=</span> <span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;validation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_dataset_dict</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span>
+            <span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp_dataset_dict</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">dataset_dict</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_encode_dataset</span><span class="p">(</span>
+        <span class="n">dataset_dict</span><span class="p">:</span> <span class="n">DatasetDict</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="p">:</span> <span class="n">AutoTokenizer</span><span class="p">,</span>
+        <span class="n">mapping_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+        <span class="n">mapping_fn_kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">use_eos_token</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetDict</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Encoding dataset ...&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of workers: </span><span class="si">{</span><span class="n">num_workers</span><span class="si">}</span><span class="s2"> | EOS token: </span><span class="si">{</span><span class="n">use_eos_token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">mapping_fn</span> <span class="o">=</span> <span class="n">mapping_fn</span> <span class="ow">or</span> <span class="n">tokenize_concatenated_dataset</span>
+        <span class="n">mapping_fn_kwargs</span> <span class="o">=</span> <span class="n">mapping_fn_kwargs</span> <span class="ow">or</span> <span class="p">{</span>
+            <span class="s2">&quot;tokenizer&quot;</span><span class="p">:</span> <span class="n">tokenizer</span><span class="p">,</span>
+            <span class="s2">&quot;mapping_column_name&quot;</span><span class="p">:</span> <span class="n">mapping_column_name</span><span class="p">,</span>
+            <span class="s2">&quot;use_eos_token&quot;</span><span class="p">:</span> <span class="n">use_eos_token</span><span class="p">,</span>
+            <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="n">dtype</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">column_names</span> <span class="o">=</span> <span class="n">dataset_dict</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">column_names</span>
+        <span class="n">encoded_dataset_dict</span> <span class="o">=</span> <span class="n">dataset_dict</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+            <span class="n">mapping_fn</span><span class="p">,</span>
+            <span class="n">fn_kwargs</span><span class="o">=</span><span class="n">mapping_fn_kwargs</span><span class="p">,</span>
+            <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">num_proc</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+            <span class="n">remove_columns</span><span class="o">=</span><span class="n">column_names</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">encoded_dataset_dict</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_process_dataset_to_memory</span><span class="p">(</span>
+        <span class="n">dataset_dict</span><span class="p">:</span> <span class="n">DatasetDict</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">use_shared_memory</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">SHMArray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing dataset to memory ...&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of workers: </span><span class="si">{</span><span class="n">num_workers</span><span class="si">}</span><span class="s2"> | Shared memory: </span><span class="si">{</span><span class="n">use_shared_memory</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">use_shared_memory</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">process_with_shared_memory</span><span class="p">(</span><span class="n">dataset_dict</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">num_proc</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">process_with_memory_map_files</span><span class="p">(</span><span class="n">dataset_dict</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">num_proc</span><span class="o">=</span><span class="n">num_workers</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_save_dataset</span><span class="p">(</span>
+        <span class="n">dataset_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">SHMArray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span>
+        <span class="n">tokenizer</span><span class="p">:</span> <span class="n">AutoTokenizer</span><span class="p">,</span>
+        <span class="n">cache_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">use_shared_memory</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Path</span><span class="p">]:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving dataset to: </span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">cache_files</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">split</span><span class="p">,</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">dataset_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">cache_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">split</span><span class="si">}</span><span class="s2">.npy&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+
+            <span class="c1"># If using shared memory, dataset needs to have its shared memory</span>
+            <span class="c1"># unlinked to prevent memory leak</span>
+            <span class="k">if</span> <span class="n">use_shared_memory</span><span class="p">:</span>
+                <span class="n">dataset</span><span class="o">.</span><span class="n">shm</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+            <span class="c1"># If not using shared memory, dataset needs to have its memory map</span>
+            <span class="c1"># closed to prevent an additional .bin file</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">use_shared_memory</span><span class="p">:</span>
+                <span class="n">dataset</span><span class="o">.</span><span class="n">_mmap</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">split</span><span class="si">}</span><span class="s2">.bin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+            <span class="n">cache_files</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">split</span><span class="si">}</span><span class="s1">_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">split</span><span class="si">}</span><span class="s2">.npy&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_dir</span> <span class="o">/</span> <span class="s2">&quot;tokenizer.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cache_files</span>
+
+<div class="viewcode-block" id="FastHfDatasetProvider.from_disk"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.fast_hf_dataset_provider.FastHfDatasetProvider.from_disk">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_disk</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="n">FastHfDatasetProvider</span><span class="p">,</span>
+        <span class="n">dataset_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tokenizer_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mapping_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mapping_fn_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">validation_split</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">use_eos_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_shared_memory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cache&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastHfDatasetProvider</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataset provider by loading and encoding data from disk.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_file_path: Path to the dataset file stored in disk.</span>
+<span class="sd">            tokenizer: Instance of tokenizer to use.</span>
+<span class="sd">            tokenizer_name: Name of the tokenizer, if `tokenizer` has not been passed.</span>
+<span class="sd">            mapping_fn: A function that maps the dataset. If not provided,</span>
+<span class="sd">                the default `tokenize_concatenated_dataset` function will be used.</span>
+<span class="sd">            mapping_fn_kwargs: Keyword arguments to pass to `mapping_fn`.</span>
+<span class="sd">            mapping_column_name: The columns in the dataset to be tokenized.</span>
+<span class="sd">                If `str`, only one column will be tokenized.</span>
+<span class="sd">                If `List[str]`, multiple columns will be tokenized.</span>
+<span class="sd">            validation_split: Fraction of the dataset to use for validation.</span>
+<span class="sd">            seed: Random seed.</span>
+<span class="sd">            num_workers: Number of workers to use for encoding.</span>
+<span class="sd">            use_eos_token: Whether to use EOS token to separate sequences.</span>
+<span class="sd">            use_shared_memory: Whether to use shared memory for caching.</span>
+<span class="sd">            cache_dir: Root path to the cache directory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dataset provider.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">xor</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">tokenizer_name</span><span class="p">),</span> <span class="s2">&quot;`tokenizer` and `tokenizer_name` are mutually exclusive.&quot;</span>
+        <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer</span> <span class="ow">or</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">tokenizer_name</span><span class="p">)</span>
+
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span> <span class="k">if</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">&lt;</span> <span class="mi">64</span> <span class="o">*</span> <span class="mi">1024</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span>
+        <span class="n">use_shared_memory</span> <span class="o">=</span> <span class="n">use_shared_memory</span> <span class="ow">and</span> <span class="n">ALLOW_SHARED_MEMORY</span>
+
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cache_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cache: </span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s2"> already exists and will be overritten.&quot;</span><span class="p">)</span>
+        <span class="n">cache_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Ensure that loaded dataset is always a dictionary</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading dataset from: </span><span class="si">{</span><span class="n">dataset_file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">disk_dataset_dict</span> <span class="o">=</span> <span class="n">load_from_disk</span><span class="p">(</span><span class="n">dataset_file_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">disk_dataset_dict</span><span class="p">,</span> <span class="n">DatasetDict</span><span class="p">):</span>
+            <span class="n">disk_dataset_dict</span> <span class="o">=</span> <span class="n">DatasetDict</span><span class="p">({</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">disk_dataset_dict</span><span class="p">})</span>
+
+        <span class="c1"># Ensure that `validation` and `test` splits are available</span>
+        <span class="n">disk_dataset_dict</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">_create_splits</span><span class="p">(</span><span class="n">disk_dataset_dict</span><span class="p">,</span> <span class="n">validation_split</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+
+        <span class="n">encoded_dataset_dict</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">_encode_dataset</span><span class="p">(</span>
+            <span class="n">disk_dataset_dict</span><span class="p">,</span>
+            <span class="n">tokenizer</span><span class="p">,</span>
+            <span class="n">mapping_fn</span><span class="p">,</span>
+            <span class="n">mapping_fn_kwargs</span><span class="p">,</span>
+            <span class="n">mapping_column_name</span><span class="p">,</span>
+            <span class="n">use_eos_token</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">processed_dataset_dict</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">_process_dataset_to_memory</span><span class="p">(</span>
+            <span class="n">encoded_dataset_dict</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">,</span> <span class="n">use_shared_memory</span>
+        <span class="p">)</span>
+
+        <span class="n">cache_files</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">_save_dataset</span><span class="p">(</span>
+            <span class="n">processed_dataset_dict</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">,</span> <span class="n">use_shared_memory</span>
+        <span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_dir</span> <span class="o">/</span> <span class="s2">&quot;config.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;dataset_file_path&quot;</span><span class="p">:</span> <span class="n">dataset_file_path</span><span class="p">,</span>
+                    <span class="s2">&quot;tokenizer&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;name_or_path&quot;</span><span class="p">:</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">name_or_path</span><span class="p">,</span>
+                        <span class="s2">&quot;model_max_length&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;mapping_column_name&quot;</span><span class="p">:</span> <span class="n">mapping_column_name</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;validation_split&quot;</span><span class="p">:</span> <span class="n">validation_split</span><span class="p">,</span>
+                    <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="n">seed</span><span class="p">,</span>
+                    <span class="s2">&quot;use_eos_token&quot;</span><span class="p">:</span> <span class="n">use_eos_token</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="n">f</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FastHfDatasetProvider</span><span class="p">(</span><span class="o">**</span><span class="n">cache_files</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FastHfDatasetProvider.from_hub"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.fast_hf_dataset_provider.FastHfDatasetProvider.from_hub">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_hub</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">:</span> <span class="n">FastHfDatasetProvider</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">dataset_config_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">data_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">data_files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tokenizer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AutoTokenizer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tokenizer_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mapping_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mapping_fn_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mapping_column_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">validation_split</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">42</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">use_eos_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_shared_memory</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">cache_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cache&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastHfDatasetProvider</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataset provider by downloading and encoding data from Hugging Face Hub.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset_name: Name of the dataset.</span>
+<span class="sd">            dataset_config_name: Name of the dataset configuration.</span>
+<span class="sd">            data_dir: Path to the data directory.</span>
+<span class="sd">            data_files: Path to the source data file(s).</span>
+<span class="sd">            tokenizer: Instance of tokenizer to use.</span>
+<span class="sd">            tokenizer_name: Name of the tokenizer, if `tokenizer` has not been passed.</span>
+<span class="sd">            mapping_fn: A function that maps the dataset. If not provided,</span>
+<span class="sd">                the default `tokenize_concatenated_dataset` function will be used.</span>
+<span class="sd">            mapping_fn_kwargs: Keyword arguments to pass to `mapping_fn`.</span>
+<span class="sd">            mapping_column_name: The columns in the dataset to be tokenized.</span>
+<span class="sd">                If `str`, only one column will be tokenized.</span>
+<span class="sd">                If `List[str]`, multiple columns will be tokenized.</span>
+<span class="sd">            validation_split: Fraction of the dataset to use for validation.</span>
+<span class="sd">            seed: Random seed.</span>
+<span class="sd">            num_workers: Number of workers to use for encoding.</span>
+<span class="sd">            use_eos_token: Whether to use EOS token to separate sequences.</span>
+<span class="sd">            use_shared_memory: Whether to use shared memory for caching.</span>
+<span class="sd">            cache_dir: Root path to the cache directory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dataset provider.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">xor</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">tokenizer_name</span><span class="p">),</span> <span class="s2">&quot;`tokenizer` and `tokenizer_name` are mutually exclusive.&quot;</span>
+        <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer</span> <span class="ow">or</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">tokenizer_name</span><span class="p">)</span>
+
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span> <span class="k">if</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">vocab_size</span> <span class="o">&lt;</span> <span class="mi">64</span> <span class="o">*</span> <span class="mi">1024</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span>
+        <span class="n">use_shared_memory</span> <span class="o">=</span> <span class="n">use_shared_memory</span> <span class="ow">and</span> <span class="n">ALLOW_SHARED_MEMORY</span>
+
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cache_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cache: </span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s2"> already exists and will be overritten.&quot;</span><span class="p">)</span>
+        <span class="n">cache_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Ensure that downloaded dataset is always a dictionary</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Downloading dataset ...&quot;</span><span class="p">)</span>
+        <span class="n">hub_dataset_dict</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
+            <span class="n">dataset_name</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">dataset_config_name</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">data_files</span><span class="o">=</span><span class="n">data_files</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hub_dataset_dict</span><span class="p">,</span> <span class="n">DatasetDict</span><span class="p">):</span>
+            <span class="n">hub_dataset_dict</span> <span class="o">=</span> <span class="n">DatasetDict</span><span class="p">({</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">hub_dataset_dict</span><span class="p">})</span>
+
+        <span class="c1"># Ensure that `validation` and `test` splits are available</span>
+        <span class="n">hub_dataset_dict</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">_create_splits</span><span class="p">(</span><span class="n">hub_dataset_dict</span><span class="p">,</span> <span class="n">validation_split</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+
+        <span class="n">encoded_dataset_dict</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">_encode_dataset</span><span class="p">(</span>
+            <span class="n">hub_dataset_dict</span><span class="p">,</span>
+            <span class="n">tokenizer</span><span class="p">,</span>
+            <span class="n">mapping_fn</span><span class="p">,</span>
+            <span class="n">mapping_fn_kwargs</span><span class="p">,</span>
+            <span class="n">mapping_column_name</span><span class="p">,</span>
+            <span class="n">use_eos_token</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">processed_dataset_dict</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">_process_dataset_to_memory</span><span class="p">(</span>
+            <span class="n">encoded_dataset_dict</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">,</span> <span class="n">use_shared_memory</span>
+        <span class="p">)</span>
+
+        <span class="n">cache_files</span> <span class="o">=</span> <span class="n">FastHfDatasetProvider</span><span class="o">.</span><span class="n">_save_dataset</span><span class="p">(</span>
+            <span class="n">processed_dataset_dict</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">,</span> <span class="n">use_shared_memory</span>
+        <span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cache_dir</span> <span class="o">/</span> <span class="s2">&quot;config.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;dataset_name&quot;</span><span class="p">:</span> <span class="n">dataset_name</span><span class="p">,</span>
+                    <span class="s2">&quot;dataset_config_name&quot;</span><span class="p">:</span> <span class="n">dataset_config_name</span><span class="p">,</span>
+                    <span class="s2">&quot;data_dir&quot;</span><span class="p">:</span> <span class="n">data_dir</span><span class="p">,</span>
+                    <span class="s2">&quot;tokenizer&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;name_or_path&quot;</span><span class="p">:</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">name_or_path</span><span class="p">,</span>
+                        <span class="s2">&quot;model_max_length&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;mapping_column_name&quot;</span><span class="p">:</span> <span class="n">mapping_column_name</span> <span class="ow">or</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;validation_split&quot;</span><span class="p">:</span> <span class="n">validation_split</span><span class="p">,</span>
+                    <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="n">seed</span><span class="p">,</span>
+                    <span class="s2">&quot;use_eos_token&quot;</span><span class="p">:</span> <span class="n">use_eos_token</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="n">f</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FastHfDatasetProvider</span><span class="p">(</span><span class="o">**</span><span class="n">cache_files</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FastHfDatasetProvider.from_cache"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.fast_hf_dataset_provider.FastHfDatasetProvider.from_cache">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_cache</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">FastHfDatasetProvider</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastHfDatasetProvider</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataset provider from a cache directory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cache_dir: Path to the cache directory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Dataset provider.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading dataset from: </span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">cache_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span>
+        <span class="n">cache_train_file</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="o">/</span> <span class="s2">&quot;train.npy&quot;</span>
+        <span class="n">cache_validation_file</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="o">/</span> <span class="s2">&quot;validation.npy&quot;</span>
+        <span class="n">cache_test_file</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="o">/</span> <span class="s2">&quot;test.npy&quot;</span>
+
+        <span class="n">tokenizer_file</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="o">/</span> <span class="s2">&quot;tokenizer.pkl&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tokenizer_file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not find tokenizer in </span><span class="si">{</span><span class="n">cache_dir</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="n">tokenizer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tokenizer_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FastHfDatasetProvider</span><span class="p">(</span><span class="n">cache_train_file</span><span class="p">,</span> <span class="n">cache_validation_file</span><span class="p">,</span> <span class="n">cache_test_file</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FastHfDatasetProvider.get_train_dataset"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.fast_hf_dataset_provider.FastHfDatasetProvider.get_train_dataset">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">get_train_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastHfDataset</span><span class="p">:</span>
+        <span class="n">input_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_file</span><span class="p">,</span> <span class="n">mmap_mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FastHfDataset</span><span class="p">(</span><span class="n">input_ids</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="n">seq_len</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FastHfDatasetProvider.get_val_dataset"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.fast_hf_dataset_provider.FastHfDatasetProvider.get_val_dataset">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">get_val_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastHfDataset</span><span class="p">:</span>
+        <span class="n">input_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_file</span><span class="p">,</span> <span class="n">mmap_mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FastHfDataset</span><span class="p">(</span><span class="n">input_ids</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="n">seq_len</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FastHfDatasetProvider.get_test_dataset"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.fast_hf_dataset_provider.FastHfDatasetProvider.get_test_dataset">[docs]</a>    <span class="nd">@overrides</span>
+    <span class="k">def</span> <span class="nf">get_test_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastHfDataset</span><span class="p">:</span>
+        <span class="n">input_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_file</span><span class="p">,</span> <span class="n">mmap_mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FastHfDataset</span><span class="p">(</span><span class="n">input_ids</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="n">seq_len</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FastDataCollatorForLanguageModeling"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.fast_hf_dataset_provider.FastDataCollatorForLanguageModeling">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">FastDataCollatorForLanguageModeling</span><span class="p">(</span><span class="n">DataCollatorForLanguageModeling</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Language modeling data collator compatible with FastHfDataset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        use_shifted_labels: Whether to use the original labels (shifted) or the non-shifted labels.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">use_shifted_labels</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="FastDataCollatorForLanguageModeling.torch_call"><a class="viewcode-back" href="../../../../reference/api/archai.datasets.nlp.html#archai.datasets.nlp.fast_hf_dataset_provider.FastDataCollatorForLanguageModeling.torch_call">[docs]</a>    <span class="k">def</span> <span class="nf">torch_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">examples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">torch_call</span><span class="p">(</span><span class="n">examples</span><span class="p">)</span>
+
+        <span class="n">batch</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">torch_call</span><span class="p">([</span><span class="n">example</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">examples</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_shifted_labels</span><span class="p">:</span>
+            <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">example</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">examples</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">batch</span></div></div>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner">
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Microsoft
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on Mar 24, 2023.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div></div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

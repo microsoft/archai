@@ -47,10 +47,11 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.discrete_search.search_spaces';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.search_spaces.html" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Configuration-Based" href="archai.discrete_search.search_spaces.config.html" />
+    <link rel="next" title="Benchmark" href="archai.discrete_search.search_spaces.benchmark.html" />
     <link rel="prev" title="Predictors" href="archai.discrete_search.predictors.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -229,16 +230,17 @@
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 current active has-children"><a class="current reference internal" href="#">Search Spaces</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.utils.html">Utilities</a></li>
@@ -358,23 +360,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/reference/api/archai.discrete_search.search_spaces.rst" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Freference/api/archai.discrete_search.search_spaces.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -439,6 +424,10 @@ document.write(`
 <h1>Search Spaces<a class="headerlink" href="#search-spaces" title="Permalink to this headline">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html">Benchmark</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html#module-archai.discrete_search.search_spaces.benchmark.natsbench_tss">NATS-Bench</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html">Configuration-Based</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html#module-archai.discrete_search.search_spaces.config.arch_config">Architecture Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html#module-archai.discrete_search.search_spaces.config.arch_param_tree">Architecture Parameter Tree</a></li>
@@ -448,18 +437,13 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html#module-archai.discrete_search.search_spaces.config.utils">Utilities</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html#search-space">Search Space</a></li>
+<li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.html">Computer Vision</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.tfpp.html">Transformer++</a></li>
 <li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.transformer_flex.html">Transformer-Flex</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html#model">Model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html#operators">Operators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html#search-space">Search Space</a></li>
 </ul>
 </li>
 </ul>
@@ -485,11 +469,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="archai.discrete_search.search_spaces.config.html"
+       href="archai.discrete_search.search_spaces.benchmark.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Configuration-Based</p>
+        <p class="prev-next-title">Benchmark</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -527,7 +511,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

@@ -46,6 +46,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/index';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/_modules/index.html" />
     <link rel="shortcut icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -226,16 +227,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/api/archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
@@ -418,13 +420,25 @@ document.write(`
   <h1>All modules for which code is available</h1>
 <ul><li><a href="archai/api/dataset_provider.html">archai.api.dataset_provider</a></li>
 <li><a href="archai/api/trainer_base.html">archai.api.trainer_base</a></li>
+<li><a href="archai/common/apex_utils.html">archai.common.apex_utils</a></li>
+<li><a href="archai/common/atomic_file_handler.html">archai.common.atomic_file_handler</a></li>
+<li><a href="archai/common/common.html">archai.common.common</a></li>
 <li><a href="archai/common/config.html">archai.common.config</a></li>
+<li><a href="archai/common/delimited_text.html">archai.common.delimited_text</a></li>
 <li><a href="archai/common/deprecation_utils.html">archai.common.deprecation_utils</a></li>
 <li><a href="archai/common/distributed_utils.html">archai.common.distributed_utils</a></li>
 <li><a href="archai/common/file_utils.html">archai.common.file_utils</a></li>
+<li><a href="archai/common/ml_perf_utils.html">archai.common.ml_perf_utils</a></li>
+<li><a href="archai/common/ml_utils.html">archai.common.ml_utils</a></li>
+<li><a href="archai/common/model_summary.html">archai.common.model_summary</a></li>
+<li><a href="archai/common/notebook_helper.html">archai.common.notebook_helper</a></li>
 <li><a href="archai/common/ordered_dict_logger.html">archai.common.ordered_dict_logger</a></li>
 <li><a href="archai/common/ordered_dict_logger_utils.html">archai.common.ordered_dict_logger_utils</a></li>
+<li><a href="archai/common/stopwatch.html">archai.common.stopwatch</a></li>
+<li><a href="archai/common/store.html">archai.common.store</a></li>
 <li><a href="archai/common/timing.html">archai.common.timing</a></li>
+<li><a href="archai/common/utils.html">archai.common.utils</a></li>
+<li><a href="archai/common/yaml_utils.html">archai.common.yaml_utils</a></li>
 <li><a href="archai/datasets/cv/aircraft_dataset_provider.html">archai.datasets.cv.aircraft_dataset_provider</a></li>
 <li><a href="archai/datasets/cv/caltech_dataset_provider.html">archai.datasets.cv.caltech_dataset_provider</a></li>
 <li><a href="archai/datasets/cv/cifar_dataset_provider.html">archai.datasets.cv.cifar_dataset_provider</a></li>
@@ -437,10 +451,14 @@ document.write(`
 <li><a href="archai/datasets/cv/mnist_dataset_provider.html">archai.datasets.cv.mnist_dataset_provider</a></li>
 <li><a href="archai/datasets/cv/stanford_cars_dataset_provider.html">archai.datasets.cv.stanford_cars_dataset_provider</a></li>
 <li><a href="archai/datasets/cv/svhn_dataset_provider.html">archai.datasets.cv.svhn_dataset_provider</a></li>
+<li><a href="archai/datasets/cv/tensorpack_lmdb_dataset_provider.html">archai.datasets.cv.tensorpack_lmdb_dataset_provider</a></li>
+<li><a href="archai/datasets/cv/tensorpack_lmdb_dataset_provider_utils.html">archai.datasets.cv.tensorpack_lmdb_dataset_provider_utils</a></li>
 <li><a href="archai/datasets/cv/transforms/brightness.html">archai.datasets.cv.transforms.brightness</a></li>
 <li><a href="archai/datasets/cv/transforms/custom_cutout.html">archai.datasets.cv.transforms.custom_cutout</a></li>
 <li><a href="archai/datasets/cv/transforms/lighting.html">archai.datasets.cv.transforms.lighting</a></li>
 <li><a href="archai/datasets/cv/usps_dataset_provider.html">archai.datasets.cv.usps_dataset_provider</a></li>
+<li><a href="archai/datasets/nlp/fast_hf_dataset_provider.html">archai.datasets.nlp.fast_hf_dataset_provider</a></li>
+<li><a href="archai/datasets/nlp/fast_hf_dataset_provider_utils.html">archai.datasets.nlp.fast_hf_dataset_provider_utils</a></li>
 <li><a href="archai/datasets/nlp/hf_dataset_provider.html">archai.datasets.nlp.hf_dataset_provider</a></li>
 <li><a href="archai/datasets/nlp/hf_dataset_provider_utils.html">archai.datasets.nlp.hf_dataset_provider_utils</a></li>
 <li><a href="archai/datasets/nlp/nvidia_data_loader_utils.html">archai.datasets.nlp.nvidia_data_loader_utils</a></li>
@@ -456,7 +474,7 @@ document.write(`
 <li><a href="archai/discrete_search/algos/local_search.html">archai.discrete_search.algos.local_search</a></li>
 <li><a href="archai/discrete_search/algos/random_search.html">archai.discrete_search.algos.random_search</a></li>
 <li><a href="archai/discrete_search/algos/regularized_evolution.html">archai.discrete_search.algos.regularized_evolution</a></li>
-<li><a href="archai/discrete_search/algos/sucessive_halving.html">archai.discrete_search.algos.sucessive_halving</a></li>
+<li><a href="archai/discrete_search/algos/successive_halving.html">archai.discrete_search.algos.successive_halving</a></li>
 <li><a href="archai/discrete_search/api/archai_model.html">archai.discrete_search.api.archai_model</a></li>
 <li><a href="archai/discrete_search/api/model_evaluator.html">archai.discrete_search.api.model_evaluator</a></li>
 <li><a href="archai/discrete_search/api/predictor.html">archai.discrete_search.api.predictor</a></li>
@@ -464,6 +482,7 @@ document.write(`
 <li><a href="archai/discrete_search/api/search_results.html">archai.discrete_search.api.search_results</a></li>
 <li><a href="archai/discrete_search/api/search_space.html">archai.discrete_search.api.search_space</a></li>
 <li><a href="archai/discrete_search/api/searcher.html">archai.discrete_search.api.searcher</a></li>
+<li><a href="archai/discrete_search/evaluators/benchmark/natsbench_tss.html">archai.discrete_search.evaluators.benchmark.natsbench_tss</a></li>
 <li><a href="archai/discrete_search/evaluators/functional.html">archai.discrete_search.evaluators.functional</a></li>
 <li><a href="archai/discrete_search/evaluators/nlp/parameters.html">archai.discrete_search.evaluators.nlp.parameters</a></li>
 <li><a href="archai/discrete_search/evaluators/nlp/transformer_flex_latency.html">archai.discrete_search.evaluators.nlp.transformer_flex_latency</a></li>
@@ -475,13 +494,32 @@ document.write(`
 <li><a href="archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_hooks.html">archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks</a></li>
 <li><a href="archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_model.html">archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model</a></li>
 <li><a href="archai/discrete_search/evaluators/ray.html">archai.discrete_search.evaluators.ray</a></li>
+<li><a href="archai/discrete_search/evaluators/remote_azure_benchmark.html">archai.discrete_search.evaluators.remote_azure_benchmark</a></li>
 <li><a href="archai/discrete_search/predictors/dnn_ensemble.html">archai.discrete_search.predictors.dnn_ensemble</a></li>
+<li><a href="archai/discrete_search/search_spaces/benchmark/natsbench_tss.html">archai.discrete_search.search_spaces.benchmark.natsbench_tss</a></li>
 <li><a href="archai/discrete_search/search_spaces/config/arch_config.html">archai.discrete_search.search_spaces.config.arch_config</a></li>
 <li><a href="archai/discrete_search/search_spaces/config/arch_param_tree.html">archai.discrete_search.search_spaces.config.arch_param_tree</a></li>
 <li><a href="archai/discrete_search/search_spaces/config/discrete_choice.html">archai.discrete_search.search_spaces.config.discrete_choice</a></li>
 <li><a href="archai/discrete_search/search_spaces/config/helpers.html">archai.discrete_search.search_spaces.config.helpers</a></li>
 <li><a href="archai/discrete_search/search_spaces/config/search_space.html">archai.discrete_search.search_spaces.config.search_space</a></li>
 <li><a href="archai/discrete_search/search_spaces/config/utils.html">archai.discrete_search.search_spaces.config.utils</a></li>
+<li><a href="archai/discrete_search/search_spaces/cv/segmentation_dag/model.html">archai.discrete_search.search_spaces.cv.segmentation_dag.model</a></li>
+<li><a href="archai/discrete_search/search_spaces/cv/segmentation_dag/ops.html">archai.discrete_search.search_spaces.cv.segmentation_dag.ops</a></li>
+<li><a href="archai/discrete_search/search_spaces/cv/segmentation_dag/search_space.html">archai.discrete_search.search_spaces.cv.segmentation_dag.search_space</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/backbones/codegen/block.html">archai.discrete_search.search_spaces.nlp.tfpp.backbones.codegen.block</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/backbones/codegen/model.html">archai.discrete_search.search_spaces.nlp.tfpp.backbones.codegen.model</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/mixed_attention.html">archai.discrete_search.search_spaces.nlp.tfpp.mixed_attention</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/mixed_op.html">archai.discrete_search.search_spaces.nlp.tfpp.mixed_op</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/model.html">archai.discrete_search.search_spaces.nlp.tfpp.model</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/ops/causal_self_attn.html">archai.discrete_search.search_spaces.nlp.tfpp.ops.causal_self_attn</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/ops/local_attention.html">archai.discrete_search.search_spaces.nlp.tfpp.ops.local_attention</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/ops/lsh_attn.html">archai.discrete_search.search_spaces.nlp.tfpp.ops.lsh_attn</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/ops/mha.html">archai.discrete_search.search_spaces.nlp.tfpp.ops.mha</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/ops/sep_conv1d.html">archai.discrete_search.search_spaces.nlp.tfpp.ops.sep_conv1d</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/ops/sgconv.html">archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/ops/sgconv3.html">archai.discrete_search.search_spaces.nlp.tfpp.ops.sgconv3</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/search_space.html">archai.discrete_search.search_spaces.nlp.tfpp.search_space</a></li>
+<li><a href="archai/discrete_search/search_spaces/nlp/tfpp/utils.html">archai.discrete_search.search_spaces.nlp.tfpp.utils</a></li>
 <li><a href="archai/discrete_search/search_spaces/nlp/transformer_flex/models/configuration_gpt2_flex.html">archai.discrete_search.search_spaces.nlp.transformer_flex.models.configuration_gpt2_flex</a></li>
 <li><a href="archai/discrete_search/search_spaces/nlp/transformer_flex/models/configuration_mem_transformer.html">archai.discrete_search.search_spaces.nlp.transformer_flex.models.configuration_mem_transformer</a></li>
 <li><a href="archai/discrete_search/search_spaces/nlp/transformer_flex/models/modeling_gpt2_flex.html">archai.discrete_search.search_spaces.nlp.transformer_flex.models.modeling_gpt2_flex</a></li>
@@ -609,6 +647,7 @@ document.write(`
 <li><a href="archai/supergraph/utils/augmented_searcher.html">archai.supergraph.utils.augmented_searcher</a></li>
 <li><a href="archai/supergraph/utils/augmented_trainer.html">archai.supergraph.utils.augmented_trainer</a></li>
 <li><a href="archai/supergraph/utils/checkpoint.html">archai.supergraph.utils.checkpoint</a></li>
+<li><a href="archai/supergraph/utils/heatmap.html">archai.supergraph.utils.heatmap</a></li>
 <li><a href="archai/supergraph/utils/metrics.html">archai.supergraph.utils.metrics</a></li>
 <li><a href="archai/supergraph/utils/multi_optim.html">archai.supergraph.utils.multi_optim</a></li>
 <li><a href="archai/supergraph/utils/tester.html">archai.supergraph.utils.tester</a></li>
@@ -619,6 +658,8 @@ document.write(`
 <li><a href="archai/trainers/gradual_warmup_scheduler.html">archai.trainers.gradual_warmup_scheduler</a></li>
 <li><a href="archai/trainers/lamb_optimizer.html">archai.trainers.lamb_optimizer</a></li>
 <li><a href="archai/trainers/losses.html">archai.trainers.losses</a></li>
+<li><a href="archai/trainers/nlp/ds_trainer.html">archai.trainers.nlp.ds_trainer</a></li>
+<li><a href="archai/trainers/nlp/ds_training_args.html">archai.trainers.nlp.ds_training_args</a></li>
 <li><a href="archai/trainers/nlp/hf_callbacks.html">archai.trainers.nlp.hf_callbacks</a></li>
 <li><a href="archai/trainers/nlp/hf_trainer.html">archai.trainers.nlp.hf_trainer</a></li>
 <li><a href="archai/trainers/nlp/hf_training_args.html">archai.trainers.nlp.hf_training_args</a></li>
@@ -668,7 +709,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

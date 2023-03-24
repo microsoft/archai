@@ -50,6 +50,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/nlp/fast_hf_dataset_provider';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/nlp/fast_hf_dataset_provider.html" />
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -232,16 +233,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
@@ -355,23 +357,6 @@
   <i class="fab fa-github"></i>
   </span>
 <span class="btn__text-container">Repository</span>
-</a>
-</li>
-      
-      
-      
-      
-      <li><a href="https://github.com/microsoft/archai/edit/main/getting_started/notebooks/nlp/fast_hf_dataset_provider.ipynb" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
 </a>
 </li>
       
@@ -499,9 +484,8 @@ the data processing pipeline.</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-24 11:58:45,090 - archai.datasets.nlp.fast_hf_dataset_provider — WARNING —  Shared memory is not available in Python &lt; 3.8.
-2023-02-24 11:58:47,844 - archai.datasets.nlp.fast_hf_dataset_provider — WARNING —  New maximum length set for the tokenizer: 512.
-2023-02-24 11:58:47,846 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Downloading dataset ...
+2023-03-21 15:07:57,990 - archai.datasets.nlp.fast_hf_dataset_provider — WARNING —  Shared memory is not available in Python &lt; 3.8.
+2023-03-21 15:08:00,865 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Downloading dataset ...
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -516,15 +500,15 @@ Found cached dataset glue (C:/Users/gderosa/.cache/huggingface/datasets/glue/sst
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0964e007e4d14e06b195030a4fb2c77c", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "fdf66988ee234e3dad3418344f4bb114", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-24 11:58:52,905 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Encoding dataset ...
-2023-02-24 11:58:52,907 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Number of workers: 1 | EOS token: True
+2023-03-21 15:08:04,789 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Encoding dataset ...
+2023-03-21 15:08:04,793 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Number of workers: 1 | EOS token: True
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -532,9 +516,9 @@ Found cached dataset glue (C:/Users/gderosa/.cache/huggingface/datasets/glue/sst
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets\glue\sst2\1.0.0\dacbe3125aa31d7f70367a07a8a9e72a5a0bfeb5fc42e75c9db75b96da6053ad\cache-4b268755324077d2.arrow
-Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets\glue\sst2\1.0.0\dacbe3125aa31d7f70367a07a8a9e72a5a0bfeb5fc42e75c9db75b96da6053ad\cache-3313fdb7893e6922.arrow
-Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets\glue\sst2\1.0.0\dacbe3125aa31d7f70367a07a8a9e72a5a0bfeb5fc42e75c9db75b96da6053ad\cache-252c3cce9291d908.arrow
+Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets\glue\sst2\1.0.0\dacbe3125aa31d7f70367a07a8a9e72a5a0bfeb5fc42e75c9db75b96da6053ad\cache-02d7057c177051d2.arrow
+Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets\glue\sst2\1.0.0\dacbe3125aa31d7f70367a07a8a9e72a5a0bfeb5fc42e75c9db75b96da6053ad\cache-bfdab1158dc66b61.arrow
+Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets\glue\sst2\1.0.0\dacbe3125aa31d7f70367a07a8a9e72a5a0bfeb5fc42e75c9db75b96da6053ad\cache-24fdf102efed86dd.arrow
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -542,34 +526,34 @@ Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-24 11:58:53,054 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Processing dataset to memory ...
-2023-02-24 11:58:53,056 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Number of workers: 1 | Shared memory: False
+2023-03-21 15:08:05,096 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Processing dataset to memory ...
+2023-03-21 15:08:05,099 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Number of workers: 1 | Shared memory: False
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "5153af5e050c4461999f222ca3d6111e", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "7492c1f9b80f4bea98eeca7d4a302f22", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "66a19c9897b842b7a714acd52728c639", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "d27378ee7e7c4f00941e6a3f11121e71", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "ad086c4b1c3a4badaf1aae0a332b8b82", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "43e9ef8155be4c7481fa7f98bff50510", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-24 11:58:54,300 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Saving dataset to: cache\glue-sst2-gpt2
+2023-03-21 15:08:06,767 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Saving dataset to: cache\glue-sst2-gpt2
 (tensor([24717,   649,  3200,   507,   422,   262, 21694,  4991,   220, 50256,
          3642,  1299,   645, 20868,   837,   691,  2248,  1850,   308,  3775,
           220, 50256,  5562, 10408,   663,  3435,   290, 48556,  1223,  2138,
@@ -808,7 +792,7 @@ Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-24 11:58:54,579 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Loading dataset from: cache/glue-sst2-gpt2
+2023-03-21 15:08:07,007 - archai.datasets.nlp.fast_hf_dataset_provider — INFO —  Loading dataset from: cache/glue-sst2-gpt2
 (tensor([24717,   649,  3200,   507,   422,   262, 21694,  4991,   220, 50256,
          3642,  1299,   645, 20868,   837,   691,  2248,  1850,   308,  3775,
           220, 50256,  5562, 10408,   663,  3435,   290, 48556,  1223,  2138,
@@ -1095,7 +1079,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

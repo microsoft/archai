@@ -50,6 +50,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/nlp/hf_trainer';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/nlp/hf_trainer.html" />
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -232,16 +233,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
@@ -355,23 +357,6 @@
   <i class="fab fa-github"></i>
   </span>
 <span class="btn__text-container">Repository</span>
-</a>
-</li>
-      
-      
-      
-      
-      <li><a href="https://github.com/microsoft/archai/edit/main/getting_started/notebooks/nlp/hf_trainer.ipynb" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
 </a>
 </li>
       
@@ -548,25 +533,15 @@ Loading cached processed dataset at C:\Users\gderosa\.cache\huggingface\datasets
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-max_steps is given, it will override any value given in num_train_epochs
-The following columns in the training set don&#39;t have a corresponding argument in `CodeGenForCausalLM.forward` and have been ignored: text. If text are not expected by `CodeGenForCausalLM.forward`,  you can safely ignore this message.
-c:\Users\gderosa\Anaconda3\envs\archai\lib\site-packages\transformers\optimization.py:310: FutureWarning: This implementation of AdamW is deprecated and will be removed in a future version. Use the PyTorch implementation torch.optim.AdamW instead, or set `no_deprecation_warning=True` to disable this warning
+c:\Users\gderosa\Anaconda3\envs\archai\lib\site-packages\transformers\optimization.py:395: FutureWarning: This implementation of AdamW is deprecated and will be removed in a future version. Use the PyTorch implementation torch.optim.AdamW instead, or set `no_deprecation_warning=True` to disable this warning
   FutureWarning,
-***** Running training *****
-  Num examples = 18014
-  Num Epochs = 1
-  Instantaneous batch size per device = 1
-  Total train batch size (w. parallel, distributed &amp; accumulation) = 1
-  Gradient Accumulation steps = 1
-  Total optimization steps = 1
-  Number of trainable parameters = 162304119
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "8600bd55454d42bd9f1e824f41e8e532", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1316a76337934f1bb3d16645f6f3f469", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
@@ -574,13 +549,6 @@ c:\Users\gderosa\Anaconda3\envs\archai\lib\site-packages\transformers\optimizati
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 You&#39;re using a CodeGenTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
-c:\Users\gderosa\Anaconda3\envs\archai\lib\site-packages\transformers\models\codegen\modeling_codegen.py:166: UserWarning: where received a uint8 condition tensor. This behavior is deprecated and will be removed in a future version of PyTorch. Use a boolean condition instead. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\builder\windows\pytorch\aten\src\ATen\native\TensorCompare.cpp:413.)
-  attn_weights = torch.where(causal_mask, attn_weights, mask_value)
-
-
-Training completed. Do not forget to share your model on huggingface.co/models =)
-
-
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -588,26 +556,8 @@ Training completed. Do not forget to share your model on huggingface.co/models =
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Attempted to log scalar metric loss:
-11.0034
-Attempted to log scalar metric learning_rate:
-0.0
-Attempted to log scalar metric epoch:
-0.0
-{&#39;loss&#39;: 11.0034, &#39;learning_rate&#39;: 0.0, &#39;epoch&#39;: 0.0}
-Attempted to log scalar metric train_runtime:
-10.6794
-Attempted to log scalar metric train_samples_per_second:
-0.094
-Attempted to log scalar metric train_steps_per_second:
-0.094
-Attempted to log scalar metric total_flos:
-759874922496.0
-Attempted to log scalar metric train_loss:
-11.003437995910645
-Attempted to log scalar metric epoch:
-0.0
-{&#39;train_runtime&#39;: 10.6794, &#39;train_samples_per_second&#39;: 0.094, &#39;train_steps_per_second&#39;: 0.094, &#39;train_loss&#39;: 11.003437995910645, &#39;epoch&#39;: 0.0}
+{&#39;loss&#39;: 10.8762, &#39;learning_rate&#39;: 0.0, &#39;epoch&#39;: 0.0}
+{&#39;train_runtime&#39;: 25.7651, &#39;train_samples_per_second&#39;: 0.039, &#39;train_steps_per_second&#39;: 0.039, &#39;train_loss&#39;: 10.876193046569824, &#39;epoch&#39;: 0.0}
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -616,7 +566,7 @@ Attempted to log scalar metric epoch:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-TrainOutput(global_step=1, training_loss=11.003437995910645, metrics={&#39;train_runtime&#39;: 10.6794, &#39;train_samples_per_second&#39;: 0.094, &#39;train_steps_per_second&#39;: 0.094, &#39;train_loss&#39;: 11.003437995910645, &#39;epoch&#39;: 0.0})
+TrainOutput(global_step=1, training_loss=10.876193046569824, metrics={&#39;train_runtime&#39;: 25.7651, &#39;train_samples_per_second&#39;: 0.039, &#39;train_steps_per_second&#39;: 0.039, &#39;train_loss&#39;: 10.876193046569824, &#39;epoch&#39;: 0.0})
 </pre></div></div>
 </div>
 </section>
@@ -699,7 +649,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

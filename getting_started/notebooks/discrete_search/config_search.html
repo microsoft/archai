@@ -50,6 +50,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/discrete_search/config_search';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/discrete_search/config_search.html" />
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -232,16 +233,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
@@ -355,23 +357,6 @@
   <i class="fab fa-github"></i>
   </span>
 <span class="btn__text-container">Repository</span>
-</a>
-</li>
-      
-      
-      
-      
-      <li><a href="https://github.com/microsoft/archai/edit/main/getting_started/notebooks/discrete_search/config_search.ipynb" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
 </a>
 </li>
       
@@ -572,7 +557,7 @@ torch.Size([2, 32, 16, 16])
 ArchConfig({
     &#34;conv_kernel_size&#34;: 7,
     &#34;num_ch&#34;: 16,
-    &#34;num_layers&#34;: 5
+    &#34;num_layers&#34;: 4
 })
 </pre></div></div>
 </div>
@@ -625,7 +610,7 @@ ArchConfig({
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-OrderedDict([(&#39;conv_kernel_size&#39;, 7), (&#39;num_ch&#39;, 16), (&#39;num_layers&#39;, 5)])
+OrderedDict([(&#39;conv_kernel_size&#39;, 7), (&#39;num_ch&#39;, 16), (&#39;num_layers&#39;, 4)])
 </pre></div></div>
 </div>
 <p>Let’s use this in our Pytorch Model definition:</p>
@@ -709,13 +694,6 @@ MyModel(
         (2): ReLU()
       )
     )
-    (4): MyConvBlock(
-      (op): Sequential(
-        (0): Conv2d(16, 16, kernel_size=(7, 7), stride=(1, 1), padding=same)
-        (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
-        (2): ReLU()
-      )
-    )
   )
 )
 </pre></div></div>
@@ -758,10 +736,10 @@ MyModel(
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-1e340d507b494ec87ebc92db66d44a890e7c1efb
-023ad9ef680da68da9534b114a0b7b7b940a0d59
-c66bf8d0396a6b68506889215498bc6072704eaa
-[5. 8. 5.]
+307525215b21f510fb6ba1570c71126274e60167
+307525215b21f510fb6ba1570c71126274e60167
+cc3aba2e903b62619035a871ff3bcdc65dc151de
+[3. 8. 1.]
 </pre></div></div>
 </div>
 <p>Saving and loading</p>
@@ -788,9 +766,9 @@ c66bf8d0396a6b68506889215498bc6072704eaa
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 {
-    &#34;conv_kernel_size&#34;: 5,
+    &#34;conv_kernel_size&#34;: 3,
     &#34;num_ch&#34;: 8,
-    &#34;num_layers&#34;: 5
+    &#34;num_layers&#34;: 1
 }
 </pre></div></div>
 </div>
@@ -838,7 +816,7 @@ ArchConfig({
         &#34;kernel_size&#34;: 5
     },
     &#34;conv_kernel_size&#34;: 3,
-    &#34;num_ch&#34;: 32
+    &#34;num_ch&#34;: 8
 })
 </pre></div></div>
 </div>
@@ -922,7 +900,7 @@ ArchConfig({
         &#34;kernel_size&#34;: 5
     },
     &#34;conv_kernel_size&#34;: 5,
-    &#34;num_ch&#34;: 16
+    &#34;num_ch&#34;: 32
 })
 </pre></div></div>
 </div>
@@ -945,7 +923,7 @@ ArchConfig({
         &#34;kernel_size&#34;: 5
     },
     &#34;conv_kernel_size&#34;: 5,
-    &#34;num_ch&#34;: 16
+    &#34;num_ch&#34;: 32
 })
 </pre></div></div>
 </div>
@@ -985,15 +963,15 @@ ArchConfig({
 <div class="highlight"><pre>
 ArchConfig({
     &#34;block1&#34;: {
-        &#34;kernel_size&#34;: 3,
+        &#34;kernel_size&#34;: 7,
         &#34;stride&#34;: 2
     },
     &#34;block2&#34;: {
-        &#34;kernel_size&#34;: 3,
+        &#34;kernel_size&#34;: 7,
         &#34;stride&#34;: 2
     },
     &#34;block3&#34;: {
-        &#34;kernel_size&#34;: 3,
+        &#34;kernel_size&#34;: 7,
         &#34;stride&#34;: 2
     }
 })
@@ -1185,14 +1163,19 @@ kernel_size = 7
 ArchConfig({
     &#34;layers&#34;: [
         {
-            &#34;kernel_size&#34;: 3,
+            &#34;kernel_size&#34;: 5,
             &#34;residual&#34;: true,
-            &#34;act_fn&#34;: &#34;relu&#34;
+            &#34;act_fn&#34;: &#34;gelu&#34;
         },
         {
-            &#34;kernel_size&#34;: 3,
+            &#34;kernel_size&#34;: 5,
             &#34;residual&#34;: true,
-            &#34;act_fn&#34;: &#34;relu&#34;
+            &#34;act_fn&#34;: &#34;gelu&#34;
+        },
+        {
+            &#34;kernel_size&#34;: 5,
+            &#34;residual&#34;: true,
+            &#34;act_fn&#34;: &#34;gelu&#34;
         }
     ]
 })
@@ -1311,7 +1294,7 @@ ArchConfig({
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-torch.Size([10, 25, 10, 10])
+torch.Size([10, 128, 60, 60])
 </pre></div></div>
 </div>
 <p>We can check the search space size by calling <code class="docutils literal notranslate"><span class="pre">arch_param_tree.num_archs</span></code></p>
@@ -1368,7 +1351,7 @@ torch.Size([10, 25, 10, 10])
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2c6a3f7bdb96aea7521d6dd6240ea4e7390d1c75
+d56a2b2d01f75d3f21824f89e5761b4608e6f18e
 </pre></div></div>
 </div>
 </section>
@@ -1435,8 +1418,8 @@ torch.Size([10, 25, 10, 10])
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 ArchConfig({
-    &#34;op_type&#34;: &#34;conv&#34;,
-    &#34;conv_kernel_size&#34;: 7
+    &#34;op_type&#34;: &#34;identity&#34;,
+    &#34;conv_kernel_size&#34;: 3
 })
 </pre></div></div>
 </div>
@@ -1473,7 +1456,7 @@ OrderedDict([(&#39;op_type&#39;, False), (&#39;conv_kernel_size&#39;, False)])
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;conv&#39;
+&#39;identity&#39;
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1676,7 +1659,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

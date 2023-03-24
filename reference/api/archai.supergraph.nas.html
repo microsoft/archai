@@ -47,6 +47,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.supergraph.nas';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.supergraph.nas.html" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -229,16 +230,17 @@
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.utils.html">Utilities</a></li>
@@ -358,23 +360,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/reference/api/archai.supergraph.nas.rst" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Freference/api/archai.supergraph.nas.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -442,14 +427,14 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.exp_runner">Experiment Runner</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.finalizers">Finalizers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.model">Model</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.model_desc">Model Descriptor</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.model_desc_builder">Model Descriptor Builder</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.model_desc">Model Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.model_desc_builder">Model Description Builder</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.nas_utils">NAS-Based Utitilies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.operations">Operations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.random_finalizers">Random Finalizers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.search_combinations">Search Combinations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.searcher">Searcher</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.vis_model_desc">Visualizer Model Descriptor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.vis_model_desc">Model Description Visualizer</a></li>
 </ul>
             </nav>
         </div>
@@ -852,7 +837,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.nas.model_desc">
-<span id="model-descriptor"></span><h2>Model Descriptor<a class="headerlink" href="#module-archai.supergraph.nas.model_desc" title="Permalink to this headline">#</a></h2>
+<span id="model-description"></span><h2>Model Description<a class="headerlink" href="#module-archai.supergraph.nas.model_desc" title="Permalink to this headline">#</a></h2>
 <dl class="simple">
 <dt>Note: All classes in this file needs to be deepcopy compatible because</dt><dd><p>descs are used as template to create copies by macro builder.</p>
 </dd>
@@ -1078,7 +1063,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.nas.model_desc_builder">
-<span id="model-descriptor-builder"></span><h2>Model Descriptor Builder<a class="headerlink" href="#module-archai.supergraph.nas.model_desc_builder" title="Permalink to this headline">#</a></h2>
+<span id="model-description-builder"></span><h2>Model Description Builder<a class="headerlink" href="#module-archai.supergraph.nas.model_desc_builder" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.nas.model_desc_builder.ModelDescBuilder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.nas.model_desc_builder.</span></span><span class="sig-name descname"><span class="pre">ModelDescBuilder</span></span><a class="reference internal" href="../../_modules/archai/supergraph/nas/model_desc_builder.html#ModelDescBuilder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.nas.model_desc_builder.ModelDescBuilder" title="Permalink to this definition">#</a></dt>
@@ -2032,7 +2017,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.nas.vis_model_desc">
-<span id="visualizer-model-descriptor"></span><h2>Visualizer Model Descriptor<a class="headerlink" href="#module-archai.supergraph.nas.vis_model_desc" title="Permalink to this headline">#</a></h2>
+<span id="model-description-visualizer"></span><h2>Model Description Visualizer<a class="headerlink" href="#module-archai.supergraph.nas.vis_model_desc" title="Permalink to this headline">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.supergraph.nas.vis_model_desc.draw_model_desc">
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.nas.vis_model_desc.</span></span><span class="sig-name descname"><span class="pre">draw_model_desc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.supergraph.nas.model_desc.ModelDesc" title="archai.supergraph.nas.model_desc.ModelDesc"><span class="pre">archai.supergraph.nas.model_desc.ModelDesc</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caption</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">graphviz.graphs.Digraph</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">graphviz.graphs.Digraph</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/nas/vis_model_desc.html#draw_model_desc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.nas.vis_model_desc.draw_model_desc" title="Permalink to this definition">#</a></dt>
@@ -2098,14 +2083,14 @@ registered hooks while the latter silently ignores them.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.exp_runner">Experiment Runner</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.finalizers">Finalizers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.model">Model</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.model_desc">Model Descriptor</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.model_desc_builder">Model Descriptor Builder</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.model_desc">Model Description</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.model_desc_builder">Model Description Builder</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.nas_utils">NAS-Based Utitilies</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.operations">Operations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.random_finalizers">Random Finalizers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.search_combinations">Search Combinations</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.searcher">Searcher</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.vis_model_desc">Visualizer Model Descriptor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.nas.vis_model_desc">Model Description Visualizer</a></li>
 </ul>
   </nav></div>
 
@@ -2138,7 +2123,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

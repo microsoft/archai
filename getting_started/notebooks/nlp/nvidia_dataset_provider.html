@@ -50,6 +50,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/nlp/nvidia_dataset_provider';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/nlp/nvidia_dataset_provider.html" />
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -232,16 +233,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
@@ -361,23 +363,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/getting_started/notebooks/nlp/nvidia_dataset_provider.ipynb" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Fgetting_started/notebooks/nlp/nvidia_dataset_provider.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -463,7 +448,7 @@ document.write(`
 <li><p><code class="docutils literal notranslate"><span class="pre">refresh_cache</span></code>: Whether cache should be refreshed.</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
@@ -492,19 +477,19 @@ document.write(`
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-03 15:26:08,415 - archai.datasets.nlp.nvidia_dataset_provider_utils — INFO —  Refreshing cache ...
-2023-02-03 15:26:08,416 - archai.datasets.nlp.nvidia_dataset_provider_utils — INFO —  Clearing and rebuilding cache ...
-2023-02-03 15:26:08,419 - archai.datasets.nlp.nvidia_dataset_provider_utils — INFO —  Corpus: dataset = olx_tmp | vocab_type = gpt2 | vocab_size = None
-2023-02-03 15:26:08,420 - archai.datasets.nlp.nvidia_dataset_provider_utils — INFO —  Training vocabulary ...
-2023-02-03 15:26:08,422 - archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer — INFO —  Training tokenizer with size = 50257 at c:\Users\gderosa\Downloads\archai\docs\getting_started\notebooks\nlp\cache\olx_tmp\gpt2\None\vocab\bbpe_tokenizer.json ...
-2023-02-03 15:26:08,424 - archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer — INFO —  Training tokenizer ...
-2023-02-03 15:26:08,432 - archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer — DEBUG —  Tokenizer length: 264
-2023-02-03 15:26:08,433 - archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer — DEBUG —  Tokenizer file path: c:\Users\gderosa\Downloads\archai\docs\getting_started\notebooks\nlp\cache\olx_tmp\gpt2\None\vocab\bbpe_tokenizer.json
-2023-02-03 15:26:08,434 - archai.datasets.nlp.nvidia_dataset_provider_utils — INFO —  Vocabulary trained.
-2023-02-03 15:26:08,435 - archai.datasets.nlp.tokenizer_utils.tokenizer_base — INFO —  Encoding file: dataroot/olx_tmp\train.txt
-2023-02-03 15:26:08,436 - archai.datasets.nlp.tokenizer_utils.tokenizer_base — INFO —  Encoding file: dataroot/olx_tmp\valid.txt
-2023-02-03 15:26:08,439 - archai.datasets.nlp.tokenizer_utils.tokenizer_base — INFO —  Encoding file: dataroot/olx_tmp\test.txt
-2023-02-03 15:26:08,441 - archai.datasets.nlp.nvidia_dataset_provider_utils — DEBUG —  Size: train = 7 | valid = 7 | test = 6
+2023-03-21 15:12:37,792 - archai.datasets.nlp.nvidia_dataset_provider_utils — INFO —  Refreshing cache ...
+2023-03-21 15:12:37,793 - archai.datasets.nlp.nvidia_dataset_provider_utils — INFO —  Clearing and rebuilding cache ...
+2023-03-21 15:12:37,794 - archai.datasets.nlp.nvidia_dataset_provider_utils — INFO —  Corpus: dataset = olx_tmp | vocab_type = gpt2 | vocab_size = None
+2023-03-21 15:12:37,796 - archai.datasets.nlp.nvidia_dataset_provider_utils — INFO —  Training vocabulary ...
+2023-03-21 15:12:37,797 - archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer — INFO —  Training tokenizer with size = 50257 at c:\Users\gderosa\Projects\archai\docs\getting_started\notebooks\nlp\cache\olx_tmp\gpt2\None\vocab\bbpe_tokenizer.json ...
+2023-03-21 15:12:37,798 - archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer — INFO —  Training tokenizer ...
+2023-03-21 15:12:37,827 - archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer — DEBUG —  Tokenizer length: 264
+2023-03-21 15:12:37,828 - archai.datasets.nlp.tokenizer_utils.bbpe_tokenizer — DEBUG —  Tokenizer file path: c:\Users\gderosa\Projects\archai\docs\getting_started\notebooks\nlp\cache\olx_tmp\gpt2\None\vocab\bbpe_tokenizer.json
+2023-03-21 15:12:37,830 - archai.datasets.nlp.nvidia_dataset_provider_utils — INFO —  Vocabulary trained.
+2023-03-21 15:12:37,831 - archai.datasets.nlp.tokenizer_utils.tokenizer_base — INFO —  Encoding file: dataroot/olx_tmp\train.txt
+2023-03-21 15:12:37,835 - archai.datasets.nlp.tokenizer_utils.tokenizer_base — INFO —  Encoding file: dataroot/olx_tmp\valid.txt
+2023-03-21 15:12:37,841 - archai.datasets.nlp.tokenizer_utils.tokenizer_base — INFO —  Encoding file: dataroot/olx_tmp\test.txt
+2023-03-21 15:12:37,843 - archai.datasets.nlp.nvidia_dataset_provider_utils — DEBUG —  Size: train = 7 | valid = 7 | test = 6
 tensor([200, 222,  85,  83,  66,  74,  79]) tensor([200, 222,  87,  66,  77,  74,  69]) tensor([200, 222,  85,  70,  84,  85])
 </pre></div></div>
 </div>
@@ -586,7 +571,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

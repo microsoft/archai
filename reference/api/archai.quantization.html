@@ -47,6 +47,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.quantization';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.quantization.html" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -229,16 +230,17 @@
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.utils.html">Utilities</a></li>
@@ -358,23 +360,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/reference/api/archai.quantization.rst" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Freference/api/archai.quantization.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -436,10 +421,10 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.modules">Modules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.observers">Observers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantizers">Quantizers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantization_utils">Quantization (Utilities)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.ptq">Post-Training Quantization (PTQ)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.qat">Quantization-Aware Training (QAT)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.mixed_qat">Mixed-QAT</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantization_utils">Quantization (Utilities)</a></li>
 </ul>
             </nav>
         </div>
@@ -943,6 +928,63 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 </section>
+<section id="module-archai.quantization.quantization_utils">
+<span id="quantization-utilities"></span><h2>Quantization (Utilities)<a class="headerlink" href="#module-archai.quantization.quantization_utils" title="Permalink to this headline">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.quantization.quantization_utils.rgetattr">
+<span class="sig-prename descclassname"><span class="pre">archai.quantization.quantization_utils.</span></span><span class="sig-name descname"><span class="pre">rgetattr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/quantization_utils.html#rgetattr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.quantization_utils.rgetattr" title="Permalink to this definition">#</a></dt>
+<dd><p>Recursively get an attribute from an object.</p>
+<p>This function allows accessing nested attributes by separating each level with a dot (e.g., “attr1.attr2.attr3”).
+If any attribute along the chain does not exist, the function returns the default value
+specified in the <cite>*args</cite> parameter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> – Object from which the attribute will be retrieved.</p></li>
+<li><p><strong>attr</strong> – Name of the attribute to be retrieved, with each level separated by a dot.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Attribute from the object.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">MyObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rgetattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;attr1.attr2.attr3&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Reference:</dt><dd><p><a class="reference external" href="https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427">https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="archai.quantization.quantization_utils.rsetattr">
+<span class="sig-prename descclassname"><span class="pre">archai.quantization.quantization_utils.</span></span><span class="sig-name descname"><span class="pre">rsetattr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/quantization_utils.html#rsetattr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.quantization_utils.rsetattr" title="Permalink to this definition">#</a></dt>
+<dd><p>Recursively set an attribute on an object.</p>
+<p>This function allows setting nested attributes by separating each level with a dot (e.g., “attr1.attr2.attr3”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> – Object on which the attribute will be set.</p></li>
+<li><p><strong>attr</strong> – Name of the attribute to be set, with each level separated by a dot.</p></li>
+<li><p><strong>value</strong> – New value for the attribute.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">MyObject</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rsetattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;attr1.attr2.attr3&quot;</span><span class="p">,</span> <span class="n">new_value</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Reference:</dt><dd><p><a class="reference external" href="https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427">https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-archai.quantization.ptq">
 <span id="post-training-quantization-ptq"></span><h2>Post-Training Quantization (PTQ)<a class="headerlink" href="#module-archai.quantization.ptq" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
@@ -1086,63 +1128,6 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 </section>
-<section id="module-archai.quantization.quantization_utils">
-<span id="quantization-utilities"></span><h2>Quantization (Utilities)<a class="headerlink" href="#module-archai.quantization.quantization_utils" title="Permalink to this headline">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="archai.quantization.quantization_utils.rgetattr">
-<span class="sig-prename descclassname"><span class="pre">archai.quantization.quantization_utils.</span></span><span class="sig-name descname"><span class="pre">rgetattr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/quantization_utils.html#rgetattr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.quantization_utils.rgetattr" title="Permalink to this definition">#</a></dt>
-<dd><p>Recursively get an attribute from an object.</p>
-<p>This function allows accessing nested attributes by separating each level with a dot (e.g., “attr1.attr2.attr3”).
-If any attribute along the chain does not exist, the function returns the default value
-specified in the <cite>*args</cite> parameter.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> – Object from which the attribute will be retrieved.</p></li>
-<li><p><strong>attr</strong> – Name of the attribute to be retrieved, with each level separated by a dot.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Attribute from the object.</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">MyObject</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rgetattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;attr1.attr2.attr3&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>Reference:</dt><dd><p><a class="reference external" href="https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427">https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="archai.quantization.quantization_utils.rsetattr">
-<span class="sig-prename descclassname"><span class="pre">archai.quantization.quantization_utils.</span></span><span class="sig-name descname"><span class="pre">rsetattr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/quantization_utils.html#rsetattr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.quantization_utils.rsetattr" title="Permalink to this definition">#</a></dt>
-<dd><p>Recursively set an attribute on an object.</p>
-<p>This function allows setting nested attributes by separating each level with a dot (e.g., “attr1.attr2.attr3”).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>obj</strong> – Object on which the attribute will be set.</p></li>
-<li><p><strong>attr</strong> – Name of the attribute to be set, with each level separated by a dot.</p></li>
-<li><p><strong>value</strong> – New value for the attribute.</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">MyObject</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">rsetattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;attr1.attr2.attr3&quot;</span><span class="p">,</span> <span class="n">new_value</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="simple">
-<dt>Reference:</dt><dd><p><a class="reference external" href="https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427">https://stackoverflow.com/questions/31174295/getattr-and-setattr-on-nested-subobjects-chained-properties/31174427#31174427</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
 </section>
 
 
@@ -1190,10 +1175,10 @@ specified in the <cite>*args</cite> parameter.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.modules">Modules</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.observers">Observers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantizers">Quantizers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantization_utils">Quantization (Utilities)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.ptq">Post-Training Quantization (PTQ)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.qat">Quantization-Aware Training (QAT)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.mixed_qat">Mixed-QAT</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantization_utils">Quantization (Utilities)</a></li>
 </ul>
   </nav></div>
 
@@ -1226,7 +1211,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

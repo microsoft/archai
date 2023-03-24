@@ -4,6 +4,7 @@ Evaluators
 .. toctree::
    :maxdepth: 2
 
+   archai.discrete_search.evaluators.benchmark
    archai.discrete_search.evaluators.nlp
    archai.discrete_search.evaluators.pt_profiler_utils
 
@@ -11,13 +12,6 @@ Functional
 ----------
 
 .. automodule:: archai.discrete_search.evaluators.functional
-   :members:
-   :undoc-members:
-
-Lookup Table
-------------
-
-.. automodule:: archai.discrete_search.evaluators.lookup
    :members:
    :undoc-members:
 

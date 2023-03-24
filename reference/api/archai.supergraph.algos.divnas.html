@@ -47,6 +47,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.supergraph.algos.divnas';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.supergraph.algos.divnas.html" />
     <link rel="shortcut icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -229,16 +230,17 @@
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="archai.discrete_search.utils.html">Utilities</a></li>
@@ -358,23 +360,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/reference/api/archai.supergraph.algos.divnas.rst" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Freference/api/archai.supergraph.algos.divnas.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -439,8 +424,8 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.divnas_finalizers">Finalizers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.divnas_model_desc_builder">Model Description Builder</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.divnas_rank_finalizer">Rank Finalizer</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.divop">Div-Based Operations</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.seqopt">Sequential Operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.divop">Div-Based Operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.seqopt">Sequential Operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.wmr">Randomized Weighted Majority</a></li>
 </ul>
             </nav>
@@ -651,7 +636,7 @@ subsampling_factor: every nth minibatch will be loaded to keep memory manageable
 
 </section>
 <section id="module-archai.supergraph.algos.divnas.divop">
-<span id="div-based-operations"></span><h2>Div-Based Operations<a class="headerlink" href="#module-archai.supergraph.algos.divnas.divop" title="Permalink to this headline">#</a></h2>
+<span id="div-based-operators"></span><h2>Div-Based Operators<a class="headerlink" href="#module-archai.supergraph.algos.divnas.divop" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.divnas.divop.DivOp">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.divnas.divop.</span></span><span class="sig-name descname"><span class="pre">DivOp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op_desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc.OpDesc" title="archai.supergraph.nas.model_desc.OpDesc"><span class="pre">archai.supergraph.nas.model_desc.OpDesc</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">arch_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.arch_params.ArchParams" title="archai.supergraph.nas.arch_params.ArchParams"><span class="pre">archai.supergraph.nas.arch_params.ArchParams</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">affine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/divnas/divop.html#DivOp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.divnas.divop.DivOp" title="Permalink to this definition">#</a></dt>
@@ -717,7 +702,7 @@ the finalizer in base class returns the whole divop</p>
 
 </section>
 <section id="module-archai.supergraph.algos.divnas.seqopt">
-<span id="sequential-operations"></span><h2>Sequential Operations<a class="headerlink" href="#module-archai.supergraph.algos.divnas.seqopt" title="Permalink to this headline">#</a></h2>
+<span id="sequential-operators"></span><h2>Sequential Operators<a class="headerlink" href="#module-archai.supergraph.algos.divnas.seqopt" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.divnas.seqopt.SeqOpt">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.divnas.seqopt.</span></span><span class="sig-name descname"><span class="pre">SeqOpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/divnas/seqopt.html#SeqOpt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.divnas.seqopt.SeqOpt" title="Permalink to this definition">#</a></dt>
@@ -814,8 +799,8 @@ We use the version in Fig 1 in The Multiplicative Weight Update with the gain ve
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.divnas_finalizers">Finalizers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.divnas_model_desc_builder">Model Description Builder</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.divnas_rank_finalizer">Rank Finalizer</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.divop">Div-Based Operations</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.seqopt">Sequential Operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.divop">Div-Based Operators</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.seqopt">Sequential Operators</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.divnas.wmr">Randomized Weighted Majority</a></li>
 </ul>
   </nav></div>
@@ -849,7 +834,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

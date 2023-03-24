@@ -50,6 +50,7 @@
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/api/trainer_base';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/api/trainer_base.html" />
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -232,16 +233,17 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.api.html">API</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.natsbench_tss.html">NATS-Bench</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../reference/api/archai.discrete_search.search_spaces.segmentation_dag.html">Segmentation DAG</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
@@ -361,23 +363,6 @@
       
       
       
-      <li><a href="https://github.com/microsoft/archai/edit/main/getting_started/notebooks/api/trainer_base.ipynb" target="_blank"
-   class="btn btn-sm btn-source-edit-button dropdown-item"
-   title="Suggest edit"
-   data-bs-placement="left" data-bs-toggle="tooltip"
->
-  
-
-<span class="btn__icon-container">
-  <i class="fas fa-pencil-alt"></i>
-  </span>
-<span class="btn__text-container">Suggest edit</span>
-</a>
-</li>
-      
-      
-      
-      
       <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Fgetting_started/notebooks/api/trainer_base.html&body=Your%20issue%20content%20here." target="_blank"
    class="btn btn-sm btn-source-issues-button dropdown-item"
    title="Open an issue"
@@ -458,7 +443,7 @@ document.write(`
 <p>Abstract base classes (ABCs) define a blueprint for a class, specifying its methods and attributes, but not its implementation. They are important in implementing a consistent interface, as they enforce a set of requirements on implementing classes and make it easier to write code that can work with multiple implementations.</p>
 <p>First, we define a boilerplate for the <code class="docutils literal notranslate"><span class="pre">TrainerBase</span></code> class, which is the same implemented in <code class="docutils literal notranslate"><span class="pre">archai.api.trainer_base</span></code> module.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
@@ -488,7 +473,7 @@ document.write(`
 <h2>PyTorch-based Trainer<a class="headerlink" href="#PyTorch-based-Trainer" title="Permalink to this headline">#</a></h2>
 <p>In the context of a custom trainer, using ABCs can help ensure that the provider implements the required methods and provides a consistent interface for training, evaluating and predicting. In this example, we will implement a PyTorch-based trainer, as follows:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
@@ -589,7 +574,7 @@ document.write(`
 <h3>Defining the Model<a class="headerlink" href="#Defining-the-Model" title="Permalink to this headline">#</a></h3>
 <p>Once the data is loaded, we can define any CV-based model. In this example, we will create a simple linear model using PyTorch:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
@@ -611,7 +596,7 @@ document.write(`
 <h3>Creating and Training with the Trainer<a class="headerlink" href="#Creating-and-Training-with-the-Trainer" title="Permalink to this headline">#</a></h3>
 <p>After loading the data and creating the data, we need to plug these instances into the <code class="docutils literal notranslate"><span class="pre">PyTorchTrainer</span></code> and start the training, as follows:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="kn">from</span> <span class="nn">archai.datasets.cv.mnist_dataset_provider</span> <span class="kn">import</span> <span class="n">MnistDatasetProvider</span>
@@ -629,100 +614,100 @@ document.write(`
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Batch 0 loss: 2.3260679244995117
-Batch 10 loss: 2.170200304551558
-Batch 20 loss: 2.013322977792649
-Batch 30 loss: 1.88041107116207
-Batch 40 loss: 1.7696490898364927
-Batch 50 loss: 1.6737279284234141
-Batch 60 loss: 1.580565809226427
-Batch 70 loss: 1.5032367882594255
-Batch 80 loss: 1.4377957427943195
-Batch 90 loss: 1.3756403844435137
-Batch 100 loss: 1.323841373519142
-Batch 110 loss: 1.2777430780299075
-Batch 120 loss: 1.2366919005212704
-Batch 130 loss: 1.1966573777999587
-Batch 140 loss: 1.1582764298357862
-Batch 150 loss: 1.1270605416487385
-Batch 160 loss: 1.0991555715199584
-Batch 170 loss: 1.071832075105076
-Batch 180 loss: 1.0470546456002399
-Batch 190 loss: 1.0244618591837857
-Batch 200 loss: 1.0021289893940313
-Batch 210 loss: 0.9831973584059855
-Batch 220 loss: 0.9649985725253956
-Batch 230 loss: 0.9455169081945956
-Batch 240 loss: 0.9282616229720135
-Batch 250 loss: 0.911252826689724
-Batch 260 loss: 0.894186370674221
-Batch 270 loss: 0.8811650495027704
-Batch 280 loss: 0.8695434934303854
-Batch 290 loss: 0.8567541093146268
-Batch 300 loss: 0.8456319903218469
-Batch 310 loss: 0.8329309043010331
-Batch 320 loss: 0.8228098772396552
-Batch 330 loss: 0.8110202938048141
-Batch 340 loss: 0.8010669230016445
-Batch 350 loss: 0.7917746302069422
-Batch 360 loss: 0.7834661878707336
-Batch 370 loss: 0.7756232653024062
-Batch 380 loss: 0.7670649672587087
-Batch 390 loss: 0.7599971420167352
-Batch 400 loss: 0.7524218939040367
-Batch 410 loss: 0.7447285842866503
-Batch 420 loss: 0.7372030290175504
-Batch 430 loss: 0.7303863203027685
-Batch 440 loss: 0.7235838531636868
-Batch 450 loss: 0.7160437242551283
-Batch 460 loss: 0.7095201176443742
-Batch 470 loss: 0.7035116710227513
-Batch 480 loss: 0.6981078017030585
-Batch 490 loss: 0.6921659559921918
-Batch 500 loss: 0.6869516342342971
-Batch 510 loss: 0.6813836557874474
-Batch 520 loss: 0.6757925200256414
-Batch 530 loss: 0.6707233819977263
-Batch 540 loss: 0.6653567692764145
-Batch 550 loss: 0.660618505466006
-Batch 560 loss: 0.6552219002004613
-Batch 570 loss: 0.6498897406036089
-Batch 580 loss: 0.6457371746098524
-Batch 590 loss: 0.6425109619870404
-Batch 600 loss: 0.6391324787439403
-Batch 610 loss: 0.6355814298465482
-Batch 620 loss: 0.6322107954061742
-Batch 630 loss: 0.6274927602328135
-Batch 640 loss: 0.6241415665134811
-Batch 650 loss: 0.6207633239607657
-Batch 660 loss: 0.6171814470626583
-Batch 670 loss: 0.6138749045782047
-Batch 680 loss: 0.61017940756858
-Batch 690 loss: 0.6062270997876541
-Batch 700 loss: 0.6035018302021965
-Batch 710 loss: 0.6011713738389491
-Batch 720 loss: 0.5979135201600653
-Batch 730 loss: 0.5938765308354687
-Batch 740 loss: 0.590924397412582
-Batch 750 loss: 0.5882599428792133
-Batch 760 loss: 0.5857056667942568
-Batch 770 loss: 0.5834706003177336
-Batch 780 loss: 0.5803632058689749
-Batch 790 loss: 0.5780422753653243
-Batch 800 loss: 0.5748808927899145
-Batch 810 loss: 0.5718222048441373
-Batch 820 loss: 0.5691325509882148
-Batch 830 loss: 0.5673209575826367
-Batch 840 loss: 0.5649140686611783
-Batch 850 loss: 0.562490068244738
-Batch 860 loss: 0.5596906001248011
-Batch 870 loss: 0.5576014952257224
-Batch 880 loss: 0.5552688866650747
-Batch 890 loss: 0.553324693130323
-Batch 900 loss: 0.5513346120963218
-Batch 910 loss: 0.5494838998981155
-Batch 920 loss: 0.5473718988940718
-Batch 930 loss: 0.5448646569418472
+Batch 0 loss: 2.3435773849487305
+Batch 10 loss: 2.164100560274991
+Batch 20 loss: 2.0146874416442144
+Batch 30 loss: 1.875573092891324
+Batch 40 loss: 1.755056075933503
+Batch 50 loss: 1.65761978486005
+Batch 60 loss: 1.5680492149024714
+Batch 70 loss: 1.482287242378987
+Batch 80 loss: 1.4176807028275948
+Batch 90 loss: 1.3575652700204115
+Batch 100 loss: 1.3116845883945427
+Batch 110 loss: 1.264954976133398
+Batch 120 loss: 1.2235281644773877
+Batch 130 loss: 1.1893346013913628
+Batch 140 loss: 1.1595103922465169
+Batch 150 loss: 1.1271054373671676
+Batch 160 loss: 1.098986664173766
+Batch 170 loss: 1.0724144109159883
+Batch 180 loss: 1.0449848247496463
+Batch 190 loss: 1.0206239084610764
+Batch 200 loss: 1.0005531422237852
+Batch 210 loss: 0.9785312015863391
+Batch 220 loss: 0.9595723239814534
+Batch 230 loss: 0.9406399880394791
+Batch 240 loss: 0.9242911396926864
+Batch 250 loss: 0.9074264486947382
+Batch 260 loss: 0.8933870223746903
+Batch 270 loss: 0.8793117023482094
+Batch 280 loss: 0.8656814331685945
+Batch 290 loss: 0.8519475182511962
+Batch 300 loss: 0.8420679773207123
+Batch 310 loss: 0.8304505413368201
+Batch 320 loss: 0.8197678343343586
+Batch 330 loss: 0.8108695821999783
+Batch 340 loss: 0.7994857667303504
+Batch 350 loss: 0.7905768925308162
+Batch 360 loss: 0.7818403058270008
+Batch 370 loss: 0.7724894605717569
+Batch 380 loss: 0.7644593056262009
+Batch 390 loss: 0.7569716618494
+Batch 400 loss: 0.7508149850844148
+Batch 410 loss: 0.7446284586350703
+Batch 420 loss: 0.737757377662738
+Batch 430 loss: 0.731570034354856
+Batch 440 loss: 0.7251622536623018
+Batch 450 loss: 0.7184810209234643
+Batch 460 loss: 0.7108740333685906
+Batch 470 loss: 0.705083177854048
+Batch 480 loss: 0.7006571214808743
+Batch 490 loss: 0.6952635809748818
+Batch 500 loss: 0.6899459136579327
+Batch 510 loss: 0.6855154860392942
+Batch 520 loss: 0.680475171004742
+Batch 530 loss: 0.6750251736961964
+Batch 540 loss: 0.6709054712612396
+Batch 550 loss: 0.6657751858667107
+Batch 560 loss: 0.6602577523804816
+Batch 570 loss: 0.6550697249257628
+Batch 580 loss: 0.6502643423780107
+Batch 590 loss: 0.6459637832671857
+Batch 600 loss: 0.6414088696092615
+Batch 610 loss: 0.6377830508785435
+Batch 620 loss: 0.6334477859322768
+Batch 630 loss: 0.6295056212722971
+Batch 640 loss: 0.625435800731833
+Batch 650 loss: 0.6220091110046742
+Batch 660 loss: 0.6180242504501847
+Batch 670 loss: 0.6146804381900324
+Batch 680 loss: 0.6113072523680377
+Batch 690 loss: 0.6073371331098283
+Batch 700 loss: 0.6044996650344805
+Batch 710 loss: 0.6016613611356786
+Batch 720 loss: 0.5985554359574259
+Batch 730 loss: 0.5963995929618867
+Batch 740 loss: 0.5928040172970086
+Batch 750 loss: 0.5907960743227907
+Batch 760 loss: 0.5879131768011389
+Batch 770 loss: 0.5846300883322529
+Batch 780 loss: 0.5818878866150193
+Batch 790 loss: 0.5786483433055215
+Batch 800 loss: 0.5762474060467864
+Batch 810 loss: 0.5737036844364077
+Batch 820 loss: 0.5711945340527397
+Batch 830 loss: 0.568284649585702
+Batch 840 loss: 0.5661225801203112
+Batch 850 loss: 0.5635929554175546
+Batch 860 loss: 0.561713579778195
+Batch 870 loss: 0.5594659192074865
+Batch 880 loss: 0.5575740954898949
+Batch 890 loss: 0.555696272622589
+Batch 900 loss: 0.5535918302197302
+Batch 910 loss: 0.5511906604179305
+Batch 920 loss: 0.5482265714001837
+Batch 930 loss: 0.5461382602454512
 </pre></div></div>
 </div>
 </section>
@@ -730,7 +715,7 @@ Batch 930 loss: 0.5448646569418472
 <h3>Evaluating and Predicting with the Trainer<a class="headerlink" href="#Evaluating-and-Predicting-with-the-Trainer" title="Permalink to this headline">#</a></h3>
 <p>Finally, we evaluate our pre-trained model with the validation set and create a set of random-based inputs to calculate the model’s predictions:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">val_dataset</span> <span class="o">=</span> <span class="n">dataset_provider</span><span class="o">.</span><span class="n">get_val_dataset</span><span class="p">()</span>
@@ -749,9 +734,9 @@ Batch 930 loss: 0.5448646569418472
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Eval loss: 0.3327318702896054
-Predictions: tensor([[-0.1380,  0.1920, -0.0317, -0.0902,  0.0679,  0.1481, -0.0149,  0.0998,
-         -0.2689, -0.0635]], grad_fn=&lt;AddmmBackward0&gt;)
+Eval loss: 0.3360353711610421
+Predictions: tensor([[-0.1244,  0.2467, -0.0254, -0.0535,  0.0533,  0.1786, -0.0015,  0.1122,
+         -0.2270, -0.0415]], grad_fn=&lt;AddmmBackward0&gt;)
 </pre></div></div>
 </div>
 </section>
@@ -838,7 +823,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 23, 2023.
+  Last updated on Mar 24, 2023.
   <br/>
 </p>
   </div>

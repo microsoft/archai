@@ -27,6 +27,13 @@ Quantizers
    :members:
    :undoc-members:
 
+Quantization (Utilities)
+------------------------
+
+.. automodule:: archai.quantization.quantization_utils
+   :members:
+   :undoc-members:
+
 Post-Training Quantization (PTQ)
 --------------------------------
 
@@ -45,12 +52,5 @@ Mixed-QAT
 ---------
 
 .. automodule:: archai.quantization.mixed_qat
-   :members:
-   :undoc-members:
-
-Quantization (Utilities)
-------------------------
-
-.. automodule:: archai.quantization.quantization_utils
    :members:
    :undoc-members:
