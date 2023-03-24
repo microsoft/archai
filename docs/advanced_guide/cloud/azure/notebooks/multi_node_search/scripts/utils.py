@@ -5,7 +5,7 @@ import json
 from glob import glob
 from IPython.display import display, Image
 from shutil import copyfile, rmtree
-from archai.common.common import ArchaiStore
+from archai.common.store import ArchaiStore
 
 
 def get_results(store : ArchaiStore, blob_path, output_folder):

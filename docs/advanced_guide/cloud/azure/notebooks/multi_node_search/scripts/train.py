@@ -10,6 +10,7 @@ from model import MyModel
 from mnist_data_module import MNistDataModule
 from archai.common.store import ArchaiStore
 import mlflow
+from shutil import copyfile
 
 
 def print_auto_logged_info(r):
@@ -103,12 +104,18 @@ def main():
         e['val_acc'] = float(val_acc)
         e['status'] = 'completed'
         store.merge_status_entity(e)
+        store.unlock(name)
+
+        if os.path.isfile('model_summary.txt'):
+            copyfile('model_summary.txt', os.path.join(output_folder, 'model_summary.txt'))
+
         print(f"Training job completed successfully with validation accuracy {val_acc}")
     except Exception as ex:
         print(f"Training job failed with err {str(ex)}")
         e['status'] = 'failed'
         e['error'] = str(ex)
-        store.unlock_entity(e)
+        store.merge_status_entity(e)
+        store.unlock(name)
         sys.exit(1)
 
 
