@@ -15,6 +15,13 @@ Atomic File Handler
    :members:
    :undoc-members:
 
+AzureML Helper
+--------------
+
+.. automodule:: archai.common.azureml_helper
+   :members:
+   :undoc-members:
+
 Common
 ------
 
@@ -78,6 +85,13 @@ Model Summary
    :members:
    :undoc-members:
 
+Notebook Helper
+---------------
+
+.. automodule:: archai.common.notebook_helper
+   :members:
+   :undoc-members:
+
 Ordered Dict Logger
 -------------------
 
@@ -96,6 +110,13 @@ Stopwatch
 ---------
 
 .. automodule:: archai.common.stopwatch
+   :members:
+   :undoc-members:
+
+Store
+-----
+
+.. automodule:: archai.common.store
    :members:
    :undoc-members:
 
