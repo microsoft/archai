@@ -1,10 +1,9 @@
 Cloud-Based Search
 ==================
 
-This page is under development.
+This section contains information about using Archai in the cloud.
 
 .. toctree::
-   :hidden:
    :maxdepth: 2
 
    Azure <cloud/azure>
