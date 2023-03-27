@@ -51,7 +51,7 @@
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="First Time Contributor" href="../../../contributing/first_contribution.html" />
+    <link rel="next" title="QuickStart" href="notebooks/quickstart/quickstart.html" />
     <link rel="prev" title="Azure" href="../azure.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -195,7 +195,10 @@
 </li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../../cloud.html">Cloud-Based Search</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="../azure.html">Azure</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3 current active has-children"><a class="current reference internal" href="#">Notebooks</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+<li class="toctree-l3 current active has-children"><a class="current reference internal" href="#">Notebooks</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/text_generation/text_generation.html">Text Generation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/multi_node_search/multi_node_search.html">Multi node search</a></li>
 </ul>
 </li>
 </ul>
@@ -427,8 +430,24 @@ document.write(`
                   
   <section id="azure">
 <h1>Azure<a class="headerlink" href="#azure" title="Permalink to this headline">#</a></h1>
-<p>This page is under development.</p>
+<p>The notebooks in this section show how to use Azure to run some different neural architecture searches.</p>
+<p>The Quickstart runs a simple cpu only search in an Azure VM using</p>
 <div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/quickstart/quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/quickstart/quickstart.html#Prerequisites">Prerequisites</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/text_generation/text_generation.html">Text Generation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/text_generation/text_generation.html#Prerequisites">Prerequisites</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/multi_node_search/multi_node_search.html">Multi node search</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/multi_node_search/multi_node_search.html#Plots">Plots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/multi_node_search/multi_node_search.html#Test-ONNX-Runtime-Inference-on-the-Best-Model">Test ONNX Runtime Inference on the Best Model</a></li>
+</ul>
+</li>
+</ul>
 </div>
 </section>
 
@@ -451,11 +470,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="../../../contributing/first_contribution.html"
+       href="notebooks/quickstart/quickstart.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">First Time Contributor</p>
+        <p class="prev-next-title">QuickStart</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -493,7 +512,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 24, 2023.
+  Last updated on Mar 27, 2023.
   <br/>
 </p>
   </div>

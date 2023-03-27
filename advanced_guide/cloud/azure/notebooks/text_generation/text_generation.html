@@ -54,6 +54,8 @@
     <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
+    <link rel="next" title="Multi-node Search" href="../multi_node_search/multi_node_search.html" />
+    <link rel="prev" title="QuickStart" href="../quickstart/quickstart.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -174,7 +176,7 @@
 </li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Guide</span></p>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../nas.html">Neural Architecture Search</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../nas/discrete_search.html">Discrete Search</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../nas/supergraph.html">Supergraph</a></li>
@@ -194,9 +196,12 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../nlp/quantization.html">Quantization</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../cloud.html">Cloud-Based Search</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../azure.html">Azure</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../notebooks.html">Notebooks</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul class="simple">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../../../cloud.html">Cloud-Based Search</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../../../azure.html">Azure</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="../../notebooks.html">Notebooks</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">Text Generation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../multi_node_search/multi_node_search.html">Multi node search</a></li>
 </ul>
 </li>
 </ul>
@@ -461,39 +466,545 @@ document.write(`
 </ul>
 <section id="Requirements">
 <h3>Requirements<a class="headerlink" href="#Requirements" title="Permalink to this headline">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install azure-ai-ml azure-identity pandas
+<span class="o">%</span><span class="k">pip</span> install archai
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">Image</span>
+<span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
+
+<span class="kn">from</span> <span class="nn">azure.ai.ml</span> <span class="kn">import</span> <span class="n">load_job</span>
+
+<span class="kn">import</span> <span class="nn">archai.common.azureml_helper</span> <span class="k">as</span> <span class="nn">aml_helper</span>
+<span class="kn">import</span> <span class="nn">archai.common.notebook_helper</span> <span class="k">as</span> <span class="nn">nb_helper</span>
+</pre></div>
+</div>
+</div>
 </section>
 <section id="Get-a-handle-to-the-workspace">
 <h3>Get a handle to the workspace<a class="headerlink" href="#Get-a-handle-to-the-workspace" title="Permalink to this headline">#</a></h3>
 <p>We load the workspace from a workspace <a class="reference external" href="https://learn.microsoft.com/en-us/azure/machine-learning/how-to-configure-environment#local-and-dsvm-only-create-a-workspace-configuration-file">configuration file</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ml_client</span> <span class="o">=</span> <span class="n">aml_helper</span><span class="o">.</span><span class="n">get_aml_client_from_file</span><span class="p">(</span><span class="s2">&quot;../.azureml/config.json&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Using workspace: </span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">workspace_name</span><span class="si">}</span><span class="s1"> in resource group: </span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">resource_group_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </section>
 <section id="Create-CPU-and-GPU-compute-clusters">
 <h3>Create CPU and GPU compute clusters<a class="headerlink" href="#Create-CPU-and-GPU-compute-clusters" title="Permalink to this headline">#</a></h3>
 <p>We provision a Linux <a class="reference external" href="https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-attach-compute-cluster?tabs=python">compute cluster</a> for the NAS job in this Notebook. See the <a class="reference external" href="https://azure.microsoft.com/en-ca/pricing/details/machine-learning/">full list</a> on VM sizes and prices.</p>
 <p>We also provision a GPU compute cluster, to train the architectures and generate text.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cpu_compute_name</span> <span class="o">=</span> <span class="s2">&quot;nas-cpu-cluster-D14-v2&quot;</span>
+<span class="n">cpu_compute_cluster</span> <span class="o">=</span> <span class="n">aml_helper</span><span class="o">.</span><span class="n">create_compute_cluster</span><span class="p">(</span><span class="n">ml_client</span><span class="p">,</span> <span class="n">cpu_compute_name</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;Standard_D14_v2&quot;</span><span class="p">)</span>
+
+<span class="n">gpu_compute_name</span> <span class="o">=</span> <span class="s2">&quot;nas-gpu-cluster-NC6&quot;</span>
+<span class="n">gpu_compute_cluster</span> <span class="o">=</span> <span class="n">aml_helper</span><span class="o">.</span><span class="n">create_compute_cluster</span><span class="p">(</span><span class="n">ml_client</span><span class="p">,</span> <span class="n">gpu_compute_name</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;Standard_NC6&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+You already have a cluster named nas-cpu-cluster-D14-v2, we&#39;ll reuse it as is.
+You already have a cluster named nas-gpu-cluster-NC6, we&#39;ll reuse it as is.
+</pre></div></div>
+</div>
 </section>
 <section id="Create-an-environment-based-on-a-YAML-file">
 <h3>Create an environment based on a YAML file<a class="headerlink" href="#Create-an-environment-based-on-a-YAML-file" title="Permalink to this headline">#</a></h3>
 <p>Azure Machine Learning maintains a set of CPU and GPU Ubuntu Linux-based base images with common system dependencies. For the set of base images and their corresponding Dockerfiles, see the <a class="reference external" href="https://github.com/Azure/AzureML-Containers">AzureML Containers</a> repo.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">archai_job_env</span> <span class="o">=</span> <span class="n">aml_helper</span><span class="o">.</span><span class="n">create_environment_from_file</span><span class="p">(</span><span class="n">ml_client</span><span class="p">,</span>
+                                                         <span class="n">image</span><span class="o">=</span><span class="s2">&quot;mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest&quot;</span><span class="p">,</span>
+                                                         <span class="n">conda_file</span><span class="o">=</span><span class="s2">&quot;conda.yaml&quot;</span><span class="p">,</span>
+                                                         <span class="n">version</span><span class="o">=</span><span class="s2">&quot;0.0.1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Environment with name aml-archai is registered to workspace, the environment version is 0.0.1
+</pre></div></div>
+</div>
 </section>
 <section id="Job-1:-NAS-(Searching-for-Pareto-optimal-Architectures)">
 <h3>Job 1: NAS (Searching for Pareto-optimal Architectures)<a class="headerlink" href="#Job-1:-NAS-(Searching-for-Pareto-optimal-Architectures)" title="Permalink to this headline">#</a></h3>
 <p>Load the search job from a YAML file and run it.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">search_job</span> <span class="o">=</span> <span class="n">load_job</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="s2">&quot;search.yaml&quot;</span><span class="p">))</span>
+<span class="n">s_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">search_job</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">Uploading src (0.01 MBs): 100%|##########| 10177/10177 [00:00&lt;00:00, 10489.91it/s]
+</span>
+
+</pre></div></div>
+</div>
 <p>Open the job overview on Azure ML Studio in your web browser (this works when you are running this notebook in VS code).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">webbrowser</span>
+<span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">s_job</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s2">&quot;Studio&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">endpoint</span><span class="p">)</span>
+
+<span class="n">job_name</span> <span class="o">=</span> <span class="n">s_job</span><span class="o">.</span><span class="n">name</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Started job: </span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Started job: salmon_plum_t9hynvf120
+</pre></div></div>
+</div>
 <p>Download the job’s output.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_name</span> <span class="o">=</span> <span class="s2">&quot;output_dir&quot;</span>
+<span class="n">download_path</span> <span class="o">=</span> <span class="s2">&quot;output&quot;</span>
+
+<span class="n">aml_helper</span><span class="o">.</span><span class="n">download_job_output</span><span class="p">(</span><span class="n">ml_client</span><span class="p">,</span> <span class="n">job_name</span><span class="o">=</span><span class="n">s_job</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">output_name</span><span class="o">=</span><span class="n">output_name</span><span class="p">,</span> <span class="n">download_path</span><span class="o">=</span><span class="n">download_path</span><span class="p">)</span>
+
+<span class="n">downloaded_folder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">download_path</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;named-outputs&quot;</span> <span class="o">/</span> <span class="n">output_name</span>
+</pre></div>
+</div>
+</div>
 <p>Show the Pareto Frontiers.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">param_vs_latency_img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">downloaded_folder</span> <span class="o">/</span> <span class="s2">&quot;pareto_non_embedding_params_vs_onnx_latency.png&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">param_vs_latency_img</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../../_images/advanced_guide_cloud_azure_notebooks_text_generation_text_generation_18_0.png" src="../../../../../_images/advanced_guide_cloud_azure_notebooks_text_generation_text_generation_18_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">param_vs_memory_img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">downloaded_folder</span> <span class="o">/</span> <span class="s2">&quot;pareto_non_embedding_params_vs_onnx_memory.png&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">param_vs_memory_img</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../../_images/advanced_guide_cloud_azure_notebooks_text_generation_text_generation_19_0.png" src="../../../../../_images/advanced_guide_cloud_azure_notebooks_text_generation_text_generation_19_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">latency_vs_memory_img</span> <span class="o">=</span> <span class="n">Image</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">downloaded_folder</span> <span class="o">/</span> <span class="s2">&quot;pareto_onnx_latency_vs_onnx_memory.png&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">latency_vs_memory_img</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../../../_images/advanced_guide_cloud_azure_notebooks_text_generation_text_generation_20_0.png" src="../../../../../_images/advanced_guide_cloud_azure_notebooks_text_generation_text_generation_20_0.png" />
+</div>
+</div>
 <p>Show the search state of the last iteration.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">nb_helper</span><span class="o">.</span><span class="n">get_search_csv</span><span class="p">(</span><span class="n">downloaded_folder</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;parents&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">csv_as_html</span> <span class="o">=</span> <span class="n">nb_helper</span><span class="o">.</span><span class="n">get_csv_as_stylized_html</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="n">csv_as_html</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div style="height: 300px; overflow-y: scroll;"><style type="text/css">
+#T_34b65_row0_col0, #T_34b65_row0_col1, #T_34b65_row0_col2, #T_34b65_row0_col3, #T_34b65_row0_col4, #T_34b65_row0_col5, #T_34b65_row0_col6, #T_34b65_row1_col0, #T_34b65_row1_col1, #T_34b65_row1_col2, #T_34b65_row1_col3, #T_34b65_row1_col4, #T_34b65_row1_col5, #T_34b65_row1_col6, #T_34b65_row2_col0, #T_34b65_row2_col1, #T_34b65_row2_col2, #T_34b65_row2_col3, #T_34b65_row2_col4, #T_34b65_row2_col5, #T_34b65_row2_col6, #T_34b65_row3_col0, #T_34b65_row3_col1, #T_34b65_row3_col2, #T_34b65_row3_col3, #T_34b65_row3_col4, #T_34b65_row3_col5, #T_34b65_row3_col6, #T_34b65_row4_col0, #T_34b65_row4_col1, #T_34b65_row4_col2, #T_34b65_row4_col3, #T_34b65_row4_col4, #T_34b65_row4_col5, #T_34b65_row4_col6, #T_34b65_row5_col0, #T_34b65_row5_col1, #T_34b65_row5_col2, #T_34b65_row5_col3, #T_34b65_row5_col4, #T_34b65_row5_col5, #T_34b65_row5_col6, #T_34b65_row6_col0, #T_34b65_row6_col1, #T_34b65_row6_col2, #T_34b65_row6_col3, #T_34b65_row6_col4, #T_34b65_row6_col5, #T_34b65_row6_col6, #T_34b65_row7_col0, #T_34b65_row7_col1, #T_34b65_row7_col2, #T_34b65_row7_col3, #T_34b65_row7_col4, #T_34b65_row7_col5, #T_34b65_row7_col6, #T_34b65_row8_col0, #T_34b65_row8_col1, #T_34b65_row8_col2, #T_34b65_row8_col3, #T_34b65_row8_col4, #T_34b65_row8_col5, #T_34b65_row8_col6, #T_34b65_row9_col0, #T_34b65_row9_col1, #T_34b65_row9_col2, #T_34b65_row9_col3, #T_34b65_row9_col4, #T_34b65_row9_col5, #T_34b65_row9_col6, #T_34b65_row10_col0, #T_34b65_row10_col1, #T_34b65_row10_col2, #T_34b65_row10_col3, #T_34b65_row10_col4, #T_34b65_row10_col5, #T_34b65_row10_col6, #T_34b65_row11_col0, #T_34b65_row11_col1, #T_34b65_row11_col2, #T_34b65_row11_col3, #T_34b65_row11_col4, #T_34b65_row11_col5, #T_34b65_row11_col6, #T_34b65_row12_col0, #T_34b65_row12_col1, #T_34b65_row12_col2, #T_34b65_row12_col3, #T_34b65_row12_col4, #T_34b65_row12_col5, #T_34b65_row12_col6, #T_34b65_row13_col0, #T_34b65_row13_col1, #T_34b65_row13_col2, #T_34b65_row13_col3, #T_34b65_row13_col4, #T_34b65_row13_col5, #T_34b65_row13_col6, #T_34b65_row14_col0, #T_34b65_row14_col1, #T_34b65_row14_col2, #T_34b65_row14_col3, #T_34b65_row14_col4, #T_34b65_row14_col5, #T_34b65_row14_col6, #T_34b65_row15_col0, #T_34b65_row15_col1, #T_34b65_row15_col2, #T_34b65_row15_col3, #T_34b65_row15_col4, #T_34b65_row15_col5, #T_34b65_row15_col6, #T_34b65_row16_col0, #T_34b65_row16_col1, #T_34b65_row16_col2, #T_34b65_row16_col3, #T_34b65_row16_col4, #T_34b65_row16_col5, #T_34b65_row16_col6, #T_34b65_row17_col0, #T_34b65_row17_col1, #T_34b65_row17_col2, #T_34b65_row17_col3, #T_34b65_row17_col4, #T_34b65_row17_col5, #T_34b65_row17_col6, #T_34b65_row18_col0, #T_34b65_row18_col1, #T_34b65_row18_col2, #T_34b65_row18_col3, #T_34b65_row18_col4, #T_34b65_row18_col5, #T_34b65_row18_col6 {
+  background-color: lightblue;
+  color: black;
+  border-color: white;
+  font-size: 12pt;
+}
+</style>
+<table id="T_34b65">
+  <thead>
+    <tr>
+      <th class="blank level0" >&nbsp;</th>
+      <th id="T_34b65_level0_col0" class="col_heading level0 col0" >archid</th>
+      <th id="T_34b65_level0_col1" class="col_heading level0 col1" >non_embedding_params</th>
+      <th id="T_34b65_level0_col2" class="col_heading level0 col2" >onnx_latency</th>
+      <th id="T_34b65_level0_col3" class="col_heading level0 col3" >onnx_memory</th>
+      <th id="T_34b65_level0_col4" class="col_heading level0 col4" >iteration_num</th>
+      <th id="T_34b65_level0_col5" class="col_heading level0 col5" >search_walltime_hours</th>
+      <th id="T_34b65_level0_col6" class="col_heading level0 col6" >is_pareto</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_34b65_level0_row0" class="row_heading level0 row0" >0</th>
+      <td id="T_34b65_row0_col0" class="data row0 col0" >gpt2_cea35b3f3fd242d2af609b8d2a3936cc814a7f41</td>
+      <td id="T_34b65_row0_col1" class="data row0 col1" >15144192.000000</td>
+      <td id="T_34b65_row0_col2" class="data row0 col2" >0.761083</td>
+      <td id="T_34b65_row0_col3" class="data row0 col3" >246.531515</td>
+      <td id="T_34b65_row0_col4" class="data row0 col4" >0</td>
+      <td id="T_34b65_row0_col5" class="data row0 col5" >0.074541</td>
+      <td id="T_34b65_row0_col6" class="data row0 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row1" class="row_heading level0 row1" >1</th>
+      <td id="T_34b65_row1_col0" class="data row1 col0" >gpt2_df106863e1a0c9c140036b05661aa88e92f07701</td>
+      <td id="T_34b65_row1_col1" class="data row1 col1" >7769472.000000</td>
+      <td id="T_34b65_row1_col2" class="data row1 col2" >0.575391</td>
+      <td id="T_34b65_row1_col3" class="data row1 col3" >143.315580</td>
+      <td id="T_34b65_row1_col4" class="data row1 col4" >0</td>
+      <td id="T_34b65_row1_col5" class="data row1 col5" >0.074541</td>
+      <td id="T_34b65_row1_col6" class="data row1 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row2" class="row_heading level0 row2" >2</th>
+      <td id="T_34b65_row2_col0" class="data row2 col0" >gpt2_0f371e7b893319c0d20944d60143fad14e2695d0</td>
+      <td id="T_34b65_row2_col1" class="data row2 col1" >14724096.000000</td>
+      <td id="T_34b65_row2_col2" class="data row2 col2" >0.850879</td>
+      <td id="T_34b65_row2_col3" class="data row2 col3" >157.321033</td>
+      <td id="T_34b65_row2_col4" class="data row2 col4" >0</td>
+      <td id="T_34b65_row2_col5" class="data row2 col5" >0.074541</td>
+      <td id="T_34b65_row2_col6" class="data row2 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row3" class="row_heading level0 row3" >3</th>
+      <td id="T_34b65_row3_col0" class="data row3 col0" >gpt2_889f69f6f6193194b0b78cf645bc44324928785e</td>
+      <td id="T_34b65_row3_col1" class="data row3 col1" >31372992.000000</td>
+      <td id="T_34b65_row3_col2" class="data row3 col2" >1.538318</td>
+      <td id="T_34b65_row3_col3" class="data row3 col3" >295.865806</td>
+      <td id="T_34b65_row3_col4" class="data row3 col4" >0</td>
+      <td id="T_34b65_row3_col5" class="data row3 col5" >0.074541</td>
+      <td id="T_34b65_row3_col6" class="data row3 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row4" class="row_heading level0 row4" >4</th>
+      <td id="T_34b65_row4_col0" class="data row4 col0" >gpt2_e848f3b384f04fdd238e08a79fdd2fa74d8c5194</td>
+      <td id="T_34b65_row4_col1" class="data row4 col1" >27327616.000000</td>
+      <td id="T_34b65_row4_col2" class="data row4 col2" >1.434555</td>
+      <td id="T_34b65_row4_col3" class="data row4 col3" >267.924564</td>
+      <td id="T_34b65_row4_col4" class="data row4 col4" >0</td>
+      <td id="T_34b65_row4_col5" class="data row4 col5" >0.074541</td>
+      <td id="T_34b65_row4_col6" class="data row4 col6" >False</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row5" class="row_heading level0 row5" >5</th>
+      <td id="T_34b65_row5_col0" class="data row5 col0" >gpt2_ecd66243c69a1a3273be0599297e7f7ca4943938</td>
+      <td id="T_34b65_row5_col1" class="data row5 col1" >20050048.000000</td>
+      <td id="T_34b65_row5_col2" class="data row5 col2" >1.082883</td>
+      <td id="T_34b65_row5_col3" class="data row5 col3" >215.160275</td>
+      <td id="T_34b65_row5_col4" class="data row5 col4" >1</td>
+      <td id="T_34b65_row5_col5" class="data row5 col5" >0.290282</td>
+      <td id="T_34b65_row5_col6" class="data row5 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row6" class="row_heading level0 row6" >6</th>
+      <td id="T_34b65_row6_col0" class="data row6 col0" >gpt2_e446e91026f819b689775cba65accbaafd81c4ef</td>
+      <td id="T_34b65_row6_col1" class="data row6 col1" >35854592.000000</td>
+      <td id="T_34b65_row6_col2" class="data row6 col2" >1.613641</td>
+      <td id="T_34b65_row6_col3" class="data row6 col3" >312.946812</td>
+      <td id="T_34b65_row6_col4" class="data row6 col4" >1</td>
+      <td id="T_34b65_row6_col5" class="data row6 col5" >0.290282</td>
+      <td id="T_34b65_row6_col6" class="data row6 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row7" class="row_heading level0 row7" >7</th>
+      <td id="T_34b65_row7_col0" class="data row7 col0" >gpt2_6606054e0222dccc9ab29ff8254706f6e190fb5b</td>
+      <td id="T_34b65_row7_col1" class="data row7 col1" >27327616.000000</td>
+      <td id="T_34b65_row7_col2" class="data row7 col2" >1.417154</td>
+      <td id="T_34b65_row7_col3" class="data row7 col3" >267.924564</td>
+      <td id="T_34b65_row7_col4" class="data row7 col4" >1</td>
+      <td id="T_34b65_row7_col5" class="data row7 col5" >0.290282</td>
+      <td id="T_34b65_row7_col6" class="data row7 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row8" class="row_heading level0 row8" >8</th>
+      <td id="T_34b65_row8_col0" class="data row8 col0" >gpt2_2ff7eebbc32f2bb8554e2241b2f1eed495d7b2a4</td>
+      <td id="T_34b65_row8_col1" class="data row8 col1" >12431680.000000</td>
+      <td id="T_34b65_row8_col2" class="data row8 col2" >1.038724</td>
+      <td id="T_34b65_row8_col3" class="data row8 col3" >148.587824</td>
+      <td id="T_34b65_row8_col4" class="data row8 col4" >1</td>
+      <td id="T_34b65_row8_col5" class="data row8 col5" >0.290282</td>
+      <td id="T_34b65_row8_col6" class="data row8 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row9" class="row_heading level0 row9" >9</th>
+      <td id="T_34b65_row9_col0" class="data row9 col0" >gpt2_85a39fce7fd60bf8df99d17bb91298a450e2b0b1</td>
+      <td id="T_34b65_row9_col1" class="data row9 col1" >12424512.000000</td>
+      <td id="T_34b65_row9_col2" class="data row9 col2" >0.676473</td>
+      <td id="T_34b65_row9_col3" class="data row9 col3" >148.552288</td>
+      <td id="T_34b65_row9_col4" class="data row9 col4" >1</td>
+      <td id="T_34b65_row9_col5" class="data row9 col5" >0.290282</td>
+      <td id="T_34b65_row9_col6" class="data row9 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row10" class="row_heading level0 row10" >10</th>
+      <td id="T_34b65_row10_col0" class="data row10 col0" >gpt2_3748aa9c59880395ceabfba51d411bfa3ca198e8</td>
+      <td id="T_34b65_row10_col1" class="data row10 col1" >5917568.000000</td>
+      <td id="T_34b65_row10_col2" class="data row10 col2" >0.376884</td>
+      <td id="T_34b65_row10_col3" class="data row10 col3" >148.768559</td>
+      <td id="T_34b65_row10_col4" class="data row10 col4" >1</td>
+      <td id="T_34b65_row10_col5" class="data row10 col5" >0.290282</td>
+      <td id="T_34b65_row10_col6" class="data row10 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row11" class="row_heading level0 row11" >11</th>
+      <td id="T_34b65_row11_col0" class="data row11 col0" >gpt2_4170664dbb38d8c19458ae9c518d6ff62d134fe5</td>
+      <td id="T_34b65_row11_col1" class="data row11 col1" >15144192.000000</td>
+      <td id="T_34b65_row11_col2" class="data row11 col2" >0.825369</td>
+      <td id="T_34b65_row11_col3" class="data row11 col3" >246.531515</td>
+      <td id="T_34b65_row11_col4" class="data row11 col4" >1</td>
+      <td id="T_34b65_row11_col5" class="data row11 col5" >0.290282</td>
+      <td id="T_34b65_row11_col6" class="data row11 col6" >False</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row12" class="row_heading level0 row12" >12</th>
+      <td id="T_34b65_row12_col0" class="data row12 col0" >gpt2_4b37e60e4c0017177c7722fe3b4b08b4a6969ccb</td>
+      <td id="T_34b65_row12_col1" class="data row12 col1" >29808768.000000</td>
+      <td id="T_34b65_row12_col2" class="data row12 col2" >1.627816</td>
+      <td id="T_34b65_row12_col3" class="data row12 col3" >252.355514</td>
+      <td id="T_34b65_row12_col4" class="data row12 col4" >1</td>
+      <td id="T_34b65_row12_col5" class="data row12 col5" >0.290282</td>
+      <td id="T_34b65_row12_col6" class="data row12 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row13" class="row_heading level0 row13" >13</th>
+      <td id="T_34b65_row13_col0" class="data row13 col0" >gpt2_d042734419c3f3b4e04e2db9ca184f5db02ee2ba</td>
+      <td id="T_34b65_row13_col1" class="data row13 col1" >40381312.000000</td>
+      <td id="T_34b65_row13_col2" class="data row13 col2" >1.889455</td>
+      <td id="T_34b65_row13_col3" class="data row13 col3" >342.717808</td>
+      <td id="T_34b65_row13_col4" class="data row13 col4" >1</td>
+      <td id="T_34b65_row13_col5" class="data row13 col5" >0.290282</td>
+      <td id="T_34b65_row13_col6" class="data row13 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row14" class="row_heading level0 row14" >14</th>
+      <td id="T_34b65_row14_col0" class="data row14 col0" >gpt2_b0111ea37ec42adb5040daa60db0e0b11d164017</td>
+      <td id="T_34b65_row14_col1" class="data row14 col1" >17080384.000000</td>
+      <td id="T_34b65_row14_col2" class="data row14 col2" >0.905016</td>
+      <td id="T_34b65_row14_col3" class="data row14 col3" >228.869057</td>
+      <td id="T_34b65_row14_col4" class="data row14 col4" >1</td>
+      <td id="T_34b65_row14_col5" class="data row14 col5" >0.290282</td>
+      <td id="T_34b65_row14_col6" class="data row14 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row15" class="row_heading level0 row15" >15</th>
+      <td id="T_34b65_row15_col0" class="data row15 col0" >gpt2_c710d31b0c06ad032125e28d4303a05676902937</td>
+      <td id="T_34b65_row15_col1" class="data row15 col1" >11966848.000000</td>
+      <td id="T_34b65_row15_col2" class="data row15 col2" >0.714716</td>
+      <td id="T_34b65_row15_col3" class="data row15 col3" >134.300035</td>
+      <td id="T_34b65_row15_col4" class="data row15 col4" >1</td>
+      <td id="T_34b65_row15_col5" class="data row15 col5" >0.290282</td>
+      <td id="T_34b65_row15_col6" class="data row15 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row16" class="row_heading level0 row16" >16</th>
+      <td id="T_34b65_row16_col0" class="data row16 col0" >gpt2_3c57938472ca145510df49098166e3259e1b6509</td>
+      <td id="T_34b65_row16_col1" class="data row16 col1" >23652864.000000</td>
+      <td id="T_34b65_row16_col2" class="data row16 col2" >1.557708</td>
+      <td id="T_34b65_row16_col3" class="data row16 col3" >241.403567</td>
+      <td id="T_34b65_row16_col4" class="data row16 col4" >1</td>
+      <td id="T_34b65_row16_col5" class="data row16 col5" >0.290282</td>
+      <td id="T_34b65_row16_col6" class="data row16 col6" >True</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row17" class="row_heading level0 row17" >17</th>
+      <td id="T_34b65_row17_col0" class="data row17 col0" >gpt2_0ffcee3a558c89448aea22ff34c8dba77208072a</td>
+      <td id="T_34b65_row17_col1" class="data row17 col1" >7769472.000000</td>
+      <td id="T_34b65_row17_col2" class="data row17 col2" >0.592398</td>
+      <td id="T_34b65_row17_col3" class="data row17 col3" >143.315580</td>
+      <td id="T_34b65_row17_col4" class="data row17 col4" >1</td>
+      <td id="T_34b65_row17_col5" class="data row17 col5" >0.290282</td>
+      <td id="T_34b65_row17_col6" class="data row17 col6" >False</td>
+    </tr>
+    <tr>
+      <th id="T_34b65_level0_row18" class="row_heading level0 row18" >18</th>
+      <td id="T_34b65_row18_col0" class="data row18 col0" >gpt2_1d573928a72694068c1af9608548862d8519c533</td>
+      <td id="T_34b65_row18_col1" class="data row18 col1" >14199296.000000</td>
+      <td id="T_34b65_row18_col2" class="data row18 col2" >0.851394</td>
+      <td id="T_34b65_row18_col3" class="data row18 col3" >155.320788</td>
+      <td id="T_34b65_row18_col4" class="data row18 col4" >1</td>
+      <td id="T_34b65_row18_col5" class="data row18 col5" >0.290282</td>
+      <td id="T_34b65_row18_col6" class="data row18 col6" >True</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
 </section>
 <section id="Job-2:-Train-(Train-a-Pareto-architecture-from-Transformer-Flex.)">
 <h3>Job 2: Train (Train a Pareto architecture from Transformer-Flex.)<a class="headerlink" href="#Job-2:-Train-(Train-a-Pareto-architecture-from-Transformer-Flex.)" title="Permalink to this headline">#</a></h3>
 <p>Pick an architecture id (archid) from the CSV file to perform full training.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">archid</span> <span class="o">=</span> <span class="s2">&quot;&lt;arch-id&gt;&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selected architecture: </span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">arch_path</span> <span class="o">=</span> <span class="n">nb_helper</span><span class="o">.</span><span class="n">get_arch_abs_path</span><span class="p">(</span><span class="n">archid</span><span class="o">=</span><span class="n">archid</span><span class="p">,</span> <span class="n">downloaded_folder</span><span class="o">=</span><span class="n">downloaded_folder</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Selected architecture: gpt2_df106863e1a0c9c140036b05661aa88e92f07701
+</pre></div></div>
+</div>
 <p>Load the training job from a YAML file, set its input, and run it. With the GPU cluster we created it should take around 3 hours.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_job</span> <span class="o">=</span> <span class="n">load_job</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="s2">&quot;train.yaml&quot;</span><span class="p">))</span>
+<span class="n">train_job</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">arch_config_path</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">arch_path</span>
+<span class="n">t_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">train_job</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <p>Open the job overview on Azure ML Studio in your web browser (this works when you are running this notebook in VS code).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">webbrowser</span>
+<span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">t_job</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s2">&quot;Studio&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">endpoint</span><span class="p">)</span>
+
+<span class="n">job_name</span> <span class="o">=</span> <span class="n">t_job</span><span class="o">.</span><span class="n">name</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Started Job: </span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Started Job: willing_tree_3b22csbdtg
+</pre></div></div>
+</div>
 </section>
 <section id="Job-3:-Generating-text-via-prompt">
 <h3>Job 3: Generating text via prompt<a class="headerlink" href="#Job-3:-Generating-text-via-prompt" title="Permalink to this headline">#</a></h3>
 <p>Load the generate text job from a YAML file, set the inputs, and run it.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t_job</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;azureml://subscriptions/</span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">subscription_id</span><span class="si">}</span><span class="s2">/resourcegroups/</span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">resource_group_name</span><span class="si">}</span><span class="s2">/&quot;</span> \
+       <span class="sa">f</span><span class="s2">&quot;workspaces/</span><span class="si">{</span><span class="n">ml_client</span><span class="o">.</span><span class="n">workspace_name</span><span class="si">}</span><span class="s2">/datastores/workspaceblobstore/paths/azureml/</span><span class="si">{</span><span class="n">train_job</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">/output_dir/&quot;</span>
+
+<span class="k">if</span> <span class="n">train_job</span> <span class="ow">and</span> <span class="n">train_job</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;Completed&quot;</span><span class="p">:</span>
+    <span class="n">gen_job</span> <span class="o">=</span> <span class="n">load_job</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="s2">&quot;generate_text.yaml&quot;</span><span class="p">))</span>
+    <span class="n">gen_job</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">pre_trained_model_path</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+    <span class="n">gen_job</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;Machine Learning&quot;</span>
+    <span class="n">g_job</span> <span class="o">=</span> <span class="n">ml_client</span><span class="o">.</span><span class="n">create_or_update</span><span class="p">(</span><span class="n">gen_job</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Job </span><span class="si">{</span><span class="n">train_job</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not completed yet&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <p>Open the job overview on Azure ML Studio in your web browser (this works when you are running this notebook in VS code).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">webbrowser</span>
+<span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">g_job</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="s2">&quot;Studio&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">endpoint</span><span class="p">)</span>
+
+<span class="n">job_name</span> <span class="o">=</span> <span class="n">g_job</span><span class="o">.</span><span class="n">name</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Started Job: </span><span class="si">{</span><span class="n">job_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Started Job: orange_bee_dk3c1xm55z
+</pre></div></div>
+</div>
 <p>Download and show the generated text.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_name</span> <span class="o">=</span> <span class="s2">&quot;output_path&quot;</span>
+<span class="n">download_path</span> <span class="o">=</span> <span class="s2">&quot;generated_text&quot;</span>
+
+<span class="n">aml_helper</span><span class="o">.</span><span class="n">download_job_output</span><span class="p">(</span><span class="n">ml_client</span><span class="p">,</span> <span class="n">job_name</span><span class="o">=</span><span class="n">g_job</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">output_name</span><span class="o">=</span><span class="n">output_name</span><span class="p">,</span> <span class="n">download_path</span><span class="o">=</span><span class="n">download_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
@@ -527,6 +1038,24 @@ Machine Learning to continue to attend the main park in the first series. The te
                 <footer class="bd-footer-article">
                   <!-- Previous / next buttons -->
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="../quickstart/quickstart.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">QuickStart</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../multi_node_search/multi_node_search.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Multi-node Search</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -584,7 +1113,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 24, 2023.
+  Last updated on Mar 27, 2023.
   <br/>
 </p>
   </div>
