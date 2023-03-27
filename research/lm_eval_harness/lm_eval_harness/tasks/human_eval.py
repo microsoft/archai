@@ -25,14 +25,20 @@ class HumanEval(Task):
         data_dir: Optional[str] = None,
         cache_dir: Optional[str] = None,
         download_mode: Optional[DownloadMode] = None,
+        stop_tokens: Optional[List[str]] = None,
         n_samples: Optional[int] = 1,
         temperature: Optional[float] = 0.01,
+        top_p: Optional[float] = 0.95,
+        max_new_tokens: Optional[int] = 300,
         pass_at_k: Optional[List[int]] = None,
     ) -> None:
         super().__init__(data_dir=data_dir, cache_dir=cache_dir, download_mode=download_mode)
 
+        self.stop_tokens = stop_tokens or ["\nclass", "\ndef", "\n#", "\nif", "\nprint"]
         self.n_samples = n_samples
         self.temperature = temperature
+        self.top_p = top_p
+        self.max_new_tokens = max_new_tokens
         self.pass_at_k = pass_at_k or [1]
 
     def should_decontaminate(self) -> bool:
@@ -60,11 +66,11 @@ class HumanEval(Task):
         return [
             rf.generate(
                 ctx,
-                ["\nclass", "\ndef", "\n#", "\nif", "\nprint"],
+                self.stop_tokens,
                 True,
                 self.temperature,
-                0.95,
-                300,
+                self.top_p,
+                self.max_new_tokens,
             )
             for _ in range(self.n_samples)
         ]
