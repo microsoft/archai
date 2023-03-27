@@ -1,10 +1,9 @@
 Azure
 =====
 
-This page is under development.
+This section contains examples of using Archai on Azure.
 
 .. toctree::
-   :hidden:
    :maxdepth: 2
 
    Notebooks <azure/notebooks>
