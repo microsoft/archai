@@ -11,7 +11,12 @@ import torch
 from lm_eval.evaluator import evaluate
 from lm_eval_harness.lm_eval_hf_model import HFEvalModel
 from lm_eval_harness.tasks.human_eval import HumanEval
-from transformers import AutoTokenizer, CodeGenConfig, CodeGenForCausalLM
+from transformers import AutoTokenizer
+
+from archai.discrete_search.search_spaces.nlp.tfpp.modeling_codegen_flash import (
+    CodeGenFlashConfig,
+    CodeGenFlashSequential,
+)
 
 CHECKPOINT_REGEX = re.compile(r"^" + r"(\d+)$")
 
@@ -86,22 +91,29 @@ if __name__ == "__main__":
     for checkpoint in find_checkpoints(args.checkpoint_dir):
         print(f"Loading checkpoint: {checkpoint}")
 
-        state_dict = torch.load(os.path.join(checkpoint, "mp_rank_00_model_states.pt"))
-        model_state_dict = state_dict["module"]
-
         # Note: match the model configuration to the one used for training
-        config = CodeGenConfig(
-            vocab_size=50295,
+        config = CodeGenFlashConfig(
+            vocab_size=50304,
             n_positions=2048,
             n_embd=1024,
             n_layer=20,
             n_head=16,
             rotary_dim=32,
+            pad_vocab_size_multiple=64,
+            use_flash_attn=True,
+            use_flash_fused_mlp=True,
         )
-        model = CodeGenForCausalLM(config=config)
-        model.load_state_dict(model_state_dict)
+        model = CodeGenFlashSequential(config)
 
-        hf_model = HFEvalModel(model, tokenizer)
+        state_dict = torch.load(os.path.join(checkpoint, "mp_rank_00_model_states.pt"))
+        if state_dict["module"] is not None:
+            model.load_state_dict(state_dict["module"])
+        else:
+            for i, layer in enumerate(model.layers):
+                state_dict = torch.load(os.path.join(checkpoint, f"layer_{i:02d}-model_states.pt"))
+                layer.load_state_dict(state_dict)
+
+        hf_model = HFEvalModel(model.half(), tokenizer)
 
         print("Evaluating on HumanEval ...")
         results = evaluate(

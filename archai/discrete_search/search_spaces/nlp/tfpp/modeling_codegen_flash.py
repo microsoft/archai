@@ -2,13 +2,14 @@
 # Licensed under the MIT license.
 
 import math
-from typing import Optional
+from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
 from flash_attn.modules.mha import MHA
 from flash_attn.modules.mlp import FusedMLP, Mlp
 from transformers.activations import ACT2FN
+from transformers.modeling_outputs import CausalLMOutput
 from transformers.models.codegen.configuration_codegen import CodeGenConfig
 from transformers.models.codegen.modeling_codegen import (
     CodeGenAttention,
@@ -152,7 +153,23 @@ class CodeGenFlashSequential(CodeGenPreTrainedModel):
         modules.append(CodeGenFlashLMHead(config))
 
         self.layers = nn.Sequential(*modules)
+        self.loss = LMHeadLoss()
+
         self.post_init()
+
+    def forward(
+        self, input_ids: torch.LongTensor, labels: Optional[torch.LongTensor] = None, **kwargs
+    ) -> CausalLMOutput:
+        lm_logits = self.layers(input_ids)
+
+        loss = None
+        if labels is not None:
+            loss = self.loss(lm_logits, labels)
+
+        return CausalLMOutput(loss=loss, logits=lm_logits)
+
+    def prepare_inputs_for_generation(self, input_ids: torch.LongTensor, **kwargs) -> Dict[str, torch.Tensor]:
+        return {"input_ids": input_ids}
 
     def get_input_embeddings(self) -> torch.Tensor:
         return self.layers[0].wte

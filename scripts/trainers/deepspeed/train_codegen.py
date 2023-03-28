@@ -89,12 +89,13 @@ if __name__ == "__main__":
     eval_dataset = dataset_provider.get_val_dataset(seq_len=2048)
 
     config = CodeGenFlashConfig(
-        vocab_size=50295,
+        vocab_size=50304,
         n_positions=2048,
         n_embd=1024,
         n_layer=20,
         n_head=16,
         rotary_dim=32,
+        pad_vocab_size_multiple=64,
         use_flash_attn=True,
         use_flash_fused_mlp=True,
     )
@@ -112,10 +113,10 @@ if __name__ == "__main__":
         eval_steps=250,
         eval_max_steps=25,
         pipe_parallel_size=args.pipe_parallel_size,
-        pipe_parallel_loss_fn=LMHeadLoss(),
+        pipe_parallel_loss_fn=model.loss,
     )
     trainer = DsTrainer(
-        model=model.layers,
+        model=model.layers if args.pipe_parallel_size > 0 else model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,

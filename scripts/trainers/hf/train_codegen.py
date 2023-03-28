@@ -67,7 +67,7 @@ if __name__ == "__main__":
     eval_dataset = dataset_provider.get_val_dataset(seq_len=2048)
 
     config = CodeGenConfig(
-        vocab_size=50295,
+        vocab_size=50304,
         n_positions=2048,
         n_embd=1024,
         n_layer=20,
