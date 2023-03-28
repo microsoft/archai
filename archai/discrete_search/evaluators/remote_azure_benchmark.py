@@ -47,6 +47,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         max_retries: Optional[int] = 5,
         retry_interval: Optional[int] = 120,
         onnx_export_kwargs: Optional[Dict[str, Any]] = None,
+        verbose: bool = False
     ) -> None:
         """Initialize the evaluator.
 
@@ -61,19 +62,16 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
             max_retries: Maximum number of retries in `fetch_all`.
             retry_interval: Interval between each retry attempt.
             onnx_export_kwargs: Dictionary containing key-value arguments for `torch.onnx.export`.
-
+            verbose: Whether to print debug messages.
         """
 
         # TODO: Make this class more general / less pipeline-specific
         input_shapes = [input_shape] if isinstance(input_shape, tuple) else input_shape
         self.sample_input = tuple([torch.rand(*input_shape) for input_shape in input_shapes])
         self.blob_container_name = blob_container_name
-        self.blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
         self.table_name = table_name
-        self.table_service_client = TableServiceClient.from_connection_string(
-            connection_string, logging_enable=False, logging_level="ERROR"
-        )
+        self.connection_string = connection_string
 
         # Changes the Azure logging level to ERROR to avoid unnecessary output
         logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
@@ -85,23 +83,33 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         self.max_retries = max_retries
         self.retry_interval = retry_interval
         self.onnx_export_kwargs = onnx_export_kwargs or dict()
+        self.verbose = verbose
 
         # Architecture list
         self.archids = []
 
-    def __contains__(self, rowkey_id: str) -> bool:
+        # Test connection string
+        _ = self.get_table_client()
+        _ = self.get_blob_client('test')
+
+    def entry_exists(self, table_client, rowkey_id: str) -> bool:
         try:
-            self._get_entity(rowkey_id)
+            self._get_entity(table_client, rowkey_id)
         except ResourceNotFoundError:
             return False
 
         return True
 
-    @property
-    def table_client(self) -> Any:
-        """Return the table client."""
+    def get_table_client(self) -> Any:
+        table_service_client = TableServiceClient.from_connection_string(
+            self.connection_string, logging_enable=False, logging_level="ERROR"
+        )
 
-        return self.table_service_client.create_table_if_not_exists(self.table_name)
+        return table_service_client.create_table_if_not_exists(self.table_name)
+
+    def get_blob_client(self, dst_path) -> Any:
+        blob_service_client = BlobServiceClient.from_connection_string(self.connection_string)
+        return blob_service_client.get_blob_client(container=self.blob_container_name, blob=dst_path)
 
     def _upload_blob(self, src_path: str, dst_path: str) -> None:
         """Upload a file to Azure Blob storage.
@@ -115,12 +123,12 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         src_path = Path(src_path)
         assert src_path.is_file(), f"{src_path} does not exist or is not a file"
 
-        blob_client = self.blob_service_client.get_blob_client(container=self.blob_container_name, blob=dst_path)
+        blob_client = self.get_blob_client(dst_path)
 
         with open(src_path, "rb") as data:
             blob_client.upload_blob(data, overwrite=self.overwrite)
 
-    def _get_entity(self, rowkey_id: str) -> Dict[str, Any]:
+    def _get_entity(self, table_client, rowkey_id: str) -> Dict[str, Any]:
         """Return the entity with the given `rowkey_id`.
 
         Args:
@@ -131,9 +139,9 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
 
         """
 
-        return self.table_client.get_entity(partition_key=self.partition_key, row_key=rowkey_id)
+        return table_client.get_entity(partition_key=self.partition_key, row_key=rowkey_id)
 
-    def _update_entity(self, rowkey_id: str, entity_dict: Dict[str, Any]) -> Dict[str, Any]:
+    def _update_entity(self, table_client, rowkey_id: str, entity_dict: Dict[str, Any]) -> Dict[str, Any]:
         """Update the entity with the given `rowkey_id`.
 
         Args:
@@ -148,15 +156,20 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         entity = {"PartitionKey": self.partition_key, "RowKey": rowkey_id}
         entity.update(entity_dict)
 
-        return self.table_client.upsert_entity(entity, mode=UpdateMode.REPLACE)
+        return table_client.upsert_entity(entity, mode=UpdateMode.REPLACE)
 
     @overrides
     def send(self, arch: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> None:
         archid = str(arch.archid)
+        table_client = self.get_table_client()
 
         # Checks if architecture was already benchmarked
-        if archid in self:
-            entity = self._get_entity(archid)
+        if self.entry_exists(table_client, archid):
+            entity = self._get_entity(table_client, archid)
+            
+            if self.verbose:
+                print(f"Entry for {archid} already exists")
+
             if entity["status"] == "complete":
                 self.archids.append(archid)
                 return
@@ -189,30 +202,46 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                 **self.onnx_export_kwargs,
             )
 
-            self._update_entity(archid, entity)
+            self._update_entity(table_client, archid, entity)
             self._upload_blob(str(tmp_dir / "model.onnx"), f"{archid}/model.onnx")
 
         # Updates model status
         del entity["node"]
         entity["status"] = "new"
 
-        self._update_entity(archid, entity)
+        self._update_entity(table_client, archid, entity)
         self.archids.append(archid)
+
+        if self.verbose:
+            print(f"Sent {archid} to Remote Benchmark")
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
         results = [None for _ in self.archids]
 
         for _ in range(self.max_retries):
+            table_client = self.get_table_client()
+
             for i, archid in enumerate(self.archids):
-                if archid in self:
-                    entity = self._get_entity(archid)
+                if self.entry_exists(table_client, archid):
+                    entity = self._get_entity(table_client, archid)
 
                     if self.metric_key in entity and entity[self.metric_key]:
                         results[i] = entity[self.metric_key]
 
             if all(r is not None for r in results):
                 break
+
+            if self.verbose:
+                status_dict = {
+                    "complete": sum(r is not None for r in results),
+                    "total": len(results),
+                }
+
+                print(
+                    f"Waiting for results. Current status: {status_dict}\n"
+                    f"Archids: {[archid for archid, status in zip(self.archids, results) if status is None]}"
+                )
 
             time.sleep(self.retry_interval)
 
