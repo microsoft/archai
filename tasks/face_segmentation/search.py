@@ -84,7 +84,7 @@ if __name__ == '__main__':
             ),
             higher_is_better=False,
             compute_intensive=False,
-            constraint=[0, 0.5]
+            constraint=[0, 0.3]
         )
     else:
         # Gets connection string from env variable
@@ -104,7 +104,7 @@ if __name__ == '__main__':
             AvgOnnxLatency(
                 input_shape=input_shape, export_kwargs={'opset_version': 11}
             ),
-            constraint=[0, 0.5]
+            constraint=[0, 0.185]
         )
 
         so.add_objective(
