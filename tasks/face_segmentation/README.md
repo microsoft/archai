@@ -74,3 +74,10 @@ The table below shows the final results after fully training the final pareto ar
 
 ## NAS Results (Snapdragon Target)
 
+### Search
+
+![pareto_evolution](assets/snp_pareto_evolution.png)
+
+The selected architectures for the search with the `snp_search.yaml` config file can be found in the [archs/snp_target/](arch/snp_target/) directory or in the table below.
+
+
