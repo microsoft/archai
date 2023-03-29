@@ -16,7 +16,11 @@ from transformers.tokenization_utils import PreTrainedTokenizer
 
 class HFEvalModel(BaseLM):
     def __init__(
-        self, model: torch.nn.Module, tokenizer: PreTrainedTokenizer, force_attention_mask: Optional[bool] = False
+        self,
+        model: torch.nn.Module,
+        tokenizer: PreTrainedTokenizer,
+        force_attention_mask: Optional[bool] = False,
+        max_generated_tokens: Optional[int] = 256,
     ) -> None:
         super().__init__()
 
@@ -29,6 +33,7 @@ class HFEvalModel(BaseLM):
         self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
 
         self.force_attention_mask = force_attention_mask
+        self.max_generated_tokens = max_generated_tokens
 
     @property
     def eot_token_id(self) -> int:
@@ -43,7 +48,7 @@ class HFEvalModel(BaseLM):
 
     @property
     def max_gen_toks(self) -> int:
-        return 256
+        return self.max_generated_tokens
 
     @property
     def batch_size(self) -> int:

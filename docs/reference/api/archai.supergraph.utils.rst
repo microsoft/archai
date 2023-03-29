@@ -1,20 +1,6 @@
 Utilities
 =========
 
-APEX Utilities
---------------
-
-.. automodule:: archai.supergraph.utils.apex_utils
-   :members:
-   :undoc-members:
-
-Atomic File Handler
--------------------
-
-.. automodule:: archai.supergraph.utils.atomic_file_handler
-   :members:
-   :undoc-members:
-
 Augmented Searcher
 ------------------
 
@@ -36,17 +22,10 @@ Checkpoint
    :members:
    :undoc-members:
 
-Common
-------
+Heatmap
+-------
 
-.. automodule:: archai.supergraph.utils.common
-   :members:
-   :undoc-members:
-
-Delimited Text
---------------
-
-.. automodule:: archai.supergraph.utils.delimited_text
+.. automodule:: archai.supergraph.utils.heatmap
    :members:
    :undoc-members:
 
@@ -57,38 +36,10 @@ Metrics
    :members:
    :undoc-members:
 
-ML Performance (Utilities)
---------------------------
-
-.. automodule:: archai.supergraph.utils.ml_perf_utils
-   :members:
-   :undoc-members:
-
-ML (Utilities)
---------------
-
-.. automodule:: archai.supergraph.utils.ml_utils
-   :members:
-   :undoc-members:
-
-Model Summary
--------------
-
-.. automodule:: archai.supergraph.utils.model_summary
-   :members:
-   :undoc-members:
-
 Multi-Optimizer
 ---------------
 
 .. automodule:: archai.supergraph.utils.multi_optim
-   :members:
-   :undoc-members:
-
-Stopwatch
----------
-
-.. automodule:: archai.supergraph.utils.stopwatch
    :members:
    :undoc-members:
 
@@ -103,12 +54,5 @@ Trainer
 -------
 
 .. automodule:: archai.supergraph.utils.trainer
-   :members:
-   :undoc-members:
-
-Utilities
----------
-
-.. automodule:: archai.supergraph.utils.utils
    :members:
    :undoc-members:

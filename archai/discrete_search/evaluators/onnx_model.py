@@ -28,6 +28,7 @@ class AvgOnnxLatency(ModelEvaluator):
         input_dtype: Optional[str] = "torch.FloatTensor",
         rand_range: Optional[Tuple[float, float]] = (0.0, 1.0),
         export_kwargs: Optional[Dict[str, Any]] = None,
+        device: Optional[str] = 'cpu',
         inf_session_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Initialize the evaluator.
@@ -58,6 +59,7 @@ class AvgOnnxLatency(ModelEvaluator):
         self.num_trials = num_trials
         self.export_kwargs = export_kwargs or dict()
         self.inf_session_kwargs = inf_session_kwargs or dict()
+        self.device = device
 
     @overrides
     def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
@@ -76,7 +78,8 @@ class AvgOnnxLatency(ModelEvaluator):
         exported_model_buffer.seek(0)
 
         # Benchmarks ONNX model
-        onnx_session = rt.InferenceSession(exported_model_buffer.read(), **self.inf_session_kwargs)
+        onnx_device = "CUDAExecutionProvider" if self.device == 'gpu' else "CPUExecutionProvider"
+        onnx_session = rt.InferenceSession(exported_model_buffer.read(), providers=[onnx_device], **self.inf_session_kwargs)
         sample_input = {f"input_{i}": inp.numpy() for i, inp in enumerate(self.sample_input)}
         inf_times = []
 

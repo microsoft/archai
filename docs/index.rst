@@ -44,9 +44,6 @@ If you use Archai in a scientific publication, please consider citing it:
    :maxdepth: 2
    :caption: Advanced Guide
 
-   Neural Architecture Search <advanced_guide/nas>
-   Computer Vision <advanced_guide/cv>
-   Natural Language Processing <advanced_guide/nlp>
    Cloud-Based Search <advanced_guide/cloud>
 
 .. toctree::

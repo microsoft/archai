@@ -13,7 +13,7 @@ from archai.discrete_search.search_spaces.config.arch_config import (
     build_arch_config,
 )
 from archai.discrete_search.search_spaces.config.discrete_choice import DiscreteChoice
-from archai.discrete_search.search_spaces.config.utils import flatten_dict, replace_ptree_choices
+from archai.discrete_search.search_spaces.config.utils import flatten_dict, replace_ptree_choices, order_dict_keys
 
 
 class ArchParamTree:
@@ -158,6 +158,10 @@ class ArchParamTree:
 
         flat_config = flatten_dict(config._config_dict)
         flat_used_params = flatten_dict(config.get_used_params())
+
+        # Reorder `flat_config` and `flat_used_params` to follow the order of `deduped_features`
+        flat_config = order_dict_keys(deduped_features, flat_config)
+        flat_used_params = order_dict_keys(deduped_features, flat_used_params)
 
         # Build feature array
         features = OrderedDict([

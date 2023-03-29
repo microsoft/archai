@@ -41,43 +41,33 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    onnx_model_path = args.onnx_model_path
-    n_head = args.n_head
-    d_head = args.d_head
-    batch_size = args.batch_size
-    seq_len = args.seq_len
-    past_seq_len = args.past_seq_len
-    n_past_values = args.n_past_values
-    n_layers = args.n_layers
-    n_tokens = args.n_tokens
-    n_runs = args.n_runs
-    new_token_id = args.new_token_id
 
     accuracy = 0.0
-
-    for i in range(n_runs):
+    for i in range(args.n_runs):
         torch.manual_seed(i)
         np.random.seed(i)
 
-        model_onnx = load_from_onnx(onnx_model_path)
+        model_onnx = load_from_onnx(args.onnx_model_path)
 
-        inputs = {"input_ids": np.random.randint(0, n_tokens, (batch_size, seq_len), dtype=np.int64)}
-        for i in range(n_layers):
+        inputs = {"input_ids": np.random.randint(0, args.n_tokens, (args.batch_size, args.seq_len), dtype=np.int64)}
+        for i in range(args.n_layers):
             key = f"past_{i}"
-            inputs[key] = np.zeros((n_past_values, batch_size, n_head, past_seq_len, d_head), dtype=np.float32)
+            inputs[key] = np.zeros(
+                (args.n_past_values, args.batch_size, args.n_head, args.past_seq_len, args.d_head), dtype=np.float32
+            )
 
         # 1st inference (full pass with initial inputs)
         outputs = model_onnx.run(None, inputs)
 
         # 2nd inference (partial pass with only `new_token_id`)
-        inputs_p = {"input_ids": np.array([[new_token_id]], dtype=np.int64)}
-        for i in range(n_layers):
+        inputs_p = {"input_ids": np.array([[args.new_token_id]], dtype=np.int64)}
+        for i in range(args.n_layers):
             key = f"past_{i}"
             inputs_p[key] = outputs[i + 1]
         outputs_partial = model_onnx.run(None, inputs_p)
 
         # 3rd inference (full pass with initial inputs and `new_token_id`)
-        inputs["input_ids"] = np.expand_dims(np.append(inputs["input_ids"], new_token_id), 0)
+        inputs["input_ids"] = np.expand_dims(np.append(inputs["input_ids"], args.new_token_id), 0)
         outputs_full = model_onnx.run(None, inputs)
 
         accuracy += np.argmax(outputs_partial[0]) == np.argmax(outputs_full[0])
@@ -85,5 +75,5 @@ if __name__ == "__main__":
         print(f"Partial pass (with past key/value) sample token: {np.argmax(outputs_partial[0])}")
         print(f"Full pass (without past key/value) sample token: {np.argmax(outputs_full[0])}")
 
-    accuracy /= n_runs
+    accuracy /= args.n_runs
     print(f"Acc: {accuracy}")

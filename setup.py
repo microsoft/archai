@@ -7,16 +7,24 @@ import re
 from setuptools import find_packages, setup
 
 dependencies = [
+    "azure-ai-ml==1.5.0",
+    "azure-data-tables",
+    "azure-identity",
+    "azure-storage-blob",
+    "azureml-mlflow",
     "datasets>=2.4.0",
     "deepspeed",
     "einops",
     "flake8>=5.0.4",
     "flash-attn",
+    "fftconv @ git+https://github.com/HazyResearch/H3.git#egg=fftconv&subdirectory=csrc/fftconv",
     "gorilla>=0.4.0",
     "h5py",
     "hyperopt",
-    "kaleido",
+    "ipykernel",
+    "jupyter",
     "matplotlib",
+    "mldesigner",
     "mlflow",
     "nbimporter",
     "nbsphinx",
@@ -26,14 +34,12 @@ dependencies = [
     "opencv-python",
     "opt_einsum",
     "overrides==3.1.0",
-    "plotly",
     "psutil",
     "pytest",
     "pytorch-lightning",
     "pyyaml",
     "ray>=1.0.0",
     "scikit-learn",
-    "seaborn",
     "send2trash>=1.8.0",
     "sphinx",
     "sphinx-book-theme",
@@ -48,7 +54,7 @@ dependencies = [
     "tokenizers>=0.10.3",
     "torchvision",
     "tqdm",
-    "transformers>=4.25.1",
+    "transformers>=4.27.1",
 ]
 dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)?$)", x)[0] for x in dependencies)}
 
@@ -72,7 +78,7 @@ extras_require["cv"] = filter_dependencies(
 extras_require["nlp"] = filter_dependencies("datasets", "einops", "opt_einsum", "tokenizers", "transformers")
 
 extras_require["deepspeed"] = filter_dependencies("deepspeed", "mlflow")
-extras_require["flash-attn"] = filter_dependencies("flash-attn")
+extras_require["flash-attn"] = filter_dependencies("flash-attn", "fftconv")
 
 extras_require["docs"] = filter_dependencies(
     "nbimporter",
@@ -86,9 +92,30 @@ extras_require["docs"] = filter_dependencies(
     "sphinxcontrib-programoutput",
     "sphinxcontrib-mermaid",
 )
-extras_require["tests"] = filter_dependencies("flake8", "pytest")
+extras_require["tests"] = filter_dependencies(
+    "azure-data-tables",
+    "azure-identity",
+    "azure-storage-blob",
+    "flake8",
+    "pytest"
+)
 
-extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
+extras_require["aml"] = filter_dependencies(
+    "azure-ai-ml",
+    "azure-data-tables",
+    "azure-identity",
+    "azure-storage-blob",
+    "azureml-mlflow",
+    "ipykernel",
+    "jupyter",
+    "matplotlib",
+    "mldesigner",
+    "mlflow",
+    "pytorch-lightning",
+    "torchvision"
+)
+
+extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"] + extras_require["aml"]
 if os.name != "nt":
     # Support for DeepSpeed is not available on native Windows
     extras_require["dev"] += extras_require["deepspeed"]
@@ -96,16 +123,13 @@ if os.name != "nt":
 install_requires = filter_dependencies(
     "h5py",
     "hyperopt",
-    "kaleido",
     "matplotlib",
     "onnx",
     "onnxruntime",
     "overrides",
-    "plotly",
     "psutil",
     "pyyaml",
     "ray",
-    "seaborn",
     "send2trash",
     "statopt",
     "tensorboard",

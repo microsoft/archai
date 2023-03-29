@@ -5,11 +5,13 @@ on:
     branches:
       - main
     paths:
+      - "archai/**"
       - "docs/getting_started/notebooks/**"
   pull_request:
     branches:
       - main
     paths:
+      - "archai/**"
       - "docs/getting_started/notebooks/**"
 
 jobs:
@@ -35,7 +37,7 @@ jobs:
           sudo apt install -y graphviz
           python -m pip install --user -e .[dev]
           python -m pip install graphviz
-      - name: Tests notebooks
+      - name: Runs notebooks tests
         shell: bash -l {0}
         run: |
           pytest --nbval-lax docs/getting_started/notebooks

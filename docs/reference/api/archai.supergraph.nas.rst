@@ -64,15 +64,15 @@ Model
    :members:
    :undoc-members:
 
-Model Descriptor
-----------------
+Model Description
+-----------------
 
 .. automodule:: archai.supergraph.nas.model_desc
    :members:
    :undoc-members:
 
-Model Descriptor Builder
-------------------------
+Model Description Builder
+-------------------------
 
 .. automodule:: archai.supergraph.nas.model_desc_builder
    :members:
@@ -113,8 +113,8 @@ Searcher
    :members:
    :undoc-members:
 
-Visualizer Model Descriptor
----------------------------
+Model Description Visualizer
+----------------------------
 
 .. automodule:: archai.supergraph.nas.vis_model_desc
    :members:

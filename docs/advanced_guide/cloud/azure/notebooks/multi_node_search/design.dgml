@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="TopToBottom" Layout="Sugiyama" Offset="-1763.4366666666667,-1066.8531403590575" ZoomLevel="1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="..." Bounds="-518.718333333333,-665.833140359258,50,25.96" UseManualLocation="True" />
+    <Node Id="Aml" Bounds="-919.718328857422,-657.873040359258,145.8,25.96" Label="AmlTrainingValAccuracy" UseManualLocation="True" />
+    <Node Id="ArchaiNAS" Category="Comment" Bounds="-1071.17666666667,-717.833140359154,79.6366666666668,25.96" Label="Archai NAS" UseManualLocation="True" />
+    <Node Id="ArchaiStorageTable" Bounds="-904.718333333333,-516.833140359058,121.25,25.96" UseManualLocation="True" />
+    <Node Id="AsyncModelEvaluator" Category="Comment" Bounds="-914.176666666667,-713.833140359258,134.026666666667,25.96" UseManualLocation="True" />
+    <Node Id="CPUCluster" Category="Comment" Bounds="-1189.17662109375,-716.313199414063,80.5299999999997,25.96" Label="CPU cluster" UseManualLocation="True" />
+    <Node Id="Data_prep.py" Bounds="-1187.71833333333,-562.833140359058,88.3433333333333,25.96" Label="data_prep.py" UseManualLocation="True" />
+    <Node Id="multi_node_search.ipynb" Bounds="-1283.99999267578,-779.793240358858,148.64,25.96" Label="multi_node_search.ipynb" UseManualLocation="True" />
+    <Node Id="FullTrainingOfFinalModels" Bounds="-1288.14082967122,-500.313190358958,162.276666666667,25.96" Label="full training of final models" UseManualLocation="True" />
+    <Node Id="GPUCluster" Category="Comment" Bounds="-688.176666666667,-723.833140359058,81.3333333333335,25.96" Label="GPU cluster" UseManualLocation="True" />
+    <Node Id="Partial_training_pipeline" Bounds="-702.718333333333,-662.793240359058,151.35,25.96" Label="partial_training_pipelines" UseManualLocation="True" />
+    <Node Id="Search.py" Bounds="-1063.71837076823,-661.873040359154,69.4433333333334,25.96" Label="search.py" UseManualLocation="True" />
+    <Node Id="Search_pipeline" Bounds="-1258.71833902995,-660.353099414063,101.133333333333,25.96" Label="search_pipeline" UseManualLocation="True" />
+    <Node Id="Train.py" Bounds="-676.718341471354,-606.833140359058,59.5033333333333,25.96" Label="train.py" UseManualLocation="True" />
+    <Node Id="Train.py1" Bounds="-565.718326212565,-606.833140359058,59.5033333333333,25.96" Label="train.py" UseManualLocation="True" />
+    <Node Id="WaitForCompletion" Bounds="-1267.14082967122,-437.313190358958,123.703333333333,25.96" Label="process final results" UseManualLocation="True" />
+  </Nodes>
+  <Links>
+    <Link Source="Aml" Target="Partial_training_pipeline" Bounds="-773.918328857422,-647.917634167853,62.2022500656944,1.39254927536672" />
+    <Link Source="Aml" Target="Search.py" Bounds="-985.278381347656,-644.703002929688,65.56005859375,1.318359375" Label="accuracies" LabelBounds="-981.809591631963,-640.041477147418,54.0833333333333,15.96" />
+    <Link Source="ArchaiNAS" Target="Search.py" Bounds="-1030.81055112014,-691.873140359154,0.886584408779072,21.0081038573968" />
+    <Link Source="ArchaiStorageTable" Target="Aml" Bounds="-846.393691393653,-622.914719698937,2.04957482874704,106.08157933988" />
+    <Link Source="AsyncModelEvaluator" Target="Aml" Bounds="-847.083309207263,-687.873140359257,0.129470596075976,21.0002710380074" />
+    <Link Source="CPUCluster" Target="Search_pipeline" Bounds="-1187.86838151472,-690.353199414062,25.2159725117588,23.8198366327381" />
+    <Link Source="Data_prep.py" Target="Search.py" Bounds="-1128.53394437905,-630.026704558362,77.7163573836278,67.1935641993044" Label="data" LabelBounds="-1114.3305069763,-613.902847037874,23.3466666666664,15.96" />
+    <Link Source="multi_node_search.ipynb" Target="Search_pipeline" Bounds="-1209.5139044788,-753.833240358858,1.08099203745451,84.4808776391527" />
+    <Link Source="FullTrainingOfFinalModels" Target="WaitForCompletion" Bounds="-1206.64949527969,-474.353190358958,0.762659776137525,28.043326398826" />
+    <Link Source="GPUCluster" Target="Partial_training_pipeline" Bounds="-643.157808509953,-697.873140359058,8.90113613846631,26.5467977090409" />
+    <Link Source="Partial_training_pipeline" Target="..." Bounds="-551.368333333333,-652.077970727305,23.6523385067695,0.539289284316169" />
+    <Link Source="Partial_training_pipeline" Target="Train.py" Bounds="-639.326796186292,-636.833240359058,7.66222428658375,21.5214319302891" />
+    <Link Source="Partial_training_pipeline" Target="Train.py1" Bounds="-605.918009651622,-636.833240359058,41.1578307565197,25.288542380164" />
+    <Link Source="Search.py" Target="Aml" Bounds="-994.275024414063,-650.949890136719,65.55859375,1.37982177734375" Label="send/fetch" LabelBounds="-983.255401866511,-670.007271068904,56.3366666666666,15.96" />
+    <Link Source="Search_pipeline" Target="Data_prep.py" Bounds="-1199.55268419647,-634.393099414062,42.436496467805,64.0570394407549" />
+    <Link Source="Search_pipeline" Target="FullTrainingOfFinalModels" Bounds="-1208.05846870616,-634.393099414062,0.898145345223838,125.080141068063" />
+    <Link Source="Search_pipeline" Target="Search.py" Bounds="-1157.58500569661,-648.522110879944,84.8669588088742,0.720006633533785" />
+    <Link Source="Train.py" Target="ArchaiStorageTable" Bounds="-807.476212579973,-581.108076945811,132.594073737629,60.5370512819426" />
+    <Link Source="Train.py1" Target="ArchaiStorageTable" Bounds="-791.015597988177,-585.163045577302,225.297271775612,65.8065535533393" />
+  </Links>
+  <Categories>
+    <Category Id="Comment" Label="Comment" Description="Represents a user defined comment on the diagram" CanBeDataDriven="True" IsProviderRoot="False" NavigationActionLabel="Comments" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="CanBeDataDriven" Label="CanBeDataDriven" Description="CanBeDataDriven" DataType="System.Boolean" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="IsProviderRoot" Label="IsProviderRoot" Description="IsProviderRoot" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="LabelBounds" DataType="System.Windows.Rect" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="NavigationActionLabel" Label="NavigationActionLabel" Description="NavigationActionLabel" DataType="System.String" />
+    <Property Id="Offset" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Comment" ValueLabel="Has comment">
+      <Condition Expression="HasCategory('Comment')" />
+      <Setter Property="Background" Value="#FFFFFACD" />
+      <Setter Property="Stroke" Value="#FFE5C365" />
+      <Setter Property="StrokeThickness" Value="1" />
+      <Setter Property="NodeRadius" Value="2" />
+      <Setter Property="MaxWidth" Value="250" />
+    </Style>
+  </Styles>
+</DirectedGraph>

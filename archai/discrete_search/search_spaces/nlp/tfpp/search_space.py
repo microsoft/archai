@@ -1,15 +1,13 @@
-from typing import List, Tuple, Optional, Type, Union, Callable, Dict, Any
-
-import torch
+from typing import Union, Tuple, Optional
 import numpy as np
-
 from archai.discrete_search.search_spaces.config import (
-    ArchParamTree, ArchConfig, repeat_config, ConfigSearchSpace,
+    ArchParamTree, repeat_config, ConfigSearchSpace,
     DiscreteChoice
 )
-from archai.discrete_search.search_spaces.nlp.tfpp.modeling_codegen import CodeGenForCausalLM, CodeGenConfig
-from archai.discrete_search.search_spaces.nlp.tfpp.utils import get_attn_head_simplex
-from archai.discrete_search.search_spaces.nlp.tfpp.ops import OPS
+
+from .model import LanguageModel
+from .ops import OPS
+from .utils import get_attn_head_simplex
 
 
 def to_tuple(x: Union[Tuple[int], int]) -> Tuple[int]:
@@ -20,10 +18,10 @@ def to_tuple(x: Union[Tuple[int], int]) -> Tuple[int]:
 
 class TfppSearchSpace(ConfigSearchSpace):
     def __init__(self,
-                 hf_config: Optional[CodeGenConfig] = None,
+                 backbone: str = 'codegen',
                  embed_dims: Union[Tuple[int], int] = (768, ),
                  inner_dims: Union[Tuple[int], int] = (3072, ),
-                 total_heads: Union[Tuple[int], int] = (12, 24),
+                 total_heads: Union[Tuple[int], int] = (12,),
                  total_layers: Union[Tuple[int], int] = (8, 10, 12, 16, 18),
                  local_attn_window_sizes: Union[Tuple[int], int] = (256, ),
                  sgconv_kernel_sizes: Union[Tuple[int], int] = (256, ),
@@ -34,15 +32,18 @@ class TfppSearchSpace(ConfigSearchSpace):
                  mixed_ops: bool = True, 
                  homogeneous: bool = False,
                  seed: Optional[int] = None,
-                 **kwargs) -> None:
-        hf_config = hf_config or CodeGenConfig()
+                 disable_cache: bool = True,
+                 **hf_config_kwargs) -> None:
         op_subset = {
             op_name: op for op_name, op in OPS.items()
-            if op_name in (op_subset or list(OPS.keys()))
+            if op_name in (op_subset or list(OPS.keys())) and not op.deprecated
         }
 
+        if disable_cache:
+            hf_config_kwargs['use_cache'] = False
+
         if mixed_ops:
-            op_allocations = get_attn_head_simplex(total_heads, list(op_subset.keys()))
+            op_allocations = get_attn_head_simplex(total_heads, list(op_subset.keys()), grid_scale=2)
         else:
             op_allocations = [
                 tuple([
@@ -52,7 +53,10 @@ class TfppSearchSpace(ConfigSearchSpace):
             ]
 
         to_tuple = lambda x: (x, ) if not isinstance(x, (tuple, list)) else x
+
         arch_param_tree = ArchParamTree({
+            'backbone': backbone,
+
             'hidden_size': DiscreteChoice(to_tuple(embed_dims)),
             
             'hidden_layers': repeat_config({
@@ -61,6 +65,10 @@ class TfppSearchSpace(ConfigSearchSpace):
                 'd_inner': DiscreteChoice(to_tuple(inner_dims)),
 
                 'sgconv': {
+                    'kernel_size': DiscreteChoice(to_tuple(sgconv_kernel_sizes))
+                },
+
+                'sgconv3': {
                     'kernel_size': DiscreteChoice(to_tuple(sgconv_kernel_sizes))
                 },
 
@@ -80,9 +88,8 @@ class TfppSearchSpace(ConfigSearchSpace):
         })
 
         super().__init__(
-            CodeGenForCausalLM,
+            LanguageModel,
             arch_param_tree,
-            model_kwargs={'hf_config': hf_config},
+            model_kwargs=(hf_config_kwargs or {}),
             seed=seed,
-            **kwargs
         )
