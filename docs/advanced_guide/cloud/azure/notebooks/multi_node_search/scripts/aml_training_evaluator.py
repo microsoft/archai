@@ -50,7 +50,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         self.store = ArchaiStore(storage_account_name, storage_account_key)
 
     @overrides
-    def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
+    def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
         self.models += [arch.arch.get_archid()]
 
     @overrides
