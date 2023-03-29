@@ -33,3 +33,7 @@ a.navbar-brand > img {
 .tab-content {
     width: 100% !important;
 }
+
+div.output_area.rendered_html.docutils.container > div > table {
+    width: auto !important;
+}
