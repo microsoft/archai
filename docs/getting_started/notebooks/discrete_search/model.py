@@ -1,5 +1,6 @@
 from torch import nn
 
+
 class MyModel(nn.Module):
     def __init__(self, nb_layers: int = 5, kernel_size: int = 3, hidden_dim: int = 32):
         super().__init__()
