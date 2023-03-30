@@ -41,6 +41,7 @@ dependencies = [
     "ray>=1.0.0",
     "scikit-learn",
     "send2trash>=1.8.0",
+    "pydata-sphinx-theme==0.13.3",
     "sphinx",
     "sphinx-book-theme",
     "sphinx-git",
