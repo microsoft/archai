@@ -416,7 +416,6 @@ document.write(`
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 
-<span class="kn">from</span> <span class="nn">archai.api.dataset_provider</span> <span class="kn">import</span> <span class="n">DatasetProvider</span>
 <span class="kn">from</span> <span class="nn">archai.common.timing</span> <span class="kn">import</span> <span class="n">MeasureBlockTime</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.archai_model</span> <span class="kn">import</span> <span class="n">ArchaiModel</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.model_evaluator</span> <span class="kn">import</span> <span class="n">ModelEvaluator</span>
@@ -471,7 +470,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
 
 <div class="viewcode-block" id="AvgOnnxLatency.evaluate"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.onnx_model.AvgOnnxLatency.evaluate">[docs]</a>    <span class="nd">@overrides</span>
-    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
 
         <span class="c1"># Exports model to ONNX</span>
@@ -542,7 +541,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

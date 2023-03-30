@@ -447,7 +447,6 @@ document.write(`
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">search_space</span><span class="p">:</span> <span class="n">BayesOptSearchSpace</span><span class="p">,</span>
         <span class="n">search_objectives</span><span class="p">:</span> <span class="n">SearchObjectives</span><span class="p">,</span>
-        <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">surrogate_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Predictor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_iters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -466,7 +465,6 @@ document.write(`
 <span class="sd">            search_objectives: Search objectives. Expensive objectives (registered with</span>
 <span class="sd">                `compute_intensive=True`) will be estimated using a surrogate model during</span>
 <span class="sd">                certain parts of the search. Cheap objectives will be always evaluated directly.</span>
-<span class="sd">            dataset_provider: Dataset provider.</span>
 <span class="sd">            output_dir: Output directory.</span>
 <span class="sd">            surrogate_model: Surrogate model. If `None`, a `PredictiveDNNEnsemble` will be used.</span>
 <span class="sd">            num_iters: Number of iterations.</span>
@@ -493,7 +491,6 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span> <span class="o">=</span> <span class="n">search_space</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">dataset_provider</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">surrogate_model</span> <span class="o">=</span> <span class="n">surrogate_model</span>
 
         <span class="c1"># Objectives</span>
@@ -530,7 +527,7 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">encoded_archs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">all_pop</span><span class="p">])</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">all_evaluated_objs</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">exp_objs</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">all_evaluated_objs</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">expensive_objectives</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
 
         <span class="k">return</span> <span class="n">encoded_archs</span><span class="p">,</span> <span class="n">target</span></div>
 
@@ -551,7 +548,7 @@ document.write(`
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_sample</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_models</span> <span class="ow">and</span> <span class="n">nb_tries</span> <span class="o">&lt;</span> <span class="n">patience</span><span class="p">:</span>
             <span class="n">sample</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_models</span><span class="p">)]</span>
 
-            <span class="n">_</span><span class="p">,</span> <span class="n">valid_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">validate_constraints</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">valid_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">validate_constraints</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
             <span class="n">valid_sample</span> <span class="o">+=</span> <span class="p">[</span><span class="n">sample</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">valid_indices</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">valid_sample</span><span class="p">[:</span><span class="n">num_models</span><span class="p">]</span></div>
@@ -581,7 +578,7 @@ document.write(`
                 <span class="n">mutated_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
                 <span class="n">mutated_model</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;parent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">archid</span>
 
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">is_model_valid</span><span class="p">(</span><span class="n">mutated_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">is_model_valid</span><span class="p">(</span><span class="n">mutated_model</span><span class="p">):</span>
                     <span class="k">continue</span>
 
                 <span class="k">if</span> <span class="n">mutated_model</span><span class="o">.</span><span class="n">archid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">seen_archs</span><span class="p">:</span>
@@ -612,7 +609,7 @@ document.write(`
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">obj_name</span><span class="p">:</span> <span class="n">MeanVar</span><span class="p">(</span><span class="n">pred_results</span><span class="o">.</span><span class="n">mean</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">pred_results</span><span class="o">.</span><span class="n">var</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">exp_objs</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">expensive_objectives</span><span class="p">)</span>
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="MoBananasSearch.thompson_sampling"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.algos.html#archai.discrete_search.algos.bananas.MoBananasSearch.thompson_sampling">[docs]</a>    <span class="k">def</span> <span class="nf">thompson_sampling</span><span class="p">(</span>
@@ -665,7 +662,7 @@ document.write(`
             <span class="n">all_pop</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluating objectives for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span><span class="si">}</span><span class="s2"> architectures ...&quot;</span><span class="p">)</span>
-            <span class="n">iter_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">eval_all_objs</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">)</span>
+            <span class="n">iter_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">eval_all_objs</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">seen_archs</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">archid</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">unseen_pop</span><span class="p">])</span>
 
@@ -703,11 +700,11 @@ document.write(`
 
             <span class="c1"># Predicts expensive objectives using surrogate model</span>
             <span class="c1"># and calculates cheap objectives for mutated architectures</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predicting </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">exp_objs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2"> for new architectures using surrogate model ...&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predicting </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">expensive_objective_names</span><span class="si">}</span><span class="s2"> for new architectures using surrogate model ...&quot;</span><span class="p">)</span>
             <span class="n">pred_expensive_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_expensive_objectives</span><span class="p">(</span><span class="n">mutated</span><span class="p">)</span>
 
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating cheap objectives </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">cheap_objs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2"> for new architectures ...&quot;</span><span class="p">)</span>
-            <span class="n">cheap_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">eval_cheap_objs</span><span class="p">(</span><span class="n">mutated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating cheap objectives </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">cheap_objective_names</span><span class="si">}</span><span class="s2"> for new architectures ...&quot;</span><span class="p">)</span>
+            <span class="n">cheap_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">eval_cheap_objs</span><span class="p">(</span><span class="n">mutated</span><span class="p">)</span>
 
             <span class="c1"># Selects `num_candidates`-archtiectures for next iteration using Thompson Sampling</span>
             <span class="n">selected_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">thompson_sampling</span><span class="p">(</span><span class="n">mutated</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_candidates</span><span class="p">,</span> <span class="n">pred_expensive_objs</span><span class="p">,</span> <span class="n">cheap_objs</span><span class="p">)</span>
@@ -764,7 +761,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

@@ -416,7 +416,6 @@ document.write(`
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">archai.api.dataset_provider</span> <span class="kn">import</span> <span class="n">DatasetProvider</span>
 <span class="kn">from</span> <span class="nn">archai.common.ordered_dict_logger</span> <span class="kn">import</span> <span class="n">OrderedDictLogger</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.archai_model</span> <span class="kn">import</span> <span class="n">ArchaiModel</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.search_objectives</span> <span class="kn">import</span> <span class="n">SearchObjectives</span>
@@ -432,7 +431,6 @@ document.write(`
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">search_space</span><span class="p">:</span> <span class="n">EvolutionarySearchSpace</span><span class="p">,</span>
         <span class="n">search_objectives</span><span class="p">:</span> <span class="n">SearchObjectives</span><span class="p">,</span>
-        <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">num_iters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">init_num_models</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -448,7 +446,6 @@ document.write(`
 <span class="sd">        Args:</span>
 <span class="sd">            search_space (EvolutionarySearchSpace): Discrete search space compatible with evolutionary algorithms</span>
 <span class="sd">            search_objectives (SearchObjectives): Search objectives</span>
-<span class="sd">            dataset_provider (DatasetProvider): Dataset provider used to evaluate models</span>
 <span class="sd">            output_dir (str): Output directory</span>
 <span class="sd">            num_iters (int, optional): Number of search iterations. Defaults to 10.</span>
 <span class="sd">            init_num_models (int, optional): Number of initial models. Defaults to 10.</span>
@@ -467,7 +464,6 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span> <span class="o">=</span> <span class="n">search_space</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">so</span> <span class="o">=</span> <span class="n">search_objectives</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span> <span class="o">=</span> <span class="n">dataset_provider</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -506,7 +502,7 @@ document.write(`
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_sample</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">num_models</span> <span class="ow">and</span> <span class="n">nb_tries</span> <span class="o">&lt;</span> <span class="n">patience</span><span class="p">:</span>
             <span class="n">sample</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_models</span><span class="p">)]</span>
 
-            <span class="n">_</span><span class="p">,</span> <span class="n">valid_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">validate_constraints</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">valid_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">validate_constraints</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
             <span class="n">valid_sample</span> <span class="o">+=</span> <span class="p">[</span><span class="n">sample</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">valid_indices</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="n">valid_sample</span><span class="p">[:</span><span class="n">num_models</span><span class="p">]</span></div>
@@ -536,7 +532,7 @@ document.write(`
                 <span class="n">mutated_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
                 <span class="n">mutated_model</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;parent&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">archid</span>
 
-                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">is_model_valid</span><span class="p">(</span><span class="n">mutated_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">is_model_valid</span><span class="p">(</span><span class="n">mutated_model</span><span class="p">):</span>
                     <span class="k">continue</span>
 
                 <span class="k">if</span> <span class="n">mutated_model</span><span class="o">.</span><span class="n">archid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">seen_archs</span><span class="p">:</span>
@@ -569,9 +565,9 @@ document.write(`
                 <span class="k">break</span>
 
             <span class="c1"># Calculates objectives</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating search objectives </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">objs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span><span class="si">}</span><span class="s2"> models ...&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating search objectives </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">objective_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span><span class="si">}</span><span class="s2"> models ...&quot;</span><span class="p">)</span>
 
-            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">eval_all_objs</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">so</span><span class="o">.</span><span class="n">eval_all_objs</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">search_state</span><span class="o">.</span><span class="n">add_iteration_results</span><span class="p">(</span>
                 <span class="n">unseen_pop</span><span class="p">,</span>
                 <span class="n">results</span><span class="p">,</span>
@@ -657,7 +653,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

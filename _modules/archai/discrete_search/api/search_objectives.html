@@ -415,12 +415,27 @@ document.write(`
 <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">archai.api.dataset_provider</span> <span class="kn">import</span> <span class="n">DatasetProvider</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.archai_model</span> <span class="kn">import</span> <span class="n">ArchaiModel</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.model_evaluator</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AsyncModelEvaluator</span><span class="p">,</span>
     <span class="n">ModelEvaluator</span><span class="p">,</span>
 <span class="p">)</span>
+
+
+<div class="viewcode-block" id="SearchConstraint"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchConstraint">[docs]</a><span class="k">class</span> <span class="nc">SearchConstraint</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">,</span> <span class="n">constraint</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluator</span> <span class="o">=</span> <span class="n">evaluator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span> <span class="o">=</span> <span class="n">constraint</span></div>
+
+
+<div class="viewcode-block" id="SearchObjective"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjective">[docs]</a><span class="k">class</span> <span class="nc">SearchObjective</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">model_evaluator</span><span class="p">,</span> <span class="n">higher_is_better</span><span class="p">,</span> <span class="n">compute_intensive</span><span class="p">,</span> <span class="n">constraint</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluator</span> <span class="o">=</span> <span class="n">model_evaluator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">higher_is_better</span> <span class="o">=</span> <span class="n">higher_is_better</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_intensive</span> <span class="o">=</span> <span class="n">compute_intensive</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraint</span> <span class="o">=</span> <span class="n">constraint</span></div>
 
 
 <div class="viewcode-block" id="SearchObjectives"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives">[docs]</a><span class="k">class</span> <span class="nc">SearchObjectives</span><span class="p">:</span>
@@ -437,30 +452,53 @@ document.write(`
 
 <span class="sd">        Args:</span>
 <span class="sd">            cache_objective_evaluation: If `True`, objective evaluations are cached using the</span>
-<span class="sd">                tuple `(obj_name, archid, dataset_provider_name, budget)` as key.</span>
+<span class="sd">                tuple `(obj_name, archid, budget)` as key.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">cache_objective_evaluation</span> <span class="o">=</span> <span class="n">cache_objective_evaluation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache_objective_evaluation</span> <span class="o">=</span> <span class="n">cache_objective_evaluation</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">cheap_objs</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exp_objs</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">extra_constraints</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extra_constraints</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="c1"># Cache key: (obj_name, archid, dataset provider name, budget)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Cache key: (obj_name, archid, budget)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">objs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">objective_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of all objective names.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_objs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cheap_objective_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of cheap objective names.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cheap_objectives</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">expensive_objective_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a list of expensive objective names.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expensive_objectives</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">objectives</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SearchObjective</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dictionary of all objectives.&quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cheap_objs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">exp_objs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objs</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">objs_and_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dictionary of all objectives and constraints.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">cheap_objectives</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SearchObjective</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dictionary of cheap objectives.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_objs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_objs</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">compute_intensive</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_constraints</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">expensive_objectives</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SearchObjective</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dictionary of expensive objectives.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_objs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_objs</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">compute_intensive</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SearchConstraint</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dictionary of all the constraints.&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_constraints</span>
 
 <div class="viewcode-block" id="SearchObjectives.add_objective"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.add_objective">[docs]</a>    <span class="k">def</span> <span class="nf">add_objective</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -485,17 +523,15 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_evaluator</span><span class="p">,</span> <span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">,</span> <span class="n">AsyncModelEvaluator</span><span class="p">))</span>
-        <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">objs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">extra_constraints</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;There is already an objective or constraint named </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;There is already an objective </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_constraints</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;There is already an constraint named </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
 
-        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;evaluator&quot;</span><span class="p">:</span> <span class="n">model_evaluator</span><span class="p">,</span> <span class="s2">&quot;higher_is_better&quot;</span><span class="p">:</span> <span class="n">higher_is_better</span><span class="p">,</span> <span class="s2">&quot;constraint&quot;</span><span class="p">:</span> <span class="n">constraint</span><span class="p">}</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">SearchObjective</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_evaluator</span><span class="p">,</span> <span class="n">higher_is_better</span><span class="p">,</span> <span class="n">compute_intensive</span><span class="p">,</span> <span class="n">constraint</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">compute_intensive</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">constraint</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Constraints can only be set for cheap objectives (compute_intensive=False).&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exp_objs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cheap_objs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span></div>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj</span></div>
 
 <div class="viewcode-block" id="SearchObjectives.add_constraint"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.add_constraint">[docs]</a>    <span class="k">def</span> <span class="nf">add_constraint</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_evaluator</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ModelEvaluator</span><span class="p">,</span> <span class="n">AsyncModelEvaluator</span><span class="p">],</span> <span class="n">constraint</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
@@ -514,23 +550,18 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_evaluator</span><span class="p">,</span> <span class="p">(</span><span class="n">ModelEvaluator</span><span class="p">,</span> <span class="n">AsyncModelEvaluator</span><span class="p">))</span>
-        <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">extra_constraints</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">objs</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;There is already an objective or constraint named </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objs</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;There is already an objective </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extra_constraints</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;There is already an constraint named </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">extra_constraints</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;evaluator&quot;</span><span class="p">:</span> <span class="n">model_evaluator</span><span class="p">,</span>
-            <span class="s2">&quot;constraint&quot;</span><span class="p">:</span> <span class="n">constraint</span><span class="p">,</span>
-        <span class="p">}</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extra_constraints</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">SearchConstraint</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">model_evaluator</span><span class="p">,</span> <span class="n">constraint</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">_filter_objs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">query_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">obj_name</span><span class="p">:</span> <span class="n">obj_dict</span> <span class="k">for</span> <span class="n">obj_name</span><span class="p">,</span> <span class="n">obj_dict</span> <span class="ow">in</span> <span class="n">objs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">query_fn</span><span class="p">(</span><span class="n">obj_dict</span><span class="p">[</span><span class="n">field_name</span><span class="p">])}</span>
+    <span class="k">def</span> <span class="nf">_filter_objs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">objs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span> <span class="n">query_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">obj_name</span><span class="p">:</span> <span class="n">obj_dict</span> <span class="k">for</span> <span class="n">obj_name</span><span class="p">,</span> <span class="n">obj_dict</span> <span class="ow">in</span> <span class="n">objs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">query_fn</span><span class="p">(</span><span class="n">obj_dict</span><span class="p">)}</span>
 
     <span class="k">def</span> <span class="nf">_eval_objs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">objs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span>
         <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">],</span>
-        <span class="n">dataset_providers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProvider</span><span class="p">]],</span>
         <span class="n">budgets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">progress_bar</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
@@ -541,21 +572,15 @@ document.write(`
         <span class="n">budgets</span> <span class="o">=</span> <span class="n">budgets</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="n">budgets</span> <span class="o">=</span> <span class="p">{</span><span class="n">obj_name</span><span class="p">:</span> <span class="n">budgets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj_name</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">))</span> <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">}</span>
 
-        <span class="c1"># Casts dataset_providers to a list if necessary</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset_providers</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="n">dataset_providers</span> <span class="o">=</span> <span class="p">[</span><span class="n">dataset_providers</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
-
         <span class="c1"># Splits `objs` in sync and async</span>
-        <span class="n">sync_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_objs</span><span class="p">(</span><span class="n">objs</span><span class="p">,</span> <span class="s2">&quot;evaluator&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ModelEvaluator</span><span class="p">))</span>
-        <span class="n">async_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_objs</span><span class="p">(</span><span class="n">objs</span><span class="p">,</span> <span class="s2">&quot;evaluator&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">AsyncModelEvaluator</span><span class="p">))</span>
-
-        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset_providers</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">budgets</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">sync_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_objs</span><span class="p">(</span><span class="n">objs</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">evaluator</span><span class="p">,</span> <span class="n">ModelEvaluator</span><span class="p">))</span>
+        <span class="n">async_objs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_objs</span><span class="p">(</span><span class="n">objs</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">evaluator</span><span class="p">,</span> <span class="n">AsyncModelEvaluator</span><span class="p">))</span>
 
         <span class="c1"># Initializes evaluation results with cached results</span>
         <span class="n">eval_results</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">obj_name</span><span class="p">:</span> <span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">obj_name</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">archid</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">budget</span><span class="p">))</span>
-                <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">budget</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">dataset_providers</span><span class="p">,</span> <span class="n">budgets</span><span class="p">[</span><span class="n">obj_name</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">obj_name</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">archid</span><span class="p">,</span> <span class="n">budget</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">budget</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">budgets</span><span class="p">[</span><span class="n">obj_name</span><span class="p">])</span>
             <span class="p">]</span>
             <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="n">objs</span>
         <span class="p">}</span>
@@ -575,7 +600,7 @@ document.write(`
             <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pbar</span><span class="p">:</span>
-                <span class="n">obj_d</span><span class="p">[</span><span class="s2">&quot;evaluator&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dataset_providers</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">budgets</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">obj_d</span><span class="o">.</span><span class="n">evaluator</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">models</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">budgets</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
 
         <span class="c1"># Calculates synchronous objectives in order</span>
         <span class="k">for</span> <span class="n">obj_name</span><span class="p">,</span> <span class="n">obj_d</span> <span class="ow">in</span> <span class="n">sync_objs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -586,8 +611,8 @@ document.write(`
             <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pbar</span><span class="p">:</span>
-                <span class="n">eval_results</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj_d</span><span class="p">[</span><span class="s2">&quot;evaluator&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
-                    <span class="n">models</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dataset_providers</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">budgets</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">eval_results</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">obj_d</span><span class="o">.</span><span class="n">evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+                    <span class="n">models</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">budgets</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
                 <span class="p">)</span>
 
         <span class="c1"># Gets results from async objectives</span>
@@ -598,7 +623,7 @@ document.write(`
         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">obj_name</span><span class="p">,</span> <span class="n">obj_d</span> <span class="ow">in</span> <span class="n">pbar</span><span class="p">:</span>
-            <span class="n">results</span> <span class="o">=</span> <span class="n">obj_d</span><span class="p">[</span><span class="s2">&quot;evaluator&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fetch_all</span><span class="p">()</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">obj_d</span><span class="o">.</span><span class="n">evaluator</span><span class="o">.</span><span class="n">fetch_all</span><span class="p">()</span>
 
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">eval_indices</span><span class="p">[</span><span class="n">obj_name</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">),</span> <span class="s2">&quot;Received a different amount of results than expected.&quot;</span>
 
@@ -606,17 +631,16 @@ document.write(`
                 <span class="n">eval_results</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="n">eval_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">result_i</span><span class="p">]</span>
 
         <span class="c1"># Updates cache</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_objective_evaluation</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache_objective_evaluation</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">eval_indices</span><span class="p">[</span><span class="n">obj_name</span><span class="p">]:</span>
                     <span class="n">cache_tuple</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">obj_name</span><span class="p">,</span>
                         <span class="n">models</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">archid</span><span class="p">,</span>
-                        <span class="n">dataset_providers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                         <span class="n">budgets</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
                     <span class="p">)</span>
 
-                    <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">cache_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="n">eval_results</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">cache_tuple</span><span class="p">]</span> <span class="o">=</span> <span class="n">eval_results</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">eval_results</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">1</span>
 
@@ -633,8 +657,8 @@ document.write(`
 
         <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="p">(</span><span class="n">obj_r</span> <span class="o">&gt;=</span> <span class="n">objs_or_constraints</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="s2">&quot;constraint&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-                <span class="o">&amp;</span> <span class="p">(</span><span class="n">obj_r</span> <span class="o">&lt;=</span> <span class="n">objs_or_constraints</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="s2">&quot;constraint&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                <span class="p">(</span><span class="n">obj_r</span> <span class="o">&gt;=</span> <span class="n">objs_or_constraints</span><span class="p">[</span><span class="n">obj_name</span><span class="p">]</span><span class="o">.</span><span class="n">constraint</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">obj_r</span> <span class="o">&lt;=</span> <span class="n">objs_or_constraints</span><span class="p">[</span><span class="n">obj_name</span><span class="p">]</span><span class="o">.</span><span class="n">constraint</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                 <span class="k">for</span> <span class="n">obj_name</span><span class="p">,</span> <span class="n">obj_r</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
             <span class="p">]</span>
         <span class="p">)</span>
@@ -644,7 +668,6 @@ document.write(`
 <div class="viewcode-block" id="SearchObjectives.validate_constraints"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.validate_constraints">[docs]</a>    <span class="k">def</span> <span class="nf">validate_constraints</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">],</span>
-        <span class="n">dataset_providers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProvider</span><span class="p">]],</span>
         <span class="n">progress_bar</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate constraints for a list of models and returns the indices of models that</span>
@@ -652,7 +675,6 @@ document.write(`
 
 <span class="sd">        Args:</span>
 <span class="sd">            models: List of models to evaluate.</span>
-<span class="sd">            dataset_providers: Dataset provider or list of dataset providers.</span>
 <span class="sd">            progress_bar: Whether to show progress bar.</span>
 
 <span class="sd">        Returns:</span>
@@ -660,45 +682,42 @@ document.write(`
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># Gets all constraints from cheap_objectives and extra_constraints</span>
+        <span class="c1"># Gets all constraints from cheap_objectives that have constraints and extra_constraints</span>
         <span class="n">constraints</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">extra_constraints</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_objs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cheap_objs</span><span class="p">,</span> <span class="s2">&quot;constraint&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_extra_constraints</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_filter_objs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cheap_objectives</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">constraint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">constraints</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{},</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">))</span>
 
-        <span class="n">eval_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_objs</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">dataset_providers</span><span class="p">,</span> <span class="n">budgets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_bar</span><span class="o">=</span><span class="n">progress_bar</span><span class="p">)</span>
+        <span class="n">eval_results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_objs</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">budgets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_bar</span><span class="o">=</span><span class="n">progress_bar</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">eval_results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_valid_arch_indices</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">eval_results</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SearchObjectives.is_model_valid"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.is_model_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_model_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="SearchObjectives.is_model_valid"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.is_model_valid">[docs]</a>    <span class="k">def</span> <span class="nf">is_model_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if a model satisfies all constraints.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model: Model to check.</span>
-<span class="sd">            dataset_provider: Dataset provider.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            `True` if model is valid, `False` otherwise.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">_</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_constraints</span><span class="p">([</span><span class="n">model</span><span class="p">],</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_constraints</span><span class="p">([</span><span class="n">model</span><span class="p">],</span> <span class="n">progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
 <div class="viewcode-block" id="SearchObjectives.eval_cheap_objs"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.eval_cheap_objs">[docs]</a>    <span class="k">def</span> <span class="nf">eval_cheap_objs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">],</span>
-        <span class="n">dataset_providers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProvider</span><span class="p">]],</span>
         <span class="n">budgets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">progress_bar</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate all cheap objectives for a list of models and dataset provider(s).</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate all cheap objectives for a list of models.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            models: List of models to evaluate.</span>
-<span class="sd">            dataset_providers: Dataset provider or list of dataset providers.</span>
 <span class="sd">            budgets: Budgets for each objective.</span>
 <span class="sd">            progress_bar: Whether to show progress bar.</span>
 
@@ -706,22 +725,18 @@ document.write(`
 <span class="sd">            Dictionary with evaluation results.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_objs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cheap_objs</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">dataset_providers</span><span class="p">,</span> <span class="n">budgets</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_objs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cheap_objectives</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">budgets</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SearchObjectives.eval_expensive_objs"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.eval_expensive_objs">[docs]</a>    <span class="k">def</span> <span class="nf">eval_expensive_objs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">],</span>
-        <span class="n">dataset_providers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProvider</span><span class="p">]],</span>
         <span class="n">budgets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">progress_bar</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate all expensive objective functions for a list of models and</span>
-<span class="sd">        dataset provider(s).</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate all expensive objective functions for a list of models.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            models: List of models to evaluate.</span>
-<span class="sd">            dataset_providers: Dataset provider or list of dataset providers.</span>
 <span class="sd">            budgets: Budgets for each objective.</span>
 <span class="sd">            progress_bar: Whether to show progress bar. Defaults to False.</span>
 
@@ -730,20 +745,18 @@ document.write(`
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_objs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exp_objs</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">dataset_providers</span><span class="p">,</span> <span class="n">budgets</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_objs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expensive_objectives</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">budgets</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SearchObjectives.eval_all_objs"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.eval_all_objs">[docs]</a>    <span class="k">def</span> <span class="nf">eval_all_objs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArchaiModel</span><span class="p">],</span>
-        <span class="n">dataset_providers</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProvider</span><span class="p">]],</span>
         <span class="n">budgets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">progress_bar</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate all objective functions for a list of models and dataset provider(s).</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate all objective functions for a list of models.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            models: List of models to evaluate.</span>
-<span class="sd">            dataset_providers: Dataset provider or list of dataset providers.</span>
 <span class="sd">            budgets: Budgets for each objective.</span>
 <span class="sd">            progress_bar: Whether to show progress bar.</span>
 
@@ -752,7 +765,7 @@ document.write(`
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_objs</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exp_objs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">cheap_objs</span><span class="p">),</span> <span class="n">models</span><span class="p">,</span> <span class="n">dataset_providers</span><span class="p">,</span> <span class="n">budgets</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_objs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_objs</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">budgets</span><span class="p">,</span> <span class="n">progress_bar</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SearchObjectives.save_cache"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.save_cache">[docs]</a>    <span class="k">def</span> <span class="nf">save_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the state of the `SearchObjectives` object to a YAML file.</span>
@@ -763,7 +776,7 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+            <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="SearchObjectives.load_cache"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.load_cache">[docs]</a>    <span class="k">def</span> <span class="nf">load_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load the state of the `SearchObjectives` object from a YAML file.</span>
@@ -774,7 +787,22 @@ document.write(`
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SearchObjectives.lookup_cache"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_objectives.SearchObjectives.lookup_cache">[docs]</a>    <span class="k">def</span> <span class="nf">lookup_cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">arch_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up the cache for a specific objective, architecture and budget.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            obj_name: Name of objective.</span>
+<span class="sd">            arch_id: Architecture ID.</span>
+<span class="sd">            budget: Budget.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Evaluation result if found in cache, `None` otherwise.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">obj_name</span><span class="p">,</span> <span class="n">arch_id</span><span class="p">,</span> <span class="n">budget</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span></div></div>
 </pre></div>
 
                 </article>
@@ -819,7 +847,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

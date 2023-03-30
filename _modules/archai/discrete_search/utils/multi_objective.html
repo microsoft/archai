@@ -432,12 +432,12 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">obj_name</span> <span class="ow">in</span> <span class="n">objectives</span><span class="o">.</span><span class="n">objs</span> <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="n">evaluation_results</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">obj_name</span> <span class="ow">in</span> <span class="n">objectives</span><span class="o">.</span><span class="n">objectives</span> <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="n">evaluation_results</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">evaluation_results</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="c1"># Inverts maximization objectives</span>
     <span class="n">inverted_results</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">obj_name</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="n">obj_r</span> <span class="k">if</span> <span class="n">objectives</span><span class="o">.</span><span class="n">objs</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="s2">&quot;higher_is_better&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">obj_r</span><span class="p">)</span>
+        <span class="n">obj_name</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="n">obj_r</span> <span class="k">if</span> <span class="n">objectives</span><span class="o">.</span><span class="n">objectives</span><span class="p">[</span><span class="n">obj_name</span><span class="p">]</span><span class="o">.</span><span class="n">higher_is_better</span> <span class="k">else</span> <span class="n">obj_r</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">obj_name</span><span class="p">,</span> <span class="n">obj_r</span> <span class="ow">in</span> <span class="n">evaluation_results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">}</span>
 
@@ -470,12 +470,12 @@ document.write(`
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">obj_name</span> <span class="ow">in</span> <span class="n">objectives</span><span class="o">.</span><span class="n">objs</span> <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="n">evaluation_results</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">obj_name</span> <span class="ow">in</span> <span class="n">objectives</span><span class="o">.</span><span class="n">objectives</span> <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="n">evaluation_results</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">evaluation_results</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="c1"># Inverts maximization objectives</span>
     <span class="n">inverted_results</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">obj_name</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="n">obj_r</span> <span class="k">if</span> <span class="n">objectives</span><span class="o">.</span><span class="n">objs</span><span class="p">[</span><span class="n">obj_name</span><span class="p">][</span><span class="s2">&quot;higher_is_better&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">obj_r</span><span class="p">)</span>
+        <span class="n">obj_name</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="n">obj_r</span> <span class="k">if</span> <span class="n">objectives</span><span class="o">.</span><span class="n">objectives</span><span class="p">[</span><span class="n">obj_name</span><span class="p">]</span><span class="o">.</span><span class="n">higher_is_better</span> <span class="k">else</span> <span class="n">obj_r</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">obj_name</span><span class="p">,</span> <span class="n">obj_r</span> <span class="ow">in</span> <span class="n">evaluation_results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">}</span>
 
@@ -675,7 +675,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

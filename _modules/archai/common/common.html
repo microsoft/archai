@@ -444,7 +444,7 @@ document.write(`
 <div class="viewcode-block" id="get_conf"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.common.get_conf">[docs]</a><span class="k">def</span> <span class="nf">get_conf</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Config</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">conf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">conf</span>
-    <span class="k">return</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_global_instance</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_inst</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="get_conf_common"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.common.get_conf_common">[docs]</a><span class="k">def</span> <span class="nf">get_conf_common</span><span class="p">(</span><span class="n">conf</span><span class="p">:</span><span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">Config</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">get_conf</span><span class="p">(</span><span class="n">conf</span><span class="p">)[</span><span class="s1">&#39;common&#39;</span><span class="p">]</span></div>
@@ -511,7 +511,7 @@ document.write(`
 <div class="viewcode-block" id="init_from"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.common.init_from">[docs]</a><span class="k">def</span> <span class="nf">init_from</span><span class="p">(</span><span class="n">state</span><span class="p">:</span><span class="n">CommonState</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
     <span class="k">global</span> <span class="n">_tb_writer</span>
 
-    <span class="n">Config</span><span class="o">.</span><span class="n">set_global_instance</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">Config</span><span class="o">.</span><span class="n">set_inst</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">conf</span><span class="p">)</span>
 
     <span class="n">_tb_writer</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">tb_writer</span></div>
 
@@ -548,7 +548,7 @@ document.write(`
 
     <span class="c1"># setup global instance</span>
     <span class="n">conf</span> <span class="o">=</span> <span class="n">create_conf</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">,</span> <span class="n">param_args</span><span class="p">,</span> <span class="n">use_args</span><span class="p">)</span>
-    <span class="n">Config</span><span class="o">.</span><span class="n">set_global_instance</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
+    <span class="n">Config</span><span class="o">.</span><span class="n">set_inst</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
 
     <span class="c1"># setup env vars which might be used in paths</span>
     <span class="n">update_envvars</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
@@ -739,7 +739,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

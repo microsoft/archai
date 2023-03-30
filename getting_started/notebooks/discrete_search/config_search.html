@@ -526,7 +526,7 @@ torch.Size([2, 32, 16, 16])
 </pre></div>
 </div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code> are used to generate <code class="docutils literal notranslate"><span class="pre">ArchConfig</span></code> objects, that specify the choosen architecture configuration. We can sample a configuration using <code class="docutils literal notranslate"><span class="pre">arch_param_tree.sample_config()</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code> are used to generate <code class="docutils literal notranslate"><span class="pre">ArchConfig</span></code> objects, that specify the chosen architecture configuration. We can sample a configuration using <code class="docutils literal notranslate"><span class="pre">arch_param_tree.sample_config()</span></code></p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -564,7 +564,7 @@ ArchConfig({
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-7
+3
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -581,7 +581,7 @@ ArchConfig({
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-16
+8
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -649,36 +649,36 @@ OrderedDict([(&#39;conv_kernel_size&#39;, 7), (&#39;num_ch&#39;, 16), (&#39;num_
 <div class="highlight"><pre>
 MyModel(
   (stem_conv): Sequential(
-    (0): Conv2d(3, 16, kernel_size=(3, 3), stride=(4, 4), padding=(1, 1))
-    (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (0): Conv2d(3, 8, kernel_size=(3, 3), stride=(4, 4), padding=(1, 1))
+    (1): BatchNorm2d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
     (2): ReLU()
   )
   (layers): Sequential(
     (0): MyConvBlock(
       (op): Sequential(
-        (0): Conv2d(16, 16, kernel_size=(7, 7), stride=(1, 1), padding=same)
-        (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (0): Conv2d(8, 8, kernel_size=(3, 3), stride=(1, 1), padding=same)
+        (1): BatchNorm2d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         (2): ReLU()
       )
     )
     (1): MyConvBlock(
       (op): Sequential(
-        (0): Conv2d(16, 16, kernel_size=(7, 7), stride=(1, 1), padding=same)
-        (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (0): Conv2d(8, 8, kernel_size=(3, 3), stride=(1, 1), padding=same)
+        (1): BatchNorm2d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         (2): ReLU()
       )
     )
     (2): MyConvBlock(
       (op): Sequential(
-        (0): Conv2d(16, 16, kernel_size=(7, 7), stride=(1, 1), padding=same)
-        (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (0): Conv2d(8, 8, kernel_size=(3, 3), stride=(1, 1), padding=same)
+        (1): BatchNorm2d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         (2): ReLU()
       )
     )
     (3): MyConvBlock(
       (op): Sequential(
-        (0): Conv2d(16, 16, kernel_size=(7, 7), stride=(1, 1), padding=same)
-        (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (0): Conv2d(8, 8, kernel_size=(3, 3), stride=(1, 1), padding=same)
+        (1): BatchNorm2d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
         (2): ReLU()
       )
     )
@@ -801,7 +801,7 @@ cc3aba2e903b62619035a871ff3bcdc65dc151de
 <div class="highlight"><pre>
 ArchConfig({
     &#34;stem_config&#34;: {
-        &#34;kernel_size&#34;: 5
+        &#34;kernel_size&#34;: 3
     },
     &#34;conv_kernel_size&#34;: 3,
     &#34;num_ch&#34;: 8
@@ -824,7 +824,7 @@ ArchConfig({
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 ArchConfig({
-    &#34;kernel_size&#34;: 5
+    &#34;kernel_size&#34;: 3
 })
 </pre></div></div>
 </div>
@@ -842,7 +842,7 @@ ArchConfig({
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-5
+3
 </pre></div></div>
 </div>
 </section>
@@ -885,7 +885,7 @@ ArchConfig({
 <div class="highlight"><pre>
 ArchConfig({
     &#34;stem_config&#34;: {
-        &#34;kernel_size&#34;: 5
+        &#34;kernel_size&#34;: 3
     },
     &#34;conv_kernel_size&#34;: 5,
     &#34;num_ch&#34;: 32
@@ -908,7 +908,7 @@ ArchConfig({
 <div class="highlight"><pre>
 ArchConfig({
     &#34;stem_config&#34;: {
-        &#34;kernel_size&#34;: 5
+        &#34;kernel_size&#34;: 3
     },
     &#34;conv_kernel_size&#34;: 5,
     &#34;num_ch&#34;: 32
@@ -1647,7 +1647,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

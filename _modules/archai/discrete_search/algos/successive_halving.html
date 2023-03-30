@@ -497,8 +497,7 @@ document.write(`
 
             <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">eval_all_objs</span><span class="p">(</span>
                 <span class="n">selected_models</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">dataset_provider</span><span class="p">,</span>
-                <span class="n">budgets</span><span class="o">=</span><span class="p">{</span><span class="n">obj_name</span><span class="p">:</span> <span class="n">current_budget</span> <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objs</span><span class="p">},</span>
+                <span class="n">budgets</span><span class="o">=</span><span class="p">{</span><span class="n">obj_name</span><span class="p">:</span> <span class="n">current_budget</span> <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objectives</span><span class="p">},</span>
             <span class="p">)</span>
 
             <span class="c1"># Logs results and saves iteration models</span>
@@ -572,7 +571,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

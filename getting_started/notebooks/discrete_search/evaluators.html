@@ -463,7 +463,8 @@ document.write(`
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
 <span class="n">m</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -480,7 +481,8 @@ document.write(`
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ss</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NBVAL_SKIP</span>
+<span class="n">ss</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -497,18 +499,18 @@ document.write(`
 <ul class="simple">
 <li><p>ModelEvaluator (<a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#module-archai.discrete_search.api.evaluator.ModelEvaluator">archai.discrete_search.api.evaluator.ModelEvaluator</a>)</p>
 <ul>
-<li><p>Evaluates a model: <code class="docutils literal notranslate"><span class="pre">ModelEvaluator.evaluate(model,</span> <span class="pre">dataset,</span> <span class="pre">budget)</span></code></p></li>
+<li><p>Evaluates a model: <code class="docutils literal notranslate"><span class="pre">ModelEvaluator.evaluate(model,</span> <span class="pre">budget)</span></code></p></li>
 </ul>
 </li>
 <li><p>AsyncModelEvaluator (<a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#module-archai.discrete_search.api.evaluator.AsyncModelEvaluator">archai.discrete_search.api.evaluator.AsyncModelEvaluator</a>):</p>
 <ul>
-<li><p>Sends an evaluation job: <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator.send(model,</span> <span class="pre">dataset,</span> <span class="pre">budget)</span></code></p></li>
+<li><p>Sends an evaluation job: <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator.send(model,</span> <span class="pre">budget)</span></code></p></li>
 <li><p>Fetches all evaluation jobs from the queue: <code class="docutils literal notranslate"><span class="pre">AsyncObjective.fetch_all()</span></code></p></li>
 </ul>
 </li>
 </ul>
 <p>A synchronous evaluator (<code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code>) is computed by the search algorithm in a sequential fashion, while an asynchronous evaluator (<code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator</span></code>) sends evaluation jobs to a queue and fetches the results later, and thus can be used to evaluate models remotely or in a distributed fashion.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> and a <code class="docutils literal notranslate"><span class="pre">DatasetProvider</span></code> objects passed to the evaluator objects can be used to access the architecture and data needed to perform the evaluation, if necessary. Some objectives will actively use the passed dataset (e.g task accuracy), while others (e.g FLOPs, latency, memory) may not.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> object passed to the evaluator objects can be used to access the architecture, if necessary. Some objectives will actively use the a dataset (e.g task accuracy), while others (e.g FLOPs, latency, memory) may not.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">budget</span></code> argument, if provided, is a multiplier value used by search algorithms like <code class="docutils literal notranslate"><span class="pre">SuccessiveHalving</span></code> to specify how much compute should be spent on the evaluation.</p>
 <p>Read more about Evaluators <a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#module-archai.discrete_search.api.evaluator">here</a>. You can find a list of built-in evaluators in <code class="docutils literal notranslate"><span class="pre">archai.discrete_search.evaluators</span></code>.</p>
 <section id="Example:-Using-a-built-in-evaluator-(AvgOnnxLatency)">
@@ -527,7 +529,7 @@ document.write(`
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">onnx_latency_obj</span> <span class="o">=</span> <span class="n">AvgOnnxLatency</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">))</span>
-<span class="n">onnx_latency_obj</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(),</span> <span class="n">dataset_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">onnx_latency_obj</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(),</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -574,7 +576,7 @@ document.write(`
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Class that measures the size of a model by the number of torch modules &#39;&#39;&#39;</span>
 
     <span class="nd">@overrides</span>
-    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span>
                  <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">modules</span><span class="p">()))</span>
 </pre></div>
@@ -593,7 +595,7 @@ document.write(`
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">my_objective</span> <span class="o">=</span> <span class="n">NumberOfModules</span><span class="p">()</span>
-<span class="n">my_objective</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">my_objective</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -611,7 +613,7 @@ document.write(`
 <h3>Useful Evaluators<a class="headerlink" href="#Useful-Evaluators" title="Permalink to this headline">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.objectives.html#module-archai.discrete_search.evaluators.ray">RayParallelEvaluator</a> - Wraps an existing <code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code> into a new <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator</span></code> that runs evaluation jobs using multiple Ray workers.</p></li>
-<li><p><a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.objectives.html#module-archai.discrete_search.evaluators.functional">EvaluationFunction</a> - Wraps a function that takes a (model, dataset_provider, budget) triplet and creates a <code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code></p></li>
+<li><p><a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.objectives.html#module-archai.discrete_search.evaluators.functional">EvaluationFunction</a> - Wraps a function that takes (model, budget) arguments and creates a <code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code></p></li>
 </ul>
 <section id="Example:-Parallelizing-NumberOfModules">
 <h4>Example: Parallelizing NumberOfModules<a class="headerlink" href="#Example:-Parallelizing-NumberOfModules" title="Permalink to this headline">#</a></h4>
@@ -636,7 +638,7 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">my_objective_parallel</span></code> is now an <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator</span></code> object. We can send evaluation jobs calling <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator.send(model,</span> <span class="pre">dataset,</span> <span class="pre">budget)</span></code>:</p>
+<p><code class="docutils literal notranslate"><span class="pre">my_objective_parallel</span></code> is now an <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator</span></code> object. We can send evaluation jobs calling <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator.send(model,</span> <span class="pre">budget)</span></code>:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
@@ -645,7 +647,7 @@ document.write(`
 
 <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">model_list</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Dispatching job for </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">archid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-    <span class="n">my_objective_parallel</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">my_objective_parallel</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -731,7 +733,7 @@ Dispatching job for 9b0f792a6e6c37c4e40abde72b4fbd2cdca9ebae_64_64
 </div>
 </div>
 <p>We can now wrap custom training code easily using the <code class="docutils literal notranslate"><span class="pre">EvaluationFunction</span></code> wrapper:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_training_val_performance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_training_val_performance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">tr_data</span> <span class="o">=</span> <span class="n">dataset_provider</span><span class="o">.</span><span class="n">get_train_dataset</span><span class="p">()</span>
     <span class="n">val_data</span> <span class="o">=</span> <span class="n">dataset_provider</span><span class="o">.</span><span class="n">get_val_dataset</span><span class="p">()</span>
 
@@ -754,7 +756,7 @@ Dispatching job for 9b0f792a6e6c37c4e40abde72b4fbd2cdca9ebae_64_64
 <span class="n">custom_evaluator</span> <span class="o">=</span> <span class="n">EvaluationFunction</span><span class="p">(</span><span class="n">custom_traininb_val_performance</span><span class="p">)</span>
 
 <span class="c1"># Evaluates an architecture from the search space</span>
-<span class="n">custom_evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(),</span> <span class="n">dataset_provider</span><span class="p">,</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">custom_evaluator</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">ss</span><span class="o">.</span><span class="n">random_sample</span><span class="p">(),</span> <span class="n">budget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>See the next notebook for a complete example using a custom training objectives</p>
@@ -847,7 +849,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

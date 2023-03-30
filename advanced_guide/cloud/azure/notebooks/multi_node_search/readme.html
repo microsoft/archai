@@ -1,0 +1,606 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>} &#8212; Archai</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../../../../_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="../../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/tabs.js"></script>
+    <script src="../../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'advanced_guide/cloud/azure/notebooks/multi_node_search/readme';</script>
+    <link rel="canonical" href="https://microsoft.github.io/archai/advanced_guide/cloud/azure/notebooks/multi_node_search/readme.html" />
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../../_static/logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../../../_static/logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/package_structure.html">Package Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../getting_started/notebooks.html">Notebooks</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../getting_started/notebooks/api.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/api/dataset_provider.html">Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/api/trainer_base.html">Trainer (Base)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search.html">Discrete Search</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/search_space.html">Search Spaces</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/evaluators.html">Evaluators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/algos.html">Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/discrete_search/config_search.html">Configuration-based Search</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../getting_started/notebooks/cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/cv/cv_dataset_provider.html">Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/cv/pl_trainer.html">PyTorch-Lightining Trainer</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../getting_started/notebooks/nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/nlp/fast_hf_dataset_provider.html">Fast HF Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/nlp/hf_dataset_provider.html">HF Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/nlp/hf_trainer.html">HF Trainer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/nlp/nvidia_dataset_provider.html">NVIDIA Dataset Provider</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/nlp/nvidia_trainer.html">NVIDIA Trainer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/nlp/onnx_export.html">ONNX Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../getting_started/notebooks/nlp/torch_quantization.html">PyTorch Quantization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../cloud.html">Cloud-Based Search</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../azure.html">Azure</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../notebooks.html">Notebooks</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../quickstart/quickstart.html">Quickstart</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../text_generation/text_generation.html">Text Generation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="multi_node_search.html">Multi node search</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Contributing</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/first_contribution.html">First Time Contributor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../contributing/unit_tests.html">Unit Tests</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Support</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../support/faq.html">Frequently Asked Questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../support/contact.html">Contact</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../support/copyright.html">Copyright</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../reference/api.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../reference/api/archai.api.html">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../reference/api/archai.common.html">Common Packages</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../reference/api/archai.datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../reference/api/archai.datasets.cv.html">Computer Vision</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.datasets.cv.transforms.html">Transforms</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../reference/api/archai.datasets.nlp.html">Natural Language Processing</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.datasets.nlp.tokenizer_utils.html">Tokenization Utilities</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.html">Discrete Search</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-13"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.algos.html">Search Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.api.html">API</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.html">Evaluators</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-14"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.benchmark.html">Benchmark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.nlp.html">Natural Language Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html">PyTorch Profiler (Utilities)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.predictors.html">Predictors</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.html">Search Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.benchmark.html">Benchmark</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.config.html">Configuration-Based</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.cv.html">Computer Vision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.search_spaces.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.discrete_search.utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../reference/api/archai.onnx.html">ONNX</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.onnx.config_utils.html">Configuration Utilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.onnx.optimization_utils.html">Optimization Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../reference/api/archai.quantization.html">Quantization</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-17"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.quantization.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.html">Supergraph</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-18"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.html">Algorithms</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-19"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.darts.html">DARTS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.didarts.html">DiDARTS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.divnas.html">DivNAS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.gumbelsoftmax.html">Gumbel-Softmax</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.manual.html">Manual</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.nasbench101.html">NasBench-101</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.petridish.html">Petridish</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.random.html">Random</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.algos.xnas.html">XNAS</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-20"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.datasets.providers.html">Providers</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.models.html">Models</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-21"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.models.shakeshake.html">ShakeShake</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.nas.html">Neural Architecture Search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.supergraph.utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../reference/api/archai.trainers.html">Trainers</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-22"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.trainers.cv.html">Computer Vision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../reference/api/archai.trainers.nlp.html">Natural Language Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/roadmap.html">Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../reference/changelog.html">Changelog</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/microsoft/archai" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/microsoft/archai/issues/new?title=Issue%20on%20page%20%2Fadvanced_guide/cloud/azure/notebooks/multi_node_search/readme.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>}</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <p># Multi-node Search</p>
+<p>This sample shows how to use Azure ML to do partial training on a GPU cluster during an Archai
+<cite>EvolutionParetoSearch</cite>.  Implementing the <cite>AsyncModelEvaluator</cite> interface an
+<cite>AmlTrainingValAccuracy</cite> evaluator is able to do partial training of many models in parallel across
+a GPU cluster using [Azure ML
+pipelines](<a class="reference external" href="https://learn.microsoft.com/en-us/azure/machine-learning/tutorial-pipeline-python-sdk">https://learn.microsoft.com/en-us/azure/machine-learning/tutorial-pipeline-python-sdk</a>)
+where the result is the best possible model model for <cite>MNIST</cite> classification.  The same technique
+works for any task, we only use MNIST here to minimize the compute cost of the GPU cluster.</p>
+<p>The [multi_node_search](multi_node_search.ipynb) notebook uses your Azure storage account and your
+Azure ML workspace.  The Azure storage account will accumulate results while the search is in
+progress.</p>
+<p>The notebook first kicks off the master search pipeline which will look like this:</p>
+<p>![search](images/search_pipeline.png)</p>
+<p>The data prep component simply copies the MNIST dataset to a pipeline blob store for use as input
+not only on this search job but also in all the partial training jobs to come.</p>
+<p>The <cite>EvolutionParetoSearch</cite> will do 5 iterations, and during that time it will kick off one new AML
+pipeline for each iteration that will train the batch of models that the <cite>AmlTrainingValAccuracy</cite>
+needs to get validation accuracy numbers for.  You can get the log output of the search job by
+looking at the “Outputs + logs” in the Azure Machine Learning Studio.</p>
+<p>For example, the following partial training pipeline was created to do partial training of 36 models in a GPU cluster:</p>
+<p>![training.png](images/training.png)</p>
+<p>Azure ML automatically keeps the GPU cluster busy feeding all the models until they are all trained.
+In this case we create an 8 node GPU cluster, and so you will see the jobs completing in batches of 8.</p>
+<p>You can see all the pipelines created dynamically by the search using your Azure ML Pipelines
+dashboard. Below you see 5 partial training iterations followed by a final full training job and
+since we have an 8-gpu cluster doing the work the entire job finished in 1 hour 14 minutes. It did
+partial training on a total of 65 models, and full training on 32.</p>
+<p>![dashboard](images/dashboard.png)</p>
+<p>You can also run the cell titled <cite>Plots</cite> in the notebook multiple times to watch how the pareto curves are
+shaping up, you will see something like this after 5 iterations have completed.</p>
+<p>![pareto](images/epochs1.png)</p>
+<p>When the search is finished the next cell in the notebook will download the results including a file named ‘models.json’ that reports the best models found by the search:</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>json
+{</p>
+<blockquote>
+<div><p>“init_num_models”: 10,
+“partial_training_epochs”: 1,
+“full_training_epochs”: 10,
+“id_bc52a6ee_4ef2_4327_8c8c_3bba2165c3ea”: {</p>
+<blockquote>
+<div><p>“archid”: “(1, 3, 32)”,
+“val_acc”: 0.3953</p>
+</div></blockquote>
+<p>},
+“id_1250cb3f_0fc9_4cad_a4f2_e627db5c66e8”: {</p>
+<blockquote>
+<div><p>“archid”: “(1, 1, 32)”,
+“val_acc”: 0.2237</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<section id="id5">
+<h1>}<a class="headerlink" href="#id5" title="Permalink to this headline">#</a></h1>
+<p>You can run the last cell of the notebook to compare the inference accuracy of the top
+model using the ONNX runtime locally on the resulting downloaded .onnx model.</p>
+<p>You should see something like this:</p>
+<p><code class="docutils literal notranslate"><span class="pre">`</span>
+<span class="pre">Inference</span> <span class="pre">pass</span> <span class="pre">rate</span> <span class="pre">is</span>&#160; <span class="pre">99.57</span> <span class="pre">%.</span>
+<span class="pre">How</span> <span class="pre">does</span> <span class="pre">this</span> <span class="pre">compare</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">training</span> <span class="pre">validation</span> <span class="pre">accuracy</span> <span class="pre">of</span> <span class="pre">0.9957</span>
+<span class="pre">`</span></code></p>
+<p>## Design</p>
+<p>So how does all this work.  The overall architecture looks like this:</p>
+<p>![arch](images/workflow.png)</p>
+<p>Where the main search pipeline launches [search.py](scripts/search.py) script on a cheap CPU virtual
+machine since it doesn’t need much horse power.  This search pipeline starts with a quick data-prep
+step to ensure our dataset is in a shared Azure blob store, then it does the Archai search.  When
+the search is complete we have a <cite>pareto.json</cite> file containing the id’s of the best models, and we
+then kick off a full training run for those models using a child pipeline.</p>
+<p>This <cite>search.py</cite> script plugs the [aml_training_evaluator.py](scripts/aml_training_evaluator.py)
+into the <cite>EvolutionParetoSearch</cite> objectives, and the <cite>AmlTrainingValAccuracy</cite> is an
+<cite>AsyncModelEvaluator</cite> meaning that the search algorithm calls <cite>send</cite> to pass all the models in the
+current iteration then it calls <cite>fetch_all</cite> to get the results.</p>
+<p>So it is the <cite>fetch_all</cite> method that creates a new AML pipeline for that iteration,
+dynamically adding a partial training job for each model, each one of those commands
+invokes [train.py](scripts/train.py).  <cite>train.py</cite> uses [Pytorch Lightning](<a class="reference external" href="https://lightning.ai/docs/pytorch/stable/">https://lightning.ai/docs/pytorch/stable/</a>) to train the model, which means the model is a <cite>LightningModule</cite>.</p>
+<p>But how does each partial training job send results back to the master search pipeline
+you might ask? Great question, I’m glad you asked. The training jobs are given access
+to the azure storage account where there is a <cite>status</cite> table that they write to and
+a <cite>models</cite> blob store they can write the trainged .onnx files to.</p>
+<p>You can look at this status table to get a great idea of what is going on:
+![status](images/status.png)</p>
+<p>Here you can see some models are still <cite>training</cite> and some are completed: <cite>trained</cite>.
+You can also see what the model architecture is for each one. When a job is finished
+it will have a published <cite>val_acc</cite> column containing the validation accuracy reported
+by the partial training.</p>
+<p>The <cite>AmlTrainingValAccuracy</cite> evaluator collects these numbers and returns them to the
+search algorithm which will use them to select the best models to iterate on.</p>
+<p>## Scripts</p>
+<p>The code behind this notebook is organized into the following folders:</p>
+<p>### data_prep</p>
+<p><cite>prep_data_store.py</cite> this script contains the code that runs in the data prep Azure ML pipeline component.
+It’s job in life is to move the training dataset from the MnistDatasetProvider into the cloud using
+the mounted Azure blob store location given as a command line argument.  Azure ML makes this look
+like a local folder, but in fact, it is automatically copied to an azure blob store by Azure ML because
+the path has <cite>mode=”rw_mount”</cite> in the pipeline component definition.  This is a cool feature of Azure ML
+that makes it super simple to test all these scripts locally, but then they all “just work” when
+running in the cloud.</p>
+<p>This script is in a different folder from the other scripts because this way ensures maximum reuse
+of the output dataset during the development of your other training script. Often times those need
+more debugging and this will save on cloud compute by maximizing the reuse of this node in each
+submitted Azure ML pipeline</p>
+<p>### scripts</p>
+<p><cite>aml_training_evaluator.py</cite> provides the class <cite>AmlTrainingValAccuracy</cite> which implements the Archai
+<cite>AsyncModelEvaluator</cite> interface.  This is the core of this entire tutorial, showing how to use the
+<cite>AsyncModelEvaluator</cite> interface to get parallel training happening on an Azure ML GPU cluster.</p>
+<p><cite>commands.py</cite> provides some of the Azure ML pipeline <a href="#id6"><span class="problematic" id="id7">`</span></a>command`s used in the
+[multi_node_search](multi_node_search.ipynb) notebook, moved here just so the notebook doesn’t
+become overly verbose.</p>
+<p><cite>mnist_data_module.py</cite> provides a Pytorch <cite>LightningDataModule</cite> wrapper on the <cite>MnistDatasetProvider</cite>
+so we can use the Pytorch Lightning <cite>Trainer</cite>.</p>
+<p><cite>model.py</cite> this is our configurable pytorch CNN model that is also a <cite>LightningModule</cite>. This class builds
+different model architectures during the Archai search</p>
+<p><cite>monitor.py</cite> this provides a <cite>JobCompletionMonitor</cite> class that monitors the status of training jobs in
+our Azure Storage Table returning all the validation accuracies when the jobs are complete.
+This is used by the <cite>AmlTrainingValAccuracy</cite> model evaluator.</p>
+<p><cite>search.py</cite> this is the main Archai search component that will run in our Azure ML pipeline.  It
+uses the <cite>AmlTrainingValAccuracy</cite> model evaluator as a search objective among others.  It is also
+designed so it can run locally for debugging, with the training happening in the cloud.</p>
+<p><cite>train.py</cite> this is the model training script that uses the Pytorch Lightning <cite>Trainer</cite> to train a
+specific model architecture.  This will be used across all the nodes of your GPU cluster to train as
+many jobs in parallel as you want.  It reports status to the Azure Storage Table so that the
+<cite>JobCompletionMonitor</cite> knows when they finish and what the validation accuracy was.</p>
+<p><cite>training_pipeline.py</cite> this script can start an entirely new Azure ML Pipeline for doing some
+parallel training of models, where each training component uses <cite>train.py</cite>.  This same script is
+used to kick off partial training from the <cite>AmlTrainingValAccuracy</cite> and the final full training run
+performed in the main pipeline defined in the [multi_node_search](multi_node_search.ipynb) notebook.</p>
+<p><cite>utils.py</cite> a few small helper functions used by the notebook, moved here just to reduce the notebook
+size.</p>
+</section>
+
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner">
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Microsoft
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="last-updated">
+  Last updated on Mar 30, 2023.
+  <br/>
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div></div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

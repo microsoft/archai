@@ -459,7 +459,7 @@ document.write(`
 
         <span class="k">return</span> <span class="p">{</span>
             <span class="n">obj_name</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">r</span> <span class="k">for</span> <span class="n">iter_results</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">iter_results</span><span class="p">[</span><span class="n">obj_name</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objs</span>
+            <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objectives</span>
         <span class="p">}</span>
 
 <div class="viewcode-block" id="SearchResults.add_iteration_results"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.search_results.SearchResults.add_iteration_results">[docs]</a>    <span class="k">def</span> <span class="nf">add_iteration_results</span><span class="p">(</span>
@@ -478,7 +478,7 @@ document.write(`
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">obj_name</span> <span class="ow">in</span> <span class="n">evaluation_results</span> <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objs</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">obj_name</span> <span class="ow">in</span> <span class="n">evaluation_results</span> <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objectives</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">models</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">evaluation_results</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
         <span class="n">extra_model_data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">extra_model_data</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
@@ -525,7 +525,7 @@ document.write(`
             <span class="n">obj_name</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
                 <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">it</span><span class="p">][</span><span class="n">obj_name</span><span class="p">]</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_iteration</span><span class="p">,</span> <span class="n">end_iteration</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
             <span class="p">)</span>
-            <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">obj_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objective_names</span>
         <span class="p">}</span>
 
         <span class="n">all_iteration_nums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
@@ -611,10 +611,10 @@ document.write(`
         <span class="n">max_x</span><span class="p">,</span> <span class="n">max_y</span> <span class="o">=</span> <span class="n">status_df</span><span class="p">[</span><span class="n">obj_x</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">status_df</span><span class="p">[</span><span class="n">obj_y</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
         <span class="n">status_df</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="n">status_df</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">status_df</span><span class="p">[</span><span class="n">obj_x</span><span class="p">],</span> <span class="n">status_df</span><span class="p">[</span><span class="n">obj_y</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objs</span><span class="p">[</span><span class="n">obj_x</span><span class="p">][</span><span class="s2">&quot;higher_is_better&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objectives</span><span class="p">[</span><span class="n">obj_x</span><span class="p">]</span><span class="o">.</span><span class="n">higher_is_better</span><span class="p">:</span>
             <span class="n">status_df</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_x</span> <span class="o">-</span> <span class="n">status_df</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objs</span><span class="p">[</span><span class="n">obj_y</span><span class="p">][</span><span class="s2">&quot;higher_is_better&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objectives</span><span class="p">[</span><span class="n">obj_y</span><span class="p">]</span><span class="o">.</span><span class="n">higher_is_better</span><span class="p">:</span>
             <span class="n">status_df</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_y</span> <span class="o">-</span> <span class="n">status_df</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
 
         <span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">plasma</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">iteration_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
@@ -662,7 +662,7 @@ document.write(`
         <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
         <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">objective_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">objective_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objectives</span><span class="o">.</span><span class="n">objective_names</span><span class="p">)</span>
         <span class="n">plots</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj_x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">objective_names</span><span class="p">):</span>
@@ -716,7 +716,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

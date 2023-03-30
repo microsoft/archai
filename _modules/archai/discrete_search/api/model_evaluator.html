@@ -424,21 +424,26 @@ document.write(`
 <span class="sd">    Evaluators are general-use classes used to evaluate architectures in</span>
 <span class="sd">    given criteria (task performance, speed, size, etc.).</span>
 
-<span class="sd">    Subclasses of `ModelEvaluator` are expected to implement `ModelEvaluator.evaluate`.</span>
+<span class="sd">    Subclasses of `ModelEvaluator` are expected to implement `ModelEvaluator.evaluate`</span>
 
 <span class="sd">    Synchronous evaluators are computed by search algorithms sequentially.</span>
 <span class="sd">    For parallel / async. execution, please refer to `archai.api.AsyncModelEvaluator`.</span>
 
-<span class="sd">    For a list of bult-in evaluators, please check `archai.discrete_search.evaluators`.</span>
+<span class="sd">    For a list of built-in evaluators, please check `archai.discrete_search.evaluators`.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; class MyValTaskAccuracy(ModelEvaluator):</span>
-<span class="sd">        &gt;&gt;&gt;     def __init__(self, batch_size: int = 32):</span>
+<span class="sd">        &gt;&gt;&gt;     def __init__(self, dataset: DatasetProvider, batch_size: int = 32):</span>
+<span class="sd">        &gt;&gt;&gt;         self.dataset = dataset</span>
 <span class="sd">        &gt;&gt;&gt;         self.batch_size = batch_size</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt;     @overrides</span>
-<span class="sd">        &gt;&gt;&gt;     def evaluate(self, model: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None):</span>
-<span class="sd">        &gt;&gt;&gt;         _, val_data = dataset.get_train_val_datasets()</span>
+<span class="sd">        &gt;&gt;&gt;     def get_name(self) -&gt; str:</span>
+<span class="sd">        &gt;&gt;&gt;         return f&#39;MyValTaskAccuracy_on_{self.dataset.get_name()}}&#39;</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt;     @overrides</span>
+<span class="sd">        &gt;&gt;&gt;     def evaluate(self, model: ArchaiModel, budget: Optional[float] = None):</span>
+<span class="sd">        &gt;&gt;&gt;         _, val_data = self.dataset.get_train_val_datasets()</span>
 <span class="sd">        &gt;&gt;&gt;         val_dl = torch.utils.data.DataLoader(val_data, batch_size=self.batch_size)</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt;         with torch.no_grad():</span>
@@ -452,14 +457,14 @@ document.write(`
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; class NumberOfModules(ModelEvaluator):</span>
 <span class="sd">        &gt;&gt;&gt;     @overrides</span>
-<span class="sd">        &gt;&gt;&gt;     def evaluate(self, model: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None):</span>
+<span class="sd">        &gt;&gt;&gt;     def evaluate(self, model: ArchaiModel, budget: Optional[float] = None):</span>
 <span class="sd">        &gt;&gt;&gt;         return len(list(model.arch.modules()))</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ModelEvaluator.evaluate"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.model_evaluator.ModelEvaluator.evaluate">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate an `ArchaiModel` instance, optionally using a `DatasetProvider` and budget value.</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate an `ArchaiModel` instance, optionally using a budget value.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            arch: Model to be evaluated.</span>
@@ -487,35 +492,35 @@ document.write(`
 <span class="sd">    fashion, by sending evaluation jobs to a queue and fetching the results later.</span>
 
 <span class="sd">    Subclasses of `AsyncModelEvaluator` are expected to implement</span>
-<span class="sd">    `AsyncModelEvaluator.send(arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float])`</span>
+<span class="sd">    `AsyncModelEvaluator.send(arch: ArchaiModel, budget: Optional[float])`</span>
 <span class="sd">    and `AsyncModelEvaluator.fetch_all()`.</span>
 
 <span class="sd">    `AsyncModelEvaluator.send` is a non-blocking call that schedules an evaluation job for a</span>
-<span class="sd">    given (model, dataset, budget) triplet. `AsyncModelEvaluator.fetch_all` is a blocking call</span>
+<span class="sd">    given (model, budget) triplet. `AsyncModelEvaluator.fetch_all` is a blocking call</span>
 <span class="sd">    that waits and gathers the results from current evaluation jobs and cleans the job queue.</span>
 
-<span class="sd">    For a list of bult-in evaluators, please check `archai.discrete_search.evaluators`.</span>
+<span class="sd">    For a list of built-in evaluators, please check `archai.discrete_search.evaluators`.</span>
 
-<span class="sd">    &gt;&gt;&gt; my_obj = MyAsyncObj()  # My AsyncModelEvaluator subclass</span>
+<span class="sd">    &gt;&gt;&gt; my_obj = MyAsyncObj(dataset)  # My AsyncModelEvaluator subclass</span>
 <span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; # Non blocking calls</span>
-<span class="sd">    &gt;&gt;&gt; my_obj.send(model_1, dataset_provider, budget=None)</span>
-<span class="sd">    &gt;&gt;&gt; my_obj.send(model_2, dataset_provider, budget=None)</span>
-<span class="sd">    &gt;&gt;&gt; my_obj.send(model_3, dataset_provider, budget=None)</span>
+<span class="sd">    &gt;&gt;&gt; my_obj.send(model_1, budget=None)</span>
+<span class="sd">    &gt;&gt;&gt; my_obj.send(model_2, budget=None)</span>
+<span class="sd">    &gt;&gt;&gt; my_obj.send(model_3, budget=None)</span>
 <span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; # Blocking call</span>
 <span class="sd">    &gt;&gt;&gt; eval_results = my_obj.fetch_all()</span>
-<span class="sd">    &gt;&gt;&gt; assert len(eval_resuls) == 3</span>
+<span class="sd">    &gt;&gt;&gt; assert len(eval_results) == 3</span>
 <span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; # Job queue is reset after `fetch_call` method</span>
-<span class="sd">    &gt;&gt;&gt; my_obj.send(model_4, dataset_provider, budget=None)</span>
+<span class="sd">    &gt;&gt;&gt; my_obj.send(model_4, budget=None)</span>
 <span class="sd">    &gt;&gt;&gt; assert len(my_obj.fetch_all()) == 1</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AsyncModelEvaluator.send"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.model_evaluator.AsyncModelEvaluator.send">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send an evaluation job for a given (model, dataset, budget) triplet.</span>
+    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send an evaluation job for a given (model, budget) triplet.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            arch: Model to be evaluated.</span>
@@ -583,7 +588,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>

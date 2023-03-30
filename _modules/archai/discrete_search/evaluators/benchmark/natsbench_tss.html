@@ -415,7 +415,6 @@ document.write(`
 <span class="kn">import</span> <span class="nn">nats_bench</span>
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 
-<span class="kn">from</span> <span class="nn">archai.api.dataset_provider</span> <span class="kn">import</span> <span class="n">DatasetProvider</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.archai_model</span> <span class="kn">import</span> <span class="n">ArchaiModel</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.model_evaluator</span> <span class="kn">import</span> <span class="n">ModelEvaluator</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.search_spaces.benchmark.natsbench_tss</span> <span class="kn">import</span> <span class="p">(</span>
@@ -464,7 +463,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">total_time_spent</span> <span class="o">=</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="NatsbenchMetric.evaluate"><a class="viewcode-back" href="../../../../../reference/api/archai.discrete_search.evaluators.benchmark.html#archai.discrete_search.evaluators.benchmark.natsbench_tss.NatsbenchMetric.evaluate">[docs]</a>    <span class="nd">@overrides</span>
-    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">DatasetProvider</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
         <span class="n">natsbench_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">archid_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">archid</span><span class="p">)</span>
         <span class="n">budget</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">budget</span><span class="p">)</span> <span class="k">if</span> <span class="n">budget</span> <span class="k">else</span> <span class="n">budget</span>
 
@@ -542,7 +541,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 29, 2023.
+  Last updated on Mar 30, 2023.
   <br/>
 </p>
   </div>
