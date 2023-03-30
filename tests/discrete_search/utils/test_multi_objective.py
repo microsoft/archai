@@ -22,8 +22,8 @@ def test_get_pareto_frontier():
     }
 
     objectives = SearchObjectives()
-    objectives.add_objective("obj1", EvaluationFunction(lambda m, d, b: b), higher_is_better=True)
-    objectives.add_objective("obj2", EvaluationFunction(lambda m, d, b: b), higher_is_better=False)
+    objectives.add_objective("obj1", EvaluationFunction(lambda m, b: b), higher_is_better=True)
+    objectives.add_objective("obj2", EvaluationFunction(lambda m, b: b), higher_is_better=False)
 
     result = get_pareto_frontier(models, evaluation_results, objectives)
 
@@ -48,8 +48,8 @@ def test_get_non_dominated_sorting():
     }
 
     objectives = SearchObjectives()
-    objectives.add_objective("obj1", EvaluationFunction(lambda m, d, b: b), higher_is_better=True)
-    objectives.add_objective("obj2", EvaluationFunction(lambda m, d, b: b), higher_is_better=False)
+    objectives.add_objective("obj1", EvaluationFunction(lambda m, b: b), higher_is_better=True)
+    objectives.add_objective("obj2", EvaluationFunction(lambda m, b: b), higher_is_better=False)
 
     result = get_non_dominated_sorting(models, evaluation_results, objectives)
 

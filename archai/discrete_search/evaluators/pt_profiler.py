@@ -6,7 +6,6 @@ from typing import Dict, List, Optional, Union
 import torch
 from overrides import overrides
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval import profile
@@ -30,7 +29,7 @@ class TorchNumParameters(ModelEvaluator):
         self.trainable_only = trainable_only
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
         total_params = sum(
             param.numel() for param in model.arch.parameters() if not self.trainable_only or param.requires_grad
         )
@@ -71,7 +70,7 @@ class TorchFlops(ModelEvaluator):
         self.ignore_layers = ignore_layers
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
         return profile(
             model.arch,
             self.forward_args,
@@ -105,7 +104,7 @@ class TorchMacs(ModelEvaluator):
         self.ignore_layers = ignore_layers
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
         return profile(
             model.arch,
             self.forward_args,
@@ -152,7 +151,7 @@ class TorchLatency(ModelEvaluator):
         self.ignore_layers = ignore_layers
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
         return profile(
             model.arch,
             self.forward_args,
@@ -198,7 +197,7 @@ class TorchPeakCudaMemory(ModelEvaluator):
         self.ignore_layers = ignore_layers
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
         return profile(
             model.arch,
             self.forward_args,
@@ -232,7 +231,7 @@ class TorchPeakCpuMemory(ModelEvaluator):
         self.forward_kwargs = forward_kwargs or {}
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None):
+    def evaluate(self, model: ArchaiModel, budget: Optional[float] = None):
         model.arch.to("cpu")
         forward_args = tuple([arg.to("cpu") for arg in self.forward_args])
         forward_kwargs = {key: value.to("cpu") for key, value in self.forward_kwargs.items()}

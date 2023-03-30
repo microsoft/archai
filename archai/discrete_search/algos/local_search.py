@@ -8,7 +8,6 @@ from typing import List, Optional
 from overrides import overrides
 from tqdm import tqdm
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_objectives import SearchObjectives
@@ -24,7 +23,6 @@ class LocalSearch(Searcher):
         self,
         search_space: EvolutionarySearchSpace,
         search_objectives: SearchObjectives,
-        dataset_provider: DatasetProvider,
         output_dir: str,
         num_iters: Optional[int] = 10,
         init_num_models: Optional[int] = 10,
@@ -40,7 +38,6 @@ class LocalSearch(Searcher):
         Args:
             search_space (EvolutionarySearchSpace): Discrete search space compatible with evolutionary algorithms
             search_objectives (SearchObjectives): Search objectives
-            dataset_provider (DatasetProvider): Dataset provider used to evaluate models
             output_dir (str): Output directory
             num_iters (int, optional): Number of search iterations. Defaults to 10.
             init_num_models (int, optional): Number of initial models. Defaults to 10.
@@ -59,7 +56,6 @@ class LocalSearch(Searcher):
         self.iter_num = 0
         self.search_space = search_space
         self.so = search_objectives
-        self.dataset_provider = dataset_provider
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
 
@@ -98,7 +94,7 @@ class LocalSearch(Searcher):
         while len(valid_sample) < num_models and nb_tries < patience:
             sample = [self.search_space.random_sample() for _ in range(num_models)]
 
-            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
+            _, valid_indices = self.so.validate_constraints(sample)
             valid_sample += [sample[i] for i in valid_indices]
 
         return valid_sample[:num_models]
@@ -128,7 +124,7 @@ class LocalSearch(Searcher):
                 mutated_model = self.search_space.mutate(p)
                 mutated_model.metadata["parent"] = p.archid
 
-                if not self.so.is_model_valid(mutated_model, self.dataset_provider):
+                if not self.so.is_model_valid(mutated_model):
                     continue
 
                 if mutated_model.archid not in self.seen_archs:
@@ -161,9 +157,9 @@ class LocalSearch(Searcher):
                 break
 
             # Calculates objectives
-            logger.info(f"Calculating search objectives {list(self.so.objs.keys())} for {len(unseen_pop)} models ...")
+            logger.info(f"Calculating search objectives {list(self.so.objective_names)} for {len(unseen_pop)} models ...")
 
-            results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
+            results = self.so.eval_all_objs(unseen_pop)
             self.search_state.add_iteration_results(
                 unseen_pop,
                 results,

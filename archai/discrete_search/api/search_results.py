@@ -51,7 +51,7 @@ class SearchResults:
 
         return {
             obj_name: np.array([r for iter_results in self.results for r in iter_results[obj_name]], dtype=np.float32)
-            for obj_name in self.objectives.objs
+            for obj_name in self.objectives.objectives
         }
 
     def add_iteration_results(
@@ -70,7 +70,7 @@ class SearchResults:
 
         """
 
-        assert all(obj_name in evaluation_results for obj_name in self.objectives.objs)
+        assert all(obj_name in evaluation_results for obj_name in self.objectives.objectives)
         assert all(len(r) == len(models) for r in evaluation_results.values())
 
         extra_model_data = copy.deepcopy(extra_model_data) or dict()
@@ -117,7 +117,7 @@ class SearchResults:
             obj_name: np.concatenate(
                 [self.results[it][obj_name] for it in range(start_iteration, end_iteration)], axis=0
             )
-            for obj_name in self.objectives.objs.keys()
+            for obj_name in self.objectives.objective_names
         }
 
         all_iteration_nums = np.array(
@@ -203,10 +203,10 @@ class SearchResults:
         max_x, max_y = status_df[obj_x].max(), status_df[obj_y].max()
         status_df["x"], status_df["y"] = status_df[obj_x], status_df[obj_y]
 
-        if self.objectives.objs[obj_x]["higher_is_better"]:
+        if self.objectives.objectives[obj_x].higher_is_better:
             status_df["x"] = max_x - status_df["x"]
 
-        if self.objectives.objs[obj_y]["higher_is_better"]:
+        if self.objectives.objectives[obj_y].higher_is_better:
             status_df["y"] = max_y - status_df["y"]
 
         colors = plt.cm.plasma(np.linspace(0, 1, self.iteration_num + 1))
@@ -254,7 +254,7 @@ class SearchResults:
         path = Path(directory)
         path.mkdir(exist_ok=True, parents=True)
 
-        objective_names = list(self.objectives.objs.keys())
+        objective_names = list(self.objectives.objective_names)
         plots = []
 
         for i, obj_x in enumerate(objective_names):

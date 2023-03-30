@@ -2,9 +2,9 @@
 # Licensed under the MIT license.
 
 import torch
-from torch_testbed import cifar10_models, utils
+from torch_testbed import cifar10_models
 from torch_testbed.timing import MeasureTime, print_all_timings
-
+from archai.common import utils
 
 utils.setup_cuda(42, local_rank=0)
 

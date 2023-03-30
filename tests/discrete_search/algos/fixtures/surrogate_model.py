@@ -26,4 +26,4 @@ def surrogate_model(search_objectives):
 
             return MeanVar(self.mean_rng.random(size=(n, self.n_objs)), self.var_rng.random(size=(n, self.n_objs)))
 
-    return DummyPredictor(len(search_objectives.exp_objs))
+    return DummyPredictor(len(search_objectives.expensive_objectives))

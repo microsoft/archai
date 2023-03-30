@@ -38,19 +38,19 @@ def model():
 def test_total_params_proxy(model):
     # Assert that the number of trainable parameters is correct
     proxy = TorchNumParameters(trainable_only=True)
-    num_params = proxy.evaluate(model, None)
+    num_params = proxy.evaluate(model)
     assert num_params == sum(param.numel() for param in model.arch.parameters() if param.requires_grad)
 
     # Assert that the number of all parameters is correct
     proxy = TorchNumParameters(trainable_only=False)
-    num_params = proxy.evaluate(model, None)
+    num_params = proxy.evaluate(model)
     assert num_params == sum(param.numel() for param in model.arch.parameters())
 
 
 def test_non_embedding_params_proxy(model):
     # Assert that the number of non-embedding trainable parameters is correct
     proxy = NonEmbeddingParamsProxy(trainable_only=True)
-    non_embedding_params = proxy.evaluate(model, None)
+    non_embedding_params = proxy.evaluate(model)
     embedding_params = sum(param.numel() for param in model.arch.embd.parameters() if param.requires_grad)
     assert non_embedding_params + embedding_params == sum(
         param.numel() for param in model.arch.parameters() if param.requires_grad
@@ -58,6 +58,6 @@ def test_non_embedding_params_proxy(model):
 
     # Assert that the number of non-embedding parameters is correct
     proxy = NonEmbeddingParamsProxy(trainable_only=False)
-    non_embedding_params = proxy.evaluate(model, None)
+    non_embedding_params = proxy.evaluate(model)
     embedding_params = sum(param.numel() for param in model.arch.embd.parameters())
     assert non_embedding_params + embedding_params == sum(param.numel() for param in model.arch.parameters())

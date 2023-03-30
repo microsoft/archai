@@ -34,7 +34,9 @@ dependencies = [
     "opencv-python",
     "opt_einsum",
     "overrides==3.1.0",
+    "pandas",
     "psutil",
+    "pydata-sphinx-theme==0.13.1",
     "pytest",
     "pytorch-lightning",
     "pyyaml",
@@ -60,6 +62,9 @@ dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)
 
 
 def filter_dependencies(*pkgs):
+    for pkg in pkgs:
+        if pkg not in dependencies_dict:
+            raise ValueError(f"Package {pkg} not found in dependencies")
     return [dependencies_dict[pkg] for pkg in pkgs]
 
 
@@ -81,6 +86,8 @@ extras_require["docs"] = filter_dependencies(
     "nbimporter",
     "nbsphinx",
     "nbval",
+    "pandas",
+    "pydata-sphinx-theme",
     "sphinx",
     "sphinx-book-theme",
     "sphinx-git",

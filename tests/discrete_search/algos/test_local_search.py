@@ -17,7 +17,6 @@ def test_local_search(output_dir, search_space, search_objectives):
     algo = LocalSearch(
         search_space,
         search_objectives,
-        None,
         output_dir,
         num_iters=2,
         init_num_models=5,
@@ -34,5 +33,5 @@ def test_local_search(output_dir, search_space, search_objectives):
     all_models = [m for iter_r in search_results.results for m in iter_r["models"]]
 
     # Checks if all registered models satisfy constraints
-    _, valid_models = search_objectives.validate_constraints(all_models, None)
+    _, valid_models = search_objectives.validate_constraints(all_models)
     assert len(valid_models) == len(all_models)

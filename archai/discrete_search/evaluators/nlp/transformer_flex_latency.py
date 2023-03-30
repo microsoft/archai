@@ -12,7 +12,6 @@ import torch
 from onnxruntime import InferenceSession
 from overrides import overrides
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import (
@@ -119,7 +118,7 @@ class TransformerFlexOnnxLatency(ModelEvaluator):
         return float(np.median(runner) if self.use_median else np.mean(runner))
 
     @overrides
-    def evaluate(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, arch: ArchaiModel, budget: Optional[float] = None) -> float:
         model = self._load_and_prepare(arch.metadata["config"])
 
         # There is a bug for Python < 3.10 when using TemporaryFile with Windows,
