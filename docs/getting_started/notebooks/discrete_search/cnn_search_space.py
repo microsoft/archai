@@ -3,6 +3,7 @@ from typing import List, Optional
 from overrides import overrides
 import numpy as np
 import torch
+import re
 from torch import nn
 from archai.discrete_search.api import ArchaiModel
 
@@ -64,14 +65,34 @@ class CNNSearchSpace(DiscreteSearchSpace):
     def load_model_weights(self, model: ArchaiModel, file: str):
         model.arch.load_state_dict(torch.load(file))
 
+    def from_archid(self, archid: str) -> MyModel:
+        # parse the format 'L=1, K=5, H=64'
+        regex = re.compile(r'L=(\d+), K=(\d+), H=(\d+)')
+        m = regex.match(archid).groups()
+        if len(m) == 3:
+            config = {
+                'nb_layers': int(m[0]),
+                'kernel_size': int(m[1]),
+                'hidden_dim': int(m[2])
+            }
+            return MyModel(**config)
+        else:
+            raise Exception(f"Archid '{archid}' is not in the correct format")
+
+    def ensure_model(self, model: ArchaiModel):
+        if not isinstance(model.arch, MyModel):
+            model.arch = self.from_archid(model.archid)
+
 
 from archai.discrete_search.api.search_space import EvolutionarySearchSpace, BayesOptSearchSpace
+
 
 class CNNSearchSpaceExt(CNNSearchSpace, EvolutionarySearchSpace, BayesOptSearchSpace):
     ''' We are subclassing CNNSearchSpace just to save up space'''
 
     @overrides
     def mutate(self, model_1: ArchaiModel) -> ArchaiModel:
+        self.ensure_model(model_1)
         config = {
             'nb_layers': model_1.arch.nb_layers,
             'kernel_size': model_1.arch.kernel_size,
@@ -95,6 +116,8 @@ class CNNSearchSpaceExt(CNNSearchSpace, EvolutionarySearchSpace, BayesOptSearchS
 
     @overrides
     def crossover(self, model_list: List[ArchaiModel]) -> ArchaiModel:
+        for m in model_list:
+            self.ensure_model(m)
         new_config = {
             'nb_layers': self.rng.choice([m.arch.nb_layers for m in model_list]),
             'kernel_size': self.rng.choice([m.arch.kernel_size for m in model_list]),
@@ -109,4 +132,5 @@ class CNNSearchSpaceExt(CNNSearchSpace, EvolutionarySearchSpace, BayesOptSearchS
 
     @overrides
     def encode(self, model: ArchaiModel) -> np.ndarray:
+        self.ensure_model(model)
         return np.array([model.arch.nb_layers, model.arch.kernel_size, model.arch.hidden_dim])
