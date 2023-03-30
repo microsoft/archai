@@ -131,3 +131,31 @@ class AsyncModelEvaluator(EnforceOverrides):
         """
 
         pass
+
+
+class ProgressiveModelEvaluator(EnforceOverrides):
+    """Abstract class for progressive model evaluators. Progressive evaluators are stateful evaluators
+    that can be saved and loaded from checkpoints. This is used by search algorithms like `ProgressiveHalving`
+    to save the state of the evaluator and restore it later.
+
+    Subclasses of `ProgressiveModelEvaluator` are expected to implement `ProgressiveModelEvaluator.save_checkpoint`
+    and `ProgressiveModelEvaluator.load_checkpoint`, and should also be subclasses of `ModelEvaluator`/`AsyncModelEvaluator`.
+    """
+
+    @abstractmethod
+    def save_checkpoint(self) -> str:
+        """Save current state of the evaluator and return a checkpoint path.
+        This is used by search algorithms like `ProgressiveHalving` to save the state of the evaluator and restore it later.
+
+        Returns:
+            str: Checkpoint path.
+        """
+        pass
+
+    @abstractmethod
+    def load_checkpoint(self, checkpoint: str) -> None:
+        """Load evaluator state from a checkpoint path.
+
+        Args:
+            checkpoint (str): Checkpoint path.
+        """
