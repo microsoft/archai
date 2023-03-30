@@ -49,7 +49,7 @@ if __name__ == '__main__':
     ]
 
     trainer = Trainer(
-        default_root_dir=str(args.output_dir), gpus=1, 
+        default_root_dir=str(args.output_dir), accelerator='gpu', 
         val_check_interval=args.val_check_interval,
         max_epochs=args.epochs,
         callbacks=callbacks
