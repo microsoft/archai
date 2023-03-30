@@ -47,7 +47,6 @@ When the search is finished the next cell in the notebook will download the resu
 
 
 ```json
-Top model results:
 {
   "init_num_models": 10,
   "partial_training_epochs": 1,
@@ -59,7 +58,8 @@ Top model results:
   "id_1250cb3f_0fc9_4cad_a4f2_e627db5c66e8": {
     "archid": "(1, 1, 32)",
     "val_acc": 0.2237
-  },
+  }
+}
 ```
 
 You can run the last cell of the notebook to compare the inference accuracy of the top
