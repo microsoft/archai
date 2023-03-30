@@ -9,6 +9,7 @@ from overrides import overrides
 
 from archai.api.dataset_provider import DatasetProvider
 from archai.common.ordered_dict_logger import OrderedDictLogger
+from archai.discrete_search.api.model_evaluator import ProgressiveModelEvaluator
 from archai.discrete_search.api.search_objectives import SearchObjectives
 from archai.discrete_search.api.search_results import SearchResults
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
@@ -49,6 +50,8 @@ class SuccessiveHalvingSearch(Searcher):
         """
 
         assert isinstance(search_space, DiscreteSearchSpace)
+        assert any(isinstance(obj, ProgressiveModelEvaluator) for obj in objectives.objs), \
+            'Successive Halving requires at least one ProgressiveModelEvaluator objective'
 
         # Search parameters
         self.search_space = search_space
