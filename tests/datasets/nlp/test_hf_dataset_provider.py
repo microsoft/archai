@@ -24,13 +24,20 @@ def test_hf_hub_dataset_provider():
 
 
 def test_hf_disk_dataset_provider():
+    # ensure parallel tests do not clobber each other over the dataroot folder.
+    unique_data_root = 'test_hf_disk_dataset_provider_dataroot'
     dataset_hub_provider = HfHubDatasetProvider("glue", dataset_config_name="sst2")
     train_dataset = dataset_hub_provider.get_train_dataset()
-    train_dataset.save_to_disk("dataroot")
+    train_dataset.save_to_disk(unique_data_root)
 
     # Assert that we can load the dataset from disk
-    dataset_provider = HfDiskDatasetProvider("dataroot")
+    dataset_provider = HfDiskDatasetProvider(unique_data_root)
     train_dataset = dataset_provider.get_train_dataset()
     assert len(train_dataset) == 67349
 
-    shutil.rmtree("dataroot")
+    shutil.rmtree(unique_data_root)
+
+
+if __name__ == '__main__':
+    test_hf_hub_dataset_provider()
+    test_hf_disk_dataset_provider()

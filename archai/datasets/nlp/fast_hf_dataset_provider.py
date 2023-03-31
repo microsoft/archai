@@ -119,6 +119,13 @@ class FastHfDatasetProvider(DatasetProvider):
         )
 
         return encoded_dataset_dict
+    
+    @staticmethod
+    def _close_mem_maps(processed_dataset_dict: DatasetDict) -> None:
+        for key in processed_dataset_dict:
+            dataset = processed_dataset_dict[key]
+            if isinstance(dataset, np.memmap) and dataset._mmap is not None:
+                dataset._mmap.close()
 
     @staticmethod
     def _process_dataset_to_memory(
@@ -241,6 +248,8 @@ class FastHfDatasetProvider(DatasetProvider):
             processed_dataset_dict, tokenizer, cache_dir, use_shared_memory
         )
 
+        FastHfDatasetProvider._close_mem_maps(processed_dataset_dict)
+
         with open(cache_dir / "config.json", "w") as f:
             json.dump(
                 {
@@ -344,6 +353,8 @@ class FastHfDatasetProvider(DatasetProvider):
         cache_files = FastHfDatasetProvider._save_dataset(
             processed_dataset_dict, tokenizer, cache_dir, use_shared_memory
         )
+
+        FastHfDatasetProvider._close_mem_maps(processed_dataset_dict)
 
         with open(cache_dir / "config.json", "w") as f:
             json.dump(
