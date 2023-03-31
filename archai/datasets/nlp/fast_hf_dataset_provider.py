@@ -276,8 +276,7 @@ class FastHfDatasetProvider(DatasetProvider):
         num_workers: Optional[int] = 1,
         use_eos_token: Optional[bool] = True,
         use_shared_memory: Optional[bool] = True,
-        cache_dir: Optional[str] = "cache",
-        mmap_mode: str = 'r'
+        cache_dir: Optional[str] = "cache"
     ) -> FastHfDatasetProvider:
         """Load a dataset provider by downloading and encoding data from Hugging Face Hub.
 
@@ -364,7 +363,7 @@ class FastHfDatasetProvider(DatasetProvider):
                 f,
             )
 
-        return FastHfDatasetProvider(**cache_files, tokenizer=tokenizer, mmap_mode=mmap_mode)
+        return FastHfDatasetProvider(**cache_files, tokenizer=tokenizer)
 
     @classmethod
     def from_cache(cls: FastHfDatasetProvider, cache_dir: str) -> FastHfDatasetProvider:
