@@ -35,7 +35,7 @@ jobs:
       - name: Installs the requirements
         shell: bash -l {0}
         run: |
-          python -m pip install --user -e .[dev]
+          python3 -m pip install --user -e .[dev]
       - name: Finds syntax errors and undefined names
         shell: bash -l {0}
         run: |
@@ -49,4 +49,4 @@ jobs:
       - name: Runs unit tests
         shell: bash -l {0}
         run: |
-          pytest tests
+          python3 -m pytest tests
