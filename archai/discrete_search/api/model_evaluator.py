@@ -154,7 +154,8 @@ class ProgressiveModelEvaluator(EnforceOverrides):
 
     @abstractmethod
     def load_checkpoint(self, checkpoint: str) -> None:
-        """Load evaluator state from a checkpoint path.
+        """Load evaluator state from a checkpoint path returned by a previous call to 
+        `save_checkpoint` on this same object.
 
         Args:
             checkpoint (str): Checkpoint path.
