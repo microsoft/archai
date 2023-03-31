@@ -44,3 +44,4 @@ search:
     max_retries: 15
     retry_interval: 120
     metric_key: mean
+    verbose: true
