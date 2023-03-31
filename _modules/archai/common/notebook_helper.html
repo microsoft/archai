@@ -436,27 +436,6 @@ document.write(`
     <span class="k">return</span> <span class="n">df</span></div>
 
 
-<div class="viewcode-block" id="get_csv_as_stylized_html"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.notebook_helper.get_csv_as_stylized_html">[docs]</a><span class="k">def</span> <span class="nf">get_csv_as_stylized_html</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a stylized html table from a pandas dataframe with a scrollbar</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        df (pd.DataFrame): Pandas dataframe to convert to html table</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        str: Stylized html table</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">styled_table</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">set_properties</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;lightblue&#39;</span><span class="p">,</span>
-                                              <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span>
-                                              <span class="s1">&#39;border-color&#39;</span><span class="p">:</span> <span class="s1">&#39;white&#39;</span><span class="p">,</span>
-                                              <span class="s1">&#39;font-size&#39;</span><span class="p">:</span> <span class="s1">&#39;12pt&#39;</span>
-                                              <span class="p">})</span>
-
-    <span class="n">html_table</span> <span class="o">=</span> <span class="n">styled_table</span><span class="o">.</span><span class="n">to_html</span><span class="p">()</span>
-    <span class="n">html_with_scrollbar</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;&lt;div style=&quot;height: 300px; overflow-y: scroll;&quot;&gt;</span><span class="si">{</span><span class="n">html_table</span><span class="si">}</span><span class="s1">&lt;/div&gt;&#39;</span>
-
-    <span class="k">return</span> <span class="n">html_with_scrollbar</span></div>
-
-
 <div class="viewcode-block" id="get_arch_abs_path"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.notebook_helper.get_arch_abs_path">[docs]</a><span class="k">def</span> <span class="nf">get_arch_abs_path</span><span class="p">(</span><span class="n">archid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">downloaded_folder</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">iteration_num</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the absolute path to the architecture file</span>
 
@@ -522,7 +501,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 30, 2023.
+  Last updated on Mar 31, 2023.
   <br/>
 </p>
   </div>
