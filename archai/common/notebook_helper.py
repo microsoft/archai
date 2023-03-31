@@ -28,27 +28,6 @@ def get_search_csv(output_path: Union[str, Path], iteration_num: Optional[int] =
     return df
 
 
-def get_csv_as_stylized_html(df: pd.DataFrame) -> str:
-    """Returns a stylized html table from a pandas dataframe with a scrollbar
-
-    Args:
-        df (pd.DataFrame): Pandas dataframe to convert to html table
-
-    Returns:
-        str: Stylized html table
-    """
-    styled_table = df.style.set_properties(**{'background-color': 'lightblue',
-                                              'color': 'black',
-                                              'border-color': 'white',
-                                              'font-size': '12pt'
-                                              })
-
-    html_table = styled_table.to_html()
-    html_with_scrollbar = f'<div style="height: 300px; overflow-y: scroll;">{html_table}</div>'
-
-    return html_with_scrollbar
-
-
 def get_arch_abs_path(archid: str, downloaded_folder: Union[str, Path], iteration_num: Optional[int] = -1) -> Path:
     """Returns the absolute path to the architecture file
 
