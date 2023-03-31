@@ -119,7 +119,7 @@ class FastHfDatasetProvider(DatasetProvider):
         )
 
         return encoded_dataset_dict
-    
+
     @staticmethod
     def _close_mem_maps(processed_dataset_dict: DatasetDict) -> None:
         for key in processed_dataset_dict:

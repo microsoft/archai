@@ -35,6 +35,13 @@ def test_hf_disk_dataset_provider():
     train_dataset = dataset_provider.get_train_dataset()
     assert len(train_dataset) == 67349
 
+    # The HuggingFace dataset uses a datasets.table.MemoryMappedTable and this api provides no way
+    # to explicitly close the memory mapped file here.  On windows you cannot remove a directory
+    # while a memory mapped file is still open in that directory, so we hope the python garbage
+    # collector will close it when we clear these variables.
+    train_dataset = None
+    dataset_provider = None
+
     shutil.rmtree(unique_data_root)
 
 
