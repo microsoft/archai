@@ -8,7 +8,9 @@ from archai.datasets.cv.mnist_dataset_provider import MnistDatasetProvider
 
 
 def test_mnist_dataset_provider():
-    dataset_provider = MnistDatasetProvider()
+    # make sure tests can run in parallel and not clobber each other's dataroot.
+    unique_data_root = 'test_mnist_dataset_provider_dataroot'
+    dataset_provider = MnistDatasetProvider(root=unique_data_root)
 
     # Assert that we can individually load training, validation and test datasets
     train_dataset = dataset_provider.get_train_dataset()
@@ -26,4 +28,4 @@ def test_mnist_dataset_provider():
     assert isinstance(test_dataset[0][0], torch.Tensor)
     assert isinstance(test_dataset[0][1], int)
 
-    shutil.rmtree("dataroot")
+    shutil.rmtree(unique_data_root)

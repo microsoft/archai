@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import io
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import onnxruntime as rt
@@ -11,6 +10,7 @@ from overrides import overrides
 from archai.common.timing import MeasureBlockTime
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
+from archai.common.file_utils import TemporaryFiles
 
 
 class AvgOnnxLatency(ModelEvaluator):
@@ -66,26 +66,25 @@ class AvgOnnxLatency(ModelEvaluator):
         model.arch.to("cpu")
 
         # Exports model to ONNX
-        exported_model_buffer = io.BytesIO()
-        torch.onnx.export(
-            model.arch,
-            self.sample_input,
-            exported_model_buffer,
-            input_names=[f"input_{i}" for i in range(len(self.sample_input))],
-            **self.export_kwargs,
-        )
+        with TemporaryFiles() as tmp_file:
+            onnx_file = tmp_file.get_temp_file()
+            torch.onnx.export(
+                model.arch,
+                self.sample_input,
+                onnx_file,
+                input_names=[f"input_{i}" for i in range(len(self.sample_input))],
+                **self.export_kwargs,
+            )
 
-        exported_model_buffer.seek(0)
+            # Benchmarks ONNX model
+            onnx_device = "CUDAExecutionProvider" if self.device == 'gpu' else "CPUExecutionProvider"
+            onnx_session = rt.InferenceSession(onnx_file, providers=[onnx_device], **self.inf_session_kwargs)
+            sample_input = {f"input_{i}": inp.numpy() for i, inp in enumerate(self.sample_input)}
+            inf_times = []
 
-        # Benchmarks ONNX model
-        onnx_device = "CUDAExecutionProvider" if self.device == 'gpu' else "CPUExecutionProvider"
-        onnx_session = rt.InferenceSession(exported_model_buffer.read(), providers=[onnx_device], **self.inf_session_kwargs)
-        sample_input = {f"input_{i}": inp.numpy() for i, inp in enumerate(self.sample_input)}
-        inf_times = []
-
-        for _ in range(self.num_trials):
-            with MeasureBlockTime("onnx_inference") as t:
-                onnx_session.run(None, input_feed=sample_input)
-            inf_times.append(t.elapsed)
+            for _ in range(self.num_trials):
+                with MeasureBlockTime("onnx_inference") as t:
+                    onnx_session.run(None, input_feed=sample_input)
+                inf_times.append(t.elapsed)
 
         return sum(inf_times) / self.num_trials

@@ -2,8 +2,8 @@
 # Licensed under the MIT license.
 
 from __future__ import annotations
-
 import json
+import os
 import pickle
 import sys
 from dataclasses import dataclass
@@ -63,6 +63,8 @@ class FastHfDatasetProvider(DatasetProvider):
         self.validation_file = validation_file
         self.test_file = test_file
         self.tokenizer = tokenizer
+        # Windows doesn't allow tests to memory map the same file when tests are running in parallel.
+        self.mmap_mode = None if os.name == "nt" and os.getenv('PYTEST_CURRENT_TEST') else 'r'
 
     @staticmethod
     def _create_splits(dataset_dict: DatasetDict, validation_split: float, seed: int) -> DatasetDict:
@@ -117,6 +119,13 @@ class FastHfDatasetProvider(DatasetProvider):
         )
 
         return encoded_dataset_dict
+
+    @staticmethod
+    def _close_mem_maps(processed_dataset_dict: DatasetDict) -> None:
+        for key in processed_dataset_dict:
+            dataset = processed_dataset_dict[key]
+            if isinstance(dataset, np.memmap) and dataset._mmap is not None:
+                dataset._mmap.close()
 
     @staticmethod
     def _process_dataset_to_memory(
@@ -175,7 +184,7 @@ class FastHfDatasetProvider(DatasetProvider):
         num_workers: Optional[int] = 1,
         use_eos_token: Optional[bool] = True,
         use_shared_memory: Optional[bool] = True,
-        cache_dir: Optional[str] = "cache",
+        cache_dir: Optional[str] = "cache"
     ) -> FastHfDatasetProvider:
         """Load a dataset provider by loading and encoding data from disk.
 
@@ -239,6 +248,8 @@ class FastHfDatasetProvider(DatasetProvider):
             processed_dataset_dict, tokenizer, cache_dir, use_shared_memory
         )
 
+        FastHfDatasetProvider._close_mem_maps(processed_dataset_dict)
+
         with open(cache_dir / "config.json", "w") as f:
             json.dump(
                 {
@@ -274,7 +285,7 @@ class FastHfDatasetProvider(DatasetProvider):
         num_workers: Optional[int] = 1,
         use_eos_token: Optional[bool] = True,
         use_shared_memory: Optional[bool] = True,
-        cache_dir: Optional[str] = "cache",
+        cache_dir: Optional[str] = "cache"
     ) -> FastHfDatasetProvider:
         """Load a dataset provider by downloading and encoding data from Hugging Face Hub.
 
@@ -343,6 +354,8 @@ class FastHfDatasetProvider(DatasetProvider):
             processed_dataset_dict, tokenizer, cache_dir, use_shared_memory
         )
 
+        FastHfDatasetProvider._close_mem_maps(processed_dataset_dict)
+
         with open(cache_dir / "config.json", "w") as f:
             json.dump(
                 {
@@ -394,19 +407,19 @@ class FastHfDatasetProvider(DatasetProvider):
 
     @overrides
     def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        input_ids = np.load(self.train_file, mmap_mode="r")
+        input_ids = np.load(self.train_file, mmap_mode=self.mmap_mode)
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 
     @overrides
     def get_val_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        input_ids = np.load(self.validation_file, mmap_mode="r")
+        input_ids = np.load(self.validation_file, mmap_mode=self.mmap_mode)
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 
     @overrides
     def get_test_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        input_ids = np.load(self.test_file, mmap_mode="r")
+        input_ids = np.load(self.test_file, mmap_mode=self.mmap_mode)
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 

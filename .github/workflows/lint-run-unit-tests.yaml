@@ -17,11 +17,12 @@ on:
 jobs:
   lint-run-tests:
     name: Lints with `flake8` and run unit tests with `pytest`
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
+      matrix:        
+        platform: [ windows-latest, ubuntu-latest ]
         python-version: ["3.7", "3.8", "3.9", "3.10"]
+    runs-on: ${{ matrix.platform }}
     steps:
       - name: Pulls the repository
         uses: actions/checkout@v3
@@ -34,9 +35,7 @@ jobs:
       - name: Installs the requirements
         shell: bash -l {0}
         run: |
-          sudo apt install -y graphviz
-          python -m pip install --user -e .[dev]
-          python -m pip install graphviz
+          python3 -m pip install --user -e .[dev]
       - name: Finds syntax errors and undefined names
         shell: bash -l {0}
         run: |
@@ -50,4 +49,4 @@ jobs:
       - name: Runs unit tests
         shell: bash -l {0}
         run: |
-          pytest tests
+          python3 -m pytest tests

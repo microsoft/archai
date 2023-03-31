@@ -11,6 +11,7 @@ import math
 import mmap
 import sys
 from typing import Any, Dict, Optional, Tuple
+from types import TracebackType
 
 import numpy as np
 import torch
@@ -42,6 +43,13 @@ class FastHfDataset(Dataset):
         # `input_ids` should not be sliced since they could be memory mapped
         self.input_ids = input_ids
         self.n_sequences = math.ceil((self.n_input_ids - 1) / self.seq_len)
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
+        if isinstance(self.input_ids, np.memmap) and self.input_ids._mmap is not None:
+            self.input_ids._mmap.close()
 
     def __len__(self) -> int:
         return self.n_sequences
