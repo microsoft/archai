@@ -1,7 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import tempfile
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import ray
@@ -14,6 +13,7 @@ from archai.discrete_search.api.model_evaluator import (
     ModelEvaluator,
 )
 from archai.discrete_search.api.search_space import DiscreteSearchSpace
+from archai.common.file_utils import TemporaryFiles
 
 
 def _ray_wrap_training_fn(training_fn) -> Callable:
@@ -139,9 +139,12 @@ class RayProgressiveTraining(AsyncModelEvaluator):
                 trained_model, job_metric, training_state = job_results
 
                 # Syncs model weights
-                with tempfile.NamedTemporaryFile() as tmp:
-                    self.search_space.save_model_weights(trained_model, tmp.name)
-                    self.search_space.load_model_weights(self.models[job_id], tmp.name)
+                # On windows you cannot open a named temporary file a second time.
+                temp_file_name = None
+                with TemporaryFiles() as tmp:
+                    temp_file_name = tmp.get_temp_file()
+                    self.search_space.save_model_weights(trained_model, temp_file_name)
+                    self.search_space.load_model_weights(self.models[job_id], temp_file_name)
 
                 # Syncs training state
                 self.training_states[trained_model.archid] = training_state

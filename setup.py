@@ -53,6 +53,7 @@ dependencies = [
     "statopt",
     "tensorboard",
     "tensorwatch",
+    "tk",
     "tokenizers>=0.10.3",
     "torchvision",
     "tqdm",
@@ -101,7 +102,8 @@ extras_require["tests"] = filter_dependencies(
     "azure-identity",
     "azure-storage-blob",
     "flake8",
-    "pytest"
+    "pytest",
+    "tk",
 )
 
 extras_require["aml"] = filter_dependencies(

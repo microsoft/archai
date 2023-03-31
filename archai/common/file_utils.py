@@ -5,8 +5,10 @@ import os
 import pathlib
 import re
 import shutil
+import tempfile
 from pathlib import Path
 from typing import Optional
+from types import TracebackType
 
 import torch
 
@@ -189,3 +191,24 @@ def get_full_path(path: str, create_folder: Optional[bool] = False) -> str:
         os.makedirs(path, exist_ok=True)
 
     return path
+
+
+class TemporaryFiles:
+    """ Windows has a weird quirk where the tempfile.NamedTemporaryFile cannot be opened a second time. """
+    def __init__(self):
+        self.files_to_delete = []
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type: type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> None:
+        for name in self.files_to_delete:
+            os.unlink(name)
+        self.files_to_delete = []
+
+    def get_temp_file(self) -> str:
+        result = None
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            result = tmp.name
+        self.files_to_delete += [result]
+        return result

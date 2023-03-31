@@ -46,6 +46,7 @@ class FastHfDatasetProvider(DatasetProvider):
         validation_file: str,
         test_file: str,
         tokenizer: Optional[AutoTokenizer] = None,
+        mmap_mode: str = 'r',
     ) -> None:
         """Initialize Fast Hugging Face-based dataset provider.
 
@@ -63,6 +64,7 @@ class FastHfDatasetProvider(DatasetProvider):
         self.validation_file = validation_file
         self.test_file = test_file
         self.tokenizer = tokenizer
+        self.mmap_mode = mmap_mode
 
     @staticmethod
     def _create_splits(dataset_dict: DatasetDict, validation_split: float, seed: int) -> DatasetDict:
@@ -176,6 +178,7 @@ class FastHfDatasetProvider(DatasetProvider):
         use_eos_token: Optional[bool] = True,
         use_shared_memory: Optional[bool] = True,
         cache_dir: Optional[str] = "cache",
+        mmap_mode: str = 'r'
     ) -> FastHfDatasetProvider:
         """Load a dataset provider by loading and encoding data from disk.
 
@@ -255,7 +258,7 @@ class FastHfDatasetProvider(DatasetProvider):
                 f,
             )
 
-        return FastHfDatasetProvider(**cache_files, tokenizer=tokenizer)
+        return FastHfDatasetProvider(**cache_files, tokenizer=tokenizer, mmap_mode=mmap_mode)
 
     @classmethod
     def from_hub(
@@ -275,6 +278,7 @@ class FastHfDatasetProvider(DatasetProvider):
         use_eos_token: Optional[bool] = True,
         use_shared_memory: Optional[bool] = True,
         cache_dir: Optional[str] = "cache",
+        mmap_mode: str = 'r'
     ) -> FastHfDatasetProvider:
         """Load a dataset provider by downloading and encoding data from Hugging Face Hub.
 
@@ -361,10 +365,10 @@ class FastHfDatasetProvider(DatasetProvider):
                 f,
             )
 
-        return FastHfDatasetProvider(**cache_files, tokenizer=tokenizer)
+        return FastHfDatasetProvider(**cache_files, tokenizer=tokenizer, mmap_mode=mmap_mode)
 
     @classmethod
-    def from_cache(cls: FastHfDatasetProvider, cache_dir: str) -> FastHfDatasetProvider:
+    def from_cache(cls: FastHfDatasetProvider, cache_dir: str, mmap_mode='r') -> FastHfDatasetProvider:
         """Load a dataset provider from a cache directory.
 
         Args:
@@ -390,23 +394,23 @@ class FastHfDatasetProvider(DatasetProvider):
             with open(tokenizer_file, "rb") as f:
                 tokenizer = pickle.load(f)
 
-        return FastHfDatasetProvider(cache_train_file, cache_validation_file, cache_test_file, tokenizer=tokenizer)
+        return FastHfDatasetProvider(cache_train_file, cache_validation_file, cache_test_file, tokenizer=tokenizer, mmap_mode=mmap_mode)
 
     @overrides
     def get_train_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        input_ids = np.load(self.train_file, mmap_mode="r")
+        input_ids = np.load(self.train_file, mmap_mode=self.mmap_mode)
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 
     @overrides
     def get_val_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        input_ids = np.load(self.validation_file, mmap_mode="r")
+        input_ids = np.load(self.validation_file, mmap_mode=self.mmap_mode)
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 
     @overrides
     def get_test_dataset(self, seq_len: Optional[int] = 1) -> FastHfDataset:
-        input_ids = np.load(self.test_file, mmap_mode="r")
+        input_ids = np.load(self.test_file, mmap_mode=self.mmap_mode)
 
         return FastHfDataset(input_ids, seq_len=seq_len)
 

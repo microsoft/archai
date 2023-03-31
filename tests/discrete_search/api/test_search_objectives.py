@@ -27,7 +27,7 @@ def models(search_space):
 
 
 @pytest.fixture
-def sample_input() -> Tuple[torch.Tensor]:
+def sample_input() -> torch.Tensor:
     return torch.zeros(1, 1, 192, dtype=torch.long)
 
 

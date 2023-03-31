@@ -12,6 +12,7 @@ def test_fast_hf_dataset_provider_from_hub():
         tokenizer_name="Salesforce/codegen-350M-mono",
         mapping_column_name=["sentence"],
         use_shared_memory=False,
+        mmap_mode=None
     )
 
     # Assert that we can individually load training, validation and test datasets
@@ -26,7 +27,7 @@ def test_fast_hf_dataset_provider_from_hub():
 
 
 def test_fast_hf_dataset_provider_from_cache():
-    dataset_provider = FastHfDatasetProvider.from_cache("cache")
+    dataset_provider = FastHfDatasetProvider.from_cache("cache", mmap_mode=None)
 
     # Assert that we can individually load training, validation and test datasets
     train_dataset = dataset_provider.get_train_dataset(seq_len=256)
