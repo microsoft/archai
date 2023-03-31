@@ -139,7 +139,7 @@ class ProgressiveModelEvaluator(EnforceOverrides):
     to save the state of the evaluator and restore it later.
 
     Subclasses of `ProgressiveModelEvaluator` are expected to implement `ProgressiveModelEvaluator.save_checkpoint`
-    and `ProgressiveModelEvaluator.load_checkpoint`, and should also be subclasses of `ModelEvaluator`/`AsyncModelEvaluator`.
+    and `ProgressiveModelEvaluator.load_checkpoint` and must be a subclass of either `ModelEvaluator` or `AsyncModelEvaluator`.
     """
 
     @abstractmethod
