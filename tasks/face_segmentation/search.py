@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 import os
 import itertools
 from pathlib import Path
@@ -93,7 +95,7 @@ if __name__ == '__main__':
         ]
 
         evaluator = RemoteAzureBenchmarkEvaluator(
-            input_shape=input_shape, 
+            input_shape=input_shape,
             onnx_export_kwargs={'opset_version': 11},
             **target_config
         )
@@ -121,7 +123,7 @@ if __name__ == '__main__':
 
     if not args.serial_training:
         partial_tr_obj = RayParallelEvaluator(
-            partial_tr_obj, num_gpus=args.gpus_per_job, 
+            partial_tr_obj, num_gpus=args.gpus_per_job,
             max_calls=1
         )
 
@@ -138,7 +140,7 @@ if __name__ == '__main__':
     # Search algorithm
     algo_config = search_config['algorithm']
     algo = AVAILABLE_ALGOS[algo_config['name']](
-        search_space, so, dataset_provider, 
+        search_space, so, dataset_provider,
         output_dir=args.output_dir, seed=args.seed,
         **algo_config.get('params', {}),
     )

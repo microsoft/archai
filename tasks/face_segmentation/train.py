@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from pathlib import Path
 from argparse import ArgumentParser
 
@@ -17,8 +20,8 @@ parser.add_argument('--dataset_dir', type=Path, help='Face Synthetics dataset di
 parser.add_argument('--output_dir', type=Path, help='Output directory.', required=True)
 parser.add_argument('--lr', type=float, default=2e-4)
 parser.add_argument('--batch_size', type=int, default=16)
-parser.add_argument('--epochs', type=int, default=30)
-parser.add_argument('--val_check_interval', type=float, default=1)
+parser.add_argument('--epochs', type=int, default=1)
+parser.add_argument('--val_check_interval', type=float, default=1000)
 
 
 if __name__ == '__main__':
@@ -67,6 +70,6 @@ if __name__ == '__main__':
     rand_range = (0.0, 1.0)
     export_kwargs = {'opset_version': 11}
     rand_min, rand_max = rand_range
-    sample_input = (rand_max - rand_min) * torch.rand(*input_shape) + rand_min).type("torch.FloatTensor")
+    sample_input = ((rand_max - rand_min) * torch.rand(*input_shape) + rand_min).type("torch.FloatTensor")
     onnx_file = str(args.output_dir / 'final_model.onnx')
     torch.onnx.export(model, (sample_input,), onnx_file, input_names=[f"input_0"], **export_kwargs, )

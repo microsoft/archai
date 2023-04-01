@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 from functools import partial
 from itertools import chain
 
@@ -23,7 +25,7 @@ class Conv2dSamePadding(nn.Conv2d):
 
 class ReluConv2d(nn.Module):
     def __init__(self, in_channels: int, out_channels: int,
-                 kernel_size: int = 3, stride: int = 1, 
+                 kernel_size: int = 3, stride: int = 1,
                  bias: bool = False,  **kwargs):
         super().__init__()
 
