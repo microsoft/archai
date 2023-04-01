@@ -13,7 +13,7 @@ class PartialTrainingValIOU(ModelEvaluator):
     def __init__(self, output_dir: str, tr_epochs: float = 1.0,
                  batch_size: int = 16, lr: float = 2e-4,
                  tr_dl_workers: int = 8, val_dl_workers: int = 8,
-                 val_check_interval: float = 0.1):
+                 val_check_interval: float = 1):
         self.output_dir = Path(output_dir)
         self.tr_epochs = tr_epochs
         self.batch_size = batch_size
@@ -23,9 +23,9 @@ class PartialTrainingValIOU(ModelEvaluator):
         self.val_check_interval = val_check_interval
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, 
+    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider,
                  budget: Optional[float] = None) -> float:
-        
+
         tr_dataset = dataset_provider.get_train_dataset()
         val_dataset = dataset_provider.get_val_dataset()
 
@@ -39,7 +39,7 @@ class PartialTrainingValIOU(ModelEvaluator):
         )
 
         trainer = Trainer(
-            default_root_dir=str(self.output_dir), gpus=1, 
+            default_root_dir=str(self.output_dir), accelerator='gpu', devices=1,
             val_check_interval=int(self.val_check_interval * len(tr_dataloader)),
             max_steps=int(self.tr_epochs * len(tr_dataloader)),
         )

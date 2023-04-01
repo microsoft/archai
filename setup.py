@@ -22,7 +22,7 @@ dependencies = [
     "plotly",
     "psutil",
     "pytest",
-    "pytorch-lightning",
+    "pytorch-lightning>=2.0.0",
     "pyunpack",
     "pyyaml",
     "ray>=1.0.0",
