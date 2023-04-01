@@ -49,7 +49,7 @@ if __name__ == '__main__':
     ]
 
     trainer = Trainer(
-        default_root_dir=str(args.output_dir), accelerator='gpu', 
+        default_root_dir=str(args.output_dir), accelerator='gpu',
         val_check_interval=args.val_check_interval,
         max_epochs=args.epochs,
         callbacks=callbacks
@@ -61,3 +61,12 @@ if __name__ == '__main__':
     print(val_result)
 
     trainer.save_checkpoint(args.output_dir / 'final_model.ckpt')
+
+    # Save onnx model.
+    input_shape = (1, 3, 256, 256)
+    rand_range = (0.0, 1.0)
+    export_kwargs = {'opset_version': 11}
+    rand_min, rand_max = rand_range
+    sample_input = (rand_max - rand_min) * torch.rand(*input_shape) + rand_min).type("torch.FloatTensor")
+    onnx_file = str(args.output_dir / 'final_model.onnx')
+    torch.onnx.export(model, (sample_input,), onnx_file, input_names=[f"input_0"], **export_kwargs, )
