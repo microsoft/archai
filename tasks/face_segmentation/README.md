@@ -79,24 +79,29 @@ The table below shows the final results after fully training the final pareto ar
 ![pareto_evolution](assets/snp_pareto_evolution.png)
 
 The selected architectures for the search with the `snp_search.yaml` config file can be found in the [archs/snp_target/](arch/snp_target/) directory or in the table below.
-| Architecture                                                                          |   Search iteration |   SNP Quantized Latency (s) |   Partial Training Val. IOU |
-|:-----------------------------------------------------------------------------------------------------------|----------------:|----------------------------:|----------------------------:|
-| [69f28a4c45aef58a67e2e2e0ce2d087b60b03173](archs/snp_target/69f28a4c45aef58a67e2e2e0ce2d087b60b03173.json) |              12 |                       0.008 |                       0.783 |
-| [b14a1f0a3d17ea0f62022c2cf61da032fd7c9971](archs/snp_target/b14a1f0a3d17ea0f62022c2cf61da032fd7c9971.json) |               5 |                       0.007 |                       0.769 |
-| [946fb0e27ef6ab9659b128006697a1b5a90e674c](archs/snp_target/946fb0e27ef6ab9659b128006697a1b5a90e674c.json) |              13 |                       0.007 |                       0.768 |
-| [7bd6a76ec04e9f85c27d69a48557f689b0af2037](archs/snp_target/7bd6a76ec04e9f85c27d69a48557f689b0af2037.json) |               5 |                       0.006 |                       0.761 |
-| [fb5511d6bee3bf52abed1527850c829cc4293098](archs/snp_target/fb5511d6bee3bf52abed1527850c829cc4293098.json) |               7 |                       0.005 |                       0.758 |
-| [4fca939c89bf725f9efa47606c640e302f8ae9cc](archs/snp_target/4fca939c89bf725f9efa47606c640e302f8ae9cc.json) |              10 |                       0.004 |                       0.752 |
-| [0ef9945b08c953586848a8507bc5d057fab7278d](archs/snp_target/0ef9945b08c953586848a8507bc5d057fab7278d.json) |              14 |                       0.004 |                       0.749 |
-| [d47fc530a155c9c182773fc918fc3f17ed27a9d5](archs/snp_target/d47fc530a155c9c182773fc918fc3f17ed27a9d5.json) |              13 |                       0.003 |                       0.712 |
-| [2aa378e5fad84ecc2114f8855a2cd8b02658cbdc](archs/snp_target/2aa378e5fad84ecc2114f8855a2cd8b02658cbdc.json) |              14 |                       0.003 |                       0.709 |
-| [81f407d6f62de129e917c6b4f58021143a5df050](archs/snp_target/81f407d6f62de129e917c6b4f58021143a5df050.json) |               7 |                       0.003 |                       0.703 |
-| [a223144f3b12adf3144478e5060bd99ef2a64ae9](archs/snp_target/a223144f3b12adf3144478e5060bd99ef2a64ae9.json) |              13 |                       0.003 |                       0.693 |
-| [206e6e499eca01389b46c46989588ff04a2f3a42](archs/snp_target/206e6e499eca01389b46c46989588ff04a2f3a42.json) |              14 |                       0.003 |                       0.688 |
-| [115fc8c962797a6dfd9c3f24fd5ccb4b60df95df](archs/snp_target/115fc8c962797a6dfd9c3f24fd5ccb4b60df95df.json) |              10 |                       0.003 |                       0.682 |
-| [230f1fe115fac89432f5bccad7a01c65e3bb2918](archs/snp_target/230f1fe115fac89432f5bccad7a01c65e3bb2918.json) |              10 |                       0.003 |                       0.666 |
-| [78c76774f378e083c788e56e86978f6d1d9f267c](archs/snp_target/78c76774f378e083c788e56e86978f6d1d9f267c.json) |              10 |                       0.003 |                       0.659 |
-| [604ee54bcc767722bbdd3a610246aadca5a32214](archs/snp_target/604ee54bcc767722bbdd3a610246aadca5a32214.json) |              11 |                       0.003 |                       0.657 |
-| [c570e333fd94f2d514eb1955fafc9eeeb012e750](archs/snp_target/c570e333fd94f2d514eb1955fafc9eeeb012e750.json) |               9 |                       0.003 |                       0.636 |
-| [4786c03a18be281ad2fed235c86a5fe952fb4b0a](archs/snp_target/4786c03a18be281ad2fed235c86a5fe952fb4b0a.json) |               9 |                       0.002 |                       0.562 |
 
+### Final Training
+
+The table below shows the final results after fully training the final pareto architectures for 30 epochs using the [train.py](./train.py) script.
+
+
+| Architecture                                                                                               |   Search iteration  |   SNP Quantized Latency (s)  |   Partial Training Val. IOU  |   Full training Validation mIOU |
+|:-----------------------------------------------------------------------------------------------------------|--------------------:|-----------------------------:|-----------------------------:|------------------:|
+| [b14a1f0a3d17ea0f62022c2cf61da032fd7c9971](archs/snp_target/b14a1f0a3d17ea0f62022c2cf61da032fd7c9971.json) |                  5  |                        0.007 |                        0.769 |              0.88 |
+| [946fb0e27ef6ab9659b128006697a1b5a90e674c](archs/snp_target/946fb0e27ef6ab9659b128006697a1b5a90e674c.json) |                 13  |                        0.007 |                        0.768 |              0.87 |
+| [69f28a4c45aef58a67e2e2e0ce2d087b60b03173](archs/snp_target/69f28a4c45aef58a67e2e2e0ce2d087b60b03173.json) |                 12  |                        0.008 |                        0.783 |              0.87 |
+| [7bd6a76ec04e9f85c27d69a48557f689b0af2037](archs/snp_target/7bd6a76ec04e9f85c27d69a48557f689b0af2037.json) |                  5  |                        0.006 |                        0.761 |              0.87 |
+| [fb5511d6bee3bf52abed1527850c829cc4293098](archs/snp_target/fb5511d6bee3bf52abed1527850c829cc4293098.json) |                  7  |                        0.005 |                        0.758 |              0.86 |
+| [4fca939c89bf725f9efa47606c640e302f8ae9cc](archs/snp_target/4fca939c89bf725f9efa47606c640e302f8ae9cc.json) |                 10  |                        0.004 |                        0.752 |              0.86 |
+| [0ef9945b08c953586848a8507bc5d057fab7278d](archs/snp_target/0ef9945b08c953586848a8507bc5d057fab7278d.json) |                 14  |                        0.004 |                        0.749 |              0.85 |
+| [81f407d6f62de129e917c6b4f58021143a5df050](archs/snp_target/81f407d6f62de129e917c6b4f58021143a5df050.json) |                  7  |                        0.003 |                        0.703 |              0.84 |
+| [d47fc530a155c9c182773fc918fc3f17ed27a9d5](archs/snp_target/d47fc530a155c9c182773fc918fc3f17ed27a9d5.json) |                 13  |                        0.003 |                        0.712 |              0.84 |
+| [2aa378e5fad84ecc2114f8855a2cd8b02658cbdc](archs/snp_target/2aa378e5fad84ecc2114f8855a2cd8b02658cbdc.json) |                 14  |                        0.003 |                        0.709 |              0.84 |
+| [a223144f3b12adf3144478e5060bd99ef2a64ae9](archs/snp_target/a223144f3b12adf3144478e5060bd99ef2a64ae9.json) |                 13  |                        0.003 |                        0.693 |              0.83 |
+| [115fc8c962797a6dfd9c3f24fd5ccb4b60df95df](archs/snp_target/115fc8c962797a6dfd9c3f24fd5ccb4b60df95df.json) |                 10  |                        0.003 |                        0.682 |              0.83 |
+| [206e6e499eca01389b46c46989588ff04a2f3a42](archs/snp_target/206e6e499eca01389b46c46989588ff04a2f3a42.json) |                 14  |                        0.003 |                        0.688 |              0.83 |
+| [230f1fe115fac89432f5bccad7a01c65e3bb2918](archs/snp_target/230f1fe115fac89432f5bccad7a01c65e3bb2918.json) |                 10  |                        0.003 |                        0.666 |              0.82 |
+| [78c76774f378e083c788e56e86978f6d1d9f267c](archs/snp_target/78c76774f378e083c788e56e86978f6d1d9f267c.json) |                 10  |                        0.003 |                        0.659 |              0.82 |
+| [604ee54bcc767722bbdd3a610246aadca5a32214](archs/snp_target/604ee54bcc767722bbdd3a610246aadca5a32214.json) |                 11  |                        0.003 |                        0.657 |              0.82 |
+| [c570e333fd94f2d514eb1955fafc9eeeb012e750](archs/snp_target/c570e333fd94f2d514eb1955fafc9eeeb012e750.json) |                  9  |                        0.003 |                        0.636 |              0.80  |
+| [4786c03a18be281ad2fed235c86a5fe952fb4b0a](archs/snp_target/4786c03a18be281ad2fed235c86a5fe952fb4b0a.json) |                  9  |                        0.002 |                        0.562 |              0.79 |
