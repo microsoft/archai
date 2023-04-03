@@ -49,7 +49,7 @@ class TfppSearchSpace(ConfigSearchSpace):
                 tuple([
                     (op_name, float(item)) for op_name, item in zip(op_subset.keys(), alloc)
                 ])
-                for alloc in np.eye(len(OPS), dtype=np.uint).tolist()
+                for alloc in np.eye(len(op_subset), dtype=np.uint).tolist()
             ]
 
         to_tuple = lambda x: (x, ) if not isinstance(x, (tuple, list)) else x
