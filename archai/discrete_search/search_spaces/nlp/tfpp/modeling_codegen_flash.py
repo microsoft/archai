@@ -37,8 +37,8 @@ class CodeGenFlashConfig(CodeGenConfig):
         assert attn_type in [
             "default",
             "flash",
-            "xformer",
-        ], "`attn_type` should be one of: `default`, `flash` or `xformer`."
+            "xformers",
+        ], "`attn_type` should be one of: `default`, `flash` or `xformers`."
         self.attn_type = attn_type
         self.use_fused_mlp = use_fused_mlp
 
@@ -146,7 +146,7 @@ class CodeGenFlashBlock(nn.Module):
                 use_flash_attn=True,
                 return_residual=False,
             )
-        elif self.attn_type == "xformer":
+        elif self.attn_type == "xformers":
             self.attn = CodeGenXAttention(config)
 
         if not self.use_fused_mlp:
