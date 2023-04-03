@@ -58,6 +58,7 @@ dependencies = [
     "torchvision",
     "tqdm",
     "transformers>=4.27.1",
+    "xformers",
 ]
 dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)?$)", x)[0] for x in dependencies)}
 
@@ -78,7 +79,9 @@ extras_require["cv"] = filter_dependencies(
     "scikit-learn",
     "torchvision",
 )
-extras_require["nlp"] = filter_dependencies("datasets", "einops", "opt_einsum", "tokenizers", "transformers")
+extras_require["nlp"] = filter_dependencies(
+    "datasets", "einops", "opt_einsum", "tokenizers", "transformers", "xformers"
+)
 
 extras_require["deepspeed"] = filter_dependencies("deepspeed", "mlflow")
 extras_require["flash-attn"] = filter_dependencies("flash-attn", "fftconv")
@@ -118,10 +121,16 @@ extras_require["aml"] = filter_dependencies(
     "mldesigner",
     "mlflow",
     "pytorch-lightning",
-    "torchvision"
+    "torchvision",
 )
 
-extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"] + extras_require["aml"]
+extras_require["dev"] = (
+    extras_require["cv"]
+    + extras_require["nlp"]
+    + extras_require["docs"]
+    + extras_require["tests"]
+    + extras_require["aml"]
+)
 if os.name != "nt":
     # Support for DeepSpeed is not available on native Windows
     extras_require["dev"] += extras_require["deepspeed"]

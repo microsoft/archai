@@ -100,8 +100,8 @@ if __name__ == "__main__":
             n_head=16,
             rotary_dim=32,
             pad_vocab_size_multiple=64,
-            use_flash_attn=True,
-            use_flash_fused_mlp=True,
+            attn_type="flash",
+            use_fused_mlp=True,
         )
         model = CodeGenFlashSequential(config)
 
