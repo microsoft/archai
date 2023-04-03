@@ -129,6 +129,7 @@ class DsTrainer(TrainerBase):
         )
 
         if self.engine.global_rank == 0:
+            mlflow.set_tracking_uri(f"file://{self.args.output_dir}/mlruns")
             mlflow.start_run()
 
         self.train_dataset = train_dataset
