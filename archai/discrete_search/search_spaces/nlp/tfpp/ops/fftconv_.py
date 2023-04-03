@@ -1,3 +1,5 @@
+''' Adapted from https://github.com/HazyResearch/H3/blob/main/src/ops/fftconv.py '''
+
 import math
 
 import torch
