@@ -1,6 +1,6 @@
+from archai.common.common import common_init
 from archai.supergraph.algos.nasbench101.nasbench101_dataset import Nasbench101Dataset
 from archai.supergraph.datasets import data
-from archai.supergraph.utils.common import common_init
 from archai.supergraph.utils.trainer import Trainer
 
 

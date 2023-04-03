@@ -1,0 +1,33 @@
+# This file is used to subscribe for notifications for PRs
+# related to specific file paths, does not necessarily mean
+# approval is required from these people before merging.
+#
+# Learn more about CODEOWNERS syntax here:
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+
+# Top-level folders
+/.github/ @gugarosa @piero2c
+/.vscode/ @sytelus
+/confs/ @sytelus @debadeepta
+/docker/ @gugarosa
+/docs/ @gugarosa @piero2c
+/scripts/ @sytelus @debadeepta
+/tests/ @gugarosa @piero2c
+
+# Archai
+/archai/api/ @gugarosa @piero2c
+/archai/common/ @sytelus @gugarosa @piero2c
+/archai/datasets/ @gugarosa
+/archai/discrete_search/ @piero2c
+/archai/onnx/ @gugarosa @caiom
+/archai/quantization/ @gugarosa @caiom
+/archai/supergraph/ @sytelus @debadeepta
+/archai/trainers/ @gugarosa
+
+# Research
+/research/evaluate_harness @gugarosa
+/research/lm_eval_harness @gugarosa
+
+# Tasks
+/tasks/text_generation @gugarosa

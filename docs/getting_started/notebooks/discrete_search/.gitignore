@@ -3,3 +3,5 @@
 
 # Ignore local data downloaded by `torchvision`
 dataroot/
+out_bananas/
+out_evo/

@@ -24,8 +24,8 @@ class HfHubDatasetProvider(DatasetProvider):
 
     def __init__(
         self,
-        dataset: Optional[str] = "wikitext",
-        subset: Optional[str] = "wikitext-2-raw-v1",
+        dataset_name: str,
+        dataset_config_name: Optional[str] = None,
         data_dir: Optional[str] = None,
         data_files: Optional[Union[str, List[str], Dict[str, Union[str, List[str]]]]] = None,
         cache_dir: Optional[str] = None,
@@ -34,8 +34,8 @@ class HfHubDatasetProvider(DatasetProvider):
         """Initialize Hugging Face Hub dataset provider.
 
         Args:
-            dataset: Name of the dataset.
-            subset: Name of the dataset configuration.
+            dataset_name: Name of the dataset.
+            dataset_config_name: Name of the dataset configuration.
             data_dir: Path to the data directory.
             data_files: Path(s) to the data file(s).
             cache_dir: Path to the read/write cache directory.
@@ -45,8 +45,8 @@ class HfHubDatasetProvider(DatasetProvider):
 
         super().__init__()
 
-        self.dataset = dataset
-        self.subset = subset
+        self.dataset_name = dataset_name
+        self.dataset_config_name = dataset_config_name
         self.data_dir = data_dir
         self.data_files = data_files
         self.cache_dir = cache_dir
@@ -60,8 +60,8 @@ class HfHubDatasetProvider(DatasetProvider):
         streaming: Optional[bool] = False,
     ) -> Union[Dataset, DatasetDict, IterableDataset, IterableDatasetDict]:
         return hf_load_dataset(
-            self.dataset,
-            name=self.subset,
+            self.dataset_name,
+            name=self.dataset_config_name,
             data_dir=self.data_dir,
             data_files=self.data_files,
             split=split,

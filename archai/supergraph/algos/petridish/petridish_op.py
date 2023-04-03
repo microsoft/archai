@@ -9,10 +9,10 @@ import torch
 from overrides import overrides
 from torch import Tensor, nn
 
+from archai.common.utils import zip_eq
 from archai.supergraph.nas.arch_params import ArchParams
 from archai.supergraph.nas.model_desc import OpDesc
 from archai.supergraph.nas.operations import FactorizedReduce, Identity, Op
-from archai.supergraph.utils.utils import zip_eq
 
 
 class StopForward(Op):

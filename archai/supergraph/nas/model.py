@@ -8,11 +8,11 @@ import torch
 from overrides import overrides
 from torch import Tensor, nn
 
+from archai.common import ml_utils
 from archai.supergraph.nas.arch_module import ArchModule
 from archai.supergraph.nas.cell import Cell
 from archai.supergraph.nas.model_desc import AuxTowerDesc, CellDesc, ModelDesc
 from archai.supergraph.nas.operations import DropPath_, Op
-from archai.supergraph.utils import ml_utils
 
 
 class Model(ArchModule):

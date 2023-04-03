@@ -4,6 +4,7 @@
 import argparse
 from typing import Dict, Type
 
+from archai.common import utils
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.algos.darts.darts_exp_runner import DartsExperimentRunner
 from archai.supergraph.algos.didarts.didarts_exp_runner import DiDartsExperimentRunner
@@ -16,7 +17,6 @@ from archai.supergraph.algos.petridish.petridish_exp_runner import (
 from archai.supergraph.algos.random.random_exp_runner import RandomExperimentRunner
 from archai.supergraph.algos.xnas.xnas_exp_runner import XnasExperimentRunner
 from archai.supergraph.nas.exp_runner import ExperimentRunner
-from archai.supergraph.utils import utils
 
 
 def main():

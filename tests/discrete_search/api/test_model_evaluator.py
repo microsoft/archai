@@ -15,20 +15,20 @@ from archai.discrete_search.api.model_evaluator import (
 
 
 class MyModelEvaluator(ModelEvaluator):
-    def __init__(self) -> None:
+    def __init__(self, dataset) -> None:
         super().__init__()
 
     @overrides
-    def evaluate(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, arch: ArchaiModel, budget: Optional[float] = None) -> float:
         return 0.0
 
 
 class MyAsyncModelEvaluator(AsyncModelEvaluator):
-    def __init__(self) -> None:
+    def __init__(self, dataset) -> None:
         super().__init__()
 
     @overrides
-    def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
+    def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
         return MagicMock()
 
     @overrides
@@ -41,8 +41,8 @@ def test_model_evaluator():
     dataset = MagicMock()
 
     # Assert that mocked value is returned
-    model_evaluator = MyModelEvaluator()
-    value = model_evaluator.evaluate(arch, dataset, budget=None)
+    model_evaluator = MyModelEvaluator(dataset)
+    value = model_evaluator.evaluate(arch, budget=None)
     assert value == 0.0
 
 
@@ -51,8 +51,8 @@ def test_async_model_evaluator():
     dataset = MagicMock()
 
     # Assert that mocked method runs
-    async_model_evaluator = MyAsyncModelEvaluator()
-    assert async_model_evaluator.send(arch, dataset, budget=None)
+    async_model_evaluator = MyAsyncModelEvaluator(dataset)
+    assert async_model_evaluator.send(arch, budget=None)
 
     # Assert that mocked value is returned
     values = async_model_evaluator.fetch_all()

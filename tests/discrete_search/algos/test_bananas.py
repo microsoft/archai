@@ -17,7 +17,6 @@ def test_bananas(output_dir, search_space, search_objectives, surrogate_model):
     algo = MoBananasSearch(
         search_space=search_space,
         search_objectives=search_objectives,
-        dataset_provider=None,
         output_dir=output_dir,
         surrogate_model=surrogate_model,
         num_iters=2,
@@ -36,5 +35,5 @@ def test_bananas(output_dir, search_space, search_objectives, surrogate_model):
     all_models = [m for iter_r in search_results.results for m in iter_r["models"]]
 
     # Checks if all registered models satisfy constraints
-    _, valid_models = search_objectives.validate_constraints(all_models, None)
+    _, valid_models = search_objectives.validate_constraints(all_models)
     assert len(valid_models) == len(all_models)

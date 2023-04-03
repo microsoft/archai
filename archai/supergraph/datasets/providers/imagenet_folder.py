@@ -9,7 +9,7 @@ import torchvision
 from torchvision.datasets.utils import check_integrity
 
 from archai.common.ordered_dict_logger import get_global_logger
-from archai.supergraph.utils.utils import download_and_extract_tar, extract_tar
+from archai.common.utils import download_and_extract_tar, extract_tar
 
 logger = get_global_logger()
 _ARCHIVE_DICT = {

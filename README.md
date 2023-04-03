@@ -97,7 +97,7 @@ from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
 
 algo = EvolutionParetoSearch(
    space,
-   objectives,
+   search_objectives,
    None,
    "tmp",
    num_iters=5,
@@ -137,7 +137,7 @@ We welcome any questions, feedback, or suggestions you may have and look forward
 
 ### Team
 
-Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](www.debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Mendes, [Piero Kauffmann](https://www.microsoft.com/en-us/research/people/pkauffmann), Allie Del Giorno, Mojan Javaheripi, and [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
+Archai has been created and maintained by [Shital Shah](https://shital.com), [Debadeepta Dey](https://debadeepta.com), [Gustavo de Rosa](https://www.microsoft.com/en-us/research/people/gderosa), Caio Mendes, [Piero Kauffmann](https://www.microsoft.com/en-us/research/people/pkauffmann), [Chris Lovett](https://lovettsoftware.com), Allie Del Giorno, Mojan Javaheripi, and [Ofer Dekel](https://www.microsoft.com/en-us/research/people/oferd) at Microsoft Research.
 
 ### Contributions
 

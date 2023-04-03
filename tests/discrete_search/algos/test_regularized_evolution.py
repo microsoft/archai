@@ -19,7 +19,6 @@ def test_regularized_evolution(output_dir, search_space, search_objectives, surr
     algo = RegularizedEvolutionSearch(
         search_space=search_space,
         search_objectives=search_objectives,
-        dataset_provider=None,
         output_dir=output_dir,
         num_iters=5,
         init_num_models=4,
@@ -37,5 +36,5 @@ def test_regularized_evolution(output_dir, search_space, search_objectives, surr
     all_models = [m for iter_r in search_results.results for m in iter_r["models"]]
 
     # Checks if all registered models satisfy constraints
-    _, valid_models = search_objectives.validate_constraints(all_models, None)
+    _, valid_models = search_objectives.validate_constraints(all_models)
     assert len(valid_models) == len(all_models)

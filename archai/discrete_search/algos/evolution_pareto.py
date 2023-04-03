@@ -8,7 +8,6 @@ from typing import List, Optional
 from overrides import overrides
 from tqdm import tqdm
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.common.ordered_dict_logger import OrderedDictLogger
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.search_objectives import SearchObjectives
@@ -34,7 +33,6 @@ class EvolutionParetoSearch(Searcher):
         self,
         search_space: EvolutionarySearchSpace,
         search_objectives: SearchObjectives,
-        dataset_provider: DatasetProvider,
         output_dir: str,
         num_iters: Optional[int] = 10,
         init_num_models: Optional[int] = 10,
@@ -43,6 +41,8 @@ class EvolutionParetoSearch(Searcher):
         max_unseen_population: Optional[int] = 100,
         mutations_per_parent: Optional[int] = 1,
         num_crossovers: Optional[int] = 5,
+        clear_evaluated_models: bool = True,
+        save_pareto_model_weights: bool = True,
         seed: Optional[int] = 1,
     ):
         """Initialize the evolutionary search algorithm.
@@ -50,7 +50,6 @@ class EvolutionParetoSearch(Searcher):
         Args:
             search_space: Discrete search space compatible with evolutionary algorithms.
             search_objectives: Search objectives.
-            dataset_provider: Dataset provider.
             output_dir: Output directory.
             num_iters: Number of iterations.
             init_num_models: Number of initial models to evaluate.
@@ -60,6 +59,9 @@ class EvolutionParetoSearch(Searcher):
             max_unseen_population: Maximum number of unseen models to evaluate in each iteration.
             mutations_per_parent: Number of distinct mutations generated for each Pareto frontier member.
             num_crossovers: Total number of crossovers generated per iteration.
+            clear_evaluated_models: Optimizes memory usage by clearing the architecture
+                of `ArchaiModel` after each iteration. Defaults to True
+            save_pareto_model_weights: If `True`, saves the weights of the pareto models. Defaults to True
             seed: Random seed.
 
         """
@@ -71,7 +73,6 @@ class EvolutionParetoSearch(Searcher):
         self.iter_num = 0
         self.search_space = search_space
         self.so = search_objectives
-        self.dataset_provider = dataset_provider
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
 
@@ -85,6 +86,8 @@ class EvolutionParetoSearch(Searcher):
         self.num_crossovers = num_crossovers
 
         # Utils
+        self.clear_evaluated_models = clear_evaluated_models
+        self.save_pareto_model_weights = save_pareto_model_weights
         self.search_state = SearchResults(search_space, self.so)
         self.seed = seed
         self.rng = random.Random(seed)
@@ -113,7 +116,7 @@ class EvolutionParetoSearch(Searcher):
         while len(valid_sample) < num_models and nb_tries < patience:
             sample = [self.search_space.random_sample() for _ in range(num_models)]
 
-            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
+            _, valid_indices = self.so.validate_constraints(sample)
             valid_sample += [sample[i] for i in valid_indices]
 
         return valid_sample[:num_models]
@@ -143,7 +146,7 @@ class EvolutionParetoSearch(Searcher):
                 mutated_model = self.search_space.mutate(p)
                 mutated_model.metadata["parent"] = p.archid
 
-                if not self.so.is_model_valid(mutated_model, self.dataset_provider):
+                if not self.so.is_model_valid(mutated_model):
                     continue
 
                 if mutated_model.archid not in self.seen_archs:
@@ -178,11 +181,11 @@ class EvolutionParetoSearch(Searcher):
                 child = self.search_space.crossover([p1, p2])
                 nb_tries = 0
 
-                while not self.so.is_model_valid(child, self.dataset_provider) and nb_tries < patience:
+                while not self.so.is_model_valid(child) and nb_tries < patience:
                     child = self.search_space.crossover([p1, p2])
                     nb_tries += 1
 
-                if child and self.so.is_model_valid(child, self.dataset_provider):
+                if child and self.so.is_model_valid(child):
                     if child.archid not in children_ids and child.archid not in self.seen_archs:
                         child.metadata["generation"] = self.iter_num
                         child.metadata["parents"] = f"{p1.archid},{p2.archid}"
@@ -235,9 +238,9 @@ class EvolutionParetoSearch(Searcher):
             self.on_search_iteration_start(unseen_pop)
 
             # Calculates objectives
-            logger.info(f"Calculating search objectives {list(self.so.objs.keys())} for {len(unseen_pop)} models ...")
+            logger.info(f"Calculating search objectives {list(self.so.objective_names)} for {len(unseen_pop)} models ...")
 
-            results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
+            results = self.so.eval_all_objs(unseen_pop)
             self.search_state.add_iteration_results(
                 unseen_pop,
                 results,
@@ -257,9 +260,18 @@ class EvolutionParetoSearch(Searcher):
             logger.info(f"Found {len(pareto)} members.")
 
             # Saves search iteration results
+            # NOTE: There is a dependency on these file naming schemas on archai.common.notebook_helper
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
-            self.search_state.save_pareto_frontier_models(str(self.output_dir / f"pareto_models_iter_{self.iter_num}"))
+            self.search_state.save_pareto_frontier_models(
+                str(self.output_dir / f"pareto_models_iter_{self.iter_num}"),
+                save_weights=self.save_pareto_model_weights
+            )
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
+
+            # Optimizes memory usage by clearing architectures from memory
+            if self.clear_evaluated_models:
+                logger.info("Optimzing memory usage ...")
+                [model.clear() for model in unseen_pop]
 
             parents = pareto
             logger.info(f"Choosing {len(parents)} parents ...")

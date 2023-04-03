@@ -10,7 +10,6 @@ from archai.common.config import Config
 from archai.supergraph.algos.nasbench101 import model_matrix
 from archai.supergraph.algos.nasbench101.nasbench101_op import NasBench101Op
 from archai.supergraph.nas.model_desc import (
-    AuxTowerDesc,
     CellDesc,
     CellType,
     ConvMacroParams,

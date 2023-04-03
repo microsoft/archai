@@ -4,7 +4,6 @@
 import os
 import shutil
 import tempfile
-
 import torch
 
 from archai.common.file_utils import (
@@ -16,6 +15,7 @@ from archai.common.file_utils import (
     create_file_name_identifier,
     create_file_with_string,
     get_full_path,
+    TemporaryFiles,
 )
 
 
@@ -114,3 +114,20 @@ def test_get_full_path():
     assert os.path.exists(full_path)
 
     os.rmdir(full_path)
+
+
+def test_temporary_files():
+    with TemporaryFiles() as tmp:
+        name1 = tmp.get_temp_file()
+        name2 = tmp.get_temp_file()
+        with open(name1, 'w') as f:
+            f.write("test1")
+        with open(name2, 'w') as f:
+            f.write("test2")
+        with open(name1, 'r') as f:
+            assert f.readline() == 'test1'
+        with open(name2, 'r') as f:
+            assert f.readline() == 'test2'
+
+    assert not os.path.isfile(name1)
+    assert not os.path.isfile(name2)

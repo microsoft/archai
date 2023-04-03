@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 
 from torch.utils.data import DataLoader, Dataset, Sampler
 
+from archai.common import apex_utils, utils
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.datasets.distributed_stratified_sampler import DistributedStratifiedSampler
@@ -14,7 +15,6 @@ from archai.supergraph.datasets.dataset_provider import (
     get_provider_type,
 )
 from archai.supergraph.datasets.limit_dataset import DatasetLike
-from archai.supergraph.utils import apex_utils, utils
 
 logger = get_global_logger()
 

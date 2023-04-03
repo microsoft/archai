@@ -3,10 +3,10 @@
 
 import torch
 
+from archai.common.common import common_init
 from archai.common.config import Config
 from archai.supergraph import models
 from archai.supergraph.datasets import data
-from archai.supergraph.utils.common import common_init
 from archai.supergraph.utils.trainer import Trainer
 
 

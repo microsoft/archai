@@ -3,7 +3,7 @@ import pickle
 
 import tensorflow as tf
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 dataset_file = utils.full_path("~/dataroot/nasbench_ds/nasbench_only108.tfrecord")
 

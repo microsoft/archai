@@ -29,8 +29,8 @@ Model Description Builder
    :members:
    :undoc-members:
 
-Operations
-----------
+Operators
+---------
 
 .. automodule:: archai.supergraph.algos.gumbelsoftmax.gs_op
    :members:

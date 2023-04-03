@@ -9,7 +9,6 @@ from typing import Any, Dict, Optional
 import torch
 from overrides import overrides
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.search_spaces.nlp.transformer_flex.search_space import (
@@ -69,7 +68,7 @@ class TransformerFlexOnnxMemory(ModelEvaluator):
         return prepare_model_for_onnx(model, self.search_space.arch_type)
 
     @overrides
-    def evaluate(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> float:
+    def evaluate(self, arch: ArchaiModel, budget: Optional[float] = None) -> float:
         model = self._load_and_prepare(arch.metadata["config"])
 
         # There is a bug for Python < 3.10 when using TemporaryFile with Windows,

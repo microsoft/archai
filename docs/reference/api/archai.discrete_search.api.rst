@@ -1,8 +1,8 @@
 API
 ===
 
-Archai-Based Model
-------------------
+Archai Model
+------------
 
 .. automodule:: archai.discrete_search.api.archai_model
    :members:

@@ -106,7 +106,7 @@ import torch
 from torch_testbed.timing import print_all_timings
 
 from archai.supergraph.algos.darts.mixed_op import MixedOp
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 utils.setup_cuda(2, local_rank=0)
 

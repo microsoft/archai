@@ -6,6 +6,7 @@ from typing import Dict, Optional
 from overrides import EnforceOverrides
 from torch import nn
 
+from archai.common import ml_utils, utils
 from archai.common.config import Config
 from archai.common.ordered_dict_logger import get_global_logger
 from archai.supergraph.datasets import data
@@ -13,7 +14,6 @@ from archai.supergraph.nas import nas_utils
 from archai.supergraph.nas.model import Model
 from archai.supergraph.nas.model_desc import ModelDesc
 from archai.supergraph.nas.model_desc_builder import ModelDescBuilder
-from archai.supergraph.utils import ml_utils, utils
 from archai.supergraph.utils.checkpoint import CheckPoint
 from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.utils.trainer import Trainer

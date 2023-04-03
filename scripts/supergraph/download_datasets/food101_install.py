@@ -19,7 +19,7 @@ import tempfile
 from torch.utils.model_zoo import tqdm
 from torchvision.datasets.utils import download_and_extract_archive
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 def copy_file_list(file_list, src_dir, dest_dir):

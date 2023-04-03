@@ -1,0 +1,52 @@
+name: Linter and Unit Tests Runner
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "archai/**"
+      - "tests/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "archai/**"
+      - "tests/**"
+
+jobs:
+  lint-run-tests:
+    name: Lints with `flake8` and run unit tests with `pytest`
+    strategy:
+      fail-fast: false
+      matrix:        
+        platform: [ windows-latest, ubuntu-latest ]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Pulls the repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Sets up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Installs the requirements
+        shell: bash -l {0}
+        run: |
+          python3 -m pip install --user -e .[dev]
+      - name: Finds syntax errors and undefined names
+        shell: bash -l {0}
+        run: |
+          # Stops the build if there are syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      - name: Lints project files
+        shell: bash -l {0}
+        run: |
+          # Exit-zero treats all errors as warnings (GitHub editor is 127 chars wide)
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Runs unit tests
+        shell: bash -l {0}
+        run: |
+          python3 -m pytest tests

@@ -132,6 +132,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.azureml/
 
 # Spyder project settings
 .spyderproject
@@ -151,3 +152,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Azure notebooks
+mlruns/
+dataroot/
+temp_code/
+mnist_test_run*/
+logs/

@@ -16,7 +16,11 @@ from transformers.tokenization_utils import PreTrainedTokenizer
 
 class HFEvalModel(BaseLM):
     def __init__(
-        self, model: torch.nn.Module, tokenizer: PreTrainedTokenizer, force_attention_mask: Optional[bool] = False
+        self,
+        model: torch.nn.Module,
+        tokenizer: PreTrainedTokenizer,
+        force_attention_mask: Optional[bool] = False,
+        max_generated_tokens: Optional[int] = 256,
     ) -> None:
         super().__init__()
 
@@ -24,11 +28,12 @@ class HFEvalModel(BaseLM):
         if torch.cuda.is_available():
             self._device = torch.device("cuda")
 
-        self.model = model
+        self.model = model.to(self.device)
         self.tokenizer = tokenizer
         self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
 
         self.force_attention_mask = force_attention_mask
+        self.max_generated_tokens = max_generated_tokens
 
     @property
     def eot_token_id(self) -> int:
@@ -43,7 +48,7 @@ class HFEvalModel(BaseLM):
 
     @property
     def max_gen_toks(self) -> int:
-        return 256
+        return self.max_generated_tokens
 
     @property
     def batch_size(self) -> int:
@@ -60,6 +65,8 @@ class HFEvalModel(BaseLM):
         return self.tokenizer.decode(tokens)
 
     def _model_call(self, inps: torch.Tensor) -> torch.Tensor:
+        inps = inps.to(self.device)
+
         kwargs = {}
         if self.force_attention_mask:
             kwargs["attention_mask"] = torch.zeros(inps.shape, dtype=torch.long, device=inps.device)
@@ -80,7 +87,7 @@ class HFEvalModel(BaseLM):
 
             # Encodes the context and defines number of tokens to be
             # removed when generation ends (default = 1)
-            input_ids = self.tokenizer(context, return_tensors="pt")["input_ids"]
+            input_ids = self.tokenizer(context, return_tensors="pt")["input_ids"].to(self.device)
             n_removal_tokens = 1
 
             if stop_tokens:
@@ -92,7 +99,7 @@ class HFEvalModel(BaseLM):
                     add_special_tokens=False,
                     return_attention_mask=False,
                     return_tensors="pt",
-                )["input_ids"]
+                )["input_ids"].to(self.device)
                 n_removal_tokens = encoded_stop_tokens.shape[-1]
 
                 # Defines the stopping criteria

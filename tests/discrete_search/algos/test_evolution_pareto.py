@@ -14,7 +14,7 @@ def output_dir(tmp_path_factory):
 
 
 def test_evolution_pareto(output_dir, search_space, search_objectives):
-    algo = EvolutionParetoSearch(search_space, search_objectives, None, output_dir, num_iters=3, init_num_models=5)
+    algo = EvolutionParetoSearch(search_space, search_objectives, output_dir, num_iters=3, init_num_models=5)
 
     search_results = algo.search()
     assert len(os.listdir(output_dir)) > 0
@@ -25,5 +25,5 @@ def test_evolution_pareto(output_dir, search_space, search_objectives):
     all_models = [m for iter_r in search_results.results for m in iter_r["models"]]
 
     # Checks if all registered models satisfy constraints
-    _, valid_models = search_objectives.validate_constraints(all_models, None)
+    _, valid_models = search_objectives.validate_constraints(all_models)
     assert len(valid_models) == len(all_models)

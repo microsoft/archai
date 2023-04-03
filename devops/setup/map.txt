@@ -1,7 +1,0 @@
-{
-  "e6dc0375": "/home/chris/snpe/experiment1",
-  "f85154f6": "/home/chris/snpe/experiment2",
-  "2492867a": "/home/chris/snpe/experiment3",
-  "a4b2cfcb": "/home/chris/snpe/experiment4",
-  "be77134d": "/home/chris/snpe/experiment5"
-}

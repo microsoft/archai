@@ -4,7 +4,7 @@ from collections import Counter
 
 import numpy as np
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 class _Corpus:

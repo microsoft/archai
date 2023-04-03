@@ -21,5 +21,5 @@ def test_transformer_flex_onnx_memory(search_space):
     objective = TransformerFlexOnnxMemory(search_space)
 
     # Assert that the returned memory is valid
-    memory = objective.evaluate(arch, None)
+    memory = objective.evaluate(arch)
     assert memory > 0.0
