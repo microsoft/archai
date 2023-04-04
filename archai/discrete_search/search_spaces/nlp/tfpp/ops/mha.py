@@ -1,4 +1,4 @@
-# Modified from https://github.com/HazyResearch/flash-attention/
+''' Modified from https://github.com/HazyResearch/flash-attention/ '''
 
 import math
 from warnings import warn
