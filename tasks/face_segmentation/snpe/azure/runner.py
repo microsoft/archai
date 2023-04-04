@@ -200,7 +200,7 @@ def lock_job(entity, service=None):
     node = get_unique_node_id()
     name = entity['name']
     # make sure we have the most up to date version of the entity.
-    entity = store.get_status(name, service=service)
+    entity = store.get_status(name)
     retries = 10
     while retries:
         retries -= 1
@@ -209,7 +209,7 @@ def lock_job(entity, service=None):
             raise Exception('lock encountered')
         entity['node'] = node
         try:
-            store.merge_status_entity(entity, service=service)
+            store.merge_status_entity(entity)
             break
         except:
             # someone beat us to it!
@@ -227,7 +227,7 @@ def unlock_job(entity, service=None):
     global store
     node = get_unique_node_id()
     # make sure we have the most up to date version of the entity.
-    entity = store.get_status(entity['name'], service=service)
+    entity = store.get_status(entity['name'])
     if 'node' in entity:
         if entity['node'] and entity['node'] != node:
             lock = entity['node']
@@ -238,7 +238,7 @@ def unlock_job(entity, service=None):
             while retries:
                 retries -= 1
                 try:
-                    store.merge_status_entity(entity, service=service)
+                    store.merge_status_entity(entity)
                     break
                 except:
                     # someone beat us to it!

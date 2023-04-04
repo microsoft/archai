@@ -12,17 +12,13 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--dataset_dir",
-                "d:\\datasets\\FaceSynthetics",
-                "--output_dir",
-                "output",
-                "--search_config",
-                "confs\\cpu_search.yaml",
-                "--seed",
-                "1680312796",
-                "--serial_training",
-                "--max_parameters",
-                "6e7"
+                "--device",
+                "f85154f6",
+                "--cleanup_stale_pods",
+                "60",
+                "--no_quantization",
+                "--working",
+                "~/snpe/experiment1",
             ]
         }
     ]
