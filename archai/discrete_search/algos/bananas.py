@@ -39,7 +39,6 @@ class MoBananasSearch(Searcher):
         self,
         search_space: BayesOptSearchSpace,
         search_objectives: SearchObjectives,
-        dataset_provider: DatasetProvider,
         output_dir: str,
         surrogate_model: Optional[Predictor] = None,
         num_iters: Optional[int] = 10,
@@ -47,6 +46,8 @@ class MoBananasSearch(Searcher):
         num_parents: Optional[int] = 10,
         mutations_per_parent: Optional[int] = 5,
         num_candidates: Optional[int] = 10,
+        clear_evaluated_models: bool = True,
+        save_pareto_weights: bool = False,
         seed: Optional[int] = 1,
     ) -> None:
         """Initialize the multi-objective BANANAS.
@@ -56,7 +57,6 @@ class MoBananasSearch(Searcher):
             search_objectives: Search objectives. Expensive objectives (registered with
                 `compute_intensive=True`) will be estimated using a surrogate model during
                 certain parts of the search. Cheap objectives will be always evaluated directly.
-            dataset_provider: Dataset provider.
             output_dir: Output directory.
             surrogate_model: Surrogate model. If `None`, a `PredictiveDNNEnsemble` will be used.
             num_iters: Number of iterations.
@@ -64,6 +64,9 @@ class MoBananasSearch(Searcher):
             num_parents: Number of parents to select for each iteration.
             mutations_per_parent: Number of mutations to apply to each parent.
             num_candidates: Number of selected models to add to evaluate in the next iteration.
+            clear_evaluated_models: Optimizes memory usage by clearing the architecture
+                of `ArchaiModel` after each iteration. Defaults to True
+            save_pareto_model_weights: If `False`, saves the weights of the pareto models.
             seed: Random seed.
 
         """
@@ -80,7 +83,6 @@ class MoBananasSearch(Searcher):
         self.output_dir.mkdir(exist_ok=True)
 
         self.search_space = search_space
-        self.dataset_provider = dataset_provider
         self.surrogate_model = surrogate_model
 
         # Objectives
@@ -94,11 +96,16 @@ class MoBananasSearch(Searcher):
         self.num_candidates = num_candidates
 
         # Utils
+        self.clear_evaluated_models = clear_evaluated_models
+        self.save_pareto_weights = save_pareto_weights
         self.seen_archs = set()
         self.seed = seed
         self.rng = np.random.RandomState(self.seed)
         self.surrogate_dataset = []
         self.search_state = SearchResults(search_space, search_objectives)
+
+        if self.save_pareto_weights:
+            raise NotImplementedError
 
     def get_surrogate_iter_dataset(self, all_pop: List[ArchaiModel]) -> Tuple[np.ndarray, np.ndarray]:
         """Get the surrogate dataset for the current iteration.
@@ -112,7 +119,7 @@ class MoBananasSearch(Searcher):
         """
 
         encoded_archs = np.vstack([self.search_space.encode(m) for m in all_pop])
-        target = np.array([self.search_state.all_evaluated_objs[obj] for obj in self.so.exp_objs]).T
+        target = np.array([self.search_state.all_evaluated_objs[obj] for obj in self.so.expensive_objectives]).T
 
         return encoded_archs, target
 
@@ -133,7 +140,7 @@ class MoBananasSearch(Searcher):
         while len(valid_sample) < num_models and nb_tries < patience:
             sample = [self.search_space.random_sample() for _ in range(num_models)]
 
-            _, valid_indices = self.so.validate_constraints(sample, self.dataset_provider)
+            _, valid_indices = self.so.validate_constraints(sample)
             valid_sample += [sample[i] for i in valid_indices]
 
         return valid_sample[:num_models]
@@ -163,7 +170,7 @@ class MoBananasSearch(Searcher):
                 mutated_model = self.search_space.mutate(p)
                 mutated_model.metadata["parent"] = p.archid
 
-                if not self.so.is_model_valid(mutated_model, self.dataset_provider):
+                if not self.so.is_model_valid(mutated_model):
                     continue
 
                 if mutated_model.archid not in self.seen_archs:
@@ -194,7 +201,7 @@ class MoBananasSearch(Searcher):
 
         return {
             obj_name: MeanVar(pred_results.mean[:, i], pred_results.var[:, i])
-            for i, obj_name in enumerate(self.so.exp_objs)
+            for i, obj_name in enumerate(self.so.expensive_objectives)
         }
 
     def thompson_sampling(
@@ -247,7 +254,7 @@ class MoBananasSearch(Searcher):
             all_pop.extend(unseen_pop)
 
             logger.info(f"Evaluating objectives for {len(unseen_pop)} architectures ...")
-            iter_results = self.so.eval_all_objs(unseen_pop, self.dataset_provider)
+            iter_results = self.so.eval_all_objs(unseen_pop)
 
             self.seen_archs.update([m.archid for m in unseen_pop])
 
@@ -258,6 +265,11 @@ class MoBananasSearch(Searcher):
                 for c in ["mean", "var"]
             }
             self.search_state.add_iteration_results(unseen_pop, iter_results, extra_model_data)
+
+            # Clears models from memory if needed
+            if self.clear_evaluated_models:
+                for m in unseen_pop:
+                    m.clear()
 
             # Updates surrogate
             logger.info("Updating surrogate model ...")
@@ -280,11 +292,11 @@ class MoBananasSearch(Searcher):
 
             # Predicts expensive objectives using surrogate model
             # and calculates cheap objectives for mutated architectures
-            logger.info(f"Predicting {list(self.so.exp_objs.keys())} for new architectures using surrogate model ...")
+            logger.info(f"Predicting {self.so.expensive_objective_names} for new architectures using surrogate model ...")
             pred_expensive_objs = self.predict_expensive_objectives(mutated)
 
-            logger.info(f"Calculating cheap objectives {list(self.so.cheap_objs.keys())} for new architectures ...")
-            cheap_objs = self.so.eval_cheap_objs(mutated, self.dataset_provider)
+            logger.info(f"Calculating cheap objectives {self.so.cheap_objective_names} for new architectures ...")
+            cheap_objs = self.so.eval_cheap_objs(mutated)
 
             # Selects `num_candidates`-archtiectures for next iteration using Thompson Sampling
             selected_indices = self.thompson_sampling(mutated, self.num_candidates, pred_expensive_objs, cheap_objs)

@@ -7,19 +7,25 @@ import pathlib
 import re
 from collections import OrderedDict
 from inspect import getsourcefile
+import subprocess
+import sys
 from typing import Dict, Iterator, List, Tuple
 
 import matplotlib
 import yaml
-from runstats import Statistics
+
+try:
+    from runstats import Statistics
+except:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'runstats'])
+    from runstats import Statistics
 
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 def main():
@@ -298,8 +304,8 @@ def plot_epochs(epoch_stats: List[EpochStats], filepath: str):
     plt.ioff()
     plt.clf()
     fig, ax = plt.subplots()
-    clrs = sns.color_palette("husl", 5)
-    with sns.axes_style("darkgrid"):
+    clrs = plt.colors.get_palette("husl", 5)
+    with plt.style.use("seaborn-darkgrid"):
         metrics = []
         val_top1_means = [es.val_fold.top1.mean() if len(es.val_fold.top1) > 0 else np.nan for es in epoch_stats]
         val_top1_std = [es.val_fold.top1.stddev() if len(es.val_fold.top1) > 1 else np.nan for es in epoch_stats]

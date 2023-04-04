@@ -15,7 +15,6 @@ from azure.data.tables import TableServiceClient, UpdateMode
 from azure.storage.blob import BlobServiceClient
 from overrides import overrides
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
 
@@ -159,7 +158,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         return table_client.upsert_entity(entity, mode=UpdateMode.REPLACE)
 
     @overrides
-    def send(self, arch: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> None:
+    def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
         archid = str(arch.archid)
         table_client = self.get_table_client()
 

@@ -1,0 +1,47 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license
+
+# Root image to be based
+# Available images: https://catalog.ngc.nvidia.com/orgs/nvidia/containers/pytorch/tags
+FROM nvcr.io/nvidia/pytorch:23.02-py3
+
+# Labels for the docker
+LABEL description="NVIDIA Docker with Archai, DeepSpeed and Flash-Attention" \
+      repository="archai" \
+      tag="latest" \
+      creator="microsoft" \
+      tooltype="archai" \
+      createtime="03/20/2023"
+
+# Exports environment variables
+ENV PATH="/root/.local/bin:$PATH"
+
+# Installs basic utilities
+RUN apt-get update && \
+    apt-get install --no-install-recommends --no-install-suggests -yq && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get purge --auto-remove && \
+    apt-get clean
+
+# Installs DeepSpeed and OpenMPI
+RUN pip install --upgrade pip && \
+    pip uninstall -y xgboost && \
+    DS_BUILD_UTILS=1 DS_BUILD_FUSED_LAMB=1 pip install deepspeed==0.8.1 && \
+    CC=mpicc MPICC=mpicc pip install mpi4py --no-binary mpi4py
+
+# Installs Flash-Attention and CUDA extensions for cross-entropy, fused dense, layer norm
+RUN pip install flash-attn==0.2.8
+RUN git clone https://github.com/HazyResearch/flash-attention \
+    && cd flash-attention && git checkout v0.2.8 \
+    && cd csrc/fused_softmax && pip install . && cd ../../ \
+    && cd csrc/rotary && pip install . && cd ../../ \
+    && cd csrc/xentropy && pip install . && cd ../../ \
+    && cd csrc/layer_norm && pip install . && cd ../../ \
+    && cd csrc/fused_dense_lib && pip install . && cd ../../ \
+    # && cd csrc/ft_attention && pip install . && cd ../../ \
+    && cd .. && rm -rf flash-attention
+
+# Installs Archai
+RUN git clone -b main --single-branch https://github.com/microsoft/archai.git
+WORKDIR /workspace/archai
+RUN pip install --user --no-cache-dir .[dev]

@@ -6,7 +6,6 @@ from typing import Callable, List, Optional, Union
 import ray
 from overrides import overrides
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import (
     AsyncModelEvaluator,
@@ -15,8 +14,8 @@ from archai.discrete_search.api.model_evaluator import (
 
 
 def _wrap_metric_calculate(class_method) -> Callable:
-    def _calculate(arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> Callable:
-        return class_method(arch, dataset, budget)
+    def _calculate(arch: ArchaiModel, budget: Optional[float] = None) -> Callable:
+        return class_method(arch, budget)
 
     return _calculate
 
@@ -58,8 +57,8 @@ class RayParallelEvaluator(AsyncModelEvaluator):
         self.object_refs = []
 
     @overrides
-    def send(self, arch: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> None:
-        self.object_refs.append(self.compute_fn.remote(arch, dataset, budget))
+    def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
+        self.object_refs.append(self.compute_fn.remote(arch, budget))
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:

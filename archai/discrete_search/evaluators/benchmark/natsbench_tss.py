@@ -7,7 +7,6 @@ from typing import Any, Dict, Optional
 import nats_bench
 from overrides import overrides
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.search_spaces.benchmark.natsbench_tss import (
@@ -56,7 +55,7 @@ class NatsbenchMetric(ModelEvaluator):
         self.total_time_spent = 0
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset: DatasetProvider, budget: Optional[float] = None) -> Optional[float]:
+    def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> Optional[float]:
         natsbench_id = self.archid_pattern.match(model.archid)
         budget = int(budget) if budget else budget
 

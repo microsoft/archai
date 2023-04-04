@@ -47,7 +47,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('--dataset_dir', type=Path, help='Face Synthetics dataset directory.', required=True)
     parser.add_argument('--output_dir', type=Path, help='Output directory.', required=True)
-    parser.add_argument('--search_config', type=Path, help='Search config file.', default=confs_path / 'evolution_pareto_config.yaml')
+    parser.add_argument('--search_config', type=Path, help='Search config file.', default=confs_path / 'cpu_search.yaml')
     parser.add_argument('--serial_training', help='Search config file.', action='store_true')
     parser.add_argument('--gpus_per_job', type=float, help='Number of GPUs used per job (if `serial_training` flag is disabled)',
                         default=0.5)
@@ -131,7 +131,11 @@ def main():
             compute_intensive=True
         )
 
+    # Dataset provider
+    dataset_provider = FaceSyntheticsDatasetProvider(args.dataset_dir)
+
     partial_tr_obj = PartialTrainingValIOU(
+        dataset_provider,
         tr_epochs=args.partial_tr_epochs,
         output_dir=args.output_dir / 'partial_training_logs'
     )
@@ -149,13 +153,10 @@ def main():
         compute_intensive=True
     )
 
-    # Dataset provider
-    dataset_provider = FaceSyntheticsDatasetProvider(args.dataset_dir)
-
     # Search algorithm
     algo_config = search_config['algorithm']
     algo = AVAILABLE_ALGOS[algo_config['name']](
-        search_space, so, dataset_provider,
+        search_space, so,
         output_dir=args.output_dir, seed=args.seed,
         **algo_config.get('params', {}),
     )

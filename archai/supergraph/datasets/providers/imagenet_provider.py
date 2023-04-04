@@ -4,10 +4,10 @@
 import os
 
 from overrides import overrides
-from PIL import Image
 from torchvision import datasets
 from torchvision.transforms import transforms
 
+from archai.common import utils
 from archai.common.config import Config
 from archai.supergraph.datasets.dataset_provider import (
     DatasetProvider,
@@ -15,7 +15,6 @@ from archai.supergraph.datasets.dataset_provider import (
     TrainTestDatasets,
     register_dataset_provider,
 )
-from archai.supergraph.utils import utils
 
 
 class ImagenetProvider(DatasetProvider):
@@ -59,7 +58,7 @@ class ImagenetProvider(DatasetProvider):
         transform_train = transforms.Compose([
             transforms.RandomResizedCrop(224,
                 scale=(0.08, 1.0), # TODO: these two params are normally not specified
-                interpolation=Image.BICUBIC),
+                interpolation=transforms.InterpolationMode.BICUBIC),
             transforms.RandomHorizontalFlip(),
             transforms.ColorJitter(
                 brightness=0.4,

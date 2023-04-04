@@ -29,5 +29,5 @@ class EvaluationFunction(ModelEvaluator):
         self.evaluation_fn = evaluation_fn
 
     @overrides
-    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider, budget: Optional[float] = None) -> float:
-        return self.evaluation_fn(model, dataset_provider, budget)
+    def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
+        return self.evaluation_fn(model, budget)

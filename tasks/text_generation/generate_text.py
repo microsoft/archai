@@ -10,11 +10,13 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generates new tokens with a pre-trained model.")
 
-    parser.add_argument("pre_trained_model_path", type=str, help="Path to the pre-trained model file.")
-
-    parser.add_argument("hub_tokenizer_path", type=str, help="Path to the Hugging Face's Hub tokenizer.")
+    parser.add_argument("pre_trained_model_path", type=str, help="Path to the pre-trained model path/file.")
 
     parser.add_argument("prompt", type=str, help="Prompt to serve as the generation's context.")
+
+    parser.add_argument(
+        "-sf", "--pre_trained_model_subfolder", type=str, default=None, help="Subfolder to the pre-trained model path."
+    )
 
     args = parser.parse_args()
 
@@ -28,10 +30,11 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         device = "cuda"
 
-    model = AutoModelForCausalLM.from_pretrained(args.pre_trained_model_path).to(device)
+    tokenizer = AutoTokenizer.from_pretrained(args.pre_trained_model_path)
+    model = AutoModelForCausalLM.from_pretrained(
+        args.pre_trained_model_path, subfolder=args.pre_trained_model_subfolder
+    ).to(device)
     model.config.use_cache = True
-
-    tokenizer = AutoTokenizer.from_pretrained(args.hub_tokenizer_path)
 
     inputs = tokenizer(args.prompt, return_tensors="pt").to(device)
     outputs = model.generate(

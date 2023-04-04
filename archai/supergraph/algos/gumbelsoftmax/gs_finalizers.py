@@ -1,12 +1,15 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import torch
 import torch.nn.functional as F
 from overrides import overrides
 from torch import nn
 
+from archai.common.common import get_conf
 from archai.supergraph.algos.gumbelsoftmax.gs_op import GsOp
 from archai.supergraph.nas.finalizers import Finalizers
 from archai.supergraph.nas.model_desc import EdgeDesc, NodeDesc
-from archai.supergraph.utils.common import get_conf
 
 
 class GsFinalizers(Finalizers):

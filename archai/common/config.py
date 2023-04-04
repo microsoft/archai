@@ -1,201 +1,161 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-from __future__ import annotations
-
 import argparse
-import copy
-import os
+from typing import Callable, List, Optional, Any
 from collections import UserDict
+from typing import Sequence
 from collections.abc import Mapping, MutableMapping
+import os
 from distutils.util import strtobool
-from typing import Any, Callable, Dict, List, Optional
+import copy
 
 import yaml
 
-from archai.common.config_utils import resolve_dict
+from archai.common import yaml_utils
 
+# global config instance
+_config:Optional['Config'] = None
 
-def _update_nested_dict(d: MutableMapping, u: Mapping, mapping_fn: Callable[[], MutableMapping]) -> MutableMapping:
+# TODO: remove this duplicate code which is also in utils.py without circular deps
+def deep_update(d:MutableMapping, u:Mapping, create_map:Callable[[],MutableMapping])\
+        ->MutableMapping:
     for k, v in u.items():
         if isinstance(v, Mapping):
-            d[k] = _update_nested_dict(d.get(k, mapping_fn()), v, mapping_fn)
+            d[k] = deep_update(d.get(k, create_map()), v, create_map)
         else:
             d[k] = v
-
     return d
 
-
 class Config(UserDict):
-    """Configuration class that supports YAML-based configuration files and
-    command line arguments.
+    def __init__(self, config_filepath:Optional[str]=None,
+                 app_desc:Optional[str]=None, use_args=False,
+                 param_args: Sequence = [], resolve_redirects=True) -> None:
+        """Create config from specified files and args
 
-    """
+        Config is simply a dictionary of key, value map. The value can itself be
+        a dictionary so config can be hierarchical. This class allows to load
+        config from yaml. A special key '__include__' can specify another yaml
+        relative file path (or list of file paths) which will be loaded first
+        and the key-value pairs in the main file
+        will override the ones in include file. You can think of included file as
+        defaults provider. This allows to create one base config and then several
+        environment/experiment specific configs. On the top of that you can use
+        param_args to perform final overrides for a given run.
 
-    def __init__(
-        self,
-        file_path: Optional[str] = None,
-        args: Optional[List[Any]] = None,
-        parse_cl_args: Optional[bool] = False,
-        cl_description: Optional[str] = None,
-        resolve_redirect: Optional[bool] = True,
-    ) -> None:
-        """Initialize a configuration object.
-
-        Args:
-            file_path: Path to YAML-based configuration file.
-            args: List of extra arguments, e.g., ["--arg", "value", "--arg2", "value2"].
-            parse_cl_args: Whether to parse command line arguments.
-            cl_description: Description to use for command line arguments.
-            resolve_redirect: Whether to resolve the YAML-based redirects.
-
+        Keyword Arguments:
+            config_filepath {[str]} -- [Yaml file to load config from, could be names of files separated by semicolon which will be loaded in sequence oveeriding previous config] (default: {None})
+            app_desc {[str]} -- [app description that will show up in --help] (default: {None})
+            use_args {bool} -- [if true then command line parameters will override parameters from config files] (default: {False})
+            param_args {Sequence} -- [parameters specified as ['--key1',val1,'--key2',val2,...] which will override parameters from config file.] (default: {[]})
+            resolve_redirects -- [if True then _copy commands in yaml are executed]
         """
+        super(Config, self).__init__()
 
-        super().__init__()
+        self.args, self.extra_args = None, []
 
-        args = args or []
-        extra_cl_args = []
+        if use_args:
+            # let command line args specify/override config file
+            parser = argparse.ArgumentParser(description=app_desc)
+            parser.add_argument('--config', type=str, default=None,
+                help='config filepath in yaml format, can be list separated by ;')
+            self.args, self.extra_args = parser.parse_known_args()
+            config_filepath = self.args.config or config_filepath
 
-        if parse_cl_args:
-            parser = argparse.ArgumentParser(description=cl_description)
-            parser.add_argument(
-                "-c",
-                "--config",
-                type=str,
-                default=None,
-                help="YAML-based configuration file-paths (separated by `;` if multiple).",
-            )
+        if config_filepath:
+            for filepath in config_filepath.strip().split(';'):
+                self._load_from_file(filepath.strip())
 
-            cl_args, extra_cl_args = parser.parse_known_args()
-            file_path = cl_args.config or file_path
+        # Create a copy of ourselves and do the resolution over it.
+        # This resolved_conf then can be used to search for overrides that
+        # wouldn't have existed before resolution.
+        resolved_conf = copy.deepcopy(self)
+        if resolve_redirects:
+            yaml_utils.resolve_all(resolved_conf)
 
-        if file_path:
-            for fp in file_path.strip().split(";"):
-                self._load(fp.strip())
+        # Let's do final overrides from args
+        self._update_from_args(param_args, resolved_conf)      # merge from params
+        self._update_from_args(self.extra_args, resolved_conf) # merge from command line
 
-        # Create a copy and resolve it, which can be used to search for overrides
-        # that would not have existed before resolution
-        r_config = copy.deepcopy(self)
-        if resolve_redirect:
-            resolve_dict(r_config)
+        if resolve_redirects:
+            yaml_utils.resolve_all(self)
 
-        # Update with additional arguments
-        self._update_from_args(args, r_config)  # Merge from supplied args
-        self._update_from_args(extra_cl_args, r_config)  # Merge from command line args
+        self.config_filepath = config_filepath
 
-        if resolve_redirect:
-            resolve_dict(self)
-
-        self.file_path = file_path
-
-    def _load(self, file_path: str) -> None:
-        if file_path:
-            file_path = os.path.abspath(os.path.expanduser(os.path.expandvars(file_path)))
-            with open(file_path, "r") as f:
+    def _load_from_file(self, filepath:Optional[str])->None:
+        if filepath:
+            filepath = os.path.expanduser(os.path.expandvars(filepath))
+            filepath = os.path.abspath(filepath)
+            with open(filepath, 'r') as f:
                 config_yaml = yaml.load(f, Loader=yaml.Loader)
+            self._process_includes(config_yaml, filepath)
+            deep_update(self, config_yaml, lambda: Config(resolve_redirects=False))
+            print('config loaded from: ', filepath)
 
-            self._update_from_include(config_yaml, file_path)
-            _update_nested_dict(self, config_yaml, lambda: Config(resolve_redirect=False))
-
-    def _update_from_include(self, config_yaml: Dict[str, Any], file_path: str) -> None:
-        if "__include__" in config_yaml:
-            includes = config_yaml["__include__"]
+    def _process_includes(self, config_yaml, filepath:str):
+        if '__include__' in config_yaml:
+            # include could be file name or array of file names to apply in sequence
+            includes = config_yaml['__include__']
             if isinstance(includes, str):
                 includes = [includes]
-            assert isinstance(includes, list), "`__include__` value must be string or list"
-
+            assert isinstance(includes, List), "'__include__' value must be string or list"
             for include in includes:
-                include_file_path = os.path.join(os.path.dirname(file_path), include)
-                self._load(include_file_path)
+                include_filepath = os.path.join(os.path.dirname(filepath), include)
+                self._load_from_file(include_filepath)
 
-    def _update_from_args(self, args: List[Any], resolved_section: Config) -> None:
+    def _update_from_args(self, args:Sequence, resolved_section:'Config')->None:
         i = 0
-        while i < len(args) - 1:
+        while i < len(args)-1:
             arg = args[i]
-            if arg.startswith("--"):
-                path = arg[2:].split(".")
-                i += self._update_section(path, args[i + 1], resolved_section)
-            else:
+            if arg.startswith(("--")):
+                path = arg[len("--"):].split('.')
+                i += Config._update_section(self, path, args[i+1], resolved_section)
+            else: # some other arg
                 i += 1
 
-    def _update_section(self, path: List[str], value: Any, resolved_section: Config) -> int:
-        for p in range(len(path) - 1):
+    def to_dict(self)->dict:
+        return deep_update({}, self, lambda: dict()) # type: ignore
+
+    @staticmethod
+    def _update_section(section:'Config', path:List[str], val:Any, resolved_section:'Config')->int:
+        for p in range(len(path)-1):
             sub_path = path[p]
             if sub_path in resolved_section:
                 resolved_section = resolved_section[sub_path]
+                if not sub_path in section:
+                    section[sub_path] = Config(resolve_redirects=False)
+                section = section[sub_path]
+            else:
+                return 1 # path not found, ignore this
+        key = path[-1] # final leaf node value
 
-            if sub_path not in self:
-                self[sub_path] = Config(resolve_redirect=False)
-            self = self[sub_path]
-
-        key = path[-1]  # Final leaf node value
         if key in resolved_section:
             original_val, original_type = None, None
             try:
                 original_val = resolved_section[key]
                 original_type = type(original_val)
-
-                if original_type == bool:  # bool('False') is True :(
-
-                    def original_type(x):
-                        return strtobool(x) == 1
-
-                self[key] = original_type(value)
-
-            except Exception:
+                if original_type == bool: # bool('False') is True :(
+                    original_type = lambda x: strtobool(x)==1
+                section[key] = original_type(val)
+            except Exception as e:
                 raise KeyError(
-                    f"Key: {key} could not been set to value {value}."
-                    f"Original value was {original_val} of type {original_type}."
-                )
+                    f'The yaml key or command line argument "{key}" is likely not named correctly or value is of wrong data type. Error was occured when setting it to value "{val}".'
+                    f'Originally it is set to {original_val} which is of type {original_type}.'
+                    f'Original exception: {e}')
+            return 2 # path was found, increment arg pointer by 2 as we use up val
         else:
-            self[key] = value
+            return 1 # path not found, ignore this
 
-        return 2  # Path was found or created, increment args pointer by 2
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the `Config` object to a dictionary.
-
-        Returns:
-            `Config` represented as a dictionary.
-
-        """
-
-        return _update_nested_dict({}, self, lambda: dict())
-
-    def get(self, key: str, default_value: Optional[Any] = None) -> Any:
-        """Get a value from the `Config` object.
-
-        Args:
-            key: Key to search for.
-            default_value: Default value to return if `key` is not found.
-
-        Returns:
-            Value corresponding to the key.
-
-        """
-
-        return super().get(key, default_value)
+    def get_val(self, key, default_val):
+        return super().get(key, default_val)
 
     @staticmethod
-    def set_global_instance(instance: Config) -> None:
-        """Set a global configuration instance.
-
-        Args:
-            instance: Instance to be set globally.
-
-        """
-
+    def set_inst(instance:'Config')->None:
         global _config
         _config = instance
 
     @staticmethod
-    def get_global_instance() -> Config:
-        """Get a global configuration instance.
-
-        Returns:
-            Global configuration.
-
-        """
-
+    def get_inst()->'Config':
         global _config
         return _config
+

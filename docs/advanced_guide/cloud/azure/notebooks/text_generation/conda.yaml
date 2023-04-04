@@ -1,0 +1,8 @@
+name: nas-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    - "archai[cv,nlp] @ git+https://github.com/microsoft/archai.git"

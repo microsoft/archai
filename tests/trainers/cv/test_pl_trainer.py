@@ -56,10 +56,12 @@ class Model(pl.LightningModule):
 
 
 def test_pl_trainer():
+    # make sure tests can run in parallel and not clobber each other's dataroot.
+    unique_data_root = 'test_pl_trainer_dataroot'
     model = Model()
     trainer = PlTrainer(max_steps=1, limit_train_batches=1, limit_test_batches=1, limit_predict_batches=1)
 
-    dataset_provider = MnistDatasetProvider()
+    dataset_provider = MnistDatasetProvider(root=unique_data_root)
     train_dataset = dataset_provider.get_train_dataset()
     val_dataset = dataset_provider.get_val_dataset()
 
@@ -68,5 +70,5 @@ def test_pl_trainer():
     trainer.evaluate(model, DataLoader(val_dataset))
     trainer.predict(model, DataLoader(val_dataset))
 
-    shutil.rmtree("dataroot")
+    shutil.rmtree(unique_data_root)
     shutil.rmtree("lightning_logs")

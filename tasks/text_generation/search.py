@@ -95,7 +95,12 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
 
-    space = TransformerFlexSearchSpace(args.model_type, vocab_size=50257, max_sequence_length=1024)
+    space = TransformerFlexSearchSpace(
+        args.model_type,
+        vocab_size=50257,
+        max_sequence_length=1024,
+        disable_weights_init=True,
+    )
 
     search_objectives = SearchObjectives()
     search_objectives.add_objective(
@@ -129,6 +134,8 @@ if __name__ == "__main__":
         max_unseen_population=args.max_unseen_population,
         mutations_per_parent=args.mutations_per_parent,
         num_crossovers=args.num_crossovers,
+        clear_evaluated_models=True,
+        save_pareto_model_weights=False,
         seed=args.seed,
     )
     algo.search()

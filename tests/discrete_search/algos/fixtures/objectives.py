@@ -15,9 +15,9 @@ def search_objectives():
     rng2 = Random(2)
     rng3 = Random(3)
 
-    o1 = EvaluationFunction(lambda m, d, b: rng1.random())
-    o2 = EvaluationFunction(lambda m, d, b: rng2.random())
-    r = EvaluationFunction(lambda m, d, b: rng3.random())
+    o1 = EvaluationFunction(lambda m,  b: rng1.random())
+    o2 = EvaluationFunction(lambda m, b: rng2.random())
+    r = EvaluationFunction(lambda m, b: rng3.random())
 
     so = SearchObjectives()
     so.add_objective("Random1", o1, higher_is_better=False, compute_intensive=False, constraint=(0.0, 0.4))

@@ -19,7 +19,7 @@ class LMOrderedIterator:
         input_ids: torch.LongTensor,
         bsz: int,
         bptt: int,
-        device: Optional[str] = "cpu",
+        device: Optional[torch.device] = None,
         mem_len: Optional[int] = 0,
         ext_len: Optional[int] = 0,
         warmup: Optional[bool] = True,
@@ -39,7 +39,7 @@ class LMOrderedIterator:
 
         self.bsz = bsz
         self.bptt = bptt
-        self.device = device
+        self.device = device or torch.device("cpu")
         self.ext_len = ext_len
         self.mem_len = mem_len
         self.warmup = warmup
@@ -49,7 +49,7 @@ class LMOrderedIterator:
         n_step = input_ids.size(0) // bsz
         input_ids = input_ids[: n_step * bsz]
         self.input_ids = input_ids.view(bsz, -1).contiguous()
-        if device.type != "cpu":
+        if self.device.type != "cpu":
             self.input_ids = self.input_ids.pin_memory()
 
         # Creates warmup batches if memory is being used

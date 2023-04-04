@@ -22,8 +22,8 @@ Model Description Builder
    :members:
    :undoc-members:
 
-Operations
-----------
+Operators
+---------
 
 .. automodule:: archai.supergraph.algos.xnas.xnas_op
    :members:

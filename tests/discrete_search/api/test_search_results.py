@@ -35,7 +35,7 @@ def test_add_iteration_results():
     search_results = SearchResults(search_space, objectives)
     models = [ArchaiModel(torch.nn.Linear(10, 1), "archid")]
 
-    obj_name = list(objectives.objs.keys())[0]
+    obj_name = objectives.objective_names[0]
     evaluation_results = {obj_name: np.array([0.5], dtype=np.float32)}
     search_results.add_iteration_results(models, evaluation_results)
 

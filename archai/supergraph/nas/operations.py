@@ -21,10 +21,10 @@ import torch
 from overrides import EnforceOverrides, overrides
 from torch import Tensor, nn
 
+from archai.common import ml_utils
 from archai.supergraph.nas.arch_module import ArchModule
 from archai.supergraph.nas.arch_params import ArchParams
 from archai.supergraph.nas.model_desc import ConvMacroParams, OpDesc
-from archai.supergraph.utils import ml_utils
 
 # type alias
 OpFactoryFn = Callable[[OpDesc, Iterable[nn.Parameter]], 'Op']

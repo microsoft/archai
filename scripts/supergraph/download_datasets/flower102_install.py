@@ -12,7 +12,7 @@ from typing import Dict, List
 
 from torchvision.datasets.utils import download_and_extract_archive, download_url
 
-from archai.supergraph.utils import utils
+from archai.common import utils
 
 
 def check_flower102(dataroot: str) -> bool:

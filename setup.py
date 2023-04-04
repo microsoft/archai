@@ -1,34 +1,48 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import os
 import re
 
 from setuptools import find_packages, setup
 
 dependencies = [
+    "azure-ai-ml==1.5.0",
+    "azure-data-tables",
+    "azure-identity",
+    "azure-storage-blob",
+    "azureml-mlflow",
     "datasets>=2.4.0",
+    "deepspeed",
+    "einops",
     "flake8>=5.0.4",
+    "flash-attn",
+    "fftconv @ git+https://github.com/HazyResearch/H3.git#egg=fftconv&subdirectory=csrc/fftconv",
     "gorilla>=0.4.0",
     "h5py",
     "hyperopt",
-    "kaleido",
+    "ipykernel",
+    "jupyter",
     "matplotlib",
+    "mldesigner",
+    "mlflow",
+    "nbimporter",
     "nbsphinx",
     "nbval",
     "onnx>=1.10.2",
     "onnxruntime>=1.10.0",
     "opencv-python",
+    "opt_einsum",
     "overrides==3.1.0",
-    "plotly",
+    "pandas",
     "psutil",
+    "pydata-sphinx-theme==0.13.1",
     "pytest",
     "pytorch-lightning>=2.0.0",
     "pyunpack",
     "pyyaml",
     "ray>=1.0.0",
-    "runstats>=2.0.0",
     "scikit-learn",
-    "seaborn",
     "send2trash>=1.8.0",
     "sphinx",
     "sphinx-book-theme",
@@ -40,19 +54,25 @@ dependencies = [
     "statopt",
     "tensorboard",
     "tensorwatch",
+    "tk",
     "tokenizers>=0.10.3",
     "torchvision",
     "tqdm",
-    "transformers>=4.25.1",
+    "transformers>=4.27.1",
+    "xformers",
 ]
 dependencies_dict = {y: x for x, y in (re.findall(r"^(([^!=<>~ ]+)(?:[!=<>~ ].*)?$)", x)[0] for x in dependencies)}
 
 
 def filter_dependencies(*pkgs):
+    for pkg in pkgs:
+        if pkg not in dependencies_dict:
+            raise ValueError(f"Package {pkg} not found in dependencies")
     return [dependencies_dict[pkg] for pkg in pkgs]
 
 
 extras_require = {}
+
 extras_require["cv"] = filter_dependencies(
     "gorilla",
     "opencv-python",
@@ -60,11 +80,19 @@ extras_require["cv"] = filter_dependencies(
     "scikit-learn",
     "torchvision",
 )
-extras_require["nlp"] = filter_dependencies("datasets", "tokenizers", "transformers")
-extras_require["all"] = extras_require["cv"] + extras_require["nlp"]
+extras_require["nlp"] = filter_dependencies(
+    "datasets", "einops", "opt_einsum", "tokenizers", "transformers", "xformers"
+)
+
+extras_require["deepspeed"] = filter_dependencies("deepspeed", "mlflow")
+extras_require["flash-attn"] = filter_dependencies("flash-attn", "fftconv")
 
 extras_require["docs"] = filter_dependencies(
+    "nbimporter",
     "nbsphinx",
+    "nbval",
+    "pandas",
+    "pydata-sphinx-theme",
     "sphinx",
     "sphinx-book-theme",
     "sphinx-git",
@@ -73,24 +101,51 @@ extras_require["docs"] = filter_dependencies(
     "sphinxcontrib-programoutput",
     "sphinxcontrib-mermaid",
 )
-extras_require["tests"] = filter_dependencies("flake8", "nbval", "pytest")
-extras_require["dev"] = extras_require["cv"] + extras_require["nlp"] + extras_require["docs"] + extras_require["tests"]
+extras_require["tests"] = filter_dependencies(
+    "azure-data-tables",
+    "azure-identity",
+    "azure-storage-blob",
+    "flake8",
+    "pytest",
+    "tk",
+)
+
+extras_require["aml"] = filter_dependencies(
+    "azure-ai-ml",
+    "azure-data-tables",
+    "azure-identity",
+    "azure-storage-blob",
+    "azureml-mlflow",
+    "ipykernel",
+    "jupyter",
+    "matplotlib",
+    "mldesigner",
+    "mlflow",
+    "pytorch-lightning",
+    "torchvision",
+)
+
+extras_require["dev"] = (
+    extras_require["cv"]
+    + extras_require["nlp"]
+    + extras_require["docs"]
+    + extras_require["tests"]
+    + extras_require["aml"]
+)
+if os.name != "nt":
+    # Support for DeepSpeed is not available on native Windows
+    extras_require["dev"] += extras_require["deepspeed"]
 
 install_requires = filter_dependencies(
     "h5py",
     "hyperopt",
-    "kaleido",
     "matplotlib",
     "onnx",
     "onnxruntime",
     "overrides",
-    "plotly",
     "psutil",
-    "pyunpack",
     "pyyaml",
     "ray",
-    "runstats",
-    "seaborn",
     "send2trash",
     "statopt",
     "tensorboard",

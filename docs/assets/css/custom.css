@@ -30,7 +30,10 @@ a.navbar-brand > img {
 .tab-set > label:hover {
     color: var(--primary) !important;
 }
+.tab-content {
+    width: 100% !important;
+}
 
-#site-navigation .bd-sidebar__bottom {
-    margin-bottom: 0 !important;
+div.output_area.rendered_html.docutils.container > div > table {
+    width: auto !important;
 }

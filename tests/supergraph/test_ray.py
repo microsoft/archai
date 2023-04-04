@@ -6,9 +6,9 @@ import time
 import ray
 import torch
 
+from archai.common import common
 from archai.supergraph import models
 from archai.supergraph.datasets import data
-from archai.supergraph.utils import common
 from archai.supergraph.utils.metrics import Metrics
 from archai.supergraph.utils.trainer import Trainer
 

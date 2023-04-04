@@ -7,12 +7,27 @@ import numpy as np
 import yaml
 from tqdm import tqdm
 
-from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import (
     AsyncModelEvaluator,
     ModelEvaluator,
 )
+
+
+class SearchConstraint:
+    def __init__(self, name, evaluator, constraint):
+        self.name = name
+        self.evaluator = evaluator
+        self.constraint = constraint
+
+
+class SearchObjective:
+    def __init__(self, name, model_evaluator, higher_is_better, compute_intensive, constraint):
+        self.name = name
+        self.evaluator = model_evaluator
+        self.higher_is_better = higher_is_better
+        self.compute_intensive = compute_intensive
+        self.constraint = constraint
 
 
 class SearchObjectives:
@@ -29,30 +44,53 @@ class SearchObjectives:
 
         Args:
             cache_objective_evaluation: If `True`, objective evaluations are cached using the
-                tuple `(obj_name, archid, dataset_provider_name, budget)` as key.
+                tuple `(obj_name, archid, budget)` as key.
 
         """
 
-        self.cache_objective_evaluation = cache_objective_evaluation
+        self._cache_objective_evaluation = cache_objective_evaluation
 
-        self.cheap_objs = {}
-        self.exp_objs = {}
-        self.extra_constraints = {}
+        self._objs = {}
+        self._extra_constraints = {}
 
-        # Cache key: (obj_name, archid, dataset provider name, budget)
-        self.cache: Dict[Tuple[str, str, str, Optional[float]], Optional[float]] = {}
+        # Cache key: (obj_name, archid, budget)
+        self._cache: Dict[Tuple[str, str, Optional[float]], Optional[float]] = {}
 
     @property
-    def objs(self) -> Dict[str, Dict]:
+    def objective_names(self) -> List[str]:
+        """Return a list of all objective names."""
+        return list(self._objs.keys())
+
+    @property
+    def cheap_objective_names(self) -> List[str]:
+        """Return a list of cheap objective names."""
+        return list(self.cheap_objectives.keys())
+
+    @property
+    def expensive_objective_names(self) -> List[str]:
+        """Return a list of expensive objective names."""
+        return list(self.expensive_objectives.keys())
+
+    @property
+    def objectives(self) -> Dict[str, SearchObjective]:
         """Return a dictionary of all objectives."""
-
-        return dict(self.cheap_objs, **self.exp_objs)
+        return self._objs
 
     @property
-    def objs_and_constraints(self) -> Dict[str, Dict]:
-        """Return a dictionary of all objectives and constraints."""
+    def cheap_objectives(self) -> Dict[str, SearchObjective]:
+        """Return a dictionary of cheap objectives."""
+        return self._filter_objs(self._objs, lambda x: not x.compute_intensive)
 
-        return dict(self.objs, **self.extra_constraints)
+    @property
+    def expensive_objectives(self) -> Dict[str, SearchObjective]:
+        """Return a dictionary of expensive objectives."""
+        return self._filter_objs(self._objs, lambda x: x.compute_intensive)
+
+    @property
+    def constraints(self) -> Dict[str, SearchConstraint]:
+        """Return a dictionary of all the constraints."""
+
+        return self._extra_constraints
 
     def add_objective(
         self,
@@ -77,17 +115,15 @@ class SearchObjectives:
         """
 
         assert isinstance(model_evaluator, (ModelEvaluator, AsyncModelEvaluator))
-        assert name not in dict(
-            self.objs, **self.extra_constraints
-        ), f"There is already an objective or constraint named {name}."
+        assert name not in self._objs, f"There is already an objective {name}."
+        assert name not in self._extra_constraints, f"There is already an constraint named {name}."
 
-        obj = {"evaluator": model_evaluator, "higher_is_better": higher_is_better, "constraint": constraint}
+        obj = SearchObjective(name, model_evaluator, higher_is_better, compute_intensive, constraint)
 
         if compute_intensive:
             assert constraint is None, "Constraints can only be set for cheap objectives (compute_intensive=False)."
-            self.exp_objs[name] = obj
-        else:
-            self.cheap_objs[name] = obj
+
+        self._objs[name] = obj
 
     def add_constraint(
         self, name: str, model_evaluator: Union[ModelEvaluator, AsyncModelEvaluator], constraint: Tuple[float, float]
@@ -106,23 +142,18 @@ class SearchObjectives:
         """
 
         assert isinstance(model_evaluator, (ModelEvaluator, AsyncModelEvaluator))
-        assert name not in dict(
-            self.extra_constraints, **self.objs
-        ), f"There is already an objective or constraint named {name}."
+        assert name not in self._objs, f"There is already an objective {name}."
+        assert name not in self._extra_constraints, f"There is already an constraint named {name}."
 
-        self.extra_constraints[name] = {
-            "evaluator": model_evaluator,
-            "constraint": constraint,
-        }
+        self._extra_constraints[name] = SearchConstraint(name, model_evaluator, constraint)
 
-    def _filter_objs(self, objs: Dict[str, Dict], field_name: str, query_fn: Callable) -> Dict[str, Dict]:
-        return {obj_name: obj_dict for obj_name, obj_dict in objs.items() if query_fn(obj_dict[field_name])}
+    def _filter_objs(self, objs: Dict[str, Dict], query_fn: Callable) -> Dict[str, Dict]:
+        return {obj_name: obj_dict for obj_name, obj_dict in objs.items() if query_fn(obj_dict)}
 
     def _eval_objs(
         self,
         objs: Dict[str, Dict],
         models: List[ArchaiModel],
-        dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
         budgets: Optional[Dict[str, List[Any]]] = None,
         progress_bar: Optional[bool] = False,
     ) -> Dict[str, np.ndarray]:
@@ -133,21 +164,15 @@ class SearchObjectives:
         budgets = budgets or {}
         budgets = {obj_name: budgets.get(obj_name, [None] * len(models)) for obj_name in objs}
 
-        # Casts dataset_providers to a list if necessary
-        if not isinstance(dataset_providers, list):
-            dataset_providers = [dataset_providers] * len(models)
-
         # Splits `objs` in sync and async
-        sync_objs = self._filter_objs(objs, "evaluator", lambda x: isinstance(x, ModelEvaluator))
-        async_objs = self._filter_objs(objs, "evaluator", lambda x: isinstance(x, AsyncModelEvaluator))
-
-        assert all(len(dataset_providers) == len(models) == len(b) for b in budgets.values())
+        sync_objs = self._filter_objs(objs, lambda x: isinstance(x.evaluator, ModelEvaluator))
+        async_objs = self._filter_objs(objs, lambda x: isinstance(x.evaluator, AsyncModelEvaluator))
 
         # Initializes evaluation results with cached results
         eval_results = {
             obj_name: [
-                self.cache.get((obj_name, model.archid, data.__class__.__name__, budget))
-                for model, data, budget in zip(models, dataset_providers, budgets[obj_name])
+                self._cache.get((obj_name, model.archid, budget))
+                for model, budget in zip(models, budgets[obj_name])
             ]
             for obj_name in objs
         }
@@ -167,7 +192,7 @@ class SearchObjectives:
             )
 
             for i in pbar:
-                obj_d["evaluator"].send(models[i], dataset_providers[i], budgets[obj_name][i])
+                obj_d.evaluator.send(models[i], budgets[obj_name][i])
 
         # Calculates synchronous objectives in order
         for obj_name, obj_d in sync_objs.items():
@@ -178,8 +203,8 @@ class SearchObjectives:
             )
 
             for i in pbar:
-                eval_results[obj_name][i] = obj_d["evaluator"].evaluate(
-                    models[i], dataset_providers[i], budgets[obj_name][i]
+                eval_results[obj_name][i] = obj_d.evaluator.evaluate(
+                    models[i], budgets[obj_name][i]
                 )
 
         # Gets results from async objectives
@@ -190,7 +215,7 @@ class SearchObjectives:
         )
 
         for obj_name, obj_d in pbar:
-            results = obj_d["evaluator"].fetch_all()
+            results = obj_d.evaluator.fetch_all()
 
             assert len(eval_indices[obj_name]) == len(results), "Received a different amount of results than expected."
 
@@ -198,17 +223,16 @@ class SearchObjectives:
                 eval_results[obj_name][eval_i] = results[result_i]
 
         # Updates cache
-        if self.cache_objective_evaluation:
+        if self._cache_objective_evaluation:
             for obj_name in objs:
                 for i in eval_indices[obj_name]:
                     cache_tuple = (
                         obj_name,
                         models[i].archid,
-                        dataset_providers[i].__class__.__name__,
                         budgets[obj_name][i],
                     )
 
-                    self.cache[cache_tuple] = eval_results[obj_name][i]
+                    self._cache[cache_tuple] = eval_results[obj_name][i]
 
         assert len(set(len(r) for r in eval_results.values())) == 1
 
@@ -225,8 +249,8 @@ class SearchObjectives:
 
         valid_mask = np.logical_and.reduce(
             [
-                (obj_r >= objs_or_constraints[obj_name]["constraint"][0])
-                & (obj_r <= objs_or_constraints[obj_name]["constraint"][1])
+                (obj_r >= objs_or_constraints[obj_name].constraint[0])
+                & (obj_r <= objs_or_constraints[obj_name].constraint[1])
                 for obj_name, obj_r in results.items()
             ]
         )
@@ -236,7 +260,6 @@ class SearchObjectives:
     def validate_constraints(
         self,
         models: List[ArchaiModel],
-        dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
         progress_bar: Optional[bool] = False,
     ) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
         """Evaluate constraints for a list of models and returns the indices of models that
@@ -244,7 +267,6 @@ class SearchObjectives:
 
         Args:
             models: List of models to evaluate.
-            dataset_providers: Dataset provider or list of dataset providers.
             progress_bar: Whether to show progress bar.
 
         Returns:
@@ -252,45 +274,42 @@ class SearchObjectives:
 
         """
 
-        # Gets all constraints from cheap_objectives and extra_constraints
+        # Gets all constraints from cheap_objectives that have constraints and extra_constraints
         constraints = dict(
-            self.extra_constraints, **self._filter_objs(self.cheap_objs, "constraint", lambda x: x is not None)
+            self._extra_constraints, **self._filter_objs(self.cheap_objectives, lambda x: x.constraint is not None)
         )
 
         if not constraints:
             return {}, np.arange(len(models))
 
-        eval_results = self._eval_objs(constraints, models, dataset_providers, budgets=None, progress_bar=progress_bar)
+        eval_results = self._eval_objs(constraints, models, budgets=None, progress_bar=progress_bar)
 
         return eval_results, self._get_valid_arch_indices(constraints, eval_results)
 
-    def is_model_valid(self, model: ArchaiModel, dataset_provider: DatasetProvider) -> bool:
+    def is_model_valid(self, model: ArchaiModel) -> bool:
         """Check if a model satisfies all constraints.
 
         Args:
             model: Model to check.
-            dataset_provider: Dataset provider.
 
         Returns:
             `True` if model is valid, `False` otherwise.
 
         """
 
-        _, idx = self.validate_constraints([model], dataset_provider, progress_bar=False)
+        _, idx = self.validate_constraints([model], progress_bar=False)
         return len(idx) > 0
 
     def eval_cheap_objs(
         self,
         models: List[ArchaiModel],
-        dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
         budgets: Optional[Dict[str, List]] = None,
         progress_bar: Optional[bool] = False,
     ) -> Dict[str, np.ndarray]:
-        """Evaluate all cheap objectives for a list of models and dataset provider(s).
+        """Evaluate all cheap objectives for a list of models.
 
         Args:
             models: List of models to evaluate.
-            dataset_providers: Dataset provider or list of dataset providers.
             budgets: Budgets for each objective.
             progress_bar: Whether to show progress bar.
 
@@ -298,22 +317,18 @@ class SearchObjectives:
             Dictionary with evaluation results.
 
         """
-
-        return self._eval_objs(self.cheap_objs, models, dataset_providers, budgets, progress_bar)
+        return self._eval_objs(self.cheap_objectives, models, budgets, progress_bar)
 
     def eval_expensive_objs(
         self,
         models: List[ArchaiModel],
-        dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
         budgets: Optional[Dict[str, List]] = None,
         progress_bar: Optional[bool] = False,
     ) -> Dict[str, np.ndarray]:
-        """Evaluate all expensive objective functions for a list of models and
-        dataset provider(s).
+        """Evaluate all expensive objective functions for a list of models.
 
         Args:
             models: List of models to evaluate.
-            dataset_providers: Dataset provider or list of dataset providers.
             budgets: Budgets for each objective.
             progress_bar: Whether to show progress bar. Defaults to False.
 
@@ -322,20 +337,18 @@ class SearchObjectives:
 
         """
 
-        return self._eval_objs(self.exp_objs, models, dataset_providers, budgets, progress_bar)
+        return self._eval_objs(self.expensive_objectives, models, budgets, progress_bar)
 
     def eval_all_objs(
         self,
         models: List[ArchaiModel],
-        dataset_providers: Union[DatasetProvider, List[DatasetProvider]],
         budgets: Optional[Dict[str, List]] = None,
         progress_bar: Optional[bool] = False,
     ) -> Dict[str, np.ndarray]:
-        """Evaluate all objective functions for a list of models and dataset provider(s).
+        """Evaluate all objective functions for a list of models.
 
         Args:
             models: List of models to evaluate.
-            dataset_providers: Dataset provider or list of dataset providers.
             budgets: Budgets for each objective.
             progress_bar: Whether to show progress bar.
 
@@ -344,7 +357,7 @@ class SearchObjectives:
 
         """
 
-        return self._eval_objs(dict(self.exp_objs, **self.cheap_objs), models, dataset_providers, budgets, progress_bar)
+        return self._eval_objs(self._objs, models, budgets, progress_bar)
 
     def save_cache(self, file_path: str) -> None:
         """Save the state of the `SearchObjectives` object to a YAML file.
@@ -355,7 +368,7 @@ class SearchObjectives:
         """
 
         with open(file_path, "w", encoding="utf-8") as f:
-            yaml.dump(self.cache, f)
+            yaml.dump(self._cache, f)
 
     def load_cache(self, file_path: str) -> None:
         """Load the state of the `SearchObjectives` object from a YAML file.
@@ -366,4 +379,19 @@ class SearchObjectives:
         """
 
         with open(file_path, "r", encoding="utf-8") as f:
-            self.cache = yaml.load(f)
+            self._cache = yaml.load(f)
+
+    def lookup_cache(self, obj_name: str, arch_id: str, budget: Optional[int]) -> Optional[float]:
+        """Look up the cache for a specific objective, architecture and budget.
+
+        Args:
+            obj_name: Name of objective.
+            arch_id: Architecture ID.
+            budget: Budget.
+
+        Returns:
+            Evaluation result if found in cache, `None` otherwise.
+
+        """
+
+        return self._cache.get((obj_name, arch_id, budget), None)
