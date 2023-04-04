@@ -353,7 +353,7 @@ def benchmark(entity, onnx_model, model, name, test_input):
 
 
 def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only, no_quantization):
-    global store
+    global store, usage
     log("===================================================================================================")
     log(f"Checking model: {name} on node {get_unique_node_id()}")
     log("===================================================================================================")
@@ -514,7 +514,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only,
         start = store.get_utc_date()
         snpe_output_dir, latencies = run_batches(onnx_model, model, test_input, name)
         end = store.get_utc_date()
-        add_usage(get_device(), start, end)
+        add_usage(usage, get_device(), start, end)
 
     try:
         use_pillow = 'use_pillow' in entity and entity['use_pillow']
