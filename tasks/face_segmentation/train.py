@@ -21,7 +21,7 @@ parser.add_argument('--output_dir', type=Path, help='Output directory.', require
 parser.add_argument('--lr', type=float, default=2e-4)
 parser.add_argument('--batch_size', type=int, default=16)
 parser.add_argument('--epochs', type=int, default=1)
-parser.add_argument('--val_check_interval', type=float, default=1000)
+parser.add_argument('--val_check_interval', type=float, default=1)
 
 
 if __name__ == '__main__':

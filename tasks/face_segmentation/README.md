@@ -1,16 +1,25 @@
 # Face Segmentation
 
-The purpose of this example/tutorial is to demonstrate how to perform multi-objective NAS for image segmentation models using Archai. This approach allows us to optimize the model's performance with respect to multiple objectives, such as Intersection Over Union (IOU) and inference time for various deployment targets. Specifically, we will focus on performing the search for both regular CPU targets and Qualcomm's Snapdragon processor, enabling us to optimize the models for deployment on mobile devices as well.
+The purpose of this example/tutorial is to demonstrate how to perform multi-objective NAS for image segmentation models
+using Archai. This approach allows us to optimize the model's performance with respect to multiple objectives, such as
+Intersection Over Union (IOU) and inference time for various deployment targets. Specifically, we will focus on
+performing the search for both regular CPU targets and Qualcomm's Snapdragon processor, enabling us to optimize the
+models for deployment on mobile devices as well.
 
 ## Dataset
 
-We will use the Face Synthetics dataset for this example. The dataset comprises 100,000 512x512 synthetic face images, each annotated with 19 per-pixel semantic segmentation labels. These labels cover various aspects of the face, including background, skin, eyes, ears, nose, lips, clothing, and headwear.
+We will use the [Face Synthetics dataset](https://github.com/microsoft/FaceSynthetics) for this example. The dataset
+comprises 100,000 512x512 synthetic face images, each annotated with 19 per-pixel semantic segmentation labels. These
+labels cover various aspects of the face, including background, skin, eyes, ears, nose, lips, clothing, and headwear.
 
 ![Face Synthetics](assets/face_synthetics.png)
 
 ## Search Space
 
-The search space used for this example is based on the [Stacked HourglassNet architecture](https://arxiv.org/abs/1603.06937). The search space consists in 3 different block types: `downsample`, `upsample` and `skip`, with each block type containing one or more possible operations. Additionally, `downsample` blocks also control the number of channels.
+The search space used for this example is based on the [Stacked HourglassNet
+architecture](https://arxiv.org/abs/1603.06937). The search space consists in 3 different block types: `downsample`,
+`upsample` and `skip`, with each block type containing one or more possible operations. Additionally, `downsample`
+blocks also control the number of channels.
 
 ![HourglassNet search space](assets/search_space.png)
 
@@ -22,16 +31,21 @@ To run a search job, use the following command
 python3 search.py --dataset_dir [face_synthetics_dir] --output_dir [output_dir] --search_config [search_config_file]
 ```
 
-Use `--search_config` to specify the search config file with the desired search settings. We provide two basic search configurations based on the desired target (CPU or Snapdragon processor), `search.py` will use [cpu_search.yaml](confs/cpu_search.yaml) if no search config file is passed.
+Use `--search_config` to specify the search config file with the desired search settings. We provide two basic search
+configurations based on the desired target (CPU or Snapdragon processor), `search.py` will use
+[cpu_search.yaml](confs/cpu_search.yaml) if no search config file is passed.
 
 * [cpu_search.yaml](confs/cpu_search.yaml)
 * [snp_search.yaml](confs/snp_search.yaml)
 
 Note: to use `snp_search.yaml` you will need to follow the [SNP setup instructions](#).
 
-By default, `search.py` will run multiple partial training jobs using Ray (2 jobs per GPU). To change the number of gpus per job, set `--gpus_per_job`, or use the `--serial_training` flag to disable parallel training jobs altogether.
+By default, `search.py` will run multiple partial training jobs using Ray (2 jobs per GPU). To change the number of gpus
+per job, set `--gpus_per_job`, or use the `--serial_training` flag to disable parallel training jobs altogether.
 
-The pareto architecture files selected by the search algorithm can be found under `[output_dir]/pareto_models_iter_XX`. A table with the partial training performance and other objectives can be found in the `[output_dir]/search_state_XX.csv` file.
+The pareto architecture files selected by the search algorithm can be found under `[output_dir]/pareto_models_iter_XX`.
+A table with the partial training performance and other objectives can be found in the
+`[output_dir]/search_state_XX.csv` file.
 
 ## Final Training
 
@@ -47,11 +61,13 @@ python3 train.py [path_to_final_architecture.json] --dataset_dir [face_synthetic
 
 ![pareto_evolution](assets/pareto_evolution.png)
 
-The selected architectures for the search with the `cpu_search.yaml` config file can be found in the [archs/cpu_target/](arch/cpu_target/) directory or in the table below.
+The selected architectures for the search with the `cpu_search.yaml` config file can be found in the
+[archs/cpu_target/](arch/cpu_target/) directory or in the table below.
 
 ### Final Training
 
-The table below shows the final results after fully training the final pareto architectures for 30 epochs using the [train.py](./train.py) script.
+The table below shows the final results after fully training the final pareto architectures for 30 epochs using the
+[train.py](./train.py) script.
 
 | Architecture                                                                                    |   Search iteration   |   ONNX Latency (s)   |   Full training Validation mIOU |
 |:------------------------------------------------------------------------------------------------|---------------------:|---------------------:|--------------------------------:|
@@ -78,11 +94,13 @@ The table below shows the final results after fully training the final pareto ar
 
 ![pareto_evolution](assets/snp_pareto_evolution.png)
 
-The selected architectures for the search with the `snp_search.yaml` config file can be found in the [archs/snp_target/](arch/snp_target/) directory or in the table below.
+The selected architectures for the search with the `snp_search.yaml` config file can be found in the
+[archs/snp_target/](arch/snp_target/) directory or in the table below.
 
 ### Final Training
 
-The table below shows the final results after fully training the final pareto architectures for 30 epochs using the [train.py](./train.py) script.
+The table below shows the final results after fully training the final pareto architectures for 30 epochs using the
+[train.py](./train.py) script.
 
 
 | Architecture                                                                                               |   Search iteration  |   SNP Quantized Latency (s)  |   Partial Training Val. IOU  |   Full training Validation mIOU |
