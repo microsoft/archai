@@ -55,6 +55,12 @@ deepspeed deepspeed/train_codegen.py --help
 
 You can customize the training by modifying the arguments defined in `CodeGenFlashConfig`, `DsTrainingArguments`, and `ds_config.json`. By default, the arguments are set to perform a toy training and explain how the pipeline works.
 
+Additionally, if you have a model that has been previously trained with DeepSpeed, you can continue its training or fine-tune as follows:
+
+```bash
+deepspeed deepspeed/train_codegen.py --pre_trained_model_path <path_to_checkpoint>
+```
+
 ## Hugging Face
 
 If you are using Hugging Face, run the following command to begin training:
