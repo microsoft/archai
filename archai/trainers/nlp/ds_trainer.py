@@ -1,7 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+import json
 import math
+import os
 import time
 from typing import Any, Dict, Iterable, Iterator, Optional, Tuple, Union
 
@@ -129,13 +131,12 @@ class DsTrainer(TrainerBase):
         )
 
         if self.engine.global_rank == 0:
-            mlflow.set_tracking_uri(f"file://{self.args.output_dir}/mlruns")
             mlflow.start_run()
 
         self.train_dataset = train_dataset
         self.eval_dataset = eval_dataset
 
-        self.client_state = {"step": 0, "total_consumed_samples": 0}
+        self.client_state = {"global_step": 0, "total_consumed_samples": 0, "log_history": []}
 
     @property
     def data_parallel_world_size(self) -> int:
@@ -251,8 +252,9 @@ class DsTrainer(TrainerBase):
         logger.info("Starting training ...")
         logger.debug(f"Training arguments: {self.args.to_dict()}")
 
-        current_step = 0
+        global_step = 0
         total_consumed_samples = 0
+        log_history = []
 
         if resume_from_checkpoint:
             logger.info(f"Loading from checkpoint: {resume_from_checkpoint}")
@@ -262,8 +264,9 @@ class DsTrainer(TrainerBase):
                     load_optimizer_states=resume_optimizer_state,
                     load_lr_scheduler_states=resume_lr_scheduler_state,
                 )
-                current_step = self.client_state["step"]
+                global_step = self.client_state["global_step"]
                 total_consumed_samples = self.client_state["total_consumed_samples"]
+                log_history = self.client_state["log_history"]
             except:
                 pass
 
@@ -275,7 +278,7 @@ class DsTrainer(TrainerBase):
         train_iterator = iter(RepeatingLoader(train_dataloader))
         train_time = time.time()
 
-        for step in range(current_step, self.args.max_steps):
+        for step in range(global_step, self.args.max_steps):
             step_time = time.time()
 
             if self.args.pipe_parallel_size > 0:
@@ -290,16 +293,17 @@ class DsTrainer(TrainerBase):
                 samples_per_second = self.engine.train_batch_size() / step_time
                 learning_rate = self.engine.get_lr()[0]
 
-                mlflow.log_metrics(
-                    {
-                        "train/loss": float_loss,
-                        "train/ppl": math.exp(float_loss),
-                        "train/learning_rate": learning_rate,
-                        "train/samples_per_second": samples_per_second,
-                        "train/step_runtime": step_time,
-                    },
-                    step=step + 1,
-                )
+                metrics = {
+                    "train/step": step + 1,
+                    "train/loss": float_loss,
+                    "train/ppl": math.exp(float_loss),
+                    "train/learning_rate": learning_rate,
+                    "train/samples_per_second": samples_per_second,
+                    "train/step_runtime": step_time,
+                }
+
+                log_history.append(metrics)
+                mlflow.log_metrics(metrics, step=step + 1)
 
                 do_periodic_logging = (step + 1) % self.args.logging_steps == 0
                 if do_periodic_logging:
@@ -316,16 +320,18 @@ class DsTrainer(TrainerBase):
 
                 if self.engine.global_rank == 0:
                     eval_idx = (step + 1) // self.args.eval_steps
-                    mlflow.log_metrics(
-                        {
-                            "eval/loss": eval_loss,
-                            "eval/ppl": math.exp(eval_loss),
-                            "eval/runtime": eval_time,
-                            "eval/samples_per_second": eval_samples_per_second,
-                            "eval/steps_per_second": eval_steps_per_second,
-                        },
-                        step=eval_idx,
-                    )
+                    metrics = {
+                        "eval/idx": eval_idx,
+                        "eval/loss": eval_loss,
+                        "eval/ppl": math.exp(eval_loss),
+                        "eval/runtime": eval_time,
+                        "eval/samples_per_second": eval_samples_per_second,
+                        "eval/steps_per_second": eval_steps_per_second,
+                    }
+
+                    log_history.append(metrics)
+                    mlflow.log_metrics(metrics, step=eval_idx)
+
                     logger.info(
                         f"Eval: {eval_idx} | Seconds: {eval_time:.3f} | "
                         + f"Samples/s: {eval_samples_per_second:.3f} | Loss: {eval_loss:.3f} | "
@@ -334,9 +340,13 @@ class DsTrainer(TrainerBase):
 
             do_periodic_checkpoint = (step + 1) % self.args.save_steps == 0
             if do_periodic_checkpoint:
-                self.client_state["step"] = step + 1
+                self.client_state["global_step"] = step + 1
                 self.client_state["total_consumed_samples"] = self.engine.global_samples
+                self.client_state["log_history"] = log_history
+
                 self.engine.save_checkpoint(self.args.output_dir, step + 1, client_state=self.client_state)
+                with open(os.path.join(self.args.output_dir, "trainer_state.json"), "w") as f:
+                    json.dump(self.client_state, f)
 
         train_time = time.time() - train_time
 
