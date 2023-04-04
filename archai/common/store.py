@@ -461,7 +461,7 @@ class ArchaiStore:
         given then it tries to find and download that file only.  Returns a list of local files created. """
         container = self._get_container_client(self.blob_container_name)
         if not container.exists():
-            return (False, None)
+            return []
 
         if not os.path.isdir(folder):
             os.makedirs(folder)
@@ -512,6 +512,11 @@ class ArchaiStore:
             if specific_file and file_name != specific_file:
                 continue
             container.delete_blob(blob)
+
+    def list_blobs(self, prefix=None):
+        """ List all the blobs associated with the given prefix. """
+        container = self._get_container_client(self.blob_container_name)
+        return [blob.name for blob in container.list_blobs(name_starts_with=prefix)]
 
     def print_entities(self, entities, columns=None):
         keys = []
@@ -601,11 +606,10 @@ def download(con_str, args):
         friendly_names = [friendly_name]
 
     specific_file = args.file
-    all_files = False if specific_file else True
 
     for friendly_name in friendly_names:
-        found, model, file = store.download(friendly_name, friendly_name, specific_file, all_files)
-        if not found and specific_file:
+        downloaded = store.download(friendly_name, friendly_name, specific_file)
+        if len(downloaded) == 0 and specific_file:
             print(f"file {specific_file} not found")
 
 
