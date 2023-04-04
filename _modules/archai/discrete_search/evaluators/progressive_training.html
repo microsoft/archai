@@ -163,6 +163,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/nvidia_trainer.html">NVIDIA Trainer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/onnx_export.html">ONNX Export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/torch_quantization.html">PyTorch Quantization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/tfpp_ss.html">Transformer++ Search Space</a></li>
+
 </ul>
 </li>
 </ul>
@@ -409,7 +411,6 @@ document.write(`
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
-<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">ray</span>
@@ -422,6 +423,7 @@ document.write(`
     <span class="n">ModelEvaluator</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.search_space</span> <span class="kn">import</span> <span class="n">DiscreteSearchSpace</span>
+<span class="kn">from</span> <span class="nn">archai.common.file_utils</span> <span class="kn">import</span> <span class="n">TemporaryFiles</span>
 
 
 <span class="k">def</span> <span class="nf">_ray_wrap_training_fn</span><span class="p">(</span><span class="n">training_fn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
@@ -547,9 +549,12 @@ document.write(`
                 <span class="n">trained_model</span><span class="p">,</span> <span class="n">job_metric</span><span class="p">,</span> <span class="n">training_state</span> <span class="o">=</span> <span class="n">job_results</span>
 
                 <span class="c1"># Syncs model weights</span>
-                <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">save_model_weights</span><span class="p">(</span><span class="n">trained_model</span><span class="p">,</span> <span class="n">tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">load_model_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">job_id</span><span class="p">],</span> <span class="n">tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="c1"># On windows you cannot open a named temporary file a second time.</span>
+                <span class="n">temp_file_name</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">with</span> <span class="n">TemporaryFiles</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+                    <span class="n">temp_file_name</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">get_temp_file</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">save_model_weights</span><span class="p">(</span><span class="n">trained_model</span><span class="p">,</span> <span class="n">temp_file_name</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">search_space</span><span class="o">.</span><span class="n">load_model_weights</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">job_id</span><span class="p">],</span> <span class="n">temp_file_name</span><span class="p">)</span>
 
                 <span class="c1"># Syncs training state</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">training_states</span><span class="p">[</span><span class="n">trained_model</span><span class="o">.</span><span class="n">archid</span><span class="p">]</span> <span class="o">=</span> <span class="n">training_state</span>
@@ -605,7 +610,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 31, 2023.
+  Last updated on Apr 04, 2023.
   <br/>
 </p>
   </div>

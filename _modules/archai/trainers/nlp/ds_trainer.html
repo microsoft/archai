@@ -163,6 +163,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/nvidia_trainer.html">NVIDIA Trainer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/onnx_export.html">ONNX Export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/torch_quantization.html">PyTorch Quantization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/notebooks/nlp/tfpp_ss.html">Transformer++ Search Space</a></li>
+
 </ul>
 </li>
 </ul>
@@ -409,7 +411,9 @@ document.write(`
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
 
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
@@ -542,7 +546,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eval_dataset</span> <span class="o">=</span> <span class="n">eval_dataset</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">client_state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;step&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;total_consumed_samples&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client_state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;global_step&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;total_consumed_samples&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;log_history&quot;</span><span class="p">:</span> <span class="p">[]}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">data_parallel_world_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -658,8 +662,9 @@ document.write(`
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting training ...&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training arguments: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="n">current_step</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">global_step</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">total_consumed_samples</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">log_history</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">if</span> <span class="n">resume_from_checkpoint</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading from checkpoint: </span><span class="si">{</span><span class="n">resume_from_checkpoint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -669,8 +674,9 @@ document.write(`
                     <span class="n">load_optimizer_states</span><span class="o">=</span><span class="n">resume_optimizer_state</span><span class="p">,</span>
                     <span class="n">load_lr_scheduler_states</span><span class="o">=</span><span class="n">resume_lr_scheduler_state</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">current_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_state</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span>
+                <span class="n">global_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_state</span><span class="p">[</span><span class="s2">&quot;global_step&quot;</span><span class="p">]</span>
                 <span class="n">total_consumed_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_state</span><span class="p">[</span><span class="s2">&quot;total_consumed_samples&quot;</span><span class="p">]</span>
+                <span class="n">log_history</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_state</span><span class="p">[</span><span class="s2">&quot;log_history&quot;</span><span class="p">]</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="k">pass</span>
 
@@ -682,7 +688,7 @@ document.write(`
         <span class="n">train_iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">RepeatingLoader</span><span class="p">(</span><span class="n">train_dataloader</span><span class="p">))</span>
         <span class="n">train_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">current_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">max_steps</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">global_step</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">max_steps</span><span class="p">):</span>
             <span class="n">step_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">pipe_parallel_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -697,16 +703,17 @@ document.write(`
                 <span class="n">samples_per_second</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">train_batch_size</span><span class="p">()</span> <span class="o">/</span> <span class="n">step_time</span>
                 <span class="n">learning_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_lr</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
 
-                <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;train/loss&quot;</span><span class="p">:</span> <span class="n">float_loss</span><span class="p">,</span>
-                        <span class="s2">&quot;train/ppl&quot;</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">float_loss</span><span class="p">),</span>
-                        <span class="s2">&quot;train/learning_rate&quot;</span><span class="p">:</span> <span class="n">learning_rate</span><span class="p">,</span>
-                        <span class="s2">&quot;train/samples_per_second&quot;</span><span class="p">:</span> <span class="n">samples_per_second</span><span class="p">,</span>
-                        <span class="s2">&quot;train/step_runtime&quot;</span><span class="p">:</span> <span class="n">step_time</span><span class="p">,</span>
-                    <span class="p">},</span>
-                    <span class="n">step</span><span class="o">=</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
-                <span class="p">)</span>
+                <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;train/step&quot;</span><span class="p">:</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s2">&quot;train/loss&quot;</span><span class="p">:</span> <span class="n">float_loss</span><span class="p">,</span>
+                    <span class="s2">&quot;train/ppl&quot;</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">float_loss</span><span class="p">),</span>
+                    <span class="s2">&quot;train/learning_rate&quot;</span><span class="p">:</span> <span class="n">learning_rate</span><span class="p">,</span>
+                    <span class="s2">&quot;train/samples_per_second&quot;</span><span class="p">:</span> <span class="n">samples_per_second</span><span class="p">,</span>
+                    <span class="s2">&quot;train/step_runtime&quot;</span><span class="p">:</span> <span class="n">step_time</span><span class="p">,</span>
+                <span class="p">}</span>
+
+                <span class="n">log_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+                <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
                 <span class="n">do_periodic_logging</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">logging_steps</span> <span class="o">==</span> <span class="mi">0</span>
                 <span class="k">if</span> <span class="n">do_periodic_logging</span><span class="p">:</span>
@@ -723,16 +730,18 @@ document.write(`
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">global_rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">eval_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">eval_steps</span>
-                    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span>
-                        <span class="p">{</span>
-                            <span class="s2">&quot;eval/loss&quot;</span><span class="p">:</span> <span class="n">eval_loss</span><span class="p">,</span>
-                            <span class="s2">&quot;eval/ppl&quot;</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">eval_loss</span><span class="p">),</span>
-                            <span class="s2">&quot;eval/runtime&quot;</span><span class="p">:</span> <span class="n">eval_time</span><span class="p">,</span>
-                            <span class="s2">&quot;eval/samples_per_second&quot;</span><span class="p">:</span> <span class="n">eval_samples_per_second</span><span class="p">,</span>
-                            <span class="s2">&quot;eval/steps_per_second&quot;</span><span class="p">:</span> <span class="n">eval_steps_per_second</span><span class="p">,</span>
-                        <span class="p">},</span>
-                        <span class="n">step</span><span class="o">=</span><span class="n">eval_idx</span><span class="p">,</span>
-                    <span class="p">)</span>
+                    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;eval/idx&quot;</span><span class="p">:</span> <span class="n">eval_idx</span><span class="p">,</span>
+                        <span class="s2">&quot;eval/loss&quot;</span><span class="p">:</span> <span class="n">eval_loss</span><span class="p">,</span>
+                        <span class="s2">&quot;eval/ppl&quot;</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">eval_loss</span><span class="p">),</span>
+                        <span class="s2">&quot;eval/runtime&quot;</span><span class="p">:</span> <span class="n">eval_time</span><span class="p">,</span>
+                        <span class="s2">&quot;eval/samples_per_second&quot;</span><span class="p">:</span> <span class="n">eval_samples_per_second</span><span class="p">,</span>
+                        <span class="s2">&quot;eval/steps_per_second&quot;</span><span class="p">:</span> <span class="n">eval_steps_per_second</span><span class="p">,</span>
+                    <span class="p">}</span>
+
+                    <span class="n">log_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+                    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_metrics</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">eval_idx</span><span class="p">)</span>
+
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Eval: </span><span class="si">{</span><span class="n">eval_idx</span><span class="si">}</span><span class="s2"> | Seconds: </span><span class="si">{</span><span class="n">eval_time</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> | &quot;</span>
                         <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Samples/s: </span><span class="si">{</span><span class="n">eval_samples_per_second</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> | Loss: </span><span class="si">{</span><span class="n">eval_loss</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> | &quot;</span>
@@ -741,9 +750,13 @@ document.write(`
 
             <span class="n">do_periodic_checkpoint</span> <span class="o">=</span> <span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">save_steps</span> <span class="o">==</span> <span class="mi">0</span>
             <span class="k">if</span> <span class="n">do_periodic_checkpoint</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">client_state</span><span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">client_state</span><span class="p">[</span><span class="s2">&quot;global_step&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">client_state</span><span class="p">[</span><span class="s2">&quot;total_consumed_samples&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">global_samples</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">client_state</span><span class="p">[</span><span class="s2">&quot;log_history&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">log_history</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">save_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">client_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">client_state</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;trainer_state.json&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">client_state</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
         <span class="n">train_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">train_time</span>
 
@@ -833,7 +846,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 31, 2023.
+  Last updated on Apr 04, 2023.
   <br/>
 </p>
   </div>

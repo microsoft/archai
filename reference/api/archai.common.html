@@ -166,6 +166,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../getting_started/notebooks/nlp/nvidia_trainer.html">NVIDIA Trainer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../getting_started/notebooks/nlp/onnx_export.html">ONNX Export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../getting_started/notebooks/nlp/torch_quantization.html">PyTorch Quantization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/notebooks/nlp/tfpp_ss.html">Transformer++ Search Space</a></li>
+
 </ul>
 </li>
 </ul>
@@ -1108,6 +1110,17 @@ of an existing file name (before the file extension).</p>
 <dd class="field-even"><p>The full path to the file or folder.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="archai.common.file_utils.TemporaryFiles">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.common.file_utils.</span></span><span class="sig-name descname"><span class="pre">TemporaryFiles</span></span><a class="reference internal" href="../../_modules/archai/common/file_utils.html#TemporaryFiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.file_utils.TemporaryFiles" title="Permalink to this definition">#</a></dt>
+<dd><p>Windows has a weird quirk where the tempfile.NamedTemporaryFile cannot be opened a second time.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.common.file_utils.TemporaryFiles.get_temp_file">
+<span class="sig-name descname"><span class="pre">get_temp_file</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/common/file_utils.html#TemporaryFiles.get_temp_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.common.file_utils.TemporaryFiles.get_temp_file" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -2220,7 +2233,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 31, 2023.
+  Last updated on Apr 04, 2023.
   <br/>
 </p>
   </div>

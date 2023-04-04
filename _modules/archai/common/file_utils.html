@@ -163,6 +163,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/nvidia_trainer.html">NVIDIA Trainer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/onnx_export.html">ONNX Export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/torch_quantization.html">PyTorch Quantization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/notebooks/nlp/tfpp_ss.html">Transformer++ Search Space</a></li>
+
 </ul>
 </li>
 </ul>
@@ -408,13 +410,15 @@ document.write(`
   <h1>Source code for archai.common.file_utils</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
-
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">TracebackType</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 
@@ -597,6 +601,27 @@ document.write(`
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">path</span></div>
+
+
+<div class="viewcode-block" id="TemporaryFiles"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.file_utils.TemporaryFiles">[docs]</a><span class="k">class</span> <span class="nc">TemporaryFiles</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Windows has a weird quirk where the tempfile.NamedTemporaryFile cannot be opened a second time. &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span> <span class="n">exc_val</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">:</span> <span class="n">TracebackType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files_to_delete</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files_to_delete</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="TemporaryFiles.get_temp_file"><a class="viewcode-back" href="../../../reference/api/archai.common.html#archai.common.file_utils.TemporaryFiles.get_temp_file">[docs]</a>    <span class="k">def</span> <span class="nf">get_temp_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files_to_delete</span> <span class="o">+=</span> <span class="p">[</span><span class="n">result</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span></div></div>
 </pre></div>
 
                 </article>
@@ -641,7 +666,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 31, 2023.
+  Last updated on Apr 04, 2023.
   <br/>
 </p>
   </div>

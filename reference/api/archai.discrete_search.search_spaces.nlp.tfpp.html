@@ -166,6 +166,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../getting_started/notebooks/nlp/nvidia_trainer.html">NVIDIA Trainer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../getting_started/notebooks/nlp/onnx_export.html">ONNX Export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../getting_started/notebooks/nlp/torch_quantization.html">PyTorch Quantization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/notebooks/nlp/tfpp_ss.html">Transformer++ Search Space</a></li>
+
 </ul>
 </li>
 </ul>
@@ -793,6 +795,7 @@ registered hooks while the latter silently ignores them.</p>
 </section>
 <section id="module-archai.discrete_search.search_spaces.nlp.tfpp.ops.mha">
 <span id="multi-head-attention"></span><h3>Multi-Head Attention<a class="headerlink" href="#module-archai.discrete_search.search_spaces.nlp.tfpp.ops.mha" title="Permalink to this headline">#</a></h3>
+<p>Modified from <a class="github reference external" href="https://github.com/HazyResearch/flash-attention/">HazyResearch/flash-attention</a></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.nlp.tfpp.ops.mha.BaseRotaryEmbedding">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.search_spaces.nlp.tfpp.ops.mha.</span></span><span class="sig-name descname"><span class="pre">BaseRotaryEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/nlp/tfpp/ops/mha.html#BaseRotaryEmbedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.nlp.tfpp.ops.mha.BaseRotaryEmbedding" title="Permalink to this definition">#</a></dt>
@@ -1445,7 +1448,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 31, 2023.
+  Last updated on Apr 04, 2023.
   <br/>
 </p>
   </div>

@@ -163,6 +163,8 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../../../getting_started/notebooks/nlp/nvidia_trainer.html">NVIDIA Trainer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../../../getting_started/notebooks/nlp/onnx_export.html">ONNX Export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../../../getting_started/notebooks/nlp/torch_quantization.html">PyTorch Quantization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../../../getting_started/notebooks/nlp/tfpp_ss.html">Transformer++ Search Space</a></li>
+
 </ul>
 </li>
 </ul>
@@ -466,11 +468,6 @@ document.write(`
         <span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ln_f</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">LayerNorm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">hf_config</span><span class="o">.</span><span class="n">layer_norm_epsilon</span><span class="p">)</span>
-        
-        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">hf_config</span><span class="o">.</span><span class="n">n_ctx</span> <span class="o">//</span> <span class="n">block_config</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;total_heads&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">hf_config</span><span class="o">.</span><span class="n">rotary_dim</span>\
-               <span class="k">for</span> <span class="n">block_config</span> <span class="ow">in</span> <span class="n">arch_config</span><span class="o">.</span><span class="n">pick</span><span class="p">(</span><span class="s1">&#39;hidden_layers&#39;</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The maximum number of heads is 64. Please, reduce the number of heads in the model.&#39;</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">rotary_dim</span> <span class="o">=</span> <span class="n">hf_config</span><span class="o">.</span><span class="n">rotary_dim</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gradient_checkpointing</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -824,7 +821,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Mar 31, 2023.
+  Last updated on Apr 04, 2023.
   <br/>
 </p>
   </div>
