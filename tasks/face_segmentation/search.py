@@ -131,7 +131,11 @@ def main():
             compute_intensive=True
         )
 
+    # Dataset provider
+    dataset_provider = FaceSyntheticsDatasetProvider(args.dataset_dir)
+
     partial_tr_obj = PartialTrainingValIOU(
+        dataset_provider,
         tr_epochs=args.partial_tr_epochs,
         output_dir=args.output_dir / 'partial_training_logs'
     )
@@ -149,13 +153,10 @@ def main():
         compute_intensive=True
     )
 
-    # Dataset provider
-    dataset_provider = FaceSyntheticsDatasetProvider(args.dataset_dir)
-
     # Search algorithm
     algo_config = search_config['algorithm']
     algo = AVAILABLE_ALGOS[algo_config['name']](
-        search_space, so, dataset_provider,
+        search_space, so,
         output_dir=args.output_dir, seed=args.seed,
         **algo_config.get('params', {}),
     )
