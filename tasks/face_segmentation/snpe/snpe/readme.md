@@ -43,6 +43,29 @@ In this folder we will build the following files:
 - model - your original model to be converted to .dlc
 - snpe_models/model.quant.dlc - the quantized model
 
+1. **Install Olive**
+
+Install Olive2 from following repository:
+```
+git clone https://aiinfra@dev.azure.com/aiinfra/PyTorch/_git/olive2
+cd olive2
+git checkout clovett/get_dlc_metrics
+pip install -r requirements.txt
+pip install -e .
+```
+
+1. Let Olive configure SNPE
+    ```
+	python -m olive.snpe.configure
+    ```
+
+    **If you run into a protobuf inconsistency with Python 3.8 you can workaround
+    it by setting the folloiwng env. variable:**
+    ```
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+    ```
+
+
 The `azure/runner.py` does all this for you, but it's also nice to be able to do these steps manually if
 you need to double check something.
 

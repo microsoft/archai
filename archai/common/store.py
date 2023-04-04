@@ -125,7 +125,7 @@ class ArchaiStore:
         try:
             # find all properties (just use list_entities?)
             for e in table_client.query_entities(query_filter=query):
-                entities += [self._wrap_numeric_types(e)]
+                entities += [self._unwrap_numeric_types(e)]
 
         except Exception as e:
             print(f"### error reading table: {e}")
@@ -154,7 +154,9 @@ class ArchaiStore:
         e = {}
         for k in entity.keys():
             v = entity[k]
-            if isinstance(v, int):
+            if isinstance(v, bool):
+                e[k] = v
+            elif isinstance(v, int):
                 e[k] = EntityProperty(v, EdmType.INT64)
             elif isinstance(v, float):
                 e[k] = float(v)  # this is casting np.float to float.
