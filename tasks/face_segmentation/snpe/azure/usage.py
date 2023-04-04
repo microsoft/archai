@@ -35,7 +35,8 @@ def get_all_usage_entities(store, name_filter=None):
 
 
 def add_usage(store, name, start, end):
-    e = store.get_entity(str(uuid.uuid4()))
+    e = store.get_status(str(uuid.uuid4()))
+    del e['status']
     e['name'] = name
     e['start'] = start
     e['end'] = end

@@ -9,7 +9,7 @@ from archai.common.store import ArchaiStore
 CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 
 
-def cleanup_stale_pods(conn_string):
+def cleanup_stale_pods(con_str):
     """ This script looks for kubernetes pods that are no longer running (e.g. the pod may have run out of
     memory or may have been stopped for whatever reason) and cleans up the state in our status table to
     ensure the job doesn't get zombied, it will be picked up by the next available pod.  """

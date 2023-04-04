@@ -195,7 +195,7 @@ def is_locked(entity):
     return None
 
 
-def lock_job(entity, service=None):
+def lock_job(entity):
     global store
     node = get_unique_node_id()
     name = entity['name']
@@ -211,9 +211,10 @@ def lock_job(entity, service=None):
         try:
             store.merge_status_entity(entity)
             break
-        except:
+        except Exception as e:
             # someone beat us to it!
-            log("lock failed, entity changed by someone else, trying again...")
+            log(f"lock failed: {e}")
+            log("entity may have been changed by someone else, trying again...")
 
     # make sure we really got the lock!
     entity = store.get_status(name)
@@ -223,7 +224,7 @@ def lock_job(entity, service=None):
     raise Exception('lock encountered')
 
 
-def unlock_job(entity, service=None):
+def unlock_job(entity):
     global store
     node = get_unique_node_id()
     # make sure we have the most up to date version of the entity.
@@ -352,7 +353,7 @@ def benchmark(entity, onnx_model, model, name, test_input):
 
 
 def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only, no_quantization):
-    global store
+    global store, usage
     log("===================================================================================================")
     log(f"Checking model: {name} on node {get_unique_node_id()}")
     log("===================================================================================================")
@@ -513,7 +514,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only,
         start = store.get_utc_date()
         snpe_output_dir, latencies = run_batches(onnx_model, model, test_input, name)
         end = store.get_utc_date()
-        add_usage(get_device(), start, end)
+        add_usage(usage, get_device(), start, end)
 
     try:
         use_pillow = 'use_pillow' in entity and entity['use_pillow']
@@ -568,7 +569,7 @@ def node_quantizing():
     return count > 0
 
 
-def check_stale_pods(timeout=3600):
+def check_stale_pods(conn_string, timeout=3600):
     """ This function checks whether any quantization jobs are getting stuck in the
     kubernetes cluster for longer than the given timeout and automatically resets them
     if the kubernetes pod no longer exists. """
@@ -589,7 +590,7 @@ def check_stale_pods(timeout=3600):
                         clean = True
                         break
     if clean:
-        cleanup_stale_pods()
+        cleanup_stale_pods(conn_string)
         for entity in store.get_all_status_entities(status='complete', not_equal=True):
             if 'check' in entity:
                 del entity['check']
@@ -689,7 +690,7 @@ def monitor(snpe_root, dataset, use_device, benchmark_only, subset_list, no_quan
             sys.exit(0)
 
         if cleanup_stale_pods:
-            check_stale_pods(cleanup_stale_pods)
+            check_stale_pods(conn_string, cleanup_stale_pods)
 
         try:
             queue = find_work_prioritized(use_device, benchmark_only, subset_list, no_quantization)
