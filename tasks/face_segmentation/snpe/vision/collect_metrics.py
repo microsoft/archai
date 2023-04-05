@@ -7,6 +7,7 @@ import os
 import tqdm
 import pandas as pd
 import sys
+import math
 import matplotlib.pyplot as plt
 from sklearn.metrics import PrecisionRecallDisplay
 from PIL import Image
@@ -38,10 +39,11 @@ def _get_dataset_gt(img_name, dataset, img_shape, use_pillow=False):
     if gt_seg.shape[:2] != img_shape:
         if use_pillow:
             img = Image.fromarray(gt_seg, 'L')
-            img = img.resize(img_shape[::-1], Image.NEAREST)
+            img = img.resize(img_shape[:2], Image.NEAREST)
             gt_seg = np.array(img)
         else:
-            newsize = [img_shape[0], img_shape[1]]
+            # cv2 resize is (newHeight, newWidth)
+            newsize = [img_shape[1], img_shape[0]]
             gt_seg = cv2.resize(gt_seg, newsize, interpolation=cv2.INTER_NEAREST)
     return gt_seg
 
@@ -95,7 +97,7 @@ def get_confusion_matrix(gt_label, pred_label, valid_mask, num_classes):
     return confusion_matrix
 
 
-def get_metrics(input_shape, transpose, dataset, outputs, use_pillow=False):
+def get_metrics(input_shape, transpose, dataset, outputs, num_classes=19, use_pillow=False):
 
     output_list = [x for x in os.listdir(outputs) if x.endswith('.raw')]
     output_list.sort()
@@ -105,7 +107,7 @@ def get_metrics(input_shape, transpose, dataset, outputs, use_pillow=False):
 
     print(f"Collecting metrics on {len(output_list)} output .raw files...")
 
-    _, width, height, num_classes = input_shape
+    width, height, c = input_shape
     img_shape = (width, height)
     confusion_matx = None
 
@@ -172,8 +174,12 @@ def get_metrics(input_shape, transpose, dataset, outputs, use_pillow=False):
 
     # compute weighted iou/f1 (excluding background and facewear class)
     weight = 1 / np.sqrt(gt_pos[1:18])
-    overall_iou = np.sum(iou[1:18] * weight) / np.sum(weight)
-    overall_f1 = np.sum(f1[1:18] * weight) / np.sum(weight)
+    if len(iou) > 1:
+        overall_iou = np.sum(iou[1:18] * weight) / np.sum(weight)
+        overall_f1 = np.sum(f1[1:18] * weight) / np.sum(weight)
+    else:
+        overall_iou = iou[0]
+        overall_f1 = f1[0]
 
     # compute precision recall curve
     _, ax = plt.subplots(figsize=(6, 7))
@@ -240,9 +246,10 @@ if __name__ == '__main__':
     parser.add_argument('--output', '-o', help='Location of the outputs to analyze (default "snpe_output")',
                         default='snpe_output')
     parser.add_argument('--transpose', '-t', help='Transpose channels by (1,2,0)', action="store_true")
+    parser.add_argument('--num_classes', type=int, help="Number of classes predicted (default 19)", default=19)
     parser.add_argument('--pillow', help="Resize images using Pillow instead of numpy", action="store_true")
     parser.add_argument('--input_shape', help="Resize images this size, must match the shape of the model output " +
-                                              "(default '1,256,256,19')")
+                                              "(default '256,256,3')")
     args = parser.parse_args()
 
     use_pillow = args.pillow
@@ -266,11 +273,11 @@ if __name__ == '__main__':
         print("Experiment 'output' dir not found: " + output_dir)
         sys.exit(1)
 
-    input_shape = (1, 256, 256, 19)
+    input_shape = (256, 256, 3)
     if args.input_shape:
         input_shape = tuple(eval(args.image_shape))
 
     if args.show:
         show_output(input_shape, transpose, dataset, output_dir)
     else:
-        get_metrics(input_shape, transpose, dataset, output_dir, use_pillow)
+        get_metrics(input_shape, transpose, dataset, output_dir, args.num_classes, use_pillow)

@@ -96,8 +96,8 @@ def check_device(device, snpe_root):
 
 
 def check_dataset(shape, name, test_size):
-    _, w, h, c = shape
-    img_size = (w, h, 3)
+    w, h, c = shape
+    img_size = (w, h)
     test = os.path.join('data', name)
     if os.path.isdir(test):
         s = read_shape(test)
@@ -115,6 +115,12 @@ def check_dataset(shape, name, test_size):
         save_shape(test, shape)
 
 
+def get_entity_shape(entity, name):
+    if name in entity:
+        return eval(entity[name])
+    return []
+
+
 def convert(name, entity, long_name, model_path):
     global store
     log("Converting model: " + long_name)
@@ -122,20 +128,17 @@ def convert(name, entity, long_name, model_path):
     entity['status'] = 'converting'
     store.merge_status_entity(entity)
 
-    shape = None
-    if 'shape' in entity:
-        shape = eval(entity['shape'])
-
     model_dir = os.path.join(name, SNPE_MODEL_DIR)
-    model, input_shape, error = convert_model(model_path, model_dir)
+    model, input_shape, output_shape, error = convert_model(model_path, model_dir)
     if error:
         entity['status'] = 'error'
         entity['error'] = error
         store.merge_status_entity(entity)
         return 'error'
 
-    if shape != input_shape:
+    if input_shape != get_entity_shape(entity, 'shape') or output_shape != get_entity_shape(entity, 'output_shape'):
         entity['shape'] = str(input_shape)
+        entity['output_shape'] = str(output_shape)
         store.merge_status_entity(entity)
 
     log("Uploading converted model: " + model)
@@ -513,7 +516,11 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only,
 
     try:
         use_pillow = 'use_pillow' in entity and entity['use_pillow']
-        test_results, chart, f1score = get_metrics(input_shape, False, dataset, snpe_output_dir, use_pillow)
+        num_classes = 19
+        if 'output_shape' in entity:
+            w, h, num_classes = eval(entity['output_shape'])
+
+        test_results, chart, f1score = get_metrics(input_shape, False, dataset, snpe_output_dir, num_classes, use_pillow)
     except Exception as ex:
         entity['status'] = 'error'
         entity['error'] = str(ex)

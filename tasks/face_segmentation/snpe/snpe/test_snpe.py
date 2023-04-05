@@ -106,7 +106,7 @@ def onnx_to_dlc(model, model_dir):
     return [output_dlc, dlc_shape]
 
 
-def create_snpe_config(model_file, output_dir):
+def create_snpe_config(model_file, output_dir=None):
     sess = InferenceSession(model_file, providers=['CPUExecutionProvider'])
     if len(sess._sess.inputs_meta) > 1:
         raise Exception("Cannot handle models with more than one input")
@@ -120,9 +120,9 @@ def create_snpe_config(model_file, output_dir):
     if len(shape) == 4:
         shape = shape[1:]  # trim off batch dimension
     layout = _get_input_layout(shape)
-    input_shape = ",".join([str(i) for i in input_meta.shape])
     # snpe-onnx-to-dlc changes the model input to NHWC
-    output_shape = shape if layout == 'NHWC' else [shape[1], shape[2], shape[0]]
+    output_shape = output_meta.shape[1:]  # stip off batch dimension
+    output_shape = output_shape if layout == 'NHWC' else [output_shape[1], output_shape[2], output_shape[0]]
 
     config = {
         "io_config": {
@@ -139,9 +139,10 @@ def create_snpe_config(model_file, output_dir):
         }
     }
 
-    config_file = os.path.join(output_dir, 'snpe_config.json')
-    with open(config_file, 'w', encoding='utf-8') as f:
-        json.dump(config, f, indent=2)
+    if output_dir is not None:
+        config_file = os.path.join(output_dir, 'snpe_config.json')
+        with open(config_file, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2)
 
     return config
 
@@ -158,10 +159,10 @@ def convert_onnx_to_dlc(onnx_model, snpe_output_file):
     assert Path(snpe_model.model_path).is_file()
 
     dlc_model_path = snpe_model.model_path
-    # output_shapes is a list, but we only want the first element
-    dlc_shape = snpe_model.io_config["output_shapes"][0]
+    input_shape = snpe_model.io_config["input_shapes"][0]
+    output_shape = snpe_model.io_config["output_shapes"][0]
 
-    return dlc_model_path, dlc_shape
+    return dlc_model_path, input_shape, output_shape
 
 
 def convert_model(model, model_dir):
@@ -189,8 +190,8 @@ def convert_model(model, model_dir):
     try:
         onnx_model = ONNXModel(model, basename)
         snpe_output_file = f"{model_dir}/model.dlc"
-        model, shape = convert_onnx_to_dlc(onnx_model, snpe_output_file)
-        return [model, shape, None]
+        model, input_shape, output_shape = convert_onnx_to_dlc(onnx_model, snpe_output_file)
+        return [model, input_shape[1:], output_shape[1:], None]
     except Exception as ex:
         return [None, None, str(ex)]
 
@@ -450,7 +451,7 @@ def run_throughput(model, duration):
             print(out)
 
 
-def compute_results(shape, output_folder):
+def compute_results(shape, num_classes, output_folder):
     if not os.path.isdir(output_folder):
         print("Folder not found: '{output_folder}'")
         return
@@ -459,7 +460,7 @@ def compute_results(shape, output_folder):
         print("Please set your INPUT_DATASET environment variable")
         return
 
-    return get_metrics(shape, False, dataset, output_folder)
+    return get_metrics(shape, False, dataset, output_folder, num_classes)
 
 
 def run_batches(onnx_model, dlc_model, images_dir, workspace_dir):
@@ -481,10 +482,10 @@ def run_batches(onnx_model, dlc_model, images_dir, workspace_dir):
     basename = os.path.splitext(os.path.basename(dlc_model))[0]
 
     options = SNPESessionOptions(
-        android_target = get_device(),
-        device = "dsp" if 'quant' in basename else "cpu",
-        workspace = workspace_dir,
-        accumulate_outputs = True
+        android_target=get_device(),
+        device="dsp" if 'quant' in basename else "cpu",
+        workspace=workspace_dir,
+        accumulate_outputs=True
     )
 
     config = create_snpe_config(onnx_model, snpe_model_dir)
@@ -589,7 +590,7 @@ if __name__ == '__main__':
     if args.dlc:
         dlc_model = args.dlc
     else:
-        dlc_model, shape, error = convert_model(args.model, MODEL_DIR)
+        dlc_model, shape, output_shape, error = convert_model(args.model, MODEL_DIR)
         if error:
             print(error)
             sys.exit(1)
@@ -605,7 +606,6 @@ if __name__ == '__main__':
         sys.exit(1)
 
     config = create_snpe_config(args.model, '.')
-    shape = config['io_config']['output_shapes'][0]
 
     if args.quantize:
         quantized_model, error = quantize_model(model, model, MODEL_DIR)
@@ -634,5 +634,5 @@ if __name__ == '__main__':
         print(f"batch completed in {end-start} seconds, results in {output_folder}")
         for m in latencies:
             print(f"total_inference_time={m['total_inference_time']}")
-        input_shape = (1, shape[0], shape[1], 19)
-        compute_results(input_shape, output_folder)
+        output_shape = config['io_config']['output_shapes'][0]
+        compute_results(output_shape, output_folder)
