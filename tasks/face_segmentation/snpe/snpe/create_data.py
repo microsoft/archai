@@ -106,5 +106,5 @@ if __name__ == '__main__':
     else:
         transpose = None
 
-    create_dataset(dataset, 'quant', [dim, dim], count, transpose)
-    create_dataset(dataset, 'test', [dim, dim], count, transpose)
+    create_dataset(dataset, 'quant', (dim, dim), count, transpose)
+    create_dataset(dataset, 'test', (dim, dim), count, transpose)

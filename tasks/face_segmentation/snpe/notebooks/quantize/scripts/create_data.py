@@ -107,5 +107,5 @@ if __name__ == '__main__':
     if os.path.isdir(dst_root):
         rmtree(dst_root)
 
-    create_dataset(dataset, dst_root, 'quant', [dim, dim], count, transpose)
-    create_dataset(dataset, dst_root, 'test', [dim, dim], count, transpose)
+    create_dataset(dataset, dst_root, 'quant', (dim, dim), count, transpose)
+    create_dataset(dataset, dst_root, 'test', (dim, dim), count, transpose)

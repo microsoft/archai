@@ -46,7 +46,9 @@ def _get_dataset_gt(img_name, dataset, img_shape, use_pillow=False):
     return gt_seg
 
 
-def show_output(img_shape, transpose, dataset, outputs):
+def show_output(input_shape, transpose, dataset, outputs):
+    _, w, h, c = input_shape
+    img_shape = (w, h)
     output_list = [x for x in os.listdir(outputs) if x.endswith('.raw')]
     output_list.sort()
     for out_f in output_list:
@@ -93,7 +95,7 @@ def get_confusion_matrix(gt_label, pred_label, valid_mask, num_classes):
     return confusion_matrix
 
 
-def get_metrics(img_shape, transpose, dataset, outputs, use_pillow=False):
+def get_metrics(input_shape, transpose, dataset, outputs, use_pillow=False):
 
     output_list = [x for x in os.listdir(outputs) if x.endswith('.raw')]
     output_list.sort()
@@ -103,7 +105,8 @@ def get_metrics(img_shape, transpose, dataset, outputs, use_pillow=False):
 
     print(f"Collecting metrics on {len(output_list)} output .raw files...")
 
-    num_classes = 19
+    _, width, height, num_classes = input_shape
+    img_shape = (width, height)
     confusion_matx = None
 
     bins = int(1e6)
@@ -121,9 +124,9 @@ def get_metrics(img_shape, transpose, dataset, outputs, use_pillow=False):
             full_path = os.path.join(outputs, out_f)
             logits = np.fromfile(full_path, dtype=np.float32)
             size = np.product(logits.shape)
-            num_classes = int(size / (img_shape[0] * img_shape[1]))
-            if num_classes < 18:
-                raise Exception(f"Result {out_f} has unexpected number of predictions {num_classes}")
+            found_classes = int(size / (img_shape[0] * img_shape[1]))
+            if found_classes != num_classes:
+                raise Exception(f"Result {out_f} has unexpected number of predictions {found_classes}, expecting {num_classes}")
 
             if transpose:
                 logits = logits.reshape((num_classes, img_shape[0], img_shape[1])).transpose(transpose)
@@ -238,8 +241,8 @@ if __name__ == '__main__':
                         default='snpe_output')
     parser.add_argument('--transpose', '-t', help='Transpose channels by (1,2,0)', action="store_true")
     parser.add_argument('--pillow', help="Resize images using Pillow instead of numpy", action="store_true")
-    parser.add_argument('--image_shape', help="Resize images this size, must match the size of the output images " +
-                                              "(default '256,256')")
+    parser.add_argument('--input_shape', help="Resize images this size, must match the shape of the model output " +
+                                              "(default '1,256,256,19')")
     args = parser.parse_args()
 
     use_pillow = args.pillow
@@ -263,11 +266,11 @@ if __name__ == '__main__':
         print("Experiment 'output' dir not found: " + output_dir)
         sys.exit(1)
 
-    image_shape = (256, 256)
-    if args.image_shape:
-        image_shape = tuple(eval(args.image_shape))
+    input_shape = (1, 256, 256, 19)
+    if args.input_shape:
+        input_shape = tuple(eval(args.image_shape))
 
     if args.show:
-        show_output(image_shape, transpose, dataset, output_dir)
+        show_output(input_shape, transpose, dataset, output_dir)
     else:
-        get_metrics(image_shape, transpose, dataset, output_dir, use_pillow)
+        get_metrics(input_shape, transpose, dataset, output_dir, use_pillow)

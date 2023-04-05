@@ -41,13 +41,12 @@ Then to get the ball rolling create a temp folder and run this:
 
 ```
 mkdir -p ~/experiment
-cd ~/experiment
-python ~/git/snpe_runner/azure/runner.py
+python ~/git/snpe_runner/azure/runner.py --working ~/experiment
 ```
 
 This will monitor the Azure blob store for new work to do, and run those jobs in
 priority order.  If you also provide a `--device` option pointing to the `adb device` for a Qualcomm 888 Dev Board then it will also run the quantized models
 on that device and report the performance and F1 score results.
 
-To setup a quantization only runner in the cloud you can pass `--no_quantization` argument, this is what
-we do in the quantization docker image.
+If you setup a quantization only runner in the cloud using the `docker/quantizer` image, you can pass `--no_quantization` argument when you have a `--device` so that the local runs do not do quantization.
+This way the linux machine driving the local Qualcomm devices is not overloaded with quantization work.
