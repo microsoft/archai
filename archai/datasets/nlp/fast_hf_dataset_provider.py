@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 
 from __future__ import annotations
+
 import json
 import os
 import pickle
@@ -63,17 +64,19 @@ class FastHfDatasetProvider(DatasetProvider):
         self.validation_file = validation_file
         self.test_file = test_file
         self.tokenizer = tokenizer
-        # Windows doesn't allow tests to memory map the same file when tests are running in parallel.
-        self.mmap_mode = None if os.name == "nt" and os.getenv('PYTEST_CURRENT_TEST') else 'r'
+
+        # Windows does not allow tests to memory map the same file
+        # when tests are running in parallel
+        self.mmap_mode = None if os.name == "nt" and os.getenv("PYTEST_CURRENT_TEST") else "r"
 
     @staticmethod
-    def _create_splits(dataset_dict: DatasetDict, validation_split: float, seed: int) -> DatasetDict:
+    def _create_splits(dataset_dict: DatasetDict, validation_split: float, shuffle: bool, seed: int) -> DatasetDict:
         if "validation" not in dataset_dict:
             logger.info("Creating validation split ...")
 
             validation_split = validation_split or 0.1
             tmp_dataset_dict = dataset_dict["train"].train_test_split(
-                test_size=validation_split, shuffle=True, seed=seed
+                test_size=validation_split, shuffle=shuffle, seed=seed
             )
             dataset_dict["train"] = tmp_dataset_dict["train"]
             dataset_dict["validation"] = tmp_dataset_dict["test"]
@@ -81,7 +84,7 @@ class FastHfDatasetProvider(DatasetProvider):
         if "test" not in dataset_dict:
             logger.info("Creating test split ...")
 
-            tmp_dataset_dict = dataset_dict["validation"].train_test_split(test_size=0.25, shuffle=True, seed=seed)
+            tmp_dataset_dict = dataset_dict["validation"].train_test_split(test_size=0.25, shuffle=shuffle, seed=seed)
             dataset_dict["validation"] = tmp_dataset_dict["train"]
             dataset_dict["test"] = tmp_dataset_dict["test"]
 
@@ -163,7 +166,7 @@ class FastHfDatasetProvider(DatasetProvider):
                 dataset._mmap.close()
                 Path(cache_dir / f"{split}.bin").unlink()
 
-            cache_files[f'{split}_file'] = cache_dir / f"{split}.npy"
+            cache_files[f"{split}_file"] = cache_dir / f"{split}.npy"
 
         with open(cache_dir / "tokenizer.pkl", "wb") as f:
             pickle.dump(tokenizer, f)
@@ -180,11 +183,12 @@ class FastHfDatasetProvider(DatasetProvider):
         mapping_fn_kwargs: Optional[Dict[str, Any]] = None,
         mapping_column_name: Optional[List[str]] = None,
         validation_split: Optional[float] = 0.0,
+        shuffle: Optional[bool] = True,
         seed: Optional[int] = 42,
         num_workers: Optional[int] = 1,
         use_eos_token: Optional[bool] = True,
         use_shared_memory: Optional[bool] = True,
-        cache_dir: Optional[str] = "cache"
+        cache_dir: Optional[str] = "cache",
     ) -> FastHfDatasetProvider:
         """Load a dataset provider by loading and encoding data from disk.
 
@@ -199,6 +203,7 @@ class FastHfDatasetProvider(DatasetProvider):
                 If `str`, only one column will be tokenized.
                 If `List[str]`, multiple columns will be tokenized.
             validation_split: Fraction of the dataset to use for validation.
+            shuffle: Whether to shuffle the dataset.
             seed: Random seed.
             num_workers: Number of workers to use for encoding.
             use_eos_token: Whether to use EOS token to separate sequences.
@@ -228,7 +233,7 @@ class FastHfDatasetProvider(DatasetProvider):
             disk_dataset_dict = DatasetDict({"train": disk_dataset_dict})
 
         # Ensure that `validation` and `test` splits are available
-        disk_dataset_dict = FastHfDatasetProvider._create_splits(disk_dataset_dict, validation_split, seed)
+        disk_dataset_dict = FastHfDatasetProvider._create_splits(disk_dataset_dict, validation_split, shuffle, seed)
 
         encoded_dataset_dict = FastHfDatasetProvider._encode_dataset(
             disk_dataset_dict,
@@ -260,6 +265,7 @@ class FastHfDatasetProvider(DatasetProvider):
                     },
                     "mapping_column_name": mapping_column_name or ["text"],
                     "validation_split": validation_split,
+                    "shuffle": shuffle,
                     "seed": seed,
                     "use_eos_token": use_eos_token,
                 },
@@ -281,11 +287,12 @@ class FastHfDatasetProvider(DatasetProvider):
         mapping_fn_kwargs: Optional[Dict[str, Any]] = None,
         mapping_column_name: Optional[List[str]] = None,
         validation_split: Optional[float] = 0.0,
+        shuffle: Optional[bool] = True,
         seed: Optional[int] = 42,
         num_workers: Optional[int] = 1,
         use_eos_token: Optional[bool] = True,
         use_shared_memory: Optional[bool] = True,
-        cache_dir: Optional[str] = "cache"
+        cache_dir: Optional[str] = "cache",
     ) -> FastHfDatasetProvider:
         """Load a dataset provider by downloading and encoding data from Hugging Face Hub.
 
@@ -303,6 +310,7 @@ class FastHfDatasetProvider(DatasetProvider):
                 If `str`, only one column will be tokenized.
                 If `List[str]`, multiple columns will be tokenized.
             validation_split: Fraction of the dataset to use for validation.
+            shuffle: Whether to shuffle the dataset.
             seed: Random seed.
             num_workers: Number of workers to use for encoding.
             use_eos_token: Whether to use EOS token to separate sequences.
@@ -334,7 +342,7 @@ class FastHfDatasetProvider(DatasetProvider):
             hub_dataset_dict = DatasetDict({"train": hub_dataset_dict})
 
         # Ensure that `validation` and `test` splits are available
-        hub_dataset_dict = FastHfDatasetProvider._create_splits(hub_dataset_dict, validation_split, seed)
+        hub_dataset_dict = FastHfDatasetProvider._create_splits(hub_dataset_dict, validation_split, shuffle, seed)
 
         encoded_dataset_dict = FastHfDatasetProvider._encode_dataset(
             hub_dataset_dict,
@@ -362,12 +370,14 @@ class FastHfDatasetProvider(DatasetProvider):
                     "dataset_name": dataset_name,
                     "dataset_config_name": dataset_config_name,
                     "data_dir": data_dir,
+                    "data_files": data_files,
                     "tokenizer": {
                         "name_or_path": tokenizer.name_or_path,
                         "model_max_length": None,
                     },
                     "mapping_column_name": mapping_column_name or ["text"],
                     "validation_split": validation_split,
+                    "shuffle": shuffle,
                     "seed": seed,
                     "use_eos_token": use_eos_token,
                 },
