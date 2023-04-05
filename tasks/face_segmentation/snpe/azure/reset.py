@@ -30,7 +30,7 @@ def reset(con_str):
     for e in entities:
         name = e['name']
         print(f"Resetting {name}")
-        store.reset(e['name'])
+        store.reset(e['name'], ['benchmark_only'])
         store.delete_blobs(name, 'model.dlc')
         store.delete_blobs(name, 'model.quant.dlc')
 

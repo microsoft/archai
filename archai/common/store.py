@@ -359,20 +359,21 @@ class ArchaiStore:
                 print(f"Unlocking job {name} on node {node}")
                 self.merge_status_entity(e)
 
-    def reset(self, name):
+    def reset(self, name, except_list=[]):
         """ This resets all properties on the given entity that are not primary keys,
-        'name' or 'status'. This will not touch a node that is locked by another.  """
+        'name' or 'status' and are not in the given except_list.
+        This will not touch a node that is locked by another computer.  """
         e = self.get_existing_status(name)
         if not e:
             print(f"Entity {name} not found")
         else:
             self._reset(e)
 
-    def _reset(self, e):
+    def _reset(self, e, except_list=[]):
         if self.is_locked_by_other(e):
             node = self.get_lock(e)
             print(f"Skipping {e['RowKey']} as it is locked by {node}")
-        elif self._reset_metrics(e):
+        elif self._reset_metrics(e, except_list):
             e['status'] = 'reset'
             print(f"Resetting entity {e['RowKey']}")
             self.update_status_entity(e)
@@ -382,11 +383,11 @@ class ArchaiStore:
         for e in self.get_all_status_entities():
             self._reset(e)
 
-    def _reset_metrics(self, entity):
+    def _reset_metrics(self, entity, except_list=[]):
         # now clear all data to force a full re-run of everything.
         modified = False
         for key in list(entity.keys()):
-            if key != 'PartitionKey' and key != 'RowKey' and key != 'name' and key != 'status' and key != 'node':
+            if key != 'PartitionKey' and key != 'RowKey' and key != 'name' and key != 'status' and key != 'node' and key not in except_list:
                 del entity[key]
                 modified = True
         return modified
