@@ -47,9 +47,8 @@ In this folder we will build the following files:
 
 Install Olive2 from following repository:
 ```
-git clone https://aiinfra@dev.azure.com/aiinfra/PyTorch/_git/olive2
-cd olive2
-git checkout clovett/get_dlc_metrics
+git clone https://github.com/microsoft/Olive.git
+cd Olive
 pip install -r requirements.txt
 pip install -e .
 ```

@@ -8,6 +8,7 @@ import logging
 import datetime
 import platform
 import numpy as np
+import re
 from torch import Tensor
 from azure.data.tables import TableServiceClient, UpdateMode, EntityProperty, EdmType
 from azure.storage.blob import BlobClient, ContainerClient
@@ -460,7 +461,8 @@ class ArchaiStore:
     def download(self, name, folder, specific_file=None):
         """ Download files from the given folder name from our associated blob container
         and return a list of the local paths to all downloaded files.  If an optional specific_file is
-        given then it tries to find and download that file only.  Returns a list of local files created. """
+        given then it tries to find and download that file only.  Returns a list of local files created.
+        The specific_file can be a regular expression like '*.onnx'. """
         container = self._get_container_client(self.blob_container_name)
         if not container.exists():
             return []
@@ -470,12 +472,14 @@ class ArchaiStore:
         local_file = None
         prefix = f'{name}/'
         downloaded = []
+        if specific_file:
+            specific_file_re = re.compile(specific_file)
 
         for blob in container.list_blobs(name_starts_with=prefix):
             file_name = blob.name[len(prefix):]
             download = False
             if specific_file:
-                if specific_file != file_name:
+                if not specific_file_re.match(file_name):
                     continue
                 else:
                     download = True
@@ -500,8 +504,6 @@ class ArchaiStore:
                     downloaded += [local_file]
                 except Exception as e:
                     print(f"### Error downloading blob '{blob}' to local file: {e}")
-                if specific_file:
-                    break
 
         return downloaded
 

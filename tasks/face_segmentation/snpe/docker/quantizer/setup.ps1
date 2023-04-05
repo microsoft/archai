@@ -8,7 +8,6 @@ $plan_location = "westus2"
 $aks_cluster = "snpe-quantizer-aks"
 $aks_node_vm = "Standard_D16s_v3"
 $aks_namespace = "snpe"
-$tokens_file = "tokens.json"
 
 function Check-Provisioning($result) {
     $rc = Join-String -Separator "`n" -InputObject $rc
@@ -102,28 +101,6 @@ if ("$Env:INPUT_TESTSET" -eq ""){
     exit 1
 }
 
-if (-not (Test-Path -Path "$tokens_file")) {
-    Write-Host "Please create a $tokens_file file containing person access tokens for"
-    Write-Host "https://msresearch@dev.azure.com/msresearch/archai/_git/image_segmentation and "
-    Write-Host "https://aiinfra@dev.azure.com/aiinfra/PyTorch/_git/olive2"
-    Write-Host "With the json dictionary keys MSRESEARCH_PAT_TOKEN and AIINFRA_PAT_TOKEN"
-    exit 1
-}
-
-$tokens = Get-Content -Path $tokens_file | ConvertFrom-Json
-$msresearch_pat_token = $tokens.MSRESEARCH_PAT_TOKEN
-$aiinfra_pat_token = $tokens.AIINFRA_PAT_TOKEN
-
-if ("$msresearch_pat_token" -eq ""){
-    Write-Host "MSRESEARCH_PAT_TOKEN is missing in your $tokens_file file"
-    exit 1
-}
-
-if ("$aiinfra_pat_token" -eq ""){
-    Write-Host "AIINFRA_PAT_TOKEN is missing in your $tokens_file file"
-    exit 1
-}
-
 Write-Host "Checking azure account..."
 $output = &az account show 2>&1
 if ($output.Contains("ERROR:"))
@@ -211,7 +188,7 @@ Write-Host "Test set url is $test_set_url"
 # ================= Write out info/next steps ================
 
 Write-Host ""
-Write-Host docker build --build-arg AIINFRA_PAT_TOKEN=$aiinfra_pat_token --build-arg MSRESEARCH_PAT_TOKEN=$msresearch_pat_token --build-arg "`"MODEL_STORAGE_CONNECTION_STRING=$conn_str`"" `
+Write-Host docker build --build-arg --build-arg "`"MODEL_STORAGE_CONNECTION_STRING=$conn_str`"" `
   --build-arg "SNPE_SDK_ZIP=$snpe_sdk_zip" --build-arg "SNPE_SDK_ROOT=$snpe_root" `
   --build-arg "ANDROID_NDK_ZIP=$android_sdk_zip" --build-arg "ANDROID_NDK_ROOT=$android_ndk_root" `
   . --progress plain

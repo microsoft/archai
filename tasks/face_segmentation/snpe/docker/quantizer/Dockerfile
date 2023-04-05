@@ -6,8 +6,6 @@ ARG SNPE_SDK_ZIP
 ARG SNPE_SDK_ROOT
 ARG ANDROID_NDK_ZIP
 ARG ANDROID_NDK_ROOT
-ARG MSRESEARCH_PAT_TOKEN
-ARG AIINFRA_PAT_TOKEN
 
 RUN apt-get update && apt-get install -y build-essential libtool autoconf cmake unzip wget git unzip curl python3 python3-dev python3-distutils python3-pip ffmpeg libsm6 libxext6 wget locales libjpeg-dev zlib1g zlib1g-dev libprotobuf-dev protobuf-compiler
 
@@ -66,7 +64,7 @@ RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf
 
 # this echo is a trick to bypass docker build cache.
 # simply change the echo string every time you want docker build to pull down new bits.
-RUN echo '03/17/2023 04:30 PM' >/dev/null && git clone "https://msresearch:${MSRESEARCH_PAT_TOKEN}@dev.azure.com/msresearch/archai/_git/image_segmentation"
+RUN echo '03/17/2023 04:30 PM' >/dev/null && git clone https://github.com/microsoft/archai.git
 
 RUN echo "using this pip version: " && which pip
 RUN echo "using this python version: " && which python
@@ -76,8 +74,8 @@ RUN pushd /home/archai/image_segmentation/snpe && \
     pip install -r requirements.txt
 
 # Install our olive2 branch
-RUN echo '03/17/2023 04:20 PM' >/dev/null && git clone "https://aiinfra:${AIINFRA_PAT_TOKEN}@dev.azure.com/aiinfra/PyTorch/_git/olive2"
-RUN cd olive2 && git checkout clovett/get_dlc_metrics && pip install -e .
+RUN echo '03/17/2023 04:20 PM' >/dev/null && git clone "https://github.com/microsoft/Olive.git"
+RUN cd Olive &&  && pip install -e .
 RUN python -m olive.snpe.configure
 RUN pip list
 

@@ -13,6 +13,7 @@ import argparse
 import json
 import os
 import sys
+import glob
 import time
 from datetime import datetime
 import platform
@@ -331,7 +332,8 @@ def benchmark(entity, onnx_model, model, name, test_input):
         end = store.get_utc_date()
         add_usage(usage, get_device(), start, end)
 
-        store.upload_blob(name, os.path.join(output_dir, 'perf_results.csv'))
+        for file in glob.glob(os.path.join(output_dir, 'perf_results*.csv')):
+            store.upload_blob(name, file)
 
         total_inference_avg = get_total_inference_avg(entity)
         total_inference_avg += [ifs]
@@ -378,7 +380,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only,
 
     entity = store.get_status(name)
 
-    downloaded = store.download(name, model_dir, 'model.onnx')
+    downloaded = store.download(name, model_dir, '.*\.onnx$')
     if len(downloaded) == 0 or not os.path.isfile(downloaded[0]):
         entity['status'] = 'error'
         entity['error'] = 'missing model'

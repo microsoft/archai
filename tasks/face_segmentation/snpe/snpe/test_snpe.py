@@ -35,6 +35,7 @@ SNPE_ROOT = None
 INPUT_LIST_FILENAME = 'input_list_for_device.txt'
 snpe_target_arch = None
 
+
 def set_device(device):
     global DEVICE
     DEVICE = device
@@ -104,6 +105,7 @@ def onnx_to_dlc(model, model_dir):
     # the DLC model undoes the NCHW and results in a .dlc model that takes NHWC input.
     return [output_dlc, dlc_shape]
 
+
 def create_snpe_config(model_file, output_dir):
     sess = InferenceSession(model_file, providers=['CPUExecutionProvider'])
     if len(sess._sess.inputs_meta) > 1:
@@ -143,18 +145,16 @@ def create_snpe_config(model_file, output_dir):
 
     return config
 
+
 def convert_onnx_to_dlc(onnx_model, snpe_output_file):
-    from olive.snpe import (
-        SNPEConversion,
-        SNPEConversionConfig
-    )
+    from olive.passes import SNPEConversion
     config = create_snpe_config(onnx_model.model_path, os.path.dirname(snpe_output_file))
+    convert_options = config['io_config']
+    convert_options["input_layouts"] = config['convert_options']["input_layouts"]
 
-    converter_config = SNPEConversionConfig(snpe_output_file, **config["io_config"], **config["convert_options"])
-    assert converter_config.validate()
+    snpe_conversion = SNPEConversion(convert_options, disable_search=True,)
+    snpe_model = snpe_conversion.run(onnx_model, snpe_output_file)
 
-    converter = SNPEConversion(onnx_model, converter_config)
-    snpe_model = converter.execute()
     assert Path(snpe_model.model_path).is_file()
 
     dlc_model_path = snpe_model.model_path
@@ -162,6 +162,7 @@ def convert_onnx_to_dlc(onnx_model, snpe_output_file):
     dlc_shape = snpe_model.io_config["output_shapes"][0]
 
     return dlc_model_path, dlc_shape
+
 
 def convert_model(model, model_dir):
     """ Converts the given model from .onnx form to .dlc and returns
@@ -187,21 +188,22 @@ def convert_model(model, model_dir):
 
     try:
         onnx_model = ONNXModel(model, basename)
-        snpe_output_file = f"{model_dir}/{basename}.dlc"
+        snpe_output_file = f"{model_dir}/model.dlc"
         model, shape = convert_onnx_to_dlc(onnx_model, snpe_output_file)
         return [model, shape, None]
     except Exception as ex:
         return [None, None, str(ex)]
 
 
+def create_quant_dataloader(data_dir):
+    from olive.snpe import SNPEProcessedDataLoader
+    return SNPEProcessedDataLoader(data_dir, input_list_file="input_list.txt")
+
+
 def quantize_model(model, onnx_model, snpe_model_dir):
     """ Returns tuple containing the quantized model file and optional error message """
-    from olive.snpe import (
-        SNPEProcessedDataLoader,
-        SNPEQuantizationConfig,
-        SNPEQuantization,
-        SNPEModel
-    )
+    from olive.model import SNPEModel
+    from olive.passes import SNPEQuantization
 
     """
     quant_set = os.path.join('data', 'quant', 'input_list.txt')
@@ -216,19 +218,26 @@ def quantize_model(model, onnx_model, snpe_model_dir):
     full_dlc_path = os.path.join(snpe_model_dir, f"{basename}.dlc")
 
     data_dir = os.path.join('data', 'quant')
-    data_loader = SNPEProcessedDataLoader(data_dir, input_list_file="input_list.txt")
 
     config = create_snpe_config(onnx_model, snpe_model_dir)
     if config is None:
         return [None, "### SNPE Configuration file could not be loaded"]
 
-    snpe_quantizer_config = SNPEQuantizationConfig(output_model, data_loader, **config["quantize_options"])
-    assert snpe_quantizer_config.validate()
+    # snpe_quantizer_config = SNPEQuantizationConfig(output_model, data_loader, **config["quantize_options"])
+    # assert snpe_quantizer_config.validate()
 
-    snpe_model = SNPEModel(full_dlc_path, name=basename, **config["io_config"])
-    snpe_quantization = SNPEQuantization(snpe_model, snpe_quantizer_config)
+    snpe_model = SNPEModel(model_path=full_dlc_path, name=basename, **config["io_config"])
+
+    quant_options = config['io_config']
+    quant_options["use_enhanced_quantizer"] = True
+    quant_options["data_dir"] = data_dir
+    quant_options["dataloader_func"] = create_quant_dataloader
+
+    # tbd: what is "enable_htp": True
+    snpe_quantization = SNPEQuantization(quant_options, disable_search=True)
+
     try:
-        snpe_quantized_model = snpe_quantization.execute()
+        snpe_quantized_model = snpe_quantization.run(snpe_model, output_model)
     except Exception as ex:
         error = None
         for line in str(ex):
@@ -237,35 +246,9 @@ def quantize_model(model, onnx_model, snpe_model_dir):
         if not error:
             error = str(ex)
         return [None, error]
-
 
     if not Path(snpe_quantized_model.model_path).is_file():
         return [None, "### Model conversion failed"]
-
-    """
-    command = "snpe-dlc-quantize " + \
-        f"--input_dlc \"{full_dlc}\" " + \
-        f"--input_list \"{quant_set}\" " + \
-        f"--output_dlc \"{output_model}\" " + \
-        "--use_enhanced_quantizer"
-
-    print(f"==> Quantizing model {model}...(this can take several minutes)...")
-    print(command)
-    shell = Shell()
-    try:
-        shell.run(os.getcwd(), command, True)
-    except Exception as ex:
-        error = None
-        for line in str(ex):
-            if '[ERROR]' in line:
-                error = line
-        if not error:
-            error = str(ex)
-        return [None, error]
-
-    if not os.path.isfile(output_model):
-        return [None, "### Model conversion failed"]
-    """
 
     return [snpe_quantized_model.model_path, None]
 
@@ -318,6 +301,7 @@ def get_target_arch(snpe_root):
 
     print("SNPE_ROOT folder {} missing aarch64-android-*".format(snpe_root))
     sys.exit(1)
+
 
 def clear_images():
     shell = Shell()
@@ -492,7 +476,6 @@ def run_batches(onnx_model, dlc_model, images_dir, workspace_dir):
     from olive.snpe import (
         SNPESessionOptions,
         SNPEInferenceSession,
-        SNPEModel,
         SNPEProcessedDataLoader
     )
 
@@ -509,14 +492,15 @@ def run_batches(onnx_model, dlc_model, images_dir, workspace_dir):
     options = SNPESessionOptions(
         android_target = get_device(),
         device = "dsp" if 'quant' in basename else "cpu",
-        workspace = workspace_dir
+        workspace = workspace_dir,
+        accumulate_outputs = True
     )
 
     config = create_snpe_config(onnx_model, snpe_model_dir)
     if config is None:
         return [None, "### SNPE Configuration file could not be loaded"]
 
-    snpe_model = SNPEModel(full_dlc_path, name=basename, **config["io_config"])
+    io_config = config["io_config"]
 
     # More than 1000 test images can fill up the device and then we run out of memory.
     # So we run the inference session in batches here.
@@ -525,11 +509,11 @@ def run_batches(onnx_model, dlc_model, images_dir, workspace_dir):
     output_folder = ''
     latencies = []
     for i in range(data_loader.num_batches):
-        print(f"Running SNPE infererence batch {i} of {data_loader.num_batches}")
+        print(f"Running SNPE inference batch {i} of {data_loader.num_batches}")
         batch_dir, batch_input_list, _ = data_loader.get_batch(i)
-        session = SNPEInferenceSession(snpe_model, options)
-        results = session.execute(batch_input_list, batch_dir, accumulate=True)
-        output_folder = results['results']
+        session = SNPEInferenceSession(full_dlc_path, io_config, options)
+        results = session.net_run(batch_input_list, batch_dir)
+        output_folder = results['output_dir']
         latencies += [results['latencies']]
 
     return output_folder, latencies
@@ -540,7 +524,6 @@ def run_benchmark(onnx_model, dlc_model, images_dir, duration, workspace_dir):
     from olive.snpe import (
         SNPESessionOptions,
         SNPEInferenceSession,
-        SNPEModel,
         SNPEProcessedDataLoader
     )
 
@@ -560,25 +543,24 @@ def run_benchmark(onnx_model, dlc_model, images_dir, duration, workspace_dir):
         android_target = get_device(),
         device = "dsp" if 'quant' in basename else "cpu",
         extra_args = "--perf_profile high_performance --profiling_level basic",
-        workspace = workspace_dir
+        workspace = workspace_dir,
+        accumulate_outputs = True
     )
 
     config = create_snpe_config(onnx_model, snpe_model_dir)
     if config is None:
         return [None, "### SNPE Configuration file could not be loaded"]
 
-    snpe_model = SNPEModel(full_dlc_path, name=basename, **config["io_config"])
-
     data_loader = SNPEProcessedDataLoader(images_dir, input_list_file='input_list.txt', batch_size=50)
-
+    io_config = config["io_config"]
     output_folder = ''
     latencies = []
 
-    print(f"Running SNPE infererence benchmark")
+    print(f"Running SNPE inference benchmark")
     batch_dir, batch_input_list, _ = data_loader.get_batch(0)
-    session = SNPEInferenceSession(snpe_model, options)
-    results = session.execute(batch_input_list, batch_dir, accumulate=True)
-    output_folder = results['results']
+    session = SNPEInferenceSession(full_dlc_path, io_config, options)
+    results = session.net_run(batch_input_list, batch_dir)
+    output_folder = results['output_dir']
     latencies += [results['latencies']]
 
     return output_folder, latencies
