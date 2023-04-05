@@ -367,7 +367,7 @@ class ArchaiStore:
         if not e:
             print(f"Entity {name} not found")
         else:
-            self._reset(e)
+            self._reset(e, except_list)
 
     def _reset(self, e, except_list=[]):
         if self.is_locked_by_other(e):
