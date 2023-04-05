@@ -58,11 +58,6 @@ class CodeGenModel(CodeGenPreTrainedModel):
         ])
 
         self.ln_f = nn.LayerNorm(self.hidden_size, eps=hf_config.layer_norm_epsilon)
-        
-        if all(hf_config.n_ctx // block_config.pick('total_heads') < hf_config.rotary_dim\
-               for block_config in arch_config.pick('hidden_layers')):
-            raise ValueError('The maximum number of heads is 64. Please, reduce the number of heads in the model.')
-
         self.rotary_dim = hf_config.rotary_dim
         self.gradient_checkpointing = False
 

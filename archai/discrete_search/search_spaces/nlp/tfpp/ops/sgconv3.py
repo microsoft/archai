@@ -1,5 +1,4 @@
 # Modified from S4: https://github.com/HazyResearch/state-spaces/blob/main/src/models/sequence/ss/s4.py
-# We will release the whole codebase upon acceptance.
 from functools import partial
 import math
 
