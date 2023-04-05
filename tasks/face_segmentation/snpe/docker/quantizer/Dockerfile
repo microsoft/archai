@@ -1,7 +1,6 @@
 FROM ubuntu:18.04
 SHELL ["/bin/bash", "-c"]
 
-ARG MODEL_STORAGE_CONNECTION_STRING
 ARG SNPE_SDK_ZIP
 ARG SNPE_SDK_ROOT
 ARG ANDROID_NDK_ZIP
@@ -45,7 +44,6 @@ RUN unzip "${ANDROID_NDK_ZIP}"
 WORKDIR /home/archai
 
 ENV AZUREML_CONDA_ENVIRONMENT_PATH="/home/archai/miniconda3/snap37"
-ENV MODEL_STORAGE_CONNECTION_STRING="$MODEL_STORAGE_CONNECTION_STRING"
 ENV SNPE_ROOT="/home/archai/snpe/$SNPE_SDK_ROOT"
 ENV SNPE_ANDROID_ROOT="/home/archai/snpe/$SNPE_SDK_ROOT"
 ENV ANDROID_NDK_ROOT="/home/archai/ndk/$ANDROID_NDK_ROOT"
@@ -64,7 +62,7 @@ RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf
 
 # this echo is a trick to bypass docker build cache.
 # simply change the echo string every time you want docker build to pull down new bits.
-RUN echo '04/04/2023 04:30 PM' >/dev/null && git clone https://github.com/microsoft/archai.git
+RUN echo '04/05/2023 11:26 AM' >/dev/null && git clone https://github.com/microsoft/archai.git
 RUN cd archai && git checkout task_segmentation
 RUN cd archai && pip install -e .[dev]
 

@@ -15,10 +15,13 @@ spec:
     spec:
       containers:
       - name: snpe-quantizer
-        image: snpecontainerregistry001.azurecr.io/quantizer:1.23
+        image: snpecontainerregistry001.azurecr.io/quantizer:1.0
         resources:
           limits:
             cpu: 4
+        env:
+        - name: MODEL_STORAGE_CONNECTION_STRING
+          value: $MSCS$
 
 ---
 

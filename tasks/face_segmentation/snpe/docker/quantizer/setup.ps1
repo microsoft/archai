@@ -187,10 +187,15 @@ if ($rc.exists){
 $test_set_url="https://$storage_account_name.blob.core.windows.net/downloads/$fileName"
 Write-Host "Test set url is $test_set_url"
 
+# populate MODEL_STORAGE_CONNECTION_STRING variable in quantizer.template.yaml
+$template = Get-Content -Path "quantizer.template.yaml"
+$template = $template.Replace("$MSCS$", $conn_str)
+Set-Content -Path "quantizer.yaml" -Value $template
+
 # ================= Write out info/next steps ================
 
 Write-Host ""
-Write-Host docker build --build-arg "`"MODEL_STORAGE_CONNECTION_STRING=$conn_str`"" `
+Write-Host docker build `
   --build-arg "SNPE_SDK_ZIP=$snpe_sdk_zip" --build-arg "SNPE_SDK_ROOT=$snpe_root" `
   --build-arg "ANDROID_NDK_ZIP=$android_sdk_zip" --build-arg "ANDROID_NDK_ROOT=$android_ndk_root" `
   . --progress plain
