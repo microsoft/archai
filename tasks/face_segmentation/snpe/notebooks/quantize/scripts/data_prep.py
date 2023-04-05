@@ -38,7 +38,7 @@ def main():
         zip_ref.extractall(data_dir)
 
     print('Converting the .png images to SNPE quantization .bin files...')
-    create_dataset(data_dir, output_dir, 'quant', [256, 256, 3], 1000)
+    create_dataset(data_dir, output_dir, 'quant', (256, 256), 1000)
 
     for name in os.listdir(output_dir):
         print(name)

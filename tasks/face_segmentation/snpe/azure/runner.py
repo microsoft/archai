@@ -1,14 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-# This script monitors an Azure blob store using connection string defined
-# in the environmentvariable "FaceSyntheticsModelStorageAccount".
-# When a file named "go" shows up in a folder containing a new model to test
-# it downloads the model, runs the F1 score check with 10,000 images
-# and the benchmark and posts the 2 results .csv files
-# back to the same folder.  The .csv files are named:
-# - test_results.csv - for the F1 score.
-# - benchmark_stats_model.csv - for benchmark perf numbers.
+# See Readme.md
 import argparse
 import json
 import os
@@ -103,6 +96,8 @@ def check_device(device, snpe_root):
 
 
 def check_dataset(shape, name, test_size):
+    _, w, h, c = shape
+    img_size = (w, h, 3)
     test = os.path.join('data', name)
     if os.path.isdir(test):
         s = read_shape(test)
@@ -116,7 +111,7 @@ def check_dataset(shape, name, test_size):
                 rmtree(test)
 
     if not os.path.isdir(test):
-        create_dataset(dataset, name, shape, test_size)
+        create_dataset(dataset, name, img_size, test_size)
         save_shape(test, shape)
 
 
@@ -497,8 +492,6 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only,
 
     log(f"==> running {prop} test using model {model}")
 
-    input_size = tuple(input_shape)[0:2]  # e.g. (256,256)
-
     # copy model to the device.
     if prop != 'f1_onnx':
         # now that we have the shape, we can create the appropriate quant and test
@@ -520,7 +513,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only,
 
     try:
         use_pillow = 'use_pillow' in entity and entity['use_pillow']
-        test_results, chart, f1score = get_metrics(input_size, False, dataset, snpe_output_dir, use_pillow)
+        test_results, chart, f1score = get_metrics(input_shape, False, dataset, snpe_output_dir, use_pillow)
     except Exception as ex:
         entity['status'] = 'error'
         entity['error'] = str(ex)

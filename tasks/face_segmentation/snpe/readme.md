@@ -1,24 +1,25 @@
 # Readme
 
 This folder contains code that automates the testing of ONNX models across one or more machines that are connected via
-USB to Qualcomm 888 boards.  Many thanks to Yatao Zhong for the original device code included in this test suite.
+USB to Qualcomm 888 boards.
 
 The code is organized into:
 
-1. [SNPE Device Code](snpe/readme.md) that knows how to use the Qualcomm SNPE SDK to talk to the device, convert ONNX
-models to .dlc, quantize them, and test them on the board using the Android `adb` tool.
+1. [SNPE Device Code](snpe/readme.md) that knows how to use the Qualcomm Neural Processing SDK to talk to the device,
+convert ONNX models to .dlc, quantize them, and test them on the board using the Android `adb` tool.
 
 1. [Azure Code](azure/readme.md) that talks to a configured Azure storage account for uploading models to test,
-downloading them, uploading test results, and keeping an Azure table "status" that summarizes results so far.
+downloading them, uploading test results, and keeping an Azure table "status" that summarizes results of all your
+models.
 
-1. [Docker](docker/readme.md) scripts for setting up your Azure account and optionally creating a docker image for
-running in an Azure Kubernetes cluster.
+1. [Docker](docker/quantizer/readme.md) scripts for setting up your Azure account and optionally creating a docker image
+for running in an Azure Kubernetes cluster to do model quantization using the Qualcomm Neural Processing SDK.
+Quantization is time consuming so having an elastic scale speeds things up a lot.
 
 1. [Notebooks](notebook/gallery_performance.md) contains a Jupyter Notebook that can visualize the results from the
-Azure table.
+Azure "status" table.
 
-Both are based on Python, so it is best if you setup a new Conda Python environment for Python 3.6 with the
-`requirements.txt` included here using:
+It is best if you setup a new Conda Python environment for Python 3.10 with the `requirements.txt` included here using:
 
 ```shell
 pip install -r requirements.txt
@@ -35,8 +36,9 @@ including a Kubernetes cluster setup for quantization (see [docker/quantizer](do
 ![system](images/system.png)
 
 Each instance of `runner.py` looks for work, and executes it in priority order where the prioritization is defined by
-the `find_work_prioritized` function in the runner.  This prioritization maps to the columns of the status table as
-follows:
+the `find_work_prioritized` function in the runner.  This script is completely restartable, and can distribute the work
+across multiple instances of the runner script.  Each instance will pick up where a previous one left off based on what
+it finds in your "status" Azure table. The prioritization maps to the columns of the status table as follows:
 
 1. **macs:** convert to .dlc and post Macs score and `snpe-dlc-viewer` output and do model quantization (runs on Linux) - priority 20
 1. **total_inference_avg** run `snpe_bench.py` with quantized model on Qualcomm device DSP - priority 30
@@ -57,10 +59,12 @@ that you want to bump to the top of the list.
 
 Notice some of the above jobs can run on Linux and do not require Qualcomm device. So in order to maximize throughput on
 machines that do have a Qualcomm devices you can allocate other Linux machines with no Qualcomm devices to do the other
-work, namely, converting models, quantizing them, and running the `onnxruntime` test set.
+work, namely, converting models, quantizing them, and running the `f1_onnx` test.
 
-Folks across your team can use the `azure/upload.py` to submit jobs and let them run.  You can use `status.py` to
-monitor progress or look at the Azure `status` table.  Various status messages are posted there so you can see which
-machine is doing what and is in what stage of the job.
+Folks across your team can use the `azure/upload.py` to submit jobs and let them run, or they can automate that as
+shown in the `RemoteAzureBenchmarkEvaluator` in the `search.py` script.
+
+You can use `status.py` to monitor progress or look at the Azure `status` table.  Various status messages are posted
+there so you can see which machine is doing what and is in what stage of the job.
 
 Next you can go to the `notebook` page and get some pretty pictures of your Pareto Curves.
