@@ -99,20 +99,6 @@ def main():
     )
 
     if target_name == 'snp':
-        so.add_constraint(
-            'Model Size (b)',
-            TorchNumParameters(),
-            constraint=(1e6, args.max_parameters)
-        )
-
-        so.add_constraint(
-            'CPU ONNX Latency (s)',
-            AvgOnnxLatency(
-                input_shape=input_shape, export_kwargs={'opset_version': 11}
-            ),
-            constraint=[0, 0.185]
-        )
-
         # Gets connection string from env variable
         target_config['connection_string'] = os.environ[
             target_config.pop('connection_str_env_var')
