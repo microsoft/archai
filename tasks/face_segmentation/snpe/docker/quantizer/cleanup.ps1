@@ -1,13 +1,12 @@
-# this is a handy powershell script that can cleanup old images from your azure container registry.
-# You can find the
+
 <#
 .SYNOPSIS
     .
 .DESCRIPTION
-    .
+    This is a handy powershell script that can cleanup old images from your azure container registry.
+    You can find the password in your Azure portal for the container registry under the tab named Access Keys.
 .PARAMETER password
-    Specifies a password that you can find in your Azure portal for the container registry
-    under the tab named Access Keys.
+    Specifies a password.
 #>
 
 param(
@@ -19,6 +18,13 @@ param(
 $registry_name = "snpecontainerregistry001"
 
 $tags = &az acr repository show-tags -n $registry_name --repository quantizer | ConvertFrom-JSON
+
+
+if ($tags.GetType().Name -eq "String"){
+    # there is only one tag
+    Write-Host "Your registry is already clean, it contains only one image quantizer:$tags"
+    Exit 0
+}
 
 $latest = [Version]"0"
 foreach ($t in $tags) {
