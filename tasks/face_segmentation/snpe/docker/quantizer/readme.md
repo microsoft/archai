@@ -39,9 +39,9 @@ The `Setup.ps1` script shows what docker commands to run to build the image, how
 azure docker container registry, how to take your image for that container registry and push it
 to Azure.  So you do not need to use the public docker.org container registry.  You will decide
 what version number to attach to your image here and the same version needs to be specified in the
-following `quant.yaml`.
+following `quantizer.yaml`.
 
-## quant.yaml
+## quantizer.yaml
 
 Once the docker image is published you can configure your Azure Kubernetes cluster. First
 you need to connect your local docker to this cloud service.  The Azure Portal has a connect
@@ -52,7 +52,7 @@ az aks get-credentials --resource-group snpe-quantizaton-rg --name snpe-quantize
 ```
 Run that locally and then you can push docker images to this registry.
 
-Then you can use `kubectl apply -f quant.yaml` to configure the AKS custer.  Note that the version
+Then you can use `kubectl apply -f quantizer.yaml` to configure the AKS custer.  Note that the version
 of the image to use is specified in this file so you may need to edit the file and change the
 version `1.13` to whatever you just tagged and pushed to the azure container registry.
 

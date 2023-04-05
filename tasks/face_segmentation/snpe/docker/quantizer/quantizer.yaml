@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: snpe-quantizer
-        image: snpecontainerregistry001.azurecr.io/quantizer:1.22
+        image: snpecontainerregistry001.azurecr.io/quantizer:1.23
         resources:
           limits:
             cpu: 4

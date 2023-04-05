@@ -223,15 +223,13 @@ def quantize_model(model, onnx_model, snpe_model_dir):
     if config is None:
         return [None, "### SNPE Configuration file could not be loaded"]
 
-    # snpe_quantizer_config = SNPEQuantizationConfig(output_model, data_loader, **config["quantize_options"])
-    # assert snpe_quantizer_config.validate()
-
     snpe_model = SNPEModel(model_path=full_dlc_path, name=basename, **config["io_config"])
 
-    quant_options = config['io_config']
-    quant_options["use_enhanced_quantizer"] = True
-    quant_options["data_dir"] = data_dir
-    quant_options["dataloader_func"] = create_quant_dataloader
+    quant_options = {
+        "use_enhanced_quantizer": True,
+        "data_dir": data_dir,
+        "dataloader_func": create_quant_dataloader
+    }
 
     # tbd: what is "enable_htp": True
     snpe_quantization = SNPEQuantization(quant_options, disable_search=True)

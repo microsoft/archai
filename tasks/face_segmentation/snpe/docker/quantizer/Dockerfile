@@ -82,7 +82,7 @@ RUN cd Olive && pip install -e .
 RUN pip list
 
 # This container starts running immediately so that the kubernetes cluster simply scales
-# automatically based on how busy this script is (see HorizontalPodAutoscaler in quant.yaml).
+# automatically based on how busy this script is (see HorizontalPodAutoscaler in quantizer.yaml).
 COPY run.sh /home/archai/run.sh
 RUN ls -al /home/archai
 RUN cat run.sh

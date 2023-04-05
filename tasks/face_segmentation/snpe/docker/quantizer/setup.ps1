@@ -2,12 +2,14 @@
 # also assumes you have run "az aks install-cli"
 
 $resource_group = "snpe-quantizaton-rg"
-$registry_name = "snpecontainerregistry001"
 $storage_account_name = "nasfacemodels"
 $plan_location = "westus2"
 $aks_cluster = "snpe-quantizer-aks"
 $aks_node_vm = "Standard_D16s_v3"
 $aks_namespace = "snpe"
+
+# This registry name is also  referenced in quantizer.yaml
+$registry_name = "snpecontainerregistry001"
 
 function Check-Provisioning($result) {
     $rc = Join-String -Separator "`n" -InputObject $rc
@@ -202,8 +204,8 @@ Write-Host "  docker tag ... $registry_name.azurecr.io/quantizer:1.1"
 Write-Host "  docker push $registry_name.azurecr.io/quantizer:1.1"
 Write-Host "  az acr repository delete --name $registry_name --image <previous_version> -u $registry_name -p <get password>"
 Write-Host ""
-Write-Host "### Make sure the mtaching image version is mentioned in quant.yaml..."
-Write-Host "  kubectl apply -f quant.yaml"
+Write-Host "### Make sure the mtaching image version is mentioned in quantizer.yaml..."
+Write-Host "  kubectl apply -f quantizer.yaml"
 
 Write-Host ""
 Write-Host "### To run the runner script locally please set the following environment variable: "
