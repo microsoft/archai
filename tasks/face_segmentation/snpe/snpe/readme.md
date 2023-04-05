@@ -24,34 +24,28 @@ You may need to run `sudo usermod -aG plugdev $LOGNAME`.
 
 1. **Install SNPE SDK on Ubuntu 18.04**.
 See [SNPE Setup](https://developer.qualcomm.com/sites/default/files/docs/snpe/setup.html).
-See [Neural Processing SDK Download](https://developer.qualcomm.com/downloads/qualcomm-neural-processing-sdk-ai-v1600?referrer=node/34505).  It works in Windows WSL2 with an Anaconda Python 3.6 environment.  You can skip the
-Caffe setup, but use the `requirements.txt` pip install list, the one
-posted in the Qualcomm setup page has conflicting versions.  Then set your `SNPE_ROOT` environment variable
-pointing to the folder containing the unzipped bits.
+See [Neural Processing SDK Download](https://developer.qualcomm.com/downloads/qualcomm-neural-processing-sdk-ai-v1600?referrer=node/34505).
+You can skip the Caffe setup, but use the `requirements.txt` pip install list, the one posted in the Qualcomm setup page
+has conflicting versions.  Then set your `SNPE_ROOT` environment variable pointing to the folder containing the unzipped
+bits.  If you plan to use Qualcomm hardware devices then set the `SNPE_ANDROID_ROOT` to the same place as `SNPE_ROOT`.
 
-1. **Install python packages**.  In your Python 3.6 Conda environment run `pip install -r requirements.txt`
+1. **Install Archai**.  In your Python 3.8 Conda environment run:
 
-1. **Create experiment folder**.  The subsequent scripts all assume you are in a folder for running your
-experiment.
-```
-    mkdir experiment1
-    cd experiment1
-```
-In this folder we will build the following files:
-- data/test - the test image set for the device
-- data/quant - the image dataset for quantizing the model
-- model - your original model to be converted to .dlc
-- snpe_models/model.quant.dlc - the quantized model
+    ```
+    git clone https://github.com/microsoft/archai.git
+    cd archai
+    pip install -e .[dev]
+    ```
 
 1. **Install Olive**
 
 Install Olive2 from following repository:
-```
-git clone https://github.com/microsoft/Olive.git
-cd Olive
-pip install -r requirements.txt
-pip install -e .
-```
+    ```
+    git clone https://github.com/microsoft/Olive.git
+    cd Olive
+    pip install -r requirements.txt
+    pip install -e .
+    ```
 
 1. Let Olive configure SNPE
     ```
@@ -64,25 +58,31 @@ pip install -e .
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ```
 
+1. **Create experiment folder**.  The subsequent scripts all assume you are in a folder for running your experiment.
+    ```
+    mkdir experiment1
+    cd experiment1
+    ```
 
-The `azure/runner.py` does all this for you, but it's also nice to be able to do these steps manually if
-you need to double check something.
+    In this folder we will build the following files:
+    - data/test - the test image set for the device
+    - data/quant - the image dataset for quantizing the model
+    - snpe_models/model.quant.dlc - the quantized model
 
-1. **Prepare data**. Run `python create_data.py --help`, this scripts creates data for both quantization and test and puts it in  your local experiment folder under `data/test` and `data/quant`.
-For example:
+1. **Prepare data**. Run `python create_data.py --help`, this scripts creates data for both quantization and test and puts it in  your local experiment folder under `data/test` and `data/quant`.  For example:
+
     ```
     python create_data.py --input ~/datasets/FaceSynthetics --count 1000 --dim 256
     ```
 
-1. **Convert and quantize model**. You can use `test_snpe.py` to convert a .onnx model to .dlc and
-quantize it.  For example:
-    ``
+1. **Convert and quantize model**. You can use `test_snpe.py` to convert a .onnx model to .dlc and quantize it.  For
+example:
+    ```
     python test_snpe.py --quantize --model model.onnx
     ```
 This can take about 10 minutes depending on the size of your quantization data set and the size of your model.
 
-1. **Run test images on device**. You can use `test_snpe.py` to test your quantized model on a Qualcomm 888 dev board.
-You can find the dev board id using `adb devices`:
+1. **Run test images on device**. You can use `test_snpe.py` to test your quantized model on a Qualcomm 888 dev board. You can find the dev board id using `adb devices`:
     ```
     python test_snpe.py --device e6dc0375 --images ./data/test --model model.onnx --dlc ./snpe_models/model.quant.dlc
     ```

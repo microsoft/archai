@@ -547,7 +547,7 @@ def run_benchmark(onnx_model, dlc_model, images_dir, duration, workspace_dir):
     output_folder = ''
     latencies = []
 
-    print(f"Running SNPE inference benchmark")
+    print("Running SNPE inference benchmark")
     batch_dir, batch_input_list, _ = data_loader.get_batch(0)
     session = SNPEInferenceSession(full_dlc_path, io_config, options)
     results = session.net_run(batch_input_list, batch_dir)
@@ -619,7 +619,8 @@ if __name__ == '__main__':
 
     if args.benchmark:
         start = datetime.now()
-        output_folder, latencies = run_benchmark(model, dlc_model, args.images, args.duration, '.')
+        image_path = os.path.realpath(args.images)
+        output_folder, latencies = run_benchmark(model, dlc_model, image_path, args.duration, '.')
         end = datetime.now()
         print(f"benchmark completed in {end-start} seconds, results in {output_folder}")
         for m in latencies:
