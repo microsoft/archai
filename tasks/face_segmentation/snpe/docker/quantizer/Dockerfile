@@ -57,7 +57,7 @@ ENV LD_LIBRARY_PATH="${AZUREML_CONDA_ENVIRONMENT_PATH}/lib:${SNPE_SDK_ROOT}/lib/
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p ./miniconda3
 RUN conda init bash
-RUN conda create -y -n snap37 python=3.7 pip=20.2.4
+RUN conda create -y -n snap37 python=3.8 pip=20.2.4
 ENV PATH="${AZUREML_CONDA_ENVIRONMENT_PATH}/bin:$PATH"
 
 RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf azcopy_v10.tar.gz --strip-components=1
@@ -65,22 +65,24 @@ RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf
 # this echo is a trick to bypass docker build cache.
 # simply change the echo string every time you want docker build to pull down new bits.
 RUN echo '03/17/2023 04:30 PM' >/dev/null && git clone https://github.com/microsoft/archai.git
+RUN cd archai && git checkout task_segmentation
+RUN cd archai && pip install -e .[dev]
 
 RUN echo "using this pip version: " && which pip
 RUN echo "using this python version: " && which python
 
-RUN pushd /home/archai/image_segmentation/snpe && \
+RUN pushd /home/archai/archai/tasks/face_segmentation/snpe && \
     python --version && \
     pip install -r requirements.txt
 
 # Install our olive2 branch
 RUN echo '03/17/2023 04:20 PM' >/dev/null && git clone "https://github.com/microsoft/Olive.git"
-RUN cd Olive &&  && pip install -e .
-RUN python -m olive.snpe.configure
+RUN cd Olive && pip install -e .
+
 RUN pip list
 
 # This container starts running immediately so that the kubernetes cluster simply scales
-# automatically by how busy this run script is and we don't have to manually launch jobs.
+# automatically based on how busy this script is (see HorizontalPodAutoscaler in quant.yaml).
 COPY run.sh /home/archai/run.sh
 RUN ls -al /home/archai
 RUN cat run.sh

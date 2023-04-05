@@ -13,14 +13,11 @@ fi
 
 python -m olive.snpe.configure
 
-pushd $SNPE_ROOT
-source $SNPE_ROOT/bin/envsetup.sh -o $SNPE_ROOT/python36-env/lib/python3.6/site-packages/onnx
-popd
 pushd /home/archai/experiment
 
 while true
 do
-    python -u /home/archai/image_segmentation/snpe/azure/runner.py
+    python -u /home/archai/archai/tasks/face_segmentation/snpe/azure/runner.py
     if [ $? != 0 ]; then
       echo "Script returned an error code!"
     fi

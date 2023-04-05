@@ -188,7 +188,7 @@ Write-Host "Test set url is $test_set_url"
 # ================= Write out info/next steps ================
 
 Write-Host ""
-Write-Host docker build --build-arg --build-arg "`"MODEL_STORAGE_CONNECTION_STRING=$conn_str`"" `
+Write-Host docker build --build-arg "`"MODEL_STORAGE_CONNECTION_STRING=$conn_str`"" `
   --build-arg "SNPE_SDK_ZIP=$snpe_sdk_zip" --build-arg "SNPE_SDK_ROOT=$snpe_root" `
   --build-arg "ANDROID_NDK_ZIP=$android_sdk_zip" --build-arg "ANDROID_NDK_ROOT=$android_ndk_root" `
   . --progress plain
