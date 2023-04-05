@@ -183,7 +183,7 @@ def convert_model(model, model_dir):
     basename, ext = os.path.splitext(filename)
 
     if ext != ".onnx":
-        print(f"convert_model was not provided with a valid .onnx model")
+        print("convert_model was not provided with a valid .onnx model")
         sys.exit(1)
 
     try:
@@ -204,13 +204,6 @@ def quantize_model(model, onnx_model, snpe_model_dir):
     """ Returns tuple containing the quantized model file and optional error message """
     from olive.model import SNPEModel
     from olive.passes import SNPEQuantization
-
-    """
-    quant_set = os.path.join('data', 'quant', 'input_list.txt')
-    if not os.path.isfile(quant_set):
-        print(f"Quantize dataset {quant_set} is missing")
-        sys.exit(1)
-    """
 
     snpe_model_dir = os.path.realpath(snpe_model_dir)  # Olive requires the full path
     basename = os.path.splitext(os.path.basename(model))[0]
@@ -538,11 +531,11 @@ def run_benchmark(onnx_model, dlc_model, images_dir, duration, workspace_dir):
 
     # This mirrors what the snpe_bench.py script is doing.
     options = SNPESessionOptions(
-        android_target = get_device(),
-        device = "dsp" if 'quant' in basename else "cpu",
-        extra_args = "--perf_profile high_performance --profiling_level basic",
-        workspace = workspace_dir,
-        accumulate_outputs = True
+        android_target=get_device(),
+        device="dsp" if 'quant' in basename else "cpu",
+        extra_args="--perf_profile high_performance --profiling_level basic",
+        workspace=workspace_dir,
+        accumulate_outputs=True
     )
 
     config = create_snpe_config(onnx_model, snpe_model_dir)
@@ -561,17 +554,17 @@ def run_benchmark(onnx_model, dlc_model, images_dir, duration, workspace_dir):
     output_folder = results['output_dir']
     latencies += [results['latencies']]
 
-    return output_folder, latencies
+    return (output_folder, latencies)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run a model on the QUALCOMM DSP using adb and SNPE SDK to quantize ' +
                                      'the model')
     parser.add_argument('--device', '-d', help='The Android device id (as returned by adb devices)', default=None)
-    parser.add_argument('--images', '-i', help='Location of local test image dataset (created with create_data.py)',
-                        default=TEST_IMAGES)
+    parser.add_argument('--images', '-i', help='Location of local test image dataset (created with create_data.py)')
     parser.add_argument('--model', '-m', help='The path to the ONNX model to test')
     parser.add_argument('--dlc', help='The specific .dlc model to test, if not provided it will be converted from --model and stored in an snpe_models folder')
+    parser.add_argument('--quantize', '-q', help='Quantize the given onnx or dlc model', action="store_true")
     parser.add_argument('--benchmark', '-b', help='Run a benchmark on the given model', action="store_true")
     parser.add_argument('--throughput', '-t', help='Run performance test of the given model', action="store_true")
     parser.add_argument('--duration', type=int, help='Duration of throughput and benchmark tests (default 10 seconds)', default=10)
@@ -579,9 +572,14 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     VERBOSE = args.verbose
-    set_device(args.device)
+    if args.device:
+        set_device(args.device)
     model = args.model
     MODEL_DIR = "snpe_models"
+
+    if not args.model:
+        print("Please provide an onnx model as input")
+        sys.exit(1)
 
     ndk = os.getenv("ANDROID_NDK_ROOT")
     if not ndk:
@@ -609,6 +607,12 @@ if __name__ == '__main__':
     config = create_snpe_config(args.model, '.')
     shape = config['io_config']['output_shapes'][0]
 
+    if args.quantize:
+        quantized_model, error = quantize_model(model, model, MODEL_DIR)
+        if error is not None:
+            print(error)
+            sys.exit(1)
+
     if args.throughput:
         run_throughput(model, args.duration)
         sys.exit(0)
@@ -629,5 +633,5 @@ if __name__ == '__main__':
         print(f"batch completed in {end-start} seconds, results in {output_folder}")
         for m in latencies:
             print(f"total_inference_time={m['total_inference_time']}")
-        img_shape = tuple(shape)[0:2]  # e.g. (256,256)
-        compute_results(img_shape, output_folder)
+        input_shape = (1, shape[0], shape[1], 19)
+        compute_results(input_shape, output_folder)

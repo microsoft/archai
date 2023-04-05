@@ -4,10 +4,7 @@
 script_dir="$(dirname ${BASH_SOURCE})"
 
 source ~/anaconda3/etc/profile.d/conda.sh
-conda activate snap-37
-# pushd $SNPE_ROOT
-# source bin/envsetup.sh -o ~/anaconda3/envs/snap/lib/python3.6/site-packages/onnx
-# popd
+conda activate snap37
 
 while true
 do

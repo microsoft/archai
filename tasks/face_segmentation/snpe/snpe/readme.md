@@ -71,52 +71,23 @@ you need to double check something.
 1. **Prepare data**. Run `python create_data.py --help`, this scripts creates data for both quantization and test and puts it in  your local experiment folder under `data/test` and `data/quant`.
 For example:
     ```
-    python create_data.py --input d:\datasets\FaceSynthetics --count 100 --dim 256
+    python create_data.py --input ~/datasets/FaceSynthetics --count 1000 --dim 256
     ```
 
-1. **Copy your tensorflow model**.  In your experiment folder create a folder named `model` and copy your
-trained tensorflow model into this folder.  You should have something like:
+1. **Convert and quantize model**. You can use `test_snpe.py` to convert a .onnx model to .dlc and
+quantize it.  For example:
+    ``
+    python test_snpe.py --quantize --model model.onnx
     ```
-    checkpoint
-    model.pb
-    model_11.cptk.data-00000-of-00001
-    model_11.cptk.index
-    model_11.cptk.meta
+This can take about 10 minutes depending on the size of your quantization data set and the size of your model.
+
+1. **Run test images on device**. You can use `test_snpe.py` to test your quantized model on a Qualcomm 888 dev board.
+You can find the dev board id using `adb devices`:
+    ```
+    python test_snpe.py --device e6dc0375 --images ./data/test --model model.onnx --dlc ./snpe_models/model.quant.dlc
     ```
 
-1. **Copy your onnx model**.  In your experiment folder create a folder named `model` and copy your
-trained ONNX model into this folder.  You should have something like:
+6. **Performance benchmark SNPE model**.
     ```
-    model.onnx
+    python test_snpe.py --device e6dc0375 --benchmark --images ./data/test --model model.onnx  --dlc ./snpe_models/model.quant.dlc
     ```
-
-1. **Setup your snpe environment**.  For onnx toolset use the following:
-    ```
-    pushd ~/snpe/snpe-1.64.0.3605
-    source bin/envsetup.sh -o ~/anaconda3/envs/snap/lib/python3.6/site-packages/onnx
-    ```
-    For tensorflow use:
-    ```
-    pushd ~/snpe/snpe-1.64.0.3605
-    source bin/envsetup.sh -ot ~/anaconda3/envs/snap/lib/python3.6/site-packages/tensorflow
-    ```
-
-1. **Convert and quantize model**. Inside your experiment folder, run `bash convert_tf.sh` or `bash
-convert_onnx.sh modelname` which uses your SNPE SDK install to convert the tensorflow model in the
-model folder to a Qualcomm .dlc file, and then runs the SNPE quantization tool on that using the
-`quant` dataset to produce a quantized version of that model, so the output is
-`snpe_models/model.dlc` and `snpe_models/model.quant.dlc` and it is the quantized model we will run
-on the dev board using the DSP processor.
-
-1. **Run test images on device**. Inside your experiment folder, run `python run.py --help` and you
-will see the args you need to pass in order to upload the test images to the device, upload the
-model, then run the test on the DSP processor, then download the results. For example:
-    ```
-    python run.py --images --model model.quant.dlc --run --download
-    ```
-
-6. **Profile SNPE model**.
-Update `benchmark/config.json` so it has the right paths and
-run `cd benchmark && bash run_benchmark.sh && cd ..`
-The above command line will generate a csv file with per layer profiling result.
-See [Performance Analysis Using Benchmarking Tools](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk/learning-resources/vision-based-ai-use-cases/performance-analysis-using-benchmarking-tools)
