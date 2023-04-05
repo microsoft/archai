@@ -51,9 +51,8 @@ def show_output(img_shape, transpose, dataset, outputs):
     output_list.sort()
     for out_f in output_list:
         img = _get_dataset_image(out_f, img_shape, dataset)
-
         logits = np.fromfile(os.path.join(outputs, out_f), dtype=np.float32)
-        print(img_shape)
+
         if (transpose):
             logits = logits.reshape((-1, img_shape[0], img_shape[1])).transpose(transpose)
         else:
@@ -66,7 +65,7 @@ def show_output(img_shape, transpose, dataset, outputs):
         cls_seg_color = cv2.applyColorMap(norm, cv2.COLORMAP_JET)
         # concatenate on x-axis so result is 512 wide and 256 high.
         canvas = np.concatenate([img, cls_seg_color], axis=1)
-        print(out_f)
+
         cv2.imshow('img', canvas)
         key = cv2.waitKey() & 0xFF
         if key == 27:
@@ -234,7 +233,7 @@ if __name__ == '__main__':
                                      'a .csv file named test_results.csv and a .png plot named pr_curve.png')
     parser.add_argument('--input', help='Location of the original input images ' +
                         '(defaults to INPUT_DATASET environment variable)')
-    parser.add_argument('--show', '-s', help='Show the outputs on screen', action="store_true")
+    parser.add_argument('--show', '-s', help='Show the outputs on screen, press space to advance to the next image and escape to cancel', action="store_true")
     parser.add_argument('--output', '-o', help='Location of the outputs to analyze (default "snpe_output")',
                         default='snpe_output')
     parser.add_argument('--transpose', '-t', help='Transpose channels by (1,2,0)', action="store_true")
