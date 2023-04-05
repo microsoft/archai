@@ -146,7 +146,7 @@ if ($rc.Contains("ResourceNotFound")) {
     Write-Host Creating container registry $registry_name...
     $rc = &az acr create --resource-group $resource_group --name $registry_name --sku Standard 2>&1
     Check-Provisioning -result $rc
-    $rc = &az acr az acr update --name $resource_group --anonymous-pull-enabled true --admin-enabled true
+    $rc = &az acr update --name $registry_name --anonymous-pull-enabled true --admin-enabled true
 }
 
 Check-Provisioning -result $rc
@@ -207,7 +207,8 @@ Write-Host "  docker login $acrServer -u $registry_name -p <get password>"
 Write-Host "  az aks get-credentials --resource-group $resource_group --name $aks_cluster"
 Write-Host "  docker tag ... $registry_name.azurecr.io/quantizer:1.1"
 Write-Host "  docker push $registry_name.azurecr.io/quantizer:1.1"
-Write-Host "  az acr repository delete --name $registry_name --image <previous_version> -u $registry_name -p <get password>"
+Write-Host ""
+Write-Host "To cleanup old images see cleanup.ps1"
 Write-Host ""
 Write-Host "### Make sure the mtaching image version is mentioned in quantizer.yaml..."
 Write-Host "  kubectl apply -f quantizer.yaml"
