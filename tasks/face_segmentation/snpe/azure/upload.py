@@ -9,7 +9,8 @@ CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 
 
 def upload(con_str, args):
-    parser = argparse.ArgumentParser(description='Upload a named model (and optional accompanying files) to azure blob store')
+    parser = argparse.ArgumentParser(description='Upload a named model (and optional accompanying files) to your ' +
+                                     'azure blob store')
     parser.add_argument('name', help='Friendly name of the folder to put this in.')
     parser.add_argument('file', help='Path to the file to upload to Azure ' +
                         'or a folder to upload all files in that folder to the same azure blob folder.')

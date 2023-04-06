@@ -3,7 +3,6 @@
 import argparse
 import os
 import sys
-import logging
 from archai.common.store import ArchaiStore
 
 CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'

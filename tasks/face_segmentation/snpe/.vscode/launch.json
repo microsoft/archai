@@ -11,15 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": [
-                "--dataset_dir",
-                "d:\\datasets\\FaceSynthetics",
-                "--output_dir",
-                "d:\\temp\\face_segmentation",
-                "--search_config",
-                "confs\\snp_search.yaml",
-                "--serial_training"
-            ]
+            "args":["001c3ee6c74e05e63252b1ba3dfc58ca3cbb4f56"]
         }
     ]
 }
