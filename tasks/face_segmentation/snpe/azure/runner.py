@@ -378,7 +378,7 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only,
 
     entity = store.get_status(name)
 
-    downloaded = store.download(name, model_dir, '.*\.onnx$')
+    downloaded = store.download(name, model_dir, r'.*\.onnx$')
     if len(downloaded) == 0 or not os.path.isfile(downloaded[0]):
         entity['status'] = 'error'
         entity['error'] = 'missing model'
@@ -520,7 +520,8 @@ def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only,
         if 'output_shape' in entity:
             w, h, num_classes = eval(entity['output_shape'])
 
-        test_results, chart, f1score = get_metrics(input_shape, False, dataset, snpe_output_dir, num_classes, use_pillow)
+        test_results, chart, f1score = get_metrics(input_shape, False, dataset, snpe_output_dir, num_classes,
+                                                   use_pillow)
     except Exception as ex:
         entity['status'] = 'error'
         entity['error'] = str(ex)
@@ -618,7 +619,8 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
         if not is_complete(entity, 'macs') or not is_true(entity, 'quantized'):
             if quantizing:
                 if no_quantization:
-                    log(f"This node is running with --no_quantization, skipping mode '{name}' for now until quantization cluster completes.")
+                    log(f"This node is running with --no_quantization, skipping mode '{name}' for now until " +
+                        "quantization cluster completes.")
                 else:
                     log(f"Skipping model '{name}' for now until other quantization finishes on our node")
                 continue
@@ -834,4 +836,5 @@ if __name__ == '__main__':
     if args.subset:
         subset = [x.strip() for x in args.subset.split(',')]
 
-    monitor(snpe_root, dataset, device is not None, args.benchmark, subset, args.no_quantization, args.cleanup_stale_pods)
+    monitor(snpe_root, dataset, device is not None, args.benchmark, subset, args.no_quantization,
+            args.cleanup_stale_pods)

@@ -108,7 +108,8 @@ def main():
         elif lock:
             print(f"  Locked by: {lock}")
         else:
-            print(f"  Please run:  screen -dmS {id} {command} --device {id} --no_quantization --cleanup_stale_pods 3600 --working {folder}")
+            print(f"  Please run:  screen -dmS {id} {command} --device {id} --no_quantization " +
+                  f"--cleanup_stale_pods 3600 --working {folder}")
 
 
 if __name__ == '__main__':

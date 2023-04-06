@@ -16,7 +16,7 @@ sys.path += [os.path.join(SCRIPT_DIR, '..', 'util')]
 from shell import Shell
 sys.path += [os.path.join(SCRIPT_DIR, '..', 'vision')]
 from collect_metrics import get_metrics
-from shutil import rmtree, copyfile
+from shutil import rmtree
 from onnxruntime import InferenceSession
 
 TASK = os.path.basename(os.getcwd())
@@ -339,7 +339,7 @@ def setup_images(folder, batch):
 def get_setup():
     global snpe_target_arch
     if not snpe_target_arch:
-        print(f"snpe_target_arch is not set")
+        print("snpe_target_arch is not set")
         sys.exit(1)
 
     lib_path = f"{DEVICE_WORKING_DIR}/dsp/lib;/system/lib/rfsa/adsp;/system/vendor/lib/rfsa/adsp;/dsp"
@@ -520,7 +520,7 @@ def run_benchmark(onnx_model, dlc_model, images_dir, duration, workspace_dir):
     )
 
     input_dir = os.path.realpath(images_dir)
-    input_list = os.path.join(input_dir, 'input_list.txt')
+    _ = os.path.join(input_dir, 'input_list.txt')
     snpe_model_dir = os.path.dirname(dlc_model)
 
     output_dir = os.path.join(workspace_dir, 'snpe-output')
@@ -564,11 +564,13 @@ if __name__ == '__main__':
     parser.add_argument('--device', '-d', help='The Android device id (as returned by adb devices)', default=None)
     parser.add_argument('--images', '-i', help='Location of local test image dataset (created with create_data.py)')
     parser.add_argument('--model', '-m', help='The path to the ONNX model to test')
-    parser.add_argument('--dlc', help='The specific .dlc model to test, if not provided it will be converted from --model and stored in an snpe_models folder')
+    parser.add_argument('--dlc', help='The specific .dlc model to test, if not provided it will be converted from ' +
+                        '--model and stored in an snpe_models folder')
     parser.add_argument('--quantize', '-q', help='Quantize the given onnx or dlc model', action="store_true")
     parser.add_argument('--benchmark', '-b', help='Run a benchmark on the given model', action="store_true")
     parser.add_argument('--throughput', '-t', help='Run performance test of the given model', action="store_true")
-    parser.add_argument('--duration', type=int, help='Duration of throughput and benchmark tests (default 10 seconds)', default=10)
+    parser.add_argument('--duration', type=int, help='Duration of throughput and benchmark tests (default 10 seconds)',
+                        default=10)
     parser.add_argument('--verbose', '-v', help='Show all output (default false)', action="store_true")
     args = parser.parse_args()
 
