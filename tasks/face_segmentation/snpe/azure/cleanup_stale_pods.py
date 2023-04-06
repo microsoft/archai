@@ -9,13 +9,11 @@ from archai.common.store import ArchaiStore
 CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 
 
-def cleanup_stale_pods(con_str):
+def cleanup_stale_pods(store: ArchaiStore):
     """ This script looks for kubernetes pods that are no longer running (e.g. the pod may have run out of
     memory or may have been stopped for whatever reason) and cleans up the state in our status table to
     ensure the job doesn't get zombied, it will be picked up by the next available pod.  """
 
-    storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
     SCRIPT_DIR = os.path.dirname(__file__)
     sys.path += [os.path.join(SCRIPT_DIR, '..', 'util')]
     from shell import Shell
@@ -48,4 +46,7 @@ if __name__ == '__main__':
     if not con_str:
         print(f"Please specify your {CONNECTION_NAME} environment variable.")
         sys.exit(1)
-    cleanup_stale_pods(con_str)
+
+    storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
+    store = ArchaiStore(storage_account_name, storage_account_key)
+    cleanup_stale_pods(store)

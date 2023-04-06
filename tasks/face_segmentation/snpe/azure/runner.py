@@ -60,13 +60,19 @@ from dlc_helper import get_dlc_metrics
 
 
 logger = logging.getLogger(__name__)
-store = None
-usage = None
+store : ArchaiStore = None
+usage : ArchaiStore = None
 
 
 def log(msg):
     print(msg)
     logger.info(msg)
+
+
+def log_error(error_type, value, stack):
+    log(f'### Exception: {error_type}: {value}')
+    for line in traceback.format_tb(stack):
+        log(line.strip())
 
 
 def read_shape(dir):
@@ -84,7 +90,7 @@ def save_shape(dir, shape):
     return [0, 0, 0]
 
 
-def check_device(device, snpe_root):
+def check_device(device):
     set_device(device)
     device_info = ''
     if os.path.isfile(DEVICE_FILE):
@@ -352,7 +358,7 @@ def benchmark(entity, onnx_model, model, name, test_input):
     return True
 
 
-def run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only, no_quantization):
+def run_model(name, dataset, use_device, benchmark_only, no_quantization):
     global store, usage
     log("===================================================================================================")
     log(f"Checking model: {name} on node {get_unique_node_id()}")
@@ -572,7 +578,7 @@ def node_quantizing():
     return count > 0
 
 
-def check_stale_pods(conn_string, timeout=3600):
+def check_stale_pods(timeout=3600):
     """ This function checks whether any quantization jobs are getting stuck in the
     kubernetes cluster for longer than the given timeout and automatically resets them
     if the kubernetes pod no longer exists. """
@@ -593,13 +599,14 @@ def check_stale_pods(conn_string, timeout=3600):
                         clean = True
                         break
     if clean:
-        cleanup_stale_pods(conn_string)
+        cleanup_stale_pods(store)
         for entity in store.get_all_status_entities(status='complete', not_equal=True):
             if 'check' in entity:
                 del entity['check']
                 store.update_status_entity(entity)
 
 
+# flake8: noqa: C901
 def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantization):
     global store
     queue = PriorityQueue()
@@ -662,39 +669,40 @@ def garbage_collect():
                 rmtree(f)
 
 
-def monitor(snpe_root, dataset, use_device, benchmark_only, subset_list, no_quantization, cleanup_stale_pods):
+class MemoryMonitor:
+    def __init__(self):
+        self.rss_start = None
+        self.growth = 0
+
+    def heap_growth(self):
+        rss = psutil.Process(os.getpid()).memory_info().rss
+        if self.rss_start is None:
+            self.rss_start = rss
+
+        growth = rss / self.rss_start
+        logging.info(f"========= memory rss={rss} growth={growth}============")
+        return growth
+
+
+def monitor(dataset, use_device, benchmark_only, subset_list, no_quantization):
     global rss_start, store, usage
-    conn_string = os.getenv(CONNECTION_NAME)
-    if not conn_string:
-        log(f"Please specify your {CONNECTION_NAME} environment variable.")
-        sys.exit(1)
 
     logging.basicConfig(filename=LOG_FILE_NAME, filemode='a',
                         level=logging.INFO,
                         format='%(asctime)s - %(levelname)s: %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p')
 
-    storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key, status_table_name='status')
-    usage = ArchaiStore(storage_account_name, storage_account_key, status_table_name='usage')
-
-    rss = psutil.Process(os.getpid()).memory_info().rss
-    if rss_start is None:
-        rss_start = rss
-    growth = rss / rss_start
+    monitor = MemoryMonitor()
 
     file_mod = os.path.getmtime(__file__)
 
     # terminate this script if the memory has grown too much or the script
     # itself has been modified.  This will cause the outer 'loop.sh' to
     # loop and start a fesh process and pick any code modifications.
-    while growth < 10:
+    while monitor.heap_growth() < 10:
         if file_mod != os.path.getmtime(__file__):
             log("Code has changed, need to restart.")
-            sys.exit(0)
-
-        if cleanup_stale_pods:
-            check_stale_pods(conn_string, cleanup_stale_pods)
+            return 0
 
         try:
             queue = find_work_prioritized(use_device, benchmark_only, subset_list, no_quantization)
@@ -705,55 +713,46 @@ def monitor(snpe_root, dataset, use_device, benchmark_only, subset_list, no_quan
 
         if queue.size() == 0:
             log("No work found.")
-            time.sleep(60)
-            # sys.exit(0)
+            return 0
         else:
             garbage_collect()
 
-            # do the top priority job then go back to find_work_prioritized in case
-            # other jobs were add/completed in parallel while this was executing.
-            priority, entity = queue.dequeue()
-            name = entity['name']
-            try:
-                entity = lock_job(entity)
-                benchmark_only_flag = is_benchmark_only(entity, benchmark_only)
-                gc.collect()
-                tracemalloc.start()
-                snapshot1 = tracemalloc.take_snapshot()
-                run_model(name, snpe_root, dataset, conn_string, use_device, benchmark_only_flag, no_quantization)
-                gc.collect()
-                snapshot2 = tracemalloc.take_snapshot()
-                logging.info(f"========= memory diff vms={rss} growth={growth}============")
-                for i in snapshot2.compare_to(snapshot1, 'lineno')[:10]:
-                    logging.info(i)
+        # do the top priority job then go back to find_work_prioritized in case
+        # other jobs were add/completed in parallel while this was executing.
+        priority, entity = queue.dequeue()
+        name = entity['name']
+        try:
+            entity = lock_job(entity)
+            benchmark_only_flag = is_benchmark_only(entity, benchmark_only)
+            gc.collect()
+            tracemalloc.start()
+            snapshot1 = tracemalloc.take_snapshot()
+            run_model(name, dataset, use_device, benchmark_only_flag, no_quantization)
+            gc.collect()
+            snapshot2 = tracemalloc.take_snapshot()
+            for i in snapshot2.compare_to(snapshot1, 'lineno')[:10]:
+                logging.info(i)
 
+            unlock_job(entity)
+        except Exception as e:
+            error_type, value, stack = sys.exc_info()
+            if str(e) == 'lock encountered':
+                log('model is running on another machine')
+            elif 'ConnectionResetError' in str(e):
+                log('ConnectionResetError: Ignoring Azure flakiness...')
                 unlock_job(entity)
-            except Exception as e:
-                errorType, value, stack = sys.exc_info()
-                if str(e) == 'lock encountered':
-                    log('model is running on another machine')
-                elif 'ConnectionResetError' in str(e):
-                    log('ConnectionResetError: Ignoring Azure flakiness...')
-                    unlock_job(entity)
-                else:
-                    # bug in the script somewhere... don't leave the node locked.
-                    log(f'### Exception: {errorType}: {value}')
-                    for line in traceback.format_tb(stack):
-                        log(line.strip())
-
-                    unlock_job(entity)
-                    sys.exit(1)
+            else:
+                # bug in the script somewhere... don't leave the node locked.
+                log_error(error_type, value, stack)
+                unlock_job(entity)
+                sys.exit(1)
 
         time.sleep(10)  # give other machines a chance to grab work so we don't get stuck in retry loops.
-        rss = psutil.Process(os.getpid()).memory_info().rss
-        if rss_start is None:
-            rss_start = rss
-        growth = rss / rss_start
 
     # we terminate here to reclaim the leaked memory, and to ensure we shut down cleanly without
     # leaving any rows in the table locked, we have an outer loop.sh script that will restart the runner.
     log("Memory leak detected")
-    sys.exit(0)
+    return 0
 
 
 def get_storage_account(con_str):
@@ -764,8 +763,19 @@ def get_storage_account(con_str):
             return name_value[1]
 
 
-if __name__ == '__main__':
+def setup_store():
+    global store, usage
+    conn_string = os.getenv(CONNECTION_NAME)
+    if not conn_string:
+        log(f"Please specify your {CONNECTION_NAME} environment variable.")
+        sys.exit(1)
+    storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(conn_string)
+    store = ArchaiStore(storage_account_name, storage_account_key, status_table_name='status')
+    usage = ArchaiStore(storage_account_name, storage_account_key, status_table_name='usage')
+    return conn_string
 
+
+def check_environment():
     con_str = os.getenv(CONNECTION_NAME)
     if not con_str:
         log(f"Please set your {CONNECTION_NAME} environment variable.")
@@ -798,6 +808,8 @@ if __name__ == '__main__':
         log(f"Your INPUT_DATASET '{dataset} is not found.")
         sys.exit(1)
 
+
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Test the models as they appears in our Azure table')
     parser.add_argument('--device', '-d', help='Specify which Qualcomm device device to use (default None).')
     parser.add_argument('--benchmark', help='Run benchmark tests only (no F1 tests).', action="store_true")
@@ -816,6 +828,9 @@ if __name__ == '__main__':
                         'the clean_stale_pods.py script.', default=0)
 
     args = parser.parse_args()
+
+    check_environment()
+
     if args.working:
         log(f"Using working folder: {args.working}")
         os.chdir(args.working)
@@ -823,12 +838,14 @@ if __name__ == '__main__':
     logger.setLevel('INFO')
     logger.addHandler(logging.FileHandler('runner.log', 'a'))
 
+    setup_store()
+
     MAX_BENCHMARK_RUNS = args.max_benchmark_runs
     CLEAR_RANDOM_INPUTS = args.clear_random_inputs
     device = args.device
     if device:
         set_unique_node_id(f"{platform.node()}_{device}")
-        check_device(device, snpe_root)
+        check_device(device)
     else:
         set_unique_node_id(platform.node())
 
@@ -836,5 +853,9 @@ if __name__ == '__main__':
     if args.subset:
         subset = [x.strip() for x in args.subset.split(',')]
 
-    monitor(snpe_root, dataset, device is not None, args.benchmark, subset, args.no_quantization,
-            args.cleanup_stale_pods)
+    if args.cleanup_stale_pods:
+        check_stale_pods(args.cleanup_stale_pods)
+
+    dataset = os.getenv("INPUT_DATASET")
+    rc = monitor(dataset, device is not None, args.benchmark, subset, args.no_quantization)
+    sys.exit(rc)

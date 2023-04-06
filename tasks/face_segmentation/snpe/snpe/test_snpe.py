@@ -558,7 +558,7 @@ def run_benchmark(onnx_model, dlc_model, images_dir, duration, workspace_dir):
     return (output_folder, latencies)
 
 
-if __name__ == '__main__':
+def parse_command_line():
     parser = argparse.ArgumentParser(description='Run a model on the QUALCOMM DSP using adb and SNPE SDK to quantize ' +
                                      'the model')
     parser.add_argument('--device', '-d', help='The Android device id (as returned by adb devices)', default=None)
@@ -574,50 +574,63 @@ if __name__ == '__main__':
     parser.add_argument('--verbose', '-v', help='Show all output (default false)', action="store_true")
     args = parser.parse_args()
 
-    VERBOSE = args.verbose
-    if args.device:
-        set_device(args.device)
-    model = args.model
-    MODEL_DIR = "snpe_models"
-
     if not args.model:
         print("Please provide an onnx model as input")
-        sys.exit(1)
+        return None
 
     ndk = os.getenv("ANDROID_NDK_ROOT")
     if not ndk:
         print("you must have a ANDROID_NDK_ROOT installed, see the readme.md")
-        sys.exit(1)
-
-    if args.dlc:
-        dlc_model = args.dlc
-    else:
-        dlc_model, shape, output_shape, error = convert_model(args.model, MODEL_DIR)
-        if error:
-            print(error)
-            sys.exit(1)
+        return None
+    args.ndk = ndk
 
     snpe = os.getenv("SNPE_ANDROID_ROOT")
     if not snpe:
         print("please set your SNPE_ANDROID_ROOT environment variable, see readme.md")
-        sys.exit(1)
+        return None
 
     snpe = os.getenv("SNPE_ROOT")
     if not snpe:
         print("please set your SNPE_ROOT environment variable, see readme.md")
-        sys.exit(1)
+        return None
+    args.snpe = snpe
+
+    return args
+
+
+def main():
+    global VERBOSE
+
+    args = parse_command_line()
+    if args is None:
+        return 1
+
+    VERBOSE = args.verbose
+    if args.device:
+        set_device(args.device)
+
+    model = args.model
+    model_dir = "snpe_models"
+
+    if args.dlc:
+        dlc_model = args.dlc
+    else:
+        dlc_model, shape, output_shape, error = convert_model(args.model, model_dir)
+        if error:
+            print(error)
+            return 1
 
     config = create_snpe_config(args.model, '.')
 
     if args.quantize:
-        quantized_model, error = quantize_model(model, model, MODEL_DIR)
+        quantized_model, error = quantize_model(model, model, model_dir)
         if error is not None:
             print(error)
-            sys.exit(1)
+            return 1
 
     if args.throughput:
         run_throughput(model, args.duration)
-        sys.exit(0)
+        return 0
 
     if args.benchmark:
         start = datetime.now()
@@ -627,7 +640,7 @@ if __name__ == '__main__':
         print(f"benchmark completed in {end-start} seconds, results in {output_folder}")
         for m in latencies:
             print(f"total_inference_time={m['total_inference_time']}")
-        sys.exit(0)
+        return 0
 
     if args.images:
         start = datetime.now()
@@ -638,3 +651,7 @@ if __name__ == '__main__':
             print(f"total_inference_time={m['total_inference_time']}")
         output_shape = config['io_config']['output_shapes'][0]
         compute_results(output_shape, output_folder)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

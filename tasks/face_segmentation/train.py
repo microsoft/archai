@@ -72,4 +72,4 @@ if __name__ == '__main__':
     rand_min, rand_max = rand_range
     sample_input = ((rand_max - rand_min) * torch.rand(*input_shape) + rand_min).type("torch.FloatTensor")
     onnx_file = str(args.output_dir / 'final_model.onnx')
-    torch.onnx.export(model, (sample_input,), onnx_file, input_names=[f"input_0"], **export_kwargs, )
+    torch.onnx.export(model, (sample_input,), onnx_file, input_names=["input_0"], **export_kwargs, )

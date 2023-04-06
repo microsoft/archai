@@ -7,7 +7,7 @@ def get_confusion_matrix(pred_labels: torch.LongTensor,
                          true_labels: torch.LongTensor,
                          num_labels: int, ignore_index: int = 255) -> torch.LongTensor:
     pred_labels, true_labels = pred_labels.view(-1), true_labels.view(-1)
-    
+
     ignore_mask = (true_labels == ignore_index)
     pred_labels, true_labels = pred_labels[~ignore_mask], true_labels[~ignore_mask]
 
@@ -22,11 +22,11 @@ def get_iou(confusion_matrix: torch.LongTensor,
     ignore_labels = torch.isin(
         torch.arange(len(confusion_matrix)), torch.tensor(ignore_labels)
     )
-    
+
     diag = confusion_matrix.diag()
     row_sum = confusion_matrix.sum(dim=1)
     col_sum = confusion_matrix.sum(dim=0)
-    
+
     class_iou = (diag + 1e-7) / (row_sum + col_sum - diag + 1e-7)
 
     return {

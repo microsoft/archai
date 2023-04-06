@@ -6,6 +6,7 @@ from itertools import chain
 import torch
 from torch import nn
 
+
 class Conv2dSamePadding(nn.Conv2d):
     __doc__ = nn.Conv2d.__doc__
 
@@ -39,6 +40,7 @@ class ReluConv2d(nn.Module):
 
     def forward(self, x: torch.Tensor):
         return self.act(self.bn(self.conv(x)))
+
 
 OPS = {
     'conv3x3': partial(ReluConv2d, kernel_size=3),

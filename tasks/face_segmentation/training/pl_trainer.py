@@ -11,7 +11,7 @@ from .metrics import get_confusion_matrix, get_iou, get_f1_scores
 class SegmentationTrainingLoop(pl.LightningModule):
     def __init__(self, model: nn.Module, lr: float = 2e-4, ignore_mask_value: int = 255):
         super().__init__()
-        
+
         self.model = model
         self.num_classes = model.num_classes
         self.in_channels = model.in_channels
@@ -23,16 +23,16 @@ class SegmentationTrainingLoop(pl.LightningModule):
 
     def forward(self, x):
         return self.model(x)
-    
+
     def shared_step(self, batch, stage='train'):
         image = batch['image']
         mask = batch['mask']
         batch_size, _, height, width = image.shape
 
         assert image.ndim == 4
-        logits_mask = self.forward(image) # (N, C, H, W)
+        logits_mask = self.forward(image)  # (N, C, H, W)
         logits_mask = logits_mask.view(batch_size, self.num_classes, -1)
-        
+
         loss = self.loss(logits_mask, mask.view(batch_size, -1))
 
         pred_classes = logits_mask.argmax(axis=1)

@@ -17,21 +17,21 @@ def parse_date(date):
     return date
 
 
-def report(con_str, report_start, report_end):
+def get_usage_by_device(store: ArchaiStore, report_start, report_end):
     devices = {}
 
     first = None
     last = None
 
-    storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key, status_table_name='usage')
     for e in store.get_all_status_entities():
         device = e['name']
         start = parse_date(e['start'])
         end = parse_date(e['end'])
         if report_start is not None and report_start > start:
             continue
-        if report_end is not None and report_end < end:
+        if report_end is not None and report_end < start:
+            continue
+        if report_end is not None and end > report_end:
             end = report_end
         if device not in devices:
             devices[device] = []
@@ -41,6 +41,11 @@ def report(con_str, report_start, report_end):
         if last is None or end > last:
             last = end
 
+    return (devices, first, last)
+
+
+def report(store: ArchaiStore, report_start, report_end):
+    devices, first, last = get_usage_by_device(store, report_start, report_end)
     if first is None:
         print("No data found")
         return
@@ -100,7 +105,8 @@ if __name__ == '__main__':
         sys.exit(1)
 
     parser = argparse.ArgumentParser(
-        description='Report on Qualcomm device utilization from an optional start date.')
+        description='Report on Qualcomm device utilization in an optional date range. ' +
+                    'Reports percentage utilization per day.')
     parser.add_argument('--start', help='Set the "start" date to start the search. (default None).')
     parser.add_argument('--end', help='Set the "end" date to end the search. (default None).')
     args = parser.parse_args()
@@ -113,4 +119,6 @@ if __name__ == '__main__':
         end = dateutil.parser.parse(args.end)
         end = end.replace(tzinfo=datetime.timezone.utc)
 
-    report(con_str, start, end)
+    storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
+    store = ArchaiStore(storage_account_name, storage_account_key, status_table_name='usage')
+    report(store, start, end)
