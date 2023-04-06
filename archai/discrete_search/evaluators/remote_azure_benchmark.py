@@ -89,21 +89,27 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         entity = self.store.get_existing_status(archid)
         if entity is not None:
 
-            if self.verbose:
-                print(f"Entry for {archid} already exists")
-
             if entity["status"] == "complete":
+                if self.metric_key in entity:
+                    if self.verbose:
+                        value = entity[self.metric_key]
+                        print(f"Entry for {archid} already exists with {self.metric_key} = {value}")
+                    return
+                else:
+                    # complete but missing the mean, so reset everything so we can try again below.
+                    self.store.reset(archid, ['benchmark_only', 'model_date'])
+            else:
+                # job is still running, let it continue
+                if self.verbose:
+                    print(f"Job for {archid} is running...")
                 self.archids.append(archid)
                 return
 
-            if self.metric_key in entity and entity[self.metric_key]:
-                self.archids.append(archid)
-                return
-
-        entity = self.store.get_status(archid)
+        entity = self.store.get_status(archid)  # this is a get or create operation.
         entity["benchmark_only"] = 1
         entity["model_date"] = self.store.get_utc_date()
         entity["model_name"] = "model.onnx"
+        self.store.update_status_entity(entity)  # must be an update, not a merge.
         self.store.lock_entity(entity, "uploading")
         try:
             with TemporaryDirectory() as tmp_dir:

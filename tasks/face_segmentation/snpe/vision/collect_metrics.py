@@ -127,13 +127,13 @@ def get_metrics(input_shape, transpose, dataset, outputs, num_classes=19, use_pi
             logits = np.fromfile(full_path, dtype=np.float32)
             size = np.product(logits.shape)
             found_classes = int(size / (img_shape[0] * img_shape[1]))
-            if found_classes != num_classes:
+            if found_classes < num_classes:
                 raise Exception(f"Result {out_f} has unexpected number of predictions {found_classes}, expecting {num_classes}")
 
             if transpose:
-                logits = logits.reshape((num_classes, img_shape[0], img_shape[1])).transpose(transpose)
+                logits = logits.reshape((found_classes, img_shape[0], img_shape[1])).transpose(transpose)
             else:
-                logits = logits.reshape((img_shape[0], img_shape[1], num_classes))
+                logits = logits.reshape((img_shape[0], img_shape[1], found_classes))
 
             probs = softmax(logits.astype(np.float64), axis=-1)
             pd_seg = np.argmax(probs, axis=-1)

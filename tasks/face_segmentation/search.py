@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 import os
+import sys
 import itertools
 from pathlib import Path
 from argparse import ArgumentParser
@@ -100,9 +101,13 @@ def main():
 
     if target_name == 'snp':
         # Gets connection string from env variable
-        target_config['connection_string'] = os.environ[
-            target_config.pop('connection_str_env_var')
-        ]
+        env_var_name = target_config.pop('connection_str_env_var')
+        con_str = os.getenv(env_var_name)
+        if not con_str:
+            print("Please set environment variable {env_var_name} containing the Azure storage account connection " +
+                  "string for the Azure storage account you want to use to control this experiment.")
+            sys.exit(1)
+        target_config['connection_string'] = con_str
 
         evaluator = RemoteAzureBenchmarkEvaluator(
             input_shape=input_shape,
