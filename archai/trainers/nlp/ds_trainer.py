@@ -367,7 +367,7 @@ class DsTrainer(TrainerBase):
         """
 
         eval_dataloader = self._get_dataloader(eval_dataset, shuffle=False)
-        eval_iterator = iter(eval_dataloader)
+        eval_iterator = iter(RepeatingLoader(eval_dataloader))
 
         n_eval_steps = self.args.eval_max_steps or len(eval_dataloader)
         eval_loss, eval_time = 0.0, time.time()
