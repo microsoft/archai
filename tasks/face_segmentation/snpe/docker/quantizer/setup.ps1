@@ -216,7 +216,7 @@ foreach ($t in $tags) {
 $v = [Version]$latest
 $vnext = [System.String]::Format("{0}.{1}", $v.Major, $v.Minor + 1)
 Write-Host "Creating quantizer.yaml and setting image version $vnext"
-$template = $template.Replace("quantizer:1.0", $vnext)
+$template = $template.Replace("quantizer:1.0", "quantizer:$vnext")
 $template = $template.Replace("$MSCS$", $conn_str)
 Set-Content -Path "quantizer.yaml" -Value $template
 
