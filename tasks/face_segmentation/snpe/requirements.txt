@@ -7,7 +7,6 @@ pandas
 scipy
 numpy
 ipykernel
-sphinx
 azure-storage-blob
 azure-data-tables
 azureml-mlflow
@@ -20,3 +19,4 @@ onnxruntime
 onnx-simplifier
 pyyaml
 matplotlib
+git+https://github.com/microsoft/Olive.git@d880057ef36916f556080cbad2daddb3cfd1c08d#egg=olive-ai

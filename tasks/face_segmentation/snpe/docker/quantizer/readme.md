@@ -1,7 +1,7 @@
 # Readme
 
-This folder contains some handy stuff for setting up an Azure account so you can run the code
-in the [Azure](../azure/readme.md) folder.
+This folder contains some handy stuff for setting up an Azure account so you can run the code in the
+[Azure](../../azure/readme.md) folder and create a docker image for running Snapdragon jobs on a kubernetes cluster.
 
 First you will need to decide which Azure Subscription to use, install the
 [Azure Command Line Interface](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli)
@@ -9,12 +9,11 @@ and run `az account set --subscription id` to make the this subscription your de
 
 ## setup.ps1
 
-This script creates the azure resources in your chosen subscription needed by the `runner.py`
-script.  This includes a storage account for storing models and a status table, and a usage table.
-The script contains a default `$plan_location` of `westus2`, feel free to change that to whatever
-you need.  It also creates an azure docker container registry and AKS cluster, but using the
-Kubernetes cluster for model quantization is optional, you can run the `runner.py` script without
-AKS.
+This script creates the azure resources in your chosen subscription needed by the `runner.py` script.  This includes a
+storage account for storing models and a status table, and a usage table. The script contains a default `$plan_location`
+of `westus2`, feel free to change that to whatever you need.  It also creates an azure docker container registry and AKS
+kubernetes cluster, but using the Kubernetes cluster for model quantization is optional, you can run the `runner.py`
+script without AKS.
 
 The setup script requires the following environment variables be set before hand:
 
@@ -22,12 +21,17 @@ The setup script requires the following environment variables be set before hand
 - **ANDROID_NDK** - points to a local zip file containing the Android NDK zip file version `android-ndk-r23b-linux.zip`
 - **INPUT_TESTSET** - points to a local zip file containing 10,000 image test set from your dataset.
 
-The [SNPE Readme](../snpe/readme.md) shows where to find those zip files.
+The [SNPE Readme](../../snpe/readme.md) shows where to find those zip files.
 
 After running this script you will see further instructions, first a docker command line in case you
 want to build the docker image that runs in a kubernetes cluster.  Second, you will see a
 `set MODEL_STORAGE_CONNECTION_STRING=...` that you can set for your system so that subsequent scripts
-talk to the right azure storage account.
+talk to the right azure storage account.  On linux this would be an export in your `~/.profile`, and
+don't forget the double quotes.
+
+```
+export MODEL_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=https;AccountName=mymodels;AccountKey=...==;EndpointSuffix=core.windows.net"
+```
 
 ## Dockerfile
 
@@ -35,7 +39,7 @@ This builds a docker image that you can run in a Azure Kubernetes cluster that w
 quantization in the cloud.  This frees up your Linux box that is managing Qualcomm devices and helps
 you increase your Qualcomm device utilization.
 
-The `Setup.ps1` script shows what docker commands to run to build the image, how to login to your
+The `setup.ps1` script shows what docker commands to run to build the image, how to login to your
 azure docker container registry, how to take your image for that container registry and push it
 to Azure.  So you do not need to use the public docker.org container registry.  You will decide
 what version number to attach to your image here and the same version needs to be specified in the

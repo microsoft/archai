@@ -2,6 +2,7 @@
 
 This folder contains code for running models using the Qualcomm SNPE Neural Processing SDK,
 including quantizing those models and running them on the Qualcomm DSP.
+This folder uses http://github.com/microsoft/olive to do the actual SNPE work.
 
 1. **Snapdragon 888 Dev Kit** - get one of these [Snapdragon 888 HDK](https://developer.qualcomm.com/hardware/snapdragon-888-hdk) boards.
 
@@ -37,14 +38,11 @@ bits.  If you plan to use Qualcomm hardware devices then set the `SNPE_ANDROID_R
     pip install -e .[dev]
     ```
 
-1. **Install Olive**
+1. **Install required packages including Olive **
 
-Install Olive2 from following repository:
     ```
-    git clone https://github.com/microsoft/Olive.git
-    cd Olive
+    pushd tasks/face_segmentation/snpe
     pip install -r requirements.txt
-    pip install -e .
     ```
 
 1. Let Olive configure SNPE
@@ -60,8 +58,8 @@ Install Olive2 from following repository:
 
 1. **Create experiment folder**.  The subsequent scripts all assume you are in a folder for running your experiment.
     ```
-    mkdir experiment1
-    cd experiment1
+    mkdir ~/experiment1
+    cd ~/experiment1
     ```
 
     In this folder we will build the following files:

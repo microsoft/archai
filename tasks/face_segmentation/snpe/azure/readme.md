@@ -1,10 +1,13 @@
 # Azure Setup
 
-This Azure code connects to an Azure Storage account by a connection string setup
-in an environment variable named `MODEL_STORAGE_CONNECTION_STRING`
+This Azure code connects to an Azure Storage account by a connection string setup in an environment variable named
+`MODEL_STORAGE_CONNECTION_STRING`.
 
-You can get the connection string from your Azure Storage account under `Access Keys`
-and `Show Keys` and copy the one named `Connection string`.
+There is a handy [setup.ps1](../docker/quantizer/setup.ps1) powershell script that will setup a new Azure Storage
+account and print this connection string key for you using the Azure CLI.
+
+You can get the connection string from your Azure Storage account under `Access Keys` and `Show Keys` and copy the one
+named `Connection string`.
 
 In Linux you should use double quotes around the connection string like this:
 
@@ -41,12 +44,13 @@ Then to get the ball rolling create a temp folder and run this:
 
 ```
 mkdir -p ~/experiment
-python ~/git/snpe_runner/azure/runner.py --working ~/experiment
+python ~/git/archai/tasks/face_Segmentation/snpe/azure/runner.py --working ~/experiment
 ```
 
-This will monitor the Azure blob store for new work to do, and run those jobs in
-priority order.  If you also provide a `--device` option pointing to the `adb device` for a Qualcomm 888 Dev Board then it will also run the quantized models
+This will monitor the Azure blob store for new work to do, and run those jobs in priority order.  If you also provide a
+`--device` option pointing to the `adb device` for a Qualcomm 888 Dev Board then it will also run the quantized models
 on that device and report the performance and F1 score results.
 
-If you setup a quantization only runner in the cloud using the `docker/quantizer` image, you can pass `--no_quantization` argument when you have a `--device` so that the local runs do not do quantization.
-This way the linux machine driving the local Qualcomm devices is not overloaded with quantization work.
+If you setup a quantization only runner in the cloud using the `docker/quantizer` image, you can pass
+`--no_quantization` argument when you have a `--device` so that the local runs do not do quantization. This will stop
+your linux machine from getting overloaded with quantization work so it can focus on the SNPE device workloads.

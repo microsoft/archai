@@ -62,8 +62,8 @@ RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf
 
 # this echo is a trick to bypass docker build cache.
 # simply change the echo string every time you want docker build to pull down new bits.
-RUN echo '04/05/2023 11:26 AM' >/dev/null && git clone https://github.com/microsoft/archai.git
-RUN cd archai && pip install -e .[dev]
+RUN echo '04/06/2023 06:28 PM' >/dev/null && git clone https://github.com/microsoft/archai.git
+RUN cd archai && git checkout task_segmentation && pip install -e .[dev]
 
 RUN echo "using this pip version: " && which pip
 RUN echo "using this python version: " && which python
@@ -71,10 +71,6 @@ RUN echo "using this python version: " && which python
 RUN pushd /home/archai/archai/tasks/face_segmentation/snpe && \
     python --version && \
     pip install -r requirements.txt
-
-# Install our olive2 branch
-RUN echo '04/04/2023 04:20 PM' >/dev/null && git clone "https://github.com/microsoft/Olive.git"
-RUN cd Olive && pip install -e .
 
 RUN pip list
 

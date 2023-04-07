@@ -19,7 +19,6 @@ $registry_name = "snpecontainerregistry001"
 
 $tags = &az acr repository show-tags -n $registry_name --repository quantizer | ConvertFrom-JSON
 
-
 if ($tags.GetType().Name -eq "String"){
     # there is only one tag
     Write-Host "Your registry is already clean, it contains only one image quantizer:$tags"

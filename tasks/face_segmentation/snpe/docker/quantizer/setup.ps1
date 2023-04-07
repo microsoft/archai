@@ -169,10 +169,19 @@ if ($rc.Contains("ResourceNotFound")) {
 
 Check-Provisioning -result $rc
 
-# this makes it possible to use kubectl locally to manage this cluster.
-&az aks get-credentials --resource-group $resource_group --name $aks_cluster
-
-EnsureNamespace -name $aks_namespace
+$rc = &"$env:windir\system32\where" kubectl.exe 2>&1
+print("where kubectl.exe => $rc")
+if ($rc.ToString().Contains("Could not find files")) {
+    Write-Host "kubectl not found, skipping kubectl setup."
+    Write-Host "To build the quantizer docker image on windows you should install the Docker Desktop for Windows"
+    Write-Host "and set it to Linux container mode."
+}
+else
+{
+    # this makes it possible to use kubectl locally to manage this cluster.
+    &az aks get-credentials --resource-group $resource_group --name $aks_cluster
+    EnsureNamespace -name $aks_namespace
+}
 
 Write-Host "======= upload INPUT_TESTSET"
 $fileName = [System.IO.Path]::GetFileName($Env:INPUT_TESTSET)
@@ -189,6 +198,25 @@ Write-Host "Test set url is $test_set_url"
 
 # populate MODEL_STORAGE_CONNECTION_STRING variable in quantizer.template.yaml
 $template = Get-Content -Path "quantizer.template.yaml"
+
+$tags = &az acr repository show-tags -n $registry_name --repository quantizer | ConvertFrom-JSON
+
+if ($tags.GetType().Name -eq "String"){
+    $tags = @($tags)
+}
+
+$latest = [Version]"1.0"
+foreach ($t in $tags) {
+    $v = [Version]$t
+    if ($v -gt $latest){
+        $latest = $v
+    }
+}
+
+$v = [Version]$latest
+$vnext = [System.String]::Format("{0}.{1}", $v.Major, $v.Minor + 1)
+Write-Host "Creating quantizer.yaml and setting image version $vnext"
+$template = $template.Replace("quantizer:1.0", $vnext)
 $template = $template.Replace("$MSCS$", $conn_str)
 Set-Content -Path "quantizer.yaml" -Value $template
 
@@ -205,12 +233,12 @@ Write-Host "### Run the above docker build to build the docker image and the fol
 Write-Host "Get the password from Azure portal for $registry_name under Access keys:"
 Write-Host "  docker login $acrServer -u $registry_name -p <get password>"
 Write-Host "  az aks get-credentials --resource-group $resource_group --name $aks_cluster"
-Write-Host "  docker tag ... $registry_name.azurecr.io/quantizer:1.1"
-Write-Host "  docker push $registry_name.azurecr.io/quantizer:1.1"
+Write-Host "  docker tag ... $registry_name.azurecr.io/quantizer:$vnext"
+Write-Host "  docker push $registry_name.azurecr.io/quantizer:$vnext"
 Write-Host ""
 Write-Host "To cleanup old images see cleanup.ps1"
 Write-Host ""
-Write-Host "### Make sure the mtaching image version is mentioned in quantizer.yaml..."
+Write-Host "### Apply the new image on your cluster..."
 Write-Host "  kubectl apply -f quantizer.yaml"
 
 Write-Host ""
