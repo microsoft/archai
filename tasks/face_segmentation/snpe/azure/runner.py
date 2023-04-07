@@ -127,6 +127,13 @@ def get_entity_shape(entity, name):
     return []
 
 
+def record_error(entity, error_message):
+    global store
+    entity['status'] = 'error'
+    entity['error'] = error_message
+    store.merge_status_entity(entity)
+
+
 def convert(name, entity, long_name, model_path):
     global store
     log("Converting model: " + long_name)
@@ -137,9 +144,7 @@ def convert(name, entity, long_name, model_path):
     model_dir = os.path.join(name, SNPE_MODEL_DIR)
     model, input_shape, output_shape, error = convert_model(model_path, model_dir)
     if error:
-        entity['status'] = 'error'
-        entity['error'] = error
-        store.merge_status_entity(entity)
+        record_error(entity, error)
         return 'error'
 
     if input_shape != get_entity_shape(entity, 'shape') or output_shape != get_entity_shape(entity, 'output_shape'):
@@ -166,9 +171,7 @@ def quantize(name, entity, onnx_model, model):
     snpe_model_dir = os.path.join(name, SNPE_MODEL_DIR)
     model, error = quantize_model(model, onnx_model, snpe_model_dir)
     if error:
-        entity['status'] = 'error'
-        entity['error'] = error
-        store.merge_status_entity(entity)
+        record_error(entity, error)
         return 'error'
 
     # save the quantized .dlc since it takes so long to produce.
@@ -347,6 +350,15 @@ def benchmark(entity, onnx_model, model, name, test_input):
     return True
 
 
+def ensure_complete(entity):
+    global store
+    if entity['status'] != 'complete':
+        entity['status'] = 'complete'
+        name = entity['name']
+        log(f"Completed {name}")
+        store.merge_status_entity(entity)
+
+
 def run_model(name, dataset, use_device, benchmark_only, no_quantization):
     global store, usage
     log("===================================================================================================")
@@ -375,9 +387,7 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
 
     downloaded = store.download(name, model_dir, r'.*\.onnx$')
     if len(downloaded) == 0 or not os.path.isfile(downloaded[0]):
-        entity['status'] = 'error'
-        entity['error'] = 'missing model'
-        store.merge_status_entity(entity)
+        record_error(entity, 'missing model')
         log(f"### no model found for {name}")
         return
     onnx_model = downloaded[0]
@@ -409,9 +419,7 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
         if len(downloaded) == 0:
             raise Exception('### internal error, the model.dlc download failed!')
     elif not is_quantized and not converted:
-        entity['status'] = 'error'
-        entity['error'] = 'missing model'
-        store.merge_status_entity(entity)
+        record_error(entity, 'missing model')
         log(f"### no model found for {name}")
         return
 
@@ -457,6 +465,7 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
 
     if benchmark_only:
         log(f"Benchmark only has nothing to do on model {name}")
+        ensure_complete(entity)
         return
 
     # next highest priority is to get the 1k f1 score.
@@ -518,9 +527,7 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
         test_results, chart, f1score = get_metrics(input_shape, False, dataset, snpe_output_dir, num_classes,
                                                    use_pillow)
     except Exception as ex:
-        entity['status'] = 'error'
-        entity['error'] = str(ex)
-        store.merge_status_entity(entity)
+        record_error(entity, str(ex))
         return
 
     log(f"### Saving {prop} score of {f1score}")
@@ -530,9 +537,7 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
     store.upload_blob(name, chart, f"pr_curve_{prop}.png")
 
     if 'f1_1k' in entity and 'f1_10k' in entity and 'f1_1k_f' in entity and 'f1_onnx' in entity:
-        entity['status'] = 'complete'
-        log(f"Completed {name}")
-        store.merge_status_entity(entity)
+        ensure_complete(entity)
 
 
 def clear_random_inputs():
