@@ -121,6 +121,7 @@ The algorithm will iterate through different network architectures, evaluate the
 To demonstrate and showcase the capabilities/functionalities of Archai, a set of end-to-end tasks are provided:
 
 * [Text Generation](https://github.com/microsoft/archai/blob/main/tasks/text_generation).
+* [Face Segmentation](https://github.com/microsoft/archai/blob/main/tasks/face_segmentation).
 
 ## Documentation
 
