@@ -289,17 +289,6 @@ def get_mean_benchmark(entity):
     return 0
 
 
-def get_int64_value(entity, name):
-    x = 0
-    if name in entity:
-        x = entity[name]
-        if isinstance(x, EntityProperty) and x.edm_type is EdmType.INT64:
-            x = x.value
-        else:
-            x = int(x)
-    return x
-
-
 def get_avg_latency(latencies):
     count = 0
     sum = 0
@@ -449,8 +438,8 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
 
     if 'macs' not in entity:
         csv_data, macs, params = get_dlc_metrics(quantized_model)
-        entity['macs'] = EntityProperty(macs, EdmType.INT64)
-        entity['params'] = EntityProperty(params, EdmType.INT64)
+        entity['macs'] = macs
+        entity['params'] = params
         entity['status'] = 'converted'
         store.merge_status_entity(entity)
         csv_file = os.path.join(snpe_model_dir, 'model.quant.info.csv')
@@ -555,7 +544,7 @@ def clear_random_inputs():
 def is_benchmark_only(entity, benchmark_only):
     benchmark_only_flag = benchmark_only
     if 'benchmark_only' in entity:
-        benchmark_only_flag = get_int64_value(entity, 'benchmark_only')
+        benchmark_only_flag = int(entity['benchmark_only'])
     return benchmark_only_flag
 
 
@@ -651,7 +640,7 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
 
         if 'priority' in entity:
             # allow user to override the priority
-            priority = get_int64_value(entity, 'priority')
+            priority = int(entity['priority'])
 
         queue.enqueue(priority, entity)
     return queue
