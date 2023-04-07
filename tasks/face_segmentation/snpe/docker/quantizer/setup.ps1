@@ -173,8 +173,11 @@ $rc = &"$env:windir\system32\where" kubectl.exe 2>&1
 print("where kubectl.exe => $rc")
 if ($rc.ToString().Contains("Could not find files")) {
     Write-Host "kubectl not found, skipping kubectl setup."
-    Write-Host "To build the quantizer docker image on windows you should install the Docker Desktop for Windows"
-    Write-Host "and set it to Linux container mode."
+    if ($IsWindows){
+        Write-Host "You can build the quantizer docker image on Windows if you install the Docker Desktop for Windows"
+        Write-Host "and set it to Linux container mode and you can manage your Azure Kubernetes cluster using kubectl if"
+        Write-Host "you enable the docker desktop Kubernetes support under Settings."
+    }
 }
 else
 {

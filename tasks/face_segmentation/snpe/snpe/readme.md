@@ -11,16 +11,12 @@ The best way is using `azcopy`.  You could put them in a datasets folder,
 for example: `d:\datasets\FaceSynthetics`.  Then set your `INPUT_DATASET` environment
 variable pointing to this folder.
 
-1. **Install Android NDK**. You need a working version of `adb` in your PATH.  If you are
-on Windows you can use the VS 2022 installer to install the
-mobile development package which includes the Android NDK
-and `adb` lives in `C:\Microsoft\AndroidSDK\25\platform-tools\`.
-If you are on Linux, just download the zip file from [https://developer.android.com/ndk/downloads/](https://developer.android.com/ndk/downloads/) and unzip it then you can set your `ANDROID_NDK_ROOT` environment variable pointing to the folder containing the unzipped bits.
+1. **Install Android NDK**. You need a working version of `adb` in your PATH.
+Just download the zip file from [https://developer.android.com/ndk/downloads/](https://developer.android.com/ndk/downloads/)
+and unzip it then you can set your `ANDROID_NDK_ROOT` environment variable pointing to the folder containing the
+unzipped bits.
 
-1. **Check Device USB**.  Check you can run `adb shell` to connect to your Snapdragon
-over USB. (You won't be able to do this on WSL2, but you
-can do it from Windows).  So the `convert_onnx.sh` that uses
-the SNPE SDK runs in Ubuntu, but everything else can run on the Windows side.
+1. **Check Device USB**.  Check you can run `adb shell` to connect to your Snapdragon over USB.
 You may need to run `sudo usermod -aG plugdev $LOGNAME`.
 
 1. **Install SNPE SDK on Ubuntu 18.04**.
@@ -67,20 +63,24 @@ bits.  If you plan to use Qualcomm hardware devices then set the `SNPE_ANDROID_R
     - data/quant - the image dataset for quantizing the model
     - snpe_models/model.quant.dlc - the quantized model
 
-1. **Prepare data**. Run `python create_data.py --help`, this scripts creates data for both quantization and test and puts it in  your local experiment folder under `data/test` and `data/quant`.  For example:
+1. **Prepare data**. Run `python create_data.py --help`, this scripts creates data for both
+   quantization and test and puts it in  your local experiment folder under `data/test` and
+   `data/quant`.  For example:
 
     ```
     python create_data.py --input ~/datasets/FaceSynthetics --count 1000 --dim 256
     ```
 
-1. **Convert and quantize model**. You can use `test_snpe.py` to convert a .onnx model to .dlc and quantize it.  For
-example:
+1. **Convert and quantize model**. You can use `test_snpe.py` to convert a .onnx model to .dlc and
+quantize it.  For example:
     ```
     python test_snpe.py --quantize --model model.onnx
     ```
-This can take about 10 minutes depending on the size of your quantization data set and the size of your model.
+This can take about 10 minutes depending on the size of your quantization data set and the size of
+your model.
 
-1. **Run test images on device**. You can use `test_snpe.py` to test your quantized model on a Qualcomm 888 dev board. You can find the dev board id using `adb devices`:
+1. **Run test images on device**. You can use `test_snpe.py` to test your quantized model on a
+Qualcomm 888 dev board. You can find the device id using `adb devices`:
     ```
     python test_snpe.py --device e6dc0375 --images ./data/test --model model.onnx --dlc ./snpe_models/model.quant.dlc
     ```

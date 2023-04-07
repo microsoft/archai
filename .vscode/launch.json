@@ -261,7 +261,14 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "cwd": "D:\\git\\microsoft\\archai\\archai\\tasks\\face_segmentation",
+            "args":[
+                "--dataset_dir", "C:\\datasets\\FaceSynthetics",
+                "--output_dir", "d:\\temp\\face_segmentation",
+                "--search_config", "confs\\snp_search.yaml",
+                "--serial_training"
+            ]
         }
     ]
 }
