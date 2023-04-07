@@ -764,8 +764,8 @@ def setup_store():
         log(f"Please specify your {CONNECTION_NAME} environment variable.")
         sys.exit(1)
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(conn_string)
-    store = ArchaiStore(storage_account_name, storage_account_key, status_table_name='status')
-    usage = ArchaiStore(storage_account_name, storage_account_key, status_table_name='usage')
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name='status')
+    usage = ArchaiStore(storage_account_name, storage_account_key, table_name='usage')
     return conn_string
 
 

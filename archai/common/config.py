@@ -82,7 +82,7 @@ class Config(UserDict):
 
         self.config_filepath = config_filepath
 
-    def _load_from_file(self, filepath:Optional[str])->None:
+    def _load_from_file(self, filepath: Optional[str])->None:
         if filepath:
             filepath = os.path.expanduser(os.path.expandvars(filepath))
             filepath = os.path.abspath(filepath)
@@ -158,4 +158,3 @@ class Config(UserDict):
     def get_inst()->'Config':
         global _config
         return _config
-

@@ -9,6 +9,7 @@ from typing import List, Optional
 
 
 from archai.common.config import Config
+from archai.common.store import ArchaiStore
 from archai.datasets.cv.face_synthetics import FaceSyntheticsDatasetProvider
 from archai.discrete_search.api import SearchObjectives
 from archai.discrete_search.algos import (
@@ -107,10 +108,16 @@ def main():
             print("Please set environment variable {env_var_name} containing the Azure storage account connection " +
                   "string for the Azure storage account you want to use to control this experiment.")
             sys.exit(1)
-        target_config['connection_string'] = con_str
+
+        blob_container_name = target_config.pop('blob_container_name', 'models')
+        table_name = target_config.pop('table_name', 'status')
+        partition_key = target_config.pop('partition_key', 'main')
+        storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
+        store = ArchaiStore(storage_account_name, storage_account_key, blob_container_name, table_name, partition_key)
 
         evaluator = RemoteAzureBenchmarkEvaluator(
             input_shape=input_shape,
+            store=store,
             onnx_export_kwargs={'opset_version': 11},
             **target_config
         )

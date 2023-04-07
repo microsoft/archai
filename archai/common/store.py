@@ -34,12 +34,13 @@ class ArchaiStore:
 
     This also has a convenient command line interface provided below.
     """
-    def __init__(self, storage_account_name, storage_account_key, blob_container_name='models', status_table_name='status'):
+    def __init__(self, storage_account_name, storage_account_key, blob_container_name='models', table_name='status', partition_key='main'):
         self.storage_account_key = storage_account_key
         self.storage_account_name = storage_account_name
         self.storage_connection_string = f'DefaultEndpointsProtocol=https;AccountName={storage_account_name};AccountKey={storage_account_key};EndpointSuffix=core.windows.net'
         self.blob_container_name = blob_container_name
-        self.status_table_name = status_table_name
+        self.status_table_name = table_name
+        self.partition_key = partition_key
         self.service = None
         self.table_client = None
         self.container_client = None
@@ -116,7 +117,7 @@ class ArchaiStore:
         table_client = self._get_table_client()
 
         entities = []
-        query = "PartitionKey eq 'main'"
+        query = f"PartitionKey eq '{self.partition_key}'"
         if status:
             if not_equal:
                 query += f" and status ne '{status}'"
@@ -140,11 +141,11 @@ class ArchaiStore:
         table_client = self._get_table_client()
 
         try:
-            entity = table_client.get_entity(partition_key='main', row_key=name)
+            entity = table_client.get_entity(partition_key=self.partition_key, row_key=name)
             entity = self._unwrap_numeric_types(entity)
         except Exception:
             entity = {
-                'PartitionKey': 'main',
+                'PartitionKey': self.partition_key,
                 'RowKey': name,
                 'name': name,
                 'status': 'new'
@@ -179,7 +180,7 @@ class ArchaiStore:
         """ Find the given entity by name, and return it, or return None if the name is not found."""
         table_client = self._get_table_client()
         try:
-            entity = table_client.get_entity(partition_key='main', row_key=name)
+            entity = table_client.get_entity(partition_key=self.partition_key, row_key=name)
             entity = self._unwrap_numeric_types(entity)
         except Exception:
             return None
@@ -190,7 +191,7 @@ class ArchaiStore:
         can pick up any changes that another process may have made. """
         table_client = self._get_table_client()
         try:
-            entity = table_client.get_entity(partition_key=e['PartitionKey'], row_key=e['RowKey'])
+            entity = table_client.get_entity(partition_key=self.partition_key, row_key=e['RowKey'])
             entity = self._unwrap_numeric_types(entity)
         except Exception:
             return None

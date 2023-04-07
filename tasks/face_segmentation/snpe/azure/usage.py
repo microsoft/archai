@@ -52,7 +52,7 @@ def usage(con_str):
     args = parser.parse_args()
 
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key, status_table_name=USAGE_TABLE)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=USAGE_TABLE)
     entities = get_all_usage_entities(store, args.device)
     store.print_entities(entities)
 

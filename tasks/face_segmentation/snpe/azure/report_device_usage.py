@@ -120,5 +120,5 @@ if __name__ == '__main__':
         end = end.replace(tzinfo=datetime.timezone.utc)
 
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key, status_table_name='usage')
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name='usage')
     report(store, start, end)

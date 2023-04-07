@@ -27,11 +27,8 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
     def __init__(
         self,
         input_shape: Union[Tuple, List[Tuple]],
-        connection_string: str,
-        blob_container_name: str,
-        table_name: str,
+        store: ArchaiStore,
         metric_key: str,
-        partition_key: str,
         overwrite: Optional[bool] = True,
         max_retries: Optional[int] = 5,
         retry_interval: Optional[int] = 120,
@@ -55,18 +52,10 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         """
 
         # TODO: Make this class more general / less pipeline-specific
+        self.store = store
         input_shapes = [input_shape] if isinstance(input_shape, tuple) else input_shape
         self.sample_input = tuple([torch.rand(*input_shape) for input_shape in input_shapes])
-
-        storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(connection_string)
-        self.store = ArchaiStore(storage_account_name, storage_account_key, blob_container_name, table_name)
-
-        # Changes the Azure logging level to ERROR to avoid unnecessary output
-        logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
-        logger.setLevel(logging.ERROR)
-
         self.metric_key = metric_key
-        self.partition_key = partition_key
         self.overwrite = overwrite
         self.max_retries = max_retries
         self.retry_interval = retry_interval
