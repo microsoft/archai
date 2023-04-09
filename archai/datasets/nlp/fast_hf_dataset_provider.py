@@ -410,8 +410,12 @@ class FastHfDatasetProvider(DatasetProvider):
             logger.warn(f"Could not find tokenizer in {cache_dir}.")
             tokenizer = None
         else:
-            with open(tokenizer_file, "rb") as f:
-                tokenizer = pickle.load(f)
+            try:
+                with open(tokenizer_file, "rb") as f:
+                    tokenizer = pickle.load(f)
+            except:
+                logger.warn(f"Could not load tokenizer.pkl using pickle.load.")
+                tokenizer = None
 
         return FastHfDatasetProvider(cache_train_file, cache_validation_file, cache_test_file, tokenizer=tokenizer)
 
