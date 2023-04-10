@@ -30,4 +30,5 @@
 /research/lm_eval_harness @gugarosa
 
 # Tasks
+/tasks/face_segmentation @piero2c
 /tasks/text_generation @gugarosa
