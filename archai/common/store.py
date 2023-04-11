@@ -8,6 +8,7 @@ import logging
 import datetime
 import platform
 import numpy as np
+import re
 from torch import Tensor
 from azure.data.tables import TableServiceClient, UpdateMode, EntityProperty, EdmType
 from azure.storage.blob import BlobClient, ContainerClient
@@ -33,12 +34,13 @@ class ArchaiStore:
 
     This also has a convenient command line interface provided below.
     """
-    def __init__(self, storage_account_name, storage_account_key, blob_container_name='models', status_table_name='status'):
+    def __init__(self, storage_account_name, storage_account_key, blob_container_name='models', table_name='status', partition_key='main'):
         self.storage_account_key = storage_account_key
         self.storage_account_name = storage_account_name
         self.storage_connection_string = f'DefaultEndpointsProtocol=https;AccountName={storage_account_name};AccountKey={storage_account_key};EndpointSuffix=core.windows.net'
         self.blob_container_name = blob_container_name
-        self.status_table_name = status_table_name
+        self.status_table_name = table_name
+        self.partition_key = partition_key
         self.service = None
         self.table_client = None
         self.container_client = None
@@ -115,7 +117,7 @@ class ArchaiStore:
         table_client = self._get_table_client()
 
         entities = []
-        query = "PartitionKey eq 'main'"
+        query = f"PartitionKey eq '{self.partition_key}'"
         if status:
             if not_equal:
                 query += f" and status ne '{status}'"
@@ -125,7 +127,7 @@ class ArchaiStore:
         try:
             # find all properties (just use list_entities?)
             for e in table_client.query_entities(query_filter=query):
-                entities += [self._wrap_numeric_types(e)]
+                entities += [self._unwrap_numeric_types(e)]
 
         except Exception as e:
             print(f"### error reading table: {e}")
@@ -139,11 +141,11 @@ class ArchaiStore:
         table_client = self._get_table_client()
 
         try:
-            entity = table_client.get_entity(partition_key='main', row_key=name)
+            entity = table_client.get_entity(partition_key=self.partition_key, row_key=name)
             entity = self._unwrap_numeric_types(entity)
         except Exception:
             entity = {
-                'PartitionKey': 'main',
+                'PartitionKey': self.partition_key,
                 'RowKey': name,
                 'name': name,
                 'status': 'new'
@@ -154,7 +156,9 @@ class ArchaiStore:
         e = {}
         for k in entity.keys():
             v = entity[k]
-            if isinstance(v, int):
+            if isinstance(v, bool):
+                e[k] = v
+            elif isinstance(v, int):
                 e[k] = EntityProperty(v, EdmType.INT64)
             elif isinstance(v, float):
                 e[k] = float(v)  # this is casting np.float to float.
@@ -176,7 +180,7 @@ class ArchaiStore:
         """ Find the given entity by name, and return it, or return None if the name is not found."""
         table_client = self._get_table_client()
         try:
-            entity = table_client.get_entity(partition_key='main', row_key=name)
+            entity = table_client.get_entity(partition_key=self.partition_key, row_key=name)
             entity = self._unwrap_numeric_types(entity)
         except Exception:
             return None
@@ -187,7 +191,7 @@ class ArchaiStore:
         can pick up any changes that another process may have made. """
         table_client = self._get_table_client()
         try:
-            entity = table_client.get_entity(partition_key=e['PartitionKey'], row_key=e['RowKey'])
+            entity = table_client.get_entity(partition_key=self.partition_key, row_key=e['RowKey'])
             entity = self._unwrap_numeric_types(entity)
         except Exception:
             return None
@@ -356,20 +360,21 @@ class ArchaiStore:
                 print(f"Unlocking job {name} on node {node}")
                 self.merge_status_entity(e)
 
-    def reset(self, name):
+    def reset(self, name, except_list=[]):
         """ This resets all properties on the given entity that are not primary keys,
-        'name' or 'status'. This will not touch a node that is locked by another.  """
+        'name' or 'status' and are not in the given except_list.
+        This will not touch a node that is locked by another computer.  """
         e = self.get_existing_status(name)
         if not e:
             print(f"Entity {name} not found")
         else:
-            self._reset(e)
+            self._reset(e, except_list)
 
-    def _reset(self, e):
+    def _reset(self, e, except_list=[]):
         if self.is_locked_by_other(e):
             node = self.get_lock(e)
             print(f"Skipping {e['RowKey']} as it is locked by {node}")
-        elif self._reset_metrics(e):
+        elif self._reset_metrics(e, except_list):
             e['status'] = 'reset'
             print(f"Resetting entity {e['RowKey']}")
             self.update_status_entity(e)
@@ -379,11 +384,11 @@ class ArchaiStore:
         for e in self.get_all_status_entities():
             self._reset(e)
 
-    def _reset_metrics(self, entity):
+    def _reset_metrics(self, entity, except_list=[]):
         # now clear all data to force a full re-run of everything.
         modified = False
         for key in list(entity.keys()):
-            if key != 'PartitionKey' and key != 'RowKey' and key != 'name' and key != 'status' and key != 'node':
+            if key != 'PartitionKey' and key != 'RowKey' and key != 'name' and key != 'status' and key != 'node' and key not in except_list:
                 del entity[key]
                 modified = True
         return modified
@@ -458,22 +463,25 @@ class ArchaiStore:
     def download(self, name, folder, specific_file=None):
         """ Download files from the given folder name from our associated blob container
         and return a list of the local paths to all downloaded files.  If an optional specific_file is
-        given then it tries to find and download that file only.  Returns a list of local files created. """
+        given then it tries to find and download that file only.  Returns a list of local files created.
+        The specific_file can be a regular expression like '*.onnx'. """
         container = self._get_container_client(self.blob_container_name)
         if not container.exists():
-            return (False, None)
+            return []
 
         if not os.path.isdir(folder):
             os.makedirs(folder)
         local_file = None
         prefix = f'{name}/'
         downloaded = []
+        if specific_file:
+            specific_file_re = re.compile(specific_file)
 
         for blob in container.list_blobs(name_starts_with=prefix):
             file_name = blob.name[len(prefix):]
             download = False
             if specific_file:
-                if specific_file != file_name:
+                if not specific_file_re.match(file_name):
                     continue
                 else:
                     download = True
@@ -498,8 +506,6 @@ class ArchaiStore:
                     downloaded += [local_file]
                 except Exception as e:
                     print(f"### Error downloading blob '{blob}' to local file: {e}")
-                if specific_file:
-                    break
 
         return downloaded
 
@@ -512,6 +518,11 @@ class ArchaiStore:
             if specific_file and file_name != specific_file:
                 continue
             container.delete_blob(blob)
+
+    def list_blobs(self, prefix=None):
+        """ List all the blobs associated with the given prefix. """
+        container = self._get_container_client(self.blob_container_name)
+        return [blob.name for blob in container.list_blobs(name_starts_with=prefix)]
 
     def print_entities(self, entities, columns=None):
         keys = []
@@ -601,11 +612,10 @@ def download(con_str, args):
         friendly_names = [friendly_name]
 
     specific_file = args.file
-    all_files = False if specific_file else True
 
     for friendly_name in friendly_names:
-        found, model, file = store.download(friendly_name, friendly_name, specific_file, all_files)
-        if not found and specific_file:
+        downloaded = store.download(friendly_name, friendly_name, specific_file)
+        if len(downloaded) == 0 and specific_file:
             print(f"file {specific_file} not found")
 
 

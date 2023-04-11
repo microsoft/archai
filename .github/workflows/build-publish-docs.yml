@@ -21,10 +21,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Sets up Conda with Python 3.7
+      - name: Sets up Conda with Python 3.8
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: 3.7
+          python-version: 3.8
           activate-environment: archai
       - name: Installs the requirements
         shell: bash -l {0}

@@ -23,6 +23,7 @@ dependencies = [
     "hyperopt",
     "ipykernel",
     "jupyter",
+    "lightning>=2.0.0",
     "matplotlib",
     "mldesigner",
     "mlflow",
@@ -38,7 +39,7 @@ dependencies = [
     "psutil",
     "pydata-sphinx-theme==0.13.1",
     "pytest",
-    "pytorch-lightning",
+    "pyunpack",
     "pyyaml",
     "ray>=1.0.0",
     "scikit-learn",
@@ -75,7 +76,7 @@ extras_require = {}
 extras_require["cv"] = filter_dependencies(
     "gorilla",
     "opencv-python",
-    "pytorch-lightning",
+    "lightning",
     "scikit-learn",
     "torchvision",
 )
@@ -120,7 +121,7 @@ extras_require["aml"] = filter_dependencies(
     "matplotlib",
     "mldesigner",
     "mlflow",
-    "pytorch-lightning",
+    "lightning",
     "torchvision",
 )
 
