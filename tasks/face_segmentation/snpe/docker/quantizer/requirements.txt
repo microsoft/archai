@@ -4,7 +4,7 @@ azureml-mlflow
 scikit-image
 scikit-learn
 scikit-build
-protobuf==3.20
+protobuf==3.20.2
 opencv-contrib-python
 matplotlib
 onnx==1.11.0
