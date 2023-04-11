@@ -20,12 +20,12 @@ def main():
     if not path or not os.path.exists(path):
         raise ValueError(f'Missing path: {path}')
 
-    provider = FaceSyntheticsDatasetProvider(root=path)
+    provider = FaceSyntheticsDatasetProvider(dataset_dir=path)
     # now force the full download to happen to that root folder.
     provider.get_train_dataset()
     provider.get_val_dataset()
     provider.get_test_dataset()
-    
+
 
 if __name__ == "__main__":
     main()
