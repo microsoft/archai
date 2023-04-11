@@ -38,7 +38,7 @@ class FaceSyntheticsDataset(torch.utils.data.Dataset):
         assert dataset_dir.is_dir()
         assert isinstance(img_size, tuple)
 
-        zip_url = "https://facesyntheticspubwedata.blob.core.windows.net/iccv-2021/dataset_1000.zip"
+        zip_url = "https://facesyntheticspubwedata.blob.core.windows.net/iccv-2021/dataset_100000.zip"
         self.img_size = img_size
         self.dataset_dir = dataset_dir
         self.subset = subset

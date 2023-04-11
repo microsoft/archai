@@ -205,6 +205,19 @@ def extract_tar(src, dest=None, gzip=None, delete=False):
         os.remove(src)
 
 
+def extract_zip(src, dest=None, delete=False):
+    import zipfile
+
+    if dest is None:
+        dest = os.path.dirname(src)
+
+    with zipfile.ZipFile(src, 'r') as zip_ref:
+        zip_ref.extractall(dest)
+
+    if delete:
+        os.remove(src)
+
+
 def download_and_extract_tar(url, download_root, extract_root=None, filename=None,
                              md5=None, **kwargs):
     download_root = os.path.expanduser(download_root)
@@ -230,7 +243,7 @@ def download_and_extract_zip(url, download_root, extract_root=None, filename=Non
     if not tvutils.check_integrity(os.path.join(download_root, filename), md5):
         tvutils.download_url(url, download_root, filename=filename, md5=md5)
 
-    extract_tar(os.path.join(download_root, filename), extract_root, gzip=True, **kwargs)
+    extract_zip(os.path.join(download_root, filename), extract_root, delete=True, **kwargs)
 
 
 def setup_cuda(seed: Union[float, int], local_rank: int = 0):
