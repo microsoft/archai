@@ -46,7 +46,7 @@ class FaceSyntheticsDataset(torch.utils.data.Dataset):
         self.augmentation = augmentation
 
         all_seg_files = [str(f) for f in sorted(self.dataset_dir.glob('*_seg.png'))]
-        if len(all_seg_files) == 0:
+        if len(all_seg_files) < 100000:
             download_and_extract_zip(zip_url, self.dataset_dir)
             all_seg_files = [str(f) for f in sorted(self.dataset_dir.glob('*_seg.png'))]
 
