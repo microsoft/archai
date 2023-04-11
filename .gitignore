@@ -166,3 +166,4 @@ android-ndk-r25b-linux.zip
 android-ndk-r25c-linux.zip
 tasks/face_segmentation/snpe/docker/quantizer/quantizer.yaml
 tasks/face_segmentation/.vscode/launch.json
+tasks/face_segmentation/conda.yaml

@@ -155,7 +155,8 @@ def main():
     algo_config = search_config['algorithm']
     algo = AVAILABLE_ALGOS[algo_config['name']](
         search_space, so,
-        output_dir=args.output_dir, seed=args.seed,
+        output_dir=args.output_dir,
+        seed=args.seed,
         **algo_config.get('params', {}),
     )
 
