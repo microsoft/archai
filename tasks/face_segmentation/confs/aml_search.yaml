@@ -37,10 +37,6 @@ search:
 
   target:
     name: aml
-    connection_str_env_var: MODEL_STORAGE_CONNECTION_STRING
-    blob_container_name: models
-    table_name: status
-    partition_key: main
     max_retries: 15
     retry_interval: 120
     metric_key: mean
@@ -53,9 +49,13 @@ search:
     partial_training_epochs: 1
 
 aml:
-  subscription_id: AZURE_SUBSCRIPTION_ID
-  resource_group: AML_RESOURCE_GROUP
-  workspace_name: AML_WORKSPACE_NAME
+  connection_str: ${MODEL_STORAGE_CONNECTION_STRING}
+  blob_container_name: models
+  experiment_name: facesynthetics
+  partition_key: main
+  subscription_id: ${AZURE_SUBSCRIPTION_ID}
+  resource_group: ${AML_RESOURCE_GROUP}
+  workspace_name: ${AML_WORKSPACE_NAME}
 
   search_cluster:
     name: nas-cpu-cluster-D14-v2
@@ -90,4 +90,4 @@ aml:
         - torchvision
         - torchaudio
         - lightning>=2.0.0
-        - "archai[dev] @ git+https://github.com/microsoft/archai.git"
+        - archai[dev] @ git+https://github.com/microsoft/archai.git@clovett/faces

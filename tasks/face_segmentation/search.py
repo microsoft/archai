@@ -21,6 +21,7 @@ from archai.discrete_search.evaluators.remote_azure_benchmark import RemoteAzure
 
 from search_space.hgnet import HgnetSegmentationSearchSpace
 from training.partial_training_evaluator import PartialTrainingValIOU
+from training.aml_training_evaluator import AmlPartialTrainingValIOU
 
 AVAILABLE_ALGOS = {
     'mo_bananas': MoBananasSearch,
@@ -78,7 +79,7 @@ def main():
 
     target_config = search_config.get('target', {})
     target_name = target_config.pop('name', 'cpu')
-    assert target_name in ['cpu', 'snp']
+    assert target_name in ['cpu', 'snp', 'aml']
 
     max_latency = 0.3 if target_name == 'cpu' else 0.185
 
@@ -100,7 +101,7 @@ def main():
         constraint=[0, max_latency]
     )
 
-    if target_name == 'snp':
+    if target_name == 'snp' or target_name == 'aml':
         # Gets connection string from env variable
         env_var_name = target_config.pop('connection_str_env_var')
         con_str = os.getenv(env_var_name)
@@ -132,17 +133,26 @@ def main():
     # Dataset provider
     dataset_provider = FaceSyntheticsDatasetProvider(args.dataset_dir)
 
-    partial_tr_obj = PartialTrainingValIOU(
-        dataset_provider,
-        tr_epochs=args.partial_tr_epochs,
-        output_dir=args.output_dir / 'partial_training_logs'
-    )
-
-    if not args.serial_training:
-        partial_tr_obj = RayParallelEvaluator(
-            partial_tr_obj, num_gpus=args.gpus_per_job,
-            max_calls=1
+    if target_name == 'aml':
+        # do the partial training in an AML gpu cluster
+        partial_tr_obj = AmlPartialTrainingValIOU(
+            dataset_provider,
+            tr_epochs=args.partial_tr_epochs,
+            output_dir=args.output_dir / 'partial_training_logs'
         )
+
+    else:
+        partial_tr_obj = PartialTrainingValIOU(
+            dataset_provider,
+            tr_epochs=args.partial_tr_epochs,
+            output_dir=args.output_dir / 'partial_training_logs'
+        )
+
+        if not args.serial_training:
+            partial_tr_obj = RayParallelEvaluator(
+                partial_tr_obj, num_gpus=args.gpus_per_job,
+                max_calls=1
+            )
 
     so.add_objective(
         'Partial Training Val. IOU',
