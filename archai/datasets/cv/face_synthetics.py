@@ -7,6 +7,7 @@ import torchvision.transforms.functional as F
 from torchvision.io import read_image
 
 from archai.api.dataset_provider import DatasetProvider
+from archai.common.utils import download_and_extract_zip
 
 
 class FaceSyntheticsDataset(torch.utils.data.Dataset):
@@ -25,18 +26,19 @@ class FaceSyntheticsDataset(torch.utils.data.Dataset):
             img_size (Tuple[int, int]): Image size (width, height). Defaults to (256, 256).
             subset (str, optional): Subset ['train', 'test', 'validation']. Defaults to 'train'.
             val_size (int, optional): Validation set size. Defaults to 2000.
-            
-            mask_size (Optional[Tuple[int, int]], optional): Segmentation mask size (width, height). If `None`, 
+
+            mask_size (Optional[Tuple[int, int]], optional): Segmentation mask size (width, height). If `None`,
                 `img_size` is used. Defaults to None.
-            
+
             augmentation (Optional[Callable], optional): Augmentation function. Expects a callable object
-                with named arguments 'image' and 'mask' that returns a dictionary with 'image' and 'mask' as 
+                with named arguments 'image' and 'mask' that returns a dictionary with 'image' and 'mask' as
                 keys. Defaults to None.
         """
         dataset_dir = Path(dataset_dir)
         assert dataset_dir.is_dir()
         assert isinstance(img_size, tuple)
 
+        zip_url = "https://facesyntheticspubwedata.blob.core.windows.net/iccv-2021/dataset_100000.zip"
         self.img_size = img_size
         self.dataset_dir = dataset_dir
         self.subset = subset
@@ -44,6 +46,10 @@ class FaceSyntheticsDataset(torch.utils.data.Dataset):
         self.augmentation = augmentation
 
         all_seg_files = [str(f) for f in sorted(self.dataset_dir.glob('*_seg.png'))]
+        if len(all_seg_files) < 100000:
+            download_and_extract_zip(zip_url, self.dataset_dir)
+            all_seg_files = [str(f) for f in sorted(self.dataset_dir.glob('*_seg.png'))]
+
         train_subset, test_subset = all_seg_files[:90_000], all_seg_files[90_000:]
 
         if subset == 'train':
@@ -55,22 +61,22 @@ class FaceSyntheticsDataset(torch.utils.data.Dataset):
 
         self.img_files = [s.replace("_seg.png",".png") for s in self.seg_files]
         self.ignore_index = ignore_index
-    
+
     def __len__(self):
         return len(self.img_files)
-    
+
     def __getitem__(self, idx):
         sample = {
             'image': read_image(self.img_files[idx]),
             'mask': read_image(self.seg_files[idx]).long()
         }
-        
+
         if self.augmentation and self.subset == 'train':
             sample = self.augmentation(**sample)
-        
+
         sample['image'] = sample['image']/255
-        
-        mask_size = self.mask_size if self.mask_size else self.img_size 
+
+        mask_size = self.mask_size if self.mask_size else self.img_size
         sample['mask'] = F.resize(
             sample['mask'], mask_size[::-1],
             interpolation=F.InterpolationMode.NEAREST
@@ -84,17 +90,17 @@ class FaceSyntheticsDatasetProvider(DatasetProvider):
     def __init__(self, dataset_dir: str):
         self.dataset_dir = Path(dataset_dir)
         assert self.dataset_dir.is_dir()
-    
+
     @overrides
     def get_train_dataset(self, **kwargs) -> torch.utils.data.Dataset:
         return FaceSyntheticsDataset(
             self.dataset_dir, subset='train', **kwargs
         )
-    
+
     @overrides
     def get_test_dataset(self, **kwargs) -> torch.utils.data.Dataset:
         return FaceSyntheticsDataset(
-            self.dataset_dir, subset='train', **kwargs
+            self.dataset_dir, subset='test', **kwargs
         )
 
     @overrides

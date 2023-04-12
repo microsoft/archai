@@ -54,13 +54,14 @@ class AverageMeter:
         self.cnt += n
         self.avg = self.sum / self.cnt
 
-def first_or_default(it:Iterable, default=None):
+
+def first_or_default(it: Iterable, default=None):
     for i in it:
         return i
     return default
 
-def deep_update(d:MutableMapping, u:Mapping, map_type:Type[MutableMapping]=dict)\
-        ->MutableMapping:
+
+def deep_update(d: MutableMapping, u: Mapping, map_type: Type[MutableMapping] = dict) -> MutableMapping:
     for k, v in u.items():
         if isinstance(v, Mapping):
             d[k] = deep_update(d.get(k, map_type()), v, map_type)
@@ -68,7 +69,8 @@ def deep_update(d:MutableMapping, u:Mapping, map_type:Type[MutableMapping]=dict)
             d[k] = v
     return d
 
-def state_dict(val)->Mapping:
+
+def state_dict(val) -> Mapping:
     assert hasattr(val, '__dict__'), 'val must be object with __dict__ otherwise it cannot be loaded back in load_state_dict'
 
     # Can't do below because val has state_dict() which calls utils.state_dict
@@ -79,7 +81,8 @@ def state_dict(val)->Mapping:
 
     return {'yaml': yaml.dump(val)}
 
-def load_state_dict(val:Any, state_dict:Mapping)->None:
+
+def load_state_dict(val: Any, state_dict: Mapping) -> None:
     assert hasattr(val, '__dict__'), 'val must be object with __dict__'
 
     # Can't do below because val has state_dict() which calls utils.state_dict
@@ -93,7 +96,8 @@ def load_state_dict(val:Any, state_dict:Mapping)->None:
     for k, v in obj.__dict__.items():
         setattr(val, k, v)
 
-def deep_comp(o1:Any, o2:Any)->bool:
+
+def deep_comp(o1: Any, o2: Any) -> bool:
     # NOTE: dict don't have __dict__
     o1d = getattr(o1, '__dict__', None)
     o2d = getattr(o2, '__dict__', None)
@@ -111,10 +115,11 @@ def deep_comp(o1:Any, o2:Any)->bool:
                     if not deep_comp(o1[k], o2[k]):
                         return False
                 else:
-                    return False # some key missing
+                    return False  # some key missing
             return True
     # mismatched object types or both are scalers, or one or both None
     return o1 == o2
+
 
 # We setup env variable if debugging mode is detected for vs_code_debugging.
 # The reason for this is that when Python multiprocessing is used, the new process
@@ -122,10 +127,13 @@ def deep_comp(o1:Any, o2:Any)->bool:
 # even though they are. So we set env var which does get inherited by sub processes.
 if 'pydevd' in sys.modules:
     os.environ['vs_code_debugging'] = 'True'
-def is_debugging()->bool:
-    return 'vs_code_debugging' in os.environ and os.environ['vs_code_debugging']=='True'
 
-def full_path(path:str, create=False)->str:
+
+def is_debugging() -> bool:
+    return 'vs_code_debugging' in os.environ and os.environ['vs_code_debugging'] == 'True'
+
+
+def full_path(path: str, create=False) -> str:
     assert path
     path = os.path.abspath(
             os.path.expanduser(
@@ -134,21 +142,27 @@ def full_path(path:str, create=False)->str:
         os.makedirs(path, exist_ok=True)
     return path
 
-def zero_file(filepath)->None:
+
+def zero_file(filepath) -> None:
     """Creates or truncates existing file"""
     open(filepath, 'w').close()
 
-def write_string(filepath:str, content:str)->None:
+
+def write_string(filepath: str, content: str) -> None:
     pathlib.Path(filepath).write_text(content)
-def read_string(filepath:str)->str:
+
+
+def read_string(filepath: str) -> str:
     return pathlib.Path(filepath).read_text()
 
-def fmt(val:Any)->str:
+
+def fmt(val: Any) -> str:
     if isinstance(val, float):
         return f'{val:.4g}'
     return str(val)
 
-def append_csv_file(filepath:str, new_row:List[Tuple[str, Any]], delimiter='\t'):
+
+def append_csv_file(filepath: str, new_row: List[Tuple[str, Any]], delimiter='\t'):
     fieldnames, rows = [], []
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:
@@ -160,18 +174,20 @@ def append_csv_file(filepath:str, new_row:List[Tuple[str, Any]], delimiter='\t')
 
     new_fieldnames = OrderedDict([(fn, None) for fn, v in new_row])
     for fn in fieldnames:
-        new_fieldnames[fn]=None
+        new_fieldnames[fn] = None
 
     with open(filepath, 'w', newline='') as f:
         dr = csv.DictWriter(f, fieldnames=new_fieldnames.keys(), delimiter=delimiter)
         dr.writeheader()
         for row in rows:
-            d = dict((k,v) for k,v in zip(fieldnames, row))
+            d = dict((k, v) for k, v in zip(fieldnames, row))
             dr.writerow(d)
         dr.writerow(OrderedDict(new_row))
 
+
 def has_method(o, name):
     return callable(getattr(o, name, None))
+
 
 def extract_tar(src, dest=None, gzip=None, delete=False):
     import tarfile
@@ -188,6 +204,20 @@ def extract_tar(src, dest=None, gzip=None, delete=False):
     if delete:
         os.remove(src)
 
+
+def extract_zip(src, dest=None, delete=False):
+    import zipfile
+
+    if dest is None:
+        dest = os.path.dirname(src)
+
+    with zipfile.ZipFile(src, 'r') as zip_ref:
+        zip_ref.extractall(dest)
+
+    if delete:
+        os.remove(src)
+
+
 def download_and_extract_tar(url, download_root, extract_root=None, filename=None,
                              md5=None, **kwargs):
     download_root = os.path.expanduser(download_root)
@@ -201,7 +231,22 @@ def download_and_extract_tar(url, download_root, extract_root=None, filename=Non
 
     extract_tar(os.path.join(download_root, filename), extract_root, **kwargs)
 
-def setup_cuda(seed:Union[float, int], local_rank:int=0):
+
+def download_and_extract_zip(url, download_root, extract_root=None, filename=None,
+                             md5=None, **kwargs):
+    download_root = os.path.expanduser(download_root)
+    if extract_root is None:
+        extract_root = download_root
+    if filename is None:
+        filename = os.path.basename(url)
+
+    if not tvutils.check_integrity(os.path.join(download_root, filename), md5):
+        tvutils.download_url(url, download_root, filename=filename, md5=md5)
+
+    extract_zip(os.path.join(download_root, filename), extract_root, delete=True, **kwargs)
+
+
+def setup_cuda(seed: Union[float, int], local_rank: int = 0):
     seed = int(seed) + local_rank
     # setup cuda
     cudnn.enabled = True
@@ -210,17 +255,19 @@ def setup_cuda(seed:Union[float, int], local_rank:int=0):
     np.random.seed(seed)
     random.seed(seed)
 
-    #torch.cuda.manual_seed_all(seed)
-    cudnn.benchmark = True # set to false if deterministic
+    # torch.cuda.manual_seed_all(seed)
+    cudnn.benchmark = True  # set to false if deterministic
     torch.set_printoptions(precision=10)
-    #cudnn.deterministic = False
+    # cudnn.deterministic = False
     # torch.cuda.empty_cache()
     # torch.cuda.synchronize()
 
-def cuda_device_names()->str:
+
+def cuda_device_names() -> str:
     return ', '.join([torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())])
 
-def exec_shell_command(command:str, print_command_start=True, print_command_end=True)->subprocess.CompletedProcess:
+
+def exec_shell_command(command: str, print_command_start=True, print_command_end=True) -> subprocess.CompletedProcess:
     if print_command_start:
         print(f'[{datetime.now()}] Running: {command}')
 
@@ -231,49 +278,59 @@ def exec_shell_command(command:str, print_command_start=True, print_command_end=
 
     return ret
 
+
 def zip_eq(*iterables):
     sentinel = object()
     for count, combo in enumerate(zip_longest(*iterables, fillvalue=sentinel)):
         if any(True for c in combo if sentinel is c):
-            shorter_its = ','.join([str(i) for i,c in enumerate(combo) if sentinel is c])
+            shorter_its = ','.join([str(i) for i, c in enumerate(combo) if sentinel is c])
             raise ValueError(f'Iterator {shorter_its} have length {count} which is shorter than others')
         yield combo
 
-def dir_downloads()->str:
+
+def dir_downloads() -> str:
     return full_path(str(os.path.join(pathlib.Path.home(), "Downloads")))
 
-def filepath_without_ext(filepath:str)->str:
+
+def filepath_without_ext(filepath: str) -> str:
     """Returns '/a/b/c/d.e' for '/a/b/c/d.e.f' """
     return str(pathlib.Path(filepath).with_suffix(''))
 
-def filepath_ext(filepath:str)->str:
+
+def filepath_ext(filepath: str) -> str:
     """Returns '.f' for '/a/b/c/d.e.f' """
     return pathlib.Path(filepath).suffix
 
-def filepath_name_ext(filepath:str)->str:
+
+def filepath_name_ext(filepath: str) -> str:
     """Returns 'd.e.f' for '/a/b/c/d.e.f' """
     return pathlib.Path(filepath).name
 
-def filepath_name_only(filepath:str)->str:
+
+def filepath_name_only(filepath: str) -> str:
     """Returns 'd.e' for '/a/b/c/d.e.f' """
     return pathlib.Path(filepath).stem
 
-def change_filepath_ext(filepath:str, new_ext:str)->str:
+
+def change_filepath_ext(filepath: str, new_ext: str) -> str:
     """Returns '/a/b/c/d.e.g' for filepath='/a/b/c/d.e.f', new_ext='.g' """
     return str(pathlib.Path(filepath).with_suffix(new_ext))
 
-def change_filepath_name(filepath:str, new_name:str, new_ext:Optional[str]=None)->str:
+
+def change_filepath_name(filepath: str, new_name: str, new_ext: Optional[str] = None) -> str:
     """Returns '/a/b/c/h.f' for filepath='/a/b/c/d.e.f', new_name='h' """
     ext = new_ext or filepath_ext(filepath)
     return str(pathlib.Path(filepath).with_name(new_name).with_suffix(ext))
 
-def append_to_filename(filepath:str, name_suffix:str, new_ext:Optional[str]=None)->str:
+
+def append_to_filename(filepath: str, name_suffix: str, new_ext: Optional[str] = None) -> str:
     """Returns '/a/b/c/h.f' for filepath='/a/b/c/d.e.f', new_name='h' """
     ext = new_ext or filepath_ext(filepath)
     name = filepath_name_only(filepath)
     return str(pathlib.Path(filepath).with_name(name+name_suffix).with_suffix(ext))
 
-def copy_file(src_file:str, dest_dir_or_file:str, preserve_metadata=False, use_shutil:bool=True)->str:
+
+def copy_file(src_file: str, dest_dir_or_file: str, preserve_metadata=False, use_shutil: bool = True) -> str:
     if not use_shutil:
         assert not preserve_metadata
         return copy_file_basic(src_file, dest_dir_or_file)
@@ -284,11 +341,12 @@ def copy_file(src_file:str, dest_dir_or_file:str, preserve_metadata=False, use_s
         copy_fn = shutil.copy2 if preserve_metadata else shutil.copy
         return copy_fn(src_file, dest_dir_or_file)
     except OSError as ex:
-        if preserve_metadata or ex.errno != 38: # OSError: [Errno 38] Function not implemented
+        if preserve_metadata or ex.errno != 38:  # OSError: [Errno 38] Function not implemented
             raise
         return copy_file_basic(src_file, dest_dir_or_file)
 
-def copy_file_basic(src_file:str, dest_dir_or_file:str)->str:
+
+def copy_file_basic(src_file: str, dest_dir_or_file: str) -> str:
     # try basic python functions
     # first if dest is dir, get dest file name
     if os.path.isdir(dest_dir_or_file):
@@ -297,7 +355,8 @@ def copy_file_basic(src_file:str, dest_dir_or_file:str)->str:
         dst.write(src.read())
     return dest_dir_or_file
 
-def copy_dir(src_dir:str, dest_dir:str, use_shutil:bool=True)->None:
+
+def copy_dir(src_dir: str, dest_dir: str, use_shutil: bool = True) -> None:
     if os.path.isdir(src_dir):
         if use_shutil:
             shutil.copytree(src_dir, dest_dir)
@@ -307,24 +366,33 @@ def copy_dir(src_dir:str, dest_dir:str, use_shutil:bool=True)->None:
             files = os.listdir(src_dir)
             for f in files:
                 copy_dir(os.path.join(src_dir, f),
-                        os.path.join(dest_dir, f), use_shutil=use_shutil)
+                         os.path.join(dest_dir, f), use_shutil=use_shutil)
     else:
         copy_file(src_dir, dest_dir, use_shutil=use_shutil)
 
+
 if 'main_process_pid' not in os.environ:
     os.environ['main_process_pid'] = str(os.getpid())
-def is_main_process()->bool:
+
+
+def is_main_process() -> bool:
     """Returns True if this process was started as main process instead of child process during multiprocessing"""
     return multiprocessing.current_process().name == 'MainProcess' and os.environ['main_process_pid'] == str(os.getpid())
-def main_process_pid()->int:
+
+
+def main_process_pid() -> int:
     return int(os.environ['main_process_pid'])
-def process_name()->str:
+
+
+def process_name() -> str:
     return multiprocessing.current_process().name
 
-def is_windows()->bool:
-    return platform.system()=='Windows'
 
-def path2uri(path:str, windows_non_standard:bool=False)->str:
+def is_windows() -> bool:
+    return platform.system() == 'Windows'
+
+
+def path2uri(path: str, windows_non_standard: bool = False) -> str:
     uri = pathlib.Path(full_path(path)).as_uri()
 
     # there is lot of buggy regex based code out there which expects Windows file URIs as
@@ -334,7 +402,8 @@ def path2uri(path:str, windows_non_standard:bool=False)->str:
         uri = uri.replace('file:///', 'file://')
     return uri
 
-def uri2path(file_uri:str, windows_non_standard:bool=False)->str:
+
+def uri2path(file_uri: str, windows_non_standard: bool = False) -> str:
     # there is lot of buggy regex based code out there which expects Windows file URIs as
     # file://C/... instead of standard file:///C/...
     # When passing file uri to such code, turn on windows_non_standard
@@ -347,28 +416,33 @@ def uri2path(file_uri:str, windows_non_standard:bool=False)->str:
         os.path.join(host, url2pathname(unquote(parsed.path)))
     )
 
-def get_ranks(items:list, key=lambda v:v, reverse=False)->List[int]:
+
+def get_ranks(items: list, key=lambda v: v, reverse=False) -> List[int]:
     sorted_t = sorted(zip(items, range(len(items))),
                       key=lambda t: key(t[0]),
                       reverse=reverse)
     sorted_map = dict((t[1], i) for i, t in enumerate(sorted_t))
     return [sorted_map[i] for i in range(len(items))]
 
-def dedup_list(l:List)->List:
+
+def dedup_list(l: List) -> List:
     return list(OrderedDict.fromkeys(l))
 
-def delete_file(filepath:str)->bool:
+
+def delete_file(filepath: str) -> bool:
     if os.path.isfile(filepath):
         os.remove(filepath)
         return True
     else:
         return False
 
-def save_as_yaml(obj, filepath:str)->None:
+
+def save_as_yaml(obj, filepath: str) -> None:
     with open(filepath, 'w', encoding='utf-8') as f:
         yaml.dump(obj, f, default_flow_style=False)
 
-def map_to_list(variable:Union[int,float,Sized], size:int)->Sized:
+
+def map_to_list(variable: Union[int, float, Sized], size: int) -> Sized:
     if isinstance(variable, Sized):
         size_diff = size - len(variable)
 
@@ -381,7 +455,8 @@ def map_to_list(variable:Union[int,float,Sized], size:int)->Sized:
 
     return [variable] * size
 
-def attr_to_dict(obj:Any, recursive:bool=True)->Dict[str, Any]:
+
+def attr_to_dict(obj: Any, recursive: bool = True) -> Dict[str, Any]:
     MAX_LIST_LEN = 10
     variables = {}
 
