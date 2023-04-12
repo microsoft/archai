@@ -1,0 +1,39 @@
+#
+# Config file for NAS search - Debug run
+#
+
+# NAS args
+nas_search_backbone: "mobilenetv2"
+nas_num_iters: 6
+nas_init_num_models: 16 #32
+nas_num_random_mix: 32
+nas_num_crossovers: 4
+nas_mutations_per_parent: 4
+nas_max_unseen_population: 16 #32
+nas_num_latency_measurements: 15
+nas_num_input_per_latency_measurement: 15
+
+# Search space args
+r_range: [1, 2, 3, 4]
+e_range: [2, 3, 4, 5, 6]
+k_range:
+- 3
+- 5
+- 7
+channel_mult_range: [0.25, 0.5, 0.75, 1.0, 1.25]
+depth_mult_range: [0.25, 0.5, 0.75, 1.0, 1.25]
+num_neighbors: 100
+
+# model trainer args
+data_path: /data/public_face_synthetics/dataset_100000
+output_dir: /home/wchen/tmp
+max_num_images: 20000
+train_crop_size: 128 
+epochs: 30 
+batch_size: 128
+lr: 0.001
+opt: adamw
+lr_scheduler: steplr
+lr_step_size: 100
+lr_gamma: 0.5
+wd: 0.00001
