@@ -134,7 +134,7 @@ def record_error(entity, error_message):
     store.merge_status_entity(entity)
 
 
-def convert(name, entity, long_name, model_path):
+def convert(experiment, name, entity, long_name, model_path):
     global store
     log("Converting model: " + long_name)
     entity['model_name'] = long_name
@@ -153,12 +153,12 @@ def convert(name, entity, long_name, model_path):
         store.merge_status_entity(entity)
 
     log("Uploading converted model: " + model)
-    store.upload_blob(name, model)
-
+    blob_name = f'{experiment}/{name}'
+    store.upload_blob(blob_name, model)
     return model
 
 
-def quantize(name, entity, onnx_model, model):
+def quantize(experiment, name, entity, onnx_model, model):
     global store
     log("Quantizing model: " + name + "...")
     log(" (Please be patient this can take a while, up to 10 minutes or more)")
@@ -176,7 +176,8 @@ def quantize(name, entity, onnx_model, model):
 
     # save the quantized .dlc since it takes so long to produce.
     log("Uploading quantized model: " + model)
-    store.upload_blob(name, model)
+    blob_name = f'{experiment}/{name}'
+    store.upload_blob(blob_name, model)
     return model
 
 
@@ -359,7 +360,7 @@ def ensure_complete(entity):
         store.merge_status_entity(entity)
 
 
-def run_model(name, dataset, use_device, benchmark_only, no_quantization):
+def run_model(experiment, name, dataset, use_device, benchmark_only, no_quantization):
     global store, usage
     log("===================================================================================================")
     log(f"Checking model: {name} on node {get_unique_node_id()}")
@@ -385,7 +386,8 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
 
     entity = store.get_status(name)
 
-    downloaded = store.download(name, model_dir, r'.*\.onnx$')
+    blob_name = f'{experiment}/{name}'
+    downloaded = store.download(blob_name, model_dir, r'.*\.onnx$')
     if len(downloaded) == 0 or not os.path.isfile(downloaded[0]):
         record_error(entity, 'missing model')
         log(f"### no model found for {name}")
@@ -395,8 +397,8 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
 
     # see if we have converted the model or not.
     # do this first no matter what.
-    converted = len(store.list_blobs(f'{name}/model.dlc')) > 0
-    is_quantized = len(store.list_blobs(f'{name}/model.quant.dlc')) > 0
+    converted = len(store.list_blobs(f'{blob_name}/model.dlc')) > 0
+    is_quantized = len(store.list_blobs(f'{blob_name}/model.quant.dlc')) > 0
     if not is_quantized:
         # oh, the quant model disappeared so clear the flag so it gets
         # quantized again by a machine that can do that.
@@ -411,11 +413,11 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
         converted = False
 
     if not converted:
-        model = convert(name, entity, long_name, onnx_model)
+        model = convert(experiment, name, entity, long_name, onnx_model)
         if model == 'error':
             return
     elif converted:
-        downloaded = store.download(name, snpe_model_dir, 'model.dlc')
+        downloaded = store.download(blob_name, snpe_model_dir, 'model.dlc')
         if len(downloaded) == 0:
             raise Exception('### internal error, the model.dlc download failed!')
     elif not is_quantized and not converted:
@@ -426,7 +428,7 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
     # see if we have a quantized model or not.
     model = os.path.join(snpe_model_dir, 'model.dlc')
     if not is_quantized:
-        model = quantize(name, entity, onnx_model, model)
+        model = quantize(experiment, name, entity, onnx_model, model)
         if model == 'error':
             return
         entity['quantized'] = True
@@ -439,7 +441,7 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
 
     quantized_model = os.path.join(snpe_model_dir, 'model.quant.dlc')
     if not os.path.isfile(quantized_model):
-        downloaded = store.download(name, snpe_model_dir, 'model.quant.dlc')
+        downloaded = store.download(blob_name, snpe_model_dir, 'model.quant.dlc')
         if len(downloaded) == 0 or not os.path.isfile(downloaded[0]):
             raise Exception("??? quantized model should exist at this point...")
         quantized_model = downloaded[0]
@@ -453,7 +455,7 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
         csv_file = os.path.join(snpe_model_dir, 'model.quant.info.csv')
         with open(csv_file, 'w') as f:
             f.write(csv_data)
-        store.upload_blob(name, csv_file)
+        store.upload_blob(blob_name, csv_file)
         return
 
     input_shape = eval(entity['shape'])
@@ -533,8 +535,8 @@ def run_model(name, dataset, use_device, benchmark_only, no_quantization):
     log(f"### Saving {prop} score of {f1score}")
     entity[prop] = f1score
     store.merge_status_entity(entity)
-    store.upload_blob(name, test_results, f"test_results_{prop}.csv")
-    store.upload_blob(name, chart, f"pr_curve_{prop}.png")
+    store.upload_blob(blob_name, test_results, f"test_results_{prop}.csv")
+    store.upload_blob(blob_name, chart, f"pr_curve_{prop}.png")
 
     if 'f1_1k' in entity and 'f1_10k' in entity and 'f1_1k_f' in entity and 'f1_onnx' in entity:
         ensure_complete(entity)
@@ -678,7 +680,7 @@ class MemoryMonitor:
         return growth
 
 
-def monitor(dataset, use_device, benchmark_only, subset_list, no_quantization):
+def monitor(experiment, dataset, use_device, benchmark_only, subset_list, no_quantization):
     global rss_start, store, usage
 
     logging.basicConfig(filename=LOG_FILE_NAME, filemode='a',
@@ -721,7 +723,7 @@ def monitor(dataset, use_device, benchmark_only, subset_list, no_quantization):
             gc.collect()
             tracemalloc.start()
             snapshot1 = tracemalloc.take_snapshot()
-            run_model(name, dataset, use_device, benchmark_only_flag, no_quantization)
+            run_model(experiment, name, dataset, use_device, benchmark_only_flag, no_quantization)
             gc.collect()
             snapshot2 = tracemalloc.take_snapshot()
             for i in snapshot2.compare_to(snapshot1, 'lineno')[:10]:
@@ -852,6 +854,7 @@ if __name__ == '__main__':
         check_stale_pods(args.cleanup_stale_pods)
 
     dataset = os.getenv("INPUT_DATASET")
+    experiment = os.getenv("EXPERIMENT_NAME", "facesynthetics")
 
-    rc = monitor(dataset, device is not None, args.benchmark, subset, args.no_quantization)
+    rc = monitor(experiment, dataset, device is not None, args.benchmark, subset, args.no_quantization)
     sys.exit(rc)
