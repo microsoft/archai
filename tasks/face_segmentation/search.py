@@ -62,7 +62,8 @@ def main():
 
     # Filters extra args that have the prefix `search_space`
     search_extra_args = filter_extra_args(extra_args, 'search.')
-    search_config = Config(str(args.search_config), search_extra_args)['search']
+    config = Config(str(args.search_config), search_extra_args)
+    search_config = config['search']
 
     # Search space
     ss_config = search_config['search_space']
@@ -136,8 +137,7 @@ def main():
     if target_name == 'aml':
         # do the partial training in an AML gpu cluster
         partial_tr_obj = AmlPartialTrainingValIOU(
-            dataset_provider,
-            tr_epochs=args.partial_tr_epochs,
+            config,
             output_dir=args.output_dir / 'partial_training_logs'
         )
 

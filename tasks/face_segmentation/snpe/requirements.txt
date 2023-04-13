@@ -1,6 +1,5 @@
 importlib-metadata!=4.7.0,<6,>=3.7.0
 packaging<22.0,>=20.0
-cryptography<39,>=38.0.0
 psutil
 tqdm
 pandas

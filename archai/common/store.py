@@ -150,6 +150,7 @@ class ArchaiStore:
                 'name': name,
                 'status': 'new'
             }
+            self.update_status_entity(entity)
         return entity
 
     def _wrap_numeric_types(self, entity):

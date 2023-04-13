@@ -9,63 +9,53 @@ from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
 from azure.ai.ml import MLClient, command, Input, Output, dsl
 from archai.common.store import ArchaiStore
+from archai.common.config import Config
 from shutil import copyfile
-from monitor import JobCompletionMonitor
+from archai.common.monitor import JobCompletionMonitor
 from training_pipeline import start_training_pipeline
 
 
 class AmlPartialTrainingValIOU(AsyncModelEvaluator):
+    """ The AmlPartialTrainingValIOU evaluator launches partial training jobs"""
     def __init__(self,
-                 config,
-                 compute_cluster_name,
-                 environment_name,
-                 datastore_path,
-                 models_path,
-                 local_output,
-                 experiment_name,
+                 config : Config,
                  ml_client: MLClient,
-                 save_models: bool = True,
-                 partial_training: bool = True,
-                 training_epochs: float = 1.0,
+                 local_output,
                  timeout_seconds=3600):
-        self.training_epochs = training_epochs
-        self.partial_training = partial_training
-        self.compute_cluster_name = compute_cluster_name
-        self.environment_name = environment_name
-        self.datastore_path = datastore_path
-        self.models_path = models_path
-        self.local_output = local_output
         self.config = config
-        self.experiment_name = experiment_name
-        self.models = []
-        self.save_models = save_models
         self.ml_client = ml_client
+        self.local_output = local_output
+        self.models = []
         self.timeout = timeout_seconds
-        self.store = None
+        self.setup_store()
 
-        storage_account_key = config['storage_account_key']
-        storage_account_name = config['storage_account_name']
+    def setup_store(self):
+        aml_config = self.config['aml']
+        con_str = aml_config['connection_str']
+        if con_str is None or '$' in con_str:
+            print("Please set environment variable {env_var_name} containing the Azure storage account connection " +
+                  "string for the Azure storage account you want to use to control this experiment.")
+            return 1
+
+        storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
         self.store = ArchaiStore(storage_account_name, storage_account_key)
 
     @overrides
     def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
-        self.models += [arch.arch.get_archid()]
+        self.models += [arch]
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
         snapshot = self.models
         self.models = []  # reset for next run.
 
-        training_type = 'partial' if self.partial_training else 'full'
-        print(f"AmlPartialTrainingValIOU: Starting {training_type} training on {len(snapshot)} models")
+        print(f"AmlPartialTrainingValIOU: Starting training on {len(snapshot)} models")
 
         # train all the models listed in the snapshot on a GPU cluster so we get much training
         # happening in parallel which greatly reduces the overall Archai Search process.
-        description = "AmlPartialTrainingValIOU partial training"
+        description = f"AmlPartialTrainingValIOU training {self.training_epochs} epochs"
         pipeline_job, model_names = start_training_pipeline(
-            description,  self.ml_client, self.store, snapshot,
-            self.compute_cluster_name, self.datastore_path, self.models_path, self.local_output,
-            self.experiment_name, self.environment_name, self.training_epochs, save_models=False)
+            description,  self.ml_client, self.store, snapshot, self.config, self.local_output)
 
         job_id = pipeline_job.name
         print(f'AmlPartialTrainingValIOU: Started training pipeline: {job_id}')
@@ -86,13 +76,13 @@ class AmlPartialTrainingValIOU(AsyncModelEvaluator):
         if os.path.isfile(log):
             copyfile(log, f'{self.local_output}/{log}')
 
-        # extract the array of accuracies for our return value this is the metric that the
+        # extract the array of results for our return value this is the metric that the
         # Archai search needs to figure out which models to continue to evolve and which are
         # not so good.
-        accuracies = []
+        results = []
         for i, m in enumerate(results['models']):
-            val_acc = m['val_acc']
-            accuracies += [val_acc]
+            metric = m[self.metric_name]
+            results += [metric]
 
-        print(f'AmlPartialTrainingValIOU: fetch_all returning : {accuracies}')
-        return accuracies
+        print(f'AmlPartialTrainingValIOU: fetch_all returning : {results}')
+        return results

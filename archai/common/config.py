@@ -80,7 +80,7 @@ class Config(UserDict):
         self._update_from_args(self.extra_args, resolved_conf)  # merge from command line
 
         if resolve_env_vars:
-            self._process_envvars(resolved_conf)
+            self._process_envvars(self)
 
         if resolve_redirects:
             yaml_utils.resolve_all(self)
@@ -125,6 +125,10 @@ class Config(UserDict):
                 i += Config._update_section(self, path, args[i+1], resolved_section)
             else:  # some other arg
                 i += 1
+
+    def save(self, filename: str) -> None:
+        with open(filename, 'w') as f:
+            yaml.dump(self.to_dict(), f)
 
     def to_dict(self) -> dict:
         return deep_update({}, self, lambda: dict())  # type: ignore

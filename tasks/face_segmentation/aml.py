@@ -17,7 +17,7 @@ from azure.ai.ml import dsl
 from archai.common.config import Config
 import archai.common.azureml_helper as aml_helper
 from archai.common.store import ArchaiStore
-fro archai.common.utils import copy_dir
+from archai.common.utils import copy_dir
 from shutil import copyfile
 
 
@@ -67,14 +67,13 @@ def data_prep_component(environment_name, datastore_path):
     )
 
 
-def search_component(environment_name, modelstore_path, output_path: Path, env_vars: Optional[Dict] = None):
+def search_component(environment_name, modelstore_path, output_path: Path):
     # we need a folder containing all the specific code we need here, which is not everything in this repo.
     scripts_path = output_path / 'scripts'
     if not scripts_path.exists():
         scripts_path.mkdir(parents=True)
     copyfile(str(confs_path / 'search.py'), str(scripts_path / 'search.py'))
     copy_dir(str(output_path / 'search_space'), str(scripts_path / 'search_space'))
-    copy_dir(str(output_path / 'confs'), str(scripts_path / 'confs'))
     copy_dir(str(output_path / 'training'), str(scripts_path / 'training'))
 
     return command(
@@ -90,7 +89,6 @@ def search_component(environment_name, modelstore_path, output_path: Path, env_v
 
         # The source folder of the component
         code=str(scripts_path),
-        environment_variables=env_vars,
         command="""python3 search.py \
                 --dataset_dir ${{inputs.data}} \
                 --output_dir ${{outputs.results}} \
@@ -113,6 +111,7 @@ def create_cluster(ml_client, config, key):
 def main():
     parser = ArgumentParser("""This script runs the search in an Azure ML workspace.""")
     parser.add_argument('--output_dir', type=Path, help='Output directory for downloading results.', default='output')
+    parser.add_argument('--experiment_name', default='facesynthetics')
     parser.add_argument('--seed', type=int, help='Random seed', default=42)
 
     args = parser.parse_args()
@@ -120,6 +119,7 @@ def main():
     if not output_dir.exists():
         output_dir.mkdir(parents=True)
     seed = args.seed
+    experiment_name = args.experiment_name
 
     # Filters extra args that have the prefix `search_space`
     config_file = str(confs_path / 'aml_search.yaml')
@@ -129,22 +129,17 @@ def main():
     target_config = search_config.get('target', {})
 
     aml_config = config['aml']
-    experiment_name = aml_config.pop('experiment_name', 'facesynthetics')
 
-    con_str = target_config.pop('connection_str', None)
-    if con_str is None or '$' in con_str:
-        print("Please set environment variable {env_var_name} containing the Azure storage account connection " +
-              "string for the Azure storage account you want to use to control this experiment.")
+    con_str = aml_config.get('connection_str', '$')
+    if '$' in con_str:
+        print("Please set environment variable MODEL_STORAGE_CONNECTION_STRING containing the Azure" +
+              "storage account connection string for the Azure storage account you want to use to " +
+              "control this experiment.")
         return 1
 
     workspace_name = aml_config['workspace_name']
     subscription_id = aml_config['subscription_id']
     resource_group_name = aml_config['resource_group']
-    env_vars = {
-        'AZURE_SUBSCRIPTION_ID': subscription_id,
-        'AML_RESOURCE_GROUP': resource_group_name,
-        'AML_WORKSPACE_NAME': workspace_name,
-    }
 
     # extract conda.yaml.
     with open('conda.yaml', 'w') as f:
@@ -169,7 +164,7 @@ def main():
         ml_client,
         image="mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest",
         conda_file="conda.yaml",
-        version='1.0.3')
+        version='1.0.4')
     environment_name = f"{archai_job_env.name}:{archai_job_env.version}"
 
     # Register the datastore with AML
@@ -190,6 +185,19 @@ def main():
     results_path = register_datastore(ml_client, model_store_name, model_container_name, storage_account_name, storage_account_key, experiment_name)
     datastore_path = register_datastore(ml_client, data_store_name, data_container_name, storage_account_name, storage_account_key, experiment_name)
 
+    # save this in the output folder so it can be found by pipeline components.
+    aml_config['experiment_name'] = experiment_name
+    aml_config['seed'] = seed
+    aml_config['cpu_compute_name'] = cpu_compute_name
+    aml_config['gpu_compute_name'] = gpu_compute_name
+    aml_config['environment_name'] = environment_name
+    aml_config['datastore_path'] = datastore_path
+    aml_config['results_path'] = results_path
+    aml_config['metric_name'] = 'val_iou'
+    confs = output_dir / 'confs'
+    os.makedirs(str(confs), exist_ok=True)
+    config.save(str(confs / 'aml_search.yaml'))
+
     @dsl.pipeline(
         compute=cpu_compute_name,
         description="FaceSynthetics Archai search pipeline",
@@ -200,7 +208,7 @@ def main():
             name=experiment_name
         )
 
-        search_job = search_component(environment_name, results_path, output_dir, env_vars)(
+        search_job = search_component(environment_name, results_path, output_dir)(
             data=data_prep_job.outputs.data
         )
 
