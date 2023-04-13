@@ -15,15 +15,16 @@ def delete(con_str):
     args = parser.parse_args()
 
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=experiment_name)
     store.delete_blobs(args.name, args.file)
     if not args.file:
         store.delete_status(args.name)
 
 
 if __name__ == '__main__':
+    experiment_name = os.getenv("EXPERIMENT_NAME", "facesynthetics")
     con_str = os.getenv(CONNECTION_NAME)
     if not con_str:
         print(f"Please specify your {CONNECTION_NAME} environment variable.")
         sys.exit(1)
-    delete(con_str)
+    delete(con_str, experiment_name)

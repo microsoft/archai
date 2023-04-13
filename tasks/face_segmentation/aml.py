@@ -6,44 +6,17 @@ import os
 import sys
 import yaml
 from typing import Optional, Dict
-from azure.ai.ml.entities import UserIdentityConfiguration
 from azure.identity import DefaultAzureCredential
 from azure.ai.ml import MLClient
-from azure.ai.ml.entities import AzureBlobDatastore
-from azure.ai.ml.entities._credentials import AccountKeyConfiguration
-from azure.ai.ml import command
-from azure.ai.ml import Input, Output
-from azure.ai.ml import dsl
+from azure.ai.ml import command, Input, Output, dsl
 from archai.common.config import Config
 import archai.common.azureml_helper as aml_helper
 from archai.common.store import ArchaiStore
-from archai.common.utils import copy_dir
-from shutil import copyfile
+from shutil import copyfile, rmtree
+from utils.setup import register_datastore, configure_store, create_cluster, copy_code_folder
 
 
 confs_path = Path(__file__).absolute().parent / 'confs'
-
-
-def register_datastore(ml_client, data_store_name, blob_container_name, storage_account_name, storage_account_key, experiment_name):
-    try:
-        credentials = AccountKeyConfiguration(account_key=storage_account_key)
-        model_store = ml_client.datastores.get(data_store_name)
-        if model_store.container_name != blob_container_name:
-            raise Exception(f'The container name does not match. Only the credentials on {data_store_name} can be updated')
-        if model_store.account_name != storage_account_name:
-            raise Exception(f'The storage account name does not match. Only the credentials on {data_store_name} can be updated')
-        model_store.credentials = credentials
-    except:
-        model_store = AzureBlobDatastore(
-            name=data_store_name,
-            description="Datastore pointing to a blob container.",
-            account_name=storage_account_name,
-            container_name=blob_container_name,
-            credentials=credentials,
-        )
-
-    ml_client.create_or_update(model_store)
-    return f'azureml://datastores/{data_store_name}/paths/{experiment_name}'
 
 
 def data_prep_component(environment_name, datastore_path):
@@ -72,16 +45,17 @@ def search_component(environment_name, modelstore_path, output_path: Path):
     scripts_path = output_path / 'scripts'
     if not scripts_path.exists():
         scripts_path.mkdir(parents=True)
-    copyfile(str(confs_path / 'search.py'), str(scripts_path / 'search.py'))
-    copy_dir(str(output_path / 'search_space'), str(scripts_path / 'search_space'))
-    copy_dir(str(output_path / 'training'), str(scripts_path / 'training'))
+    copyfile('search.py', str(scripts_path / 'search.py'))
+    copy_code_folder('search_space', str(scripts_path / 'search_space'))
+    copy_code_folder('training', str(scripts_path / 'training'))
+    copy_code_folder('utils', str(scripts_path / 'utils'))
 
     return command(
         name="search",
         display_name="Archai search job",
         description="Searches for the best face segmentation model.",
         inputs={
-            "name": Input(type="uri_folder", mode="download")
+            "data": Input(type="uri_folder")
         },
         outputs={
             "results": Output(type="uri_folder", path=modelstore_path, mode="rw_mount")
@@ -98,16 +72,6 @@ def search_component(environment_name, modelstore_path, output_path: Path):
     )
 
 
-def create_cluster(ml_client, config, key):
-    section = config[key]
-    compute_name = section['name']
-    size = section['size']
-    location = section['location']
-    max_instances = section.get('max_instances', 1)
-    aml_helper.create_compute_cluster(ml_client, compute_name, size=size, location=location, max_instances=max_instances)
-    return compute_name
-
-
 def main():
     parser = ArgumentParser("""This script runs the search in an Azure ML workspace.""")
     parser.add_argument('--output_dir', type=Path, help='Output directory for downloading results.', default='output')
@@ -116,17 +80,15 @@ def main():
 
     args = parser.parse_args()
     output_dir = Path(args.output_dir)
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True)
+    if output_dir.exists():
+        rmtree(str(output_dir))
+    output_dir.mkdir(parents=True)
     seed = args.seed
     experiment_name = args.experiment_name
 
     # Filters extra args that have the prefix `search_space`
     config_file = str(confs_path / 'aml_search.yaml')
     config = Config(config_file, resolve_env_vars=True)
-
-    search_config = config['search']
-    target_config = search_config.get('target', {})
 
     aml_config = config['aml']
 
@@ -146,7 +108,7 @@ def main():
         yaml.dump(aml_config['environment'].to_dict(), f)
 
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    print(f'Using workspace {workspace_name} and storage account: {storage_account_name}')
+    print(f'Using storage account: {storage_account_name}')
 
     ml_client = MLClient(
         credential=DefaultAzureCredential(),
@@ -158,7 +120,7 @@ def main():
 
     # Create aml computer clusters
     cpu_compute_name = create_cluster(ml_client, aml_config, 'search_cluster')
-    gpu_compute_name = create_cluster(ml_client, aml_config, 'training_cluster')
+    create_cluster(ml_client, aml_config, 'training_cluster')
 
     archai_job_env = aml_helper.create_environment_from_file(
         ml_client,
@@ -174,22 +136,13 @@ def main():
     model_container_name = aml_config.get('blob_container_name', 'models')
     root_folder = experiment_name
 
-    # make sure the datasets container exists
-    store = ArchaiStore(storage_account_name, storage_account_key, blob_container_name=data_container_name, table_name=experiment_name)
-    store.upload_blob(root_folder, config_file)
-
-    # make sure the models container exists
-    store = ArchaiStore(storage_account_name, storage_account_key, blob_container_name=model_container_name, table_name=experiment_name)
-    store.upload_blob("config", config_file)
-
+    # register our azure datastores
     results_path = register_datastore(ml_client, model_store_name, model_container_name, storage_account_name, storage_account_key, experiment_name)
     datastore_path = register_datastore(ml_client, data_store_name, data_container_name, storage_account_name, storage_account_key, experiment_name)
 
     # save this in the output folder so it can be found by pipeline components.
     aml_config['experiment_name'] = experiment_name
     aml_config['seed'] = seed
-    aml_config['cpu_compute_name'] = cpu_compute_name
-    aml_config['gpu_compute_name'] = gpu_compute_name
     aml_config['environment_name'] = environment_name
     aml_config['datastore_path'] = datastore_path
     aml_config['results_path'] = results_path
@@ -197,6 +150,14 @@ def main():
     confs = output_dir / 'confs'
     os.makedirs(str(confs), exist_ok=True)
     config.save(str(confs / 'aml_search.yaml'))
+
+    # make sure the datasets container exists
+    store = configure_store(aml_config, data_container_name)
+    store.upload_blob(root_folder, str(confs / 'aml_search.yaml'))
+
+    # make sure the models container exists
+    store = configure_store(aml_config, model_container_name)
+    store.upload_blob(f"{experiment_name}/config", str(confs / 'aml_search.yaml'))
 
     @dsl.pipeline(
         compute=cpu_compute_name,

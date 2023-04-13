@@ -8,13 +8,13 @@ from archai.common.store import ArchaiStore
 CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 
 
-def reset(con_str):
+def reset(con_str, experiment_name):
     parser = argparse.ArgumentParser(
         description='Reset the named entity.')
     parser.add_argument('name', help='The friendly name to reset or "*" to reset all rows', default=None)
     args = parser.parse_args()
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=experiment_name)
 
     entities = []
     if args.name == "*":
@@ -36,8 +36,9 @@ def reset(con_str):
 
 
 if __name__ == '__main__':
+    experiment_name = os.getenv("EXPERIMENT_NAME", "facesynthetics")
     con_str = os.getenv(CONNECTION_NAME)
     if not con_str:
         print(f"Please specify your {CONNECTION_NAME} environment variable.")
         sys.exit(1)
-    reset(con_str)
+    reset(con_str, experiment_name)

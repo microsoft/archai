@@ -3,42 +3,44 @@
 
 import os
 import json
+from pathlib import Path
 from typing import List, Optional, Union
 from overrides import overrides
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
-from azure.ai.ml import MLClient, command, Input, Output, dsl
-from archai.common.store import ArchaiStore
 from archai.common.config import Config
 from shutil import copyfile
 from archai.common.monitor import JobCompletionMonitor
-from training_pipeline import start_training_pipeline
+from training.training_pipeline import start_training_pipeline
+from azure.identity import DefaultAzureCredential
+from azure.ai.ml import MLClient
+from utils.setup import configure_store
 
 
 class AmlPartialTrainingValIOU(AsyncModelEvaluator):
     """ The AmlPartialTrainingValIOU evaluator launches partial training jobs"""
     def __init__(self,
-                 config : Config,
-                 ml_client: MLClient,
-                 local_output,
+                 aml_config : Config,
+                 local_output: Path,
+                 tr_epochs: float = 1.0,
                  timeout_seconds=3600):
-        self.config = config
-        self.ml_client = ml_client
+        self.config = aml_config
+        self.tr_epochs = tr_epochs
+
+        workspace_name = aml_config['workspace_name']
+        subscription_id = aml_config['subscription_id']
+        resource_group_name = aml_config['resource_group']
+
+        self.ml_client = MLClient(
+            credential=DefaultAzureCredential(),
+            subscription_id=subscription_id,
+            resource_group_name=resource_group_name,
+            workspace_name=workspace_name
+        )
         self.local_output = local_output
         self.models = []
         self.timeout = timeout_seconds
-        self.setup_store()
-
-    def setup_store(self):
-        aml_config = self.config['aml']
-        con_str = aml_config['connection_str']
-        if con_str is None or '$' in con_str:
-            print("Please set environment variable {env_var_name} containing the Azure storage account connection " +
-                  "string for the Azure storage account you want to use to control this experiment.")
-            return 1
-
-        storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-        self.store = ArchaiStore(storage_account_name, storage_account_key)
+        self.store = configure_store(aml_config)
 
     @overrides
     def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
@@ -53,9 +55,9 @@ class AmlPartialTrainingValIOU(AsyncModelEvaluator):
 
         # train all the models listed in the snapshot on a GPU cluster so we get much training
         # happening in parallel which greatly reduces the overall Archai Search process.
-        description = f"AmlPartialTrainingValIOU training {self.training_epochs} epochs"
+        description = f"AmlPartialTrainingValIOU training {self.tr_epochs} epochs"
         pipeline_job, model_names = start_training_pipeline(
-            description,  self.ml_client, self.store, snapshot, self.config, self.local_output)
+            description,  self.ml_client, self.store, snapshot, self.config, self.tr_epochs, self.local_output)
 
         job_id = pipeline_job.name
         print(f'AmlPartialTrainingValIOU: Started training pipeline: {job_id}')

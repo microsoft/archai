@@ -10,7 +10,10 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "args":[
+                "--search_config", "output/confs/aml_search.yaml"
+            ]
         }
     ]
 }

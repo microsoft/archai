@@ -37,11 +37,14 @@ search:
 
   target:
     name: snp
-    connection_str_env_var: MODEL_STORAGE_CONNECTION_STRING
-    blob_container_name: models
-    table_name: status
-    partition_key: main
+    metric_key: mean
     max_retries: 15
     retry_interval: 120
-    metric_key: mean
     verbose: true
+    max_parameters: 5e7
+
+aml:
+  connection_str: ${MODEL_STORAGE_CONNECTION_STRING}
+  blob_container_name: models
+  partition_key: main
+  experiment_name: facesynthetics

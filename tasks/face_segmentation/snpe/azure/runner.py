@@ -759,12 +759,13 @@ def get_storage_account(con_str):
 
 def setup_store():
     global store, usage
+    experiment_name = os.getenv("EXPERIMENT_NAME", "facesynthetics")
     conn_string = os.getenv(CONNECTION_NAME)
     if not conn_string:
         log(f"Please specify your {CONNECTION_NAME} environment variable.")
         sys.exit(1)
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(conn_string)
-    store = ArchaiStore(storage_account_name, storage_account_key, table_name='status')
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=experiment_name)
     usage = ArchaiStore(storage_account_name, storage_account_key, table_name='usage')
     return conn_string
 
@@ -851,5 +852,6 @@ if __name__ == '__main__':
         check_stale_pods(args.cleanup_stale_pods)
 
     dataset = os.getenv("INPUT_DATASET")
+
     rc = monitor(dataset, device is not None, args.benchmark, subset, args.no_quantization)
     sys.exit(rc)

@@ -29,10 +29,12 @@ def main():
 
     model_id = args.model_id
     store = None
+
+    experiment_name = os.getenv("EXPERIMENT_NAME", "facesynthetics")
     con_str = os.getenv('MODEL_STORAGE_CONNECTION_STRING')
     if con_str is not None:
         storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-        store = ArchaiStore(storage_account_name, storage_account_key)
+        store = ArchaiStore(storage_account_name, storage_account_key, table_name=experiment_name)
 
     storing = model_id is not None and store is not None:
     if storing:

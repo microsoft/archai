@@ -37,16 +37,16 @@ search:
 
   target:
     name: aml
+    metric_key: mean
     max_retries: 15
     retry_interval: 120
-    metric_key: mean
     verbose: true
     max_parameters: 5e7
 
-  training:
-    batch_size: 16
-    learning_rate: 2e-4
-    partial_training_epochs: 1
+training:
+  batch_size: 16
+  learning_rate: 2e-4
+  partial_training_epochs: 1
 
 aml:
   connection_str: ${MODEL_STORAGE_CONNECTION_STRING}
@@ -90,4 +90,4 @@ aml:
         - torchvision
         - torchaudio
         - lightning>=2.0.0
-        - archai[dev] @ git+https://github.com/microsoft/archai.git@clovett/faces
+        - archai[dev] @ git+https://github.com/microsoft/archai.git@clovett/aml

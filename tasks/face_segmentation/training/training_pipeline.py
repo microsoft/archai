@@ -1,23 +1,57 @@
-import argparse
-import uuid
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import json
 import os
+from pathlib import Path
+from typing import List
 from archai.common.store import ArchaiStore
-from azure.ai.ml import Input, MLClient
+from azure.ai.ml import MLClient
 from azure.ai.ml.identity import AzureMLOnBehalfOfCredential
 from azure.identity import DefaultAzureCredential
+from archai.discrete_search.api import ArchaiModel
 from archai.discrete_search.search_spaces.config import ArchConfig
-from azure.ai.ml import dsl
-from utils import copy_code_folder
+from azure.ai.ml import command, Input, Output, dsl
+from archai.common.config import Config
+from utils.setup import copy_code_folder
 
 
-def training_component(output_path, code_dir, environment_name, model_id,
-                       archid, training_epochs):
-    pass
+def training_component(output_path, code_dir, config, training_epochs, arch):
+    # we need a folder containing all the specific code we need here, which is not everything in this repo.
+    training = config['training']
+    learning_rate = training['learning_rate']
+    batch_size = training['batch_size']
+    aml_config = config['aml']
+    modelstore_path = aml_config['results_path']
+    environment_name = aml_config['environment_name']
+    model_id = arch.archid
+
+    fixed_args = f'--lr {learning_rate} --batch_size {batch_size} --epochs {training_epochs} --model_id {model_id}'
+
+    return command(
+        name="train",
+        display_name="Archai training job",
+        description="Trains a face segmentation model.",
+        inputs={
+            "data": Input(type="uri_folder", mode="download")
+        },
+        outputs={
+            "results": Output(type="uri_folder", path=modelstore_path, mode="rw_mount")
+        },
+
+        # The source folder of the component
+        code=str(scripts_path),
+        command="""python3 train.py \
+                --dataset_dir ${{inputs.data}} \
+                --output_dir ${{outputs.results}} \
+                """ + fixed_args,
+        environment=environment_name,
+    )
 
 
-def start_training_pipeline(description, ml_client, store, model_architectures,
-                            config, output_folder):
+def start_training_pipeline(description: str, ml_client: MLClient, store: ArchaiStore,
+                            model_architectures: List[ArchaiModel],
+                            config: Config, training_epochs: float, output_folder: Path):
     """ Creates a new Azure ML Pipeline for training a set of models, updating the status of
     these jobs in a given Azure Storage Table.  This command does not wait for those jobs to
     finish.  For that use the monitor.py script which monitors the same Azure Storage Table
@@ -25,37 +59,38 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
     when each training job completes. """
 
     aml_config = config['aml']
-    compute_cluster_name = aml_config['gpu_compute_name']
+    training_cluster = aml_config['training_cluster']
+    compute_cluster_name = training_cluster['name']
     datastore_path = aml_config['datastore_path']
-    results_path = aml_config['results_path']
+    root_uri = aml_config['results_path']
     environment_name = aml_config['environment_name']
     experiment_name = aml_config['experiment_name']
-    training_epochs = aml_config['training_epochs']
 
     print(f"Cluster: {compute_cluster_name}")
     print(f"Dataset: {datastore_path}")
-    print(f"Output: {results_path}")
-    print(f"Env: {environment_name}")
+    print(f"Output: {root_uri}")
+    print(f"Environment: {environment_name}")
+    print(f"Experiment: {experiment_name}")
     print(f"Epochs: {training_epochs}")
 
-    code_dir = copy_code_folder()
-    model_names = []
-    for archid in model_architectures:
-        model_id = 'id_' + str(uuid.uuid4()).replace('-', '_')
-        model_names += [model_id]
+    code_dir = 'temp_code'
+    copy_code_folder('.', code_dir)
 
-    root_uri = results_path
-    i = root_uri.rfind('/')
-    if i > 0:
-        root_uri = root_uri[:i]
-
-    # create new status rows and models.json for these new jobs.
     models = []
-    for i, archid in enumerate(model_architectures):
-        model_id = model_names[i]
+    model_names = []
+    for arch in model_architectures:
+        model_id = arch.archid
+        model_names += [model_id]
         print(f'Launching training job for model {model_id}')
+
+        # upload the model architecture to our blob store so we can find it later.
+        config: ArchConfig = arch.metadata['config']
+        filename = f'{code_dir}/{model_id}.json'
+        config.to_file(filename)
+        store.upload_blob(f'{experiment_name}/{model_id}', filename)
+
+        # create status entry in azure table
         e = store.get_status(model_id)
-        nb_layers,  kernel_size, hidden_dim = eval(archid)
         e['experiment'] = experiment_name
         e['status'] = 'preparing'
         e['epochs'] = training_epochs
@@ -79,14 +114,11 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
         data_input
     ):
         outputs = {}
-        for i, archid in enumerate(model_architectures):
-            model_id = model_names[i]
-
+        for arch in model_architectures:
+            model_id = arch.archid
             output_path = f'{root_uri}/{model_id}'
             train_job = training_component(
-                output_path, code_dir, environment_name, model_id,
-                store.storage_account_name, store.storage_account_key,
-                archid, training_epochs)(
+                output_path, code_dir, config, training_epochs, arch)(
                 data=data_input
             )
 
@@ -108,76 +140,8 @@ def start_training_pipeline(description, ml_client, store, model_architectures,
     # knows what to wait for.
     print("Writing pending.json: ")
     print(json.dumps(results, indent=2))
-    results_path = f'{output_folder}/pending.json'
+    results_path = output_folder / 'pending.json'
     with open(results_path, 'w') as f:
         f.write(json.dumps(results, indent=2))
 
     return (pipeline_job, model_names)
-
-
-def main():
-    # input and output arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--description", type=str, help="the pipeline description")
-    parser.add_argument("--models_path", help="Location of our pareto.json file.")
-    parser.add_argument("--compute_cluster_name", help="name of compute cluster to use")
-    parser.add_argument("--datastore_uri", help="location of dataset datastore")
-    parser.add_argument("--results_uri", help="location to store the trained models")
-    parser.add_argument("--output_path", help="location to store the list of pending models (pending.json)")
-    parser.add_argument("--experiment_name", help="name of AML experiment")
-    parser.add_argument("--environment_name", help="AML conda environment to use")
-    parser.add_argument('--epochs', type=float, help='number of epochs to train', default=0.001)
-
-    args = parser.parse_args()
-
-    path = args.models_path
-    print(f"Reading pareto.json from {path}")
-    pareto_file = os.path.join(path, 'pareto.json')
-    with open(pareto_file) as f:
-        pareto_models = json.load(f)
-
-    model_architectures = []
-    for a in pareto_models:
-        if type(a) is dict and 'nb_layers' in a:
-            config = ArchConfig(a)
-            nb_layers = config.pick("nb_layers")
-            kernel_size = config.pick("kernel_size")
-            hidden_dim = config.pick("hidden_dim")
-            archid = f'({nb_layers}, {kernel_size}, {hidden_dim})'
-            model_architectures += [archid]
-
-    identity = AzureMLOnBehalfOfCredential()
-    if args.config:
-        print("Using AzureMLOnBehalfOfCredential...")
-        workspace_config = str(bytes.fromhex(args.config), encoding='utf-8')
-        print(f"Config: {workspace_config}")
-        config = json.loads(workspace_config)
-    else:
-        print("Using DefaultAzureCredential...")
-        config_file = "../.azureml/config.json"
-        print(f"Config: {config_file}")
-        config = json.load(open(config_file, 'r'))
-        identity = DefaultAzureCredential()
-
-    subscription = config['subscription_id']
-    resource_group = config['resource_group']
-    workspace_name = config['workspace_name']
-    storage_account_key = config['storage_account_key']
-    storage_account_name = config['storage_account_name']
-
-    ml_client = MLClient(
-        identity,
-        subscription,
-        resource_group,
-        workspace_name
-    )
-
-    store = ArchaiStore(storage_account_name, storage_account_key)
-
-    start_training_pipeline(args.description, ml_client, store, model_architectures,
-                            args.compute_cluster_name, args.datastore_uri, args.results_uri, args.output_path,
-                            args.experiment_name, args.environment_name, args.epochs)
-
-
-if __name__ == "__main__":
-    main()
