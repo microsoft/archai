@@ -29,7 +29,6 @@ def reset(con_str, experiment_name):
 
     for e in entities:
         name = e['name']
-        print(f"Resetting {name}")
         store.reset(e['name'], ['benchmark_only', 'model_date'])
         store.delete_blobs(name, 'model.dlc')
         store.delete_blobs(name, 'model.quant.dlc')

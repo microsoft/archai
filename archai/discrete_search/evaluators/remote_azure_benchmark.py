@@ -28,6 +28,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         self,
         input_shape: Union[Tuple, List[Tuple]],
         store: ArchaiStore,
+        experiment_name: str,
         metric_key: str,
         overwrite: Optional[bool] = True,
         max_retries: Optional[int] = 5,
@@ -55,6 +56,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         self.store = store
         input_shapes = [input_shape] if isinstance(input_shape, tuple) else input_shape
         self.sample_input = tuple([torch.rand(*input_shape) for input_shape in input_shapes])
+        self.experiment_name = experiment_name
         self.metric_key = metric_key
         self.overwrite = overwrite
         self.max_retries = max_retries
@@ -116,7 +118,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                     **self.onnx_export_kwargs,
                 )
 
-                self.store.upload_blob(archid, file_name, "model.onnx")
+                self.store.upload_blob(f'{self.experiment_name}/{archid}', file_name, "model.onnx")
                 entity["status"] = "new"
         except Exception as e:
             entity["error"] = str(e)

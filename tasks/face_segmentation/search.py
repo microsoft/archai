@@ -106,11 +106,13 @@ def main():
     if target_name == 'snp' or target_name == 'aml':
         # Gets connection string from env variable
         aml_config = config['aml']
+        experiment_name = aml_config.get('experiment_name', 'facesynthetics')
         store = configure_store(aml_config)
 
         evaluator = RemoteAzureBenchmarkEvaluator(
             input_shape=input_shape,
             store=store,
+            experiment_name=experiment_name,
             onnx_export_kwargs={'opset_version': 11},
             **target_config
         )
