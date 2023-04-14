@@ -10,6 +10,7 @@ from archai.common.store import ArchaiStore
 from azure.ai.ml.entities._credentials import AccountKeyConfiguration
 from azure.ai.ml.entities import AzureBlobDatastore
 import archai.common.azureml_helper as aml_helper
+from archai.discrete_search.api.archai_model import ArchaiModel
 
 
 def configure_store(aml_config: Config, blob_container_name: str = None) -> ArchaiStore:
@@ -74,3 +75,8 @@ def copy_code_folder(src_dir, target_dir):
         path = os.path.join(src_dir, name)
         if os.path.isdir(path):
             copy_code_folder(path, os.path.join(target_dir, name))
+
+
+def get_valid_arch_id(arch: ArchaiModel):
+    # bug in azure ml sdk requires blob store folder names not begin with digits, so we prefix with 'id_'
+    return f'id_{arch.archid}'

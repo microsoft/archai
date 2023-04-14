@@ -75,6 +75,9 @@ def main():
 
     input_shape = (1, search_space.in_channels, *search_space.img_size[::-1])
 
+    partial_training_output = args.output_dir / 'partial_training_logs'
+    os.makedirs(partial_training_output, exist_ok=True)
+
     # Search objectives
     so = SearchObjectives()
 
@@ -129,7 +132,7 @@ def main():
         partial_tr_obj = AmlPartialTrainingValIOU(
             config,
             tr_epochs=args.partial_tr_epochs,
-            local_output=args.output_dir / 'partial_training_logs'
+            local_output=partial_training_output
         )
 
     else:
@@ -142,7 +145,7 @@ def main():
         partial_tr_obj = PartialTrainingValIOU(
             dataset_provider,
             tr_epochs=args.partial_tr_epochs,
-            output_dir=args.output_dir / 'partial_training_logs'
+            output_dir=partial_training_output
         )
 
         if not args.serial_training:

@@ -74,7 +74,8 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
 
     @overrides
     def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
-        archid = str(arch.archid)
+        # bug in azure ml sdk requires blob store folder names not begin with digits, so we prefix with 'id_'
+        archid = f'id_{arch.archid}'
 
         # Checks if architecture was already benchmarked
         entity = self.store.get_existing_status(archid)

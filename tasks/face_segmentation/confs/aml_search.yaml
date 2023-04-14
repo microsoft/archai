@@ -66,7 +66,7 @@ aml:
     name: nas-gpu-cluster-NC6
     size: Standard_NC6
     location: westus2
-    max_instances: 20
+    max_instances: 8
 
   environment:
     name: facesynthetics-nas-env

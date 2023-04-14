@@ -13,7 +13,9 @@ from archai.discrete_search.api import ArchaiModel
 from archai.discrete_search.search_spaces.config import ArchConfig
 from azure.ai.ml import command, Input, Output, dsl
 from archai.common.config import Config
-from utils.setup import copy_code_folder
+from utils.setup import copy_code_folder, get_valid_arch_id
+from shutil import copyfile
+from archai.common.file_utils import TemporaryFiles
 
 
 def training_component(output_path, code_dir, config, training_epochs, arch):
@@ -22,11 +24,10 @@ def training_component(output_path, code_dir, config, training_epochs, arch):
     learning_rate = training['learning_rate']
     batch_size = training['batch_size']
     aml_config = config['aml']
-    modelstore_path = aml_config['results_path']
     environment_name = aml_config['environment_name']
-    model_id = arch.archid
+    model_id = get_valid_arch_id(arch)
 
-    fixed_args = f'--lr {learning_rate} --batch_size {batch_size} --epochs {training_epochs} --model_id {model_id}'
+    fixed_args = f'--lr {learning_rate} --batch_size {batch_size} --epochs {training_epochs} --model_id {model_id} {model_id}.json'
 
     return command(
         name="train",
@@ -36,11 +37,11 @@ def training_component(output_path, code_dir, config, training_epochs, arch):
             "data": Input(type="uri_folder", mode="download")
         },
         outputs={
-            "results": Output(type="uri_folder", path=modelstore_path, mode="rw_mount")
+            "results": Output(type="uri_folder", path=output_path, mode="rw_mount")
         },
 
         # The source folder of the component
-        code=str(scripts_path),
+        code=str(code_dir),
         command="""python3 train.py \
                 --dataset_dir ${{inputs.data}} \
                 --output_dir ${{outputs.results}} \
@@ -65,6 +66,7 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
     root_uri = aml_config['results_path']
     environment_name = aml_config['environment_name']
     experiment_name = aml_config['experiment_name']
+    metric_key = config['search']['target']['metric_key']
 
     print(f"Cluster: {compute_cluster_name}")
     print(f"Dataset: {datastore_path}")
@@ -73,34 +75,41 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
     print(f"Experiment: {experiment_name}")
     print(f"Epochs: {training_epochs}")
 
-    code_dir = 'temp_code'
-    copy_code_folder('.', code_dir)
+    code_dir = Path('temp_code')
+    os.makedirs(code_dir, exist_ok=True)
+    config_dir = code_dir / 'confs'
+    os.makedirs(config_dir, exist_ok=True)
+    copyfile('train.py', str(code_dir / 'train.py'))
+    copy_code_folder('training', str(code_dir / 'training'))
+    copy_code_folder('utils', str(code_dir / 'utils'))
+    config.save(str(config_dir / 'aml_search.yaml'))
 
     models = []
     model_names = []
-    for arch in model_architectures:
-        model_id = arch.archid
-        model_names += [model_id]
-        print(f'Launching training job for model {model_id}')
+    with TemporaryFiles() as tmp_file:
+        for arch in model_architectures:        
+            
+            model_id = get_valid_arch_id(arch)
+            model_names += [model_id]
+            print(f'Launching training job for model {model_id}')
 
-        # upload the model architecture to our blob store so we can find it later.
-        config: ArchConfig = arch.metadata['config']
-        filename = f'{code_dir}/{model_id}.json'
-        config.to_file(filename)
-        store.upload_blob(f'{experiment_name}/{model_id}', filename)
+            # upload the model architecture to our blob store so we can find it later.
+            metadata: ArchConfig = arch.metadata['config']
+            filename = tmp_file.get_temp_file()
+            metadata.to_file(filename)
+            store.upload_blob(f'{experiment_name}/{model_id}', filename, blob_name=f'{model_id}.json')
 
-        # create status entry in azure table
-        e = store.get_status(model_id)
-        e['experiment'] = experiment_name
-        e['status'] = 'preparing'
-        e['epochs'] = training_epochs
-        store.update_status_entity(e)
-        models += [{
-            'id': model_id,
-            'status': 'training',
-            'epochs': training_epochs,
-            'val_acc': e['val_acc'] if 'val_acc' in e else 0.0
-        }]
+            # create status entry in azure table
+            e = store.get_status(model_id)
+            e['experiment'] = experiment_name
+            e['epochs'] = training_epochs
+            store.merge_status_entity(e)
+            models += [{
+                'id': model_id,
+                'status': 'training',
+                'epochs': training_epochs,
+                metric_key: e[metric_key] if metric_key in e else 0.0
+            }]
 
     results = {
         'models': models
@@ -115,7 +124,7 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
     ):
         outputs = {}
         for arch in model_architectures:
-            model_id = arch.archid
+            model_id = get_valid_arch_id(arch)
             output_path = f'{root_uri}/{model_id}'
             train_job = training_component(
                 output_path, code_dir, config, training_epochs, arch)(
