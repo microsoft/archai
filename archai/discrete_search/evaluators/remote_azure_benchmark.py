@@ -1,8 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
-
-import logging
 import time
+import datetime
 import uuid
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -28,6 +27,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         self,
         input_shape: Union[Tuple, List[Tuple]],
         store: ArchaiStore,
+        experiment_name: str,
         metric_key: str,
         overwrite: Optional[bool] = True,
         max_retries: Optional[int] = 5,
@@ -55,12 +55,14 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         self.store = store
         input_shapes = [input_shape] if isinstance(input_shape, tuple) else input_shape
         self.sample_input = tuple([torch.rand(*input_shape) for input_shape in input_shapes])
+        self.experiment_name = experiment_name
         self.metric_key = metric_key
         self.overwrite = overwrite
         self.max_retries = max_retries
         self.retry_interval = retry_interval
         self.onnx_export_kwargs = onnx_export_kwargs or dict()
         self.verbose = verbose
+        self.results = {}
 
         # Architecture list
         self.archids = []
@@ -77,11 +79,11 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         # Checks if architecture was already benchmarked
         entity = self.store.get_existing_status(archid)
         if entity is not None:
-
             if entity["status"] == "complete":
                 if self.metric_key in entity:
                     if self.verbose:
                         value = entity[self.metric_key]
+                        self.archids.append(archid)
                         print(f"Entry for {archid} already exists with {self.metric_key} = {value}")
                     return
                 else:
@@ -116,7 +118,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                     **self.onnx_export_kwargs,
                 )
 
-                self.store.upload_blob(archid, file_name, "model.onnx")
+                self.store.upload_blob(f'{self.experiment_name}/{archid}', file_name, "model.onnx")
                 entity["status"] = "new"
         except Exception as e:
             entity["error"] = str(e)
@@ -133,8 +135,12 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         results = [None] * len(self.archids)
         completed = [False] * len(self.archids)
 
-        for _ in range(self.max_retries):
-
+        # retries defines how long we wait for progress, as soon as we see something complete we
+        # reset this counter because we are making progress.
+        retries = self.max_retries
+        start = time.time()
+        count = 0
+        while retries > 0:
             for i, archid in enumerate(self.archids):
                 if not completed[i]:
                     entity = self.store.get_existing_status(archid)
@@ -145,24 +151,38 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                             error = entity["error"]
                             print(f"Skipping architecture {archid} because of remote error: {error}")
                             completed[i] = True
+                            retries = self.max_retries
                         elif entity["status"] == "complete":
+                            print(f"Architecture {archid} is complete with {self.metric_key}={ results[i]}")
                             completed[i] = True
+                            retries = self.max_retries
 
             if all(completed):
                 break
 
+            count = sum(1 for c in completed if c)
+
             if self.verbose:
+                remaining = len(self.archids) - count
+                estimate = (time.time() - start) / (count + 1) * remaining
+
                 status_dict = {
-                    "complete": sum(r is not None for r in results),
+                    "complete": count,
                     "total": len(results),
+                    "time_remaining": str(datetime.timedelta(seconds=estimate))
                 }
 
                 print(
                     f"Waiting for results. Current status: {status_dict}\n"
-                    f"Archids: {[archid for archid, status in zip(self.archids, results) if status is None]}"
+                    f"Pending Archids: {[archid for archid, status in zip(self.archids, results) if status is None]}"
                 )
 
             time.sleep(self.retry_interval)
+            retries += 1
+
+        count = sum(1 for c in completed if c)
+        if count == 0:
+            raise Exception("Something is wrong, the uploaded models are not being processed. Please check your SNPE remote runner setup.")
 
         # Resets state
         self.archids = []

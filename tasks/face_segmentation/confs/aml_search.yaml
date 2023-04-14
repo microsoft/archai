@@ -39,7 +39,7 @@ search:
     name: aml
     metric_key: mean
     max_retries: 15
-    retry_interval: 120
+    retry_interval: 60
     verbose: true
     max_parameters: 5e7
 
