@@ -20,13 +20,14 @@ from utils.setup import configure_store
 class AmlPartialTrainingValIOU(AsyncModelEvaluator):
     """ The AmlPartialTrainingValIOU evaluator launches partial training jobs"""
     def __init__(self,
-                 aml_config : Config,
+                 config : Config,
                  local_output: Path,
                  tr_epochs: float = 1.0,
                  timeout_seconds=3600):
-        self.config = aml_config
+        self.config = config
         self.tr_epochs = tr_epochs
 
+        aml_config = config['aml']
         workspace_name = aml_config['workspace_name']
         subscription_id = aml_config['subscription_id']
         resource_group_name = aml_config['resource_group']

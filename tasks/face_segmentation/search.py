@@ -127,7 +127,7 @@ def main():
     if target_name == 'aml':
         # do the partial training in an AML gpu cluster
         partial_tr_obj = AmlPartialTrainingValIOU(
-            aml_config,
+            config,
             tr_epochs=args.partial_tr_epochs,
             local_output=args.output_dir / 'partial_training_logs'
         )
