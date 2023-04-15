@@ -17,7 +17,7 @@ from shutil import copyfile
 from archai.common.file_utils import TemporaryFiles
 
 
-def training_component(output_path, code_dir, config, training_epochs, metric_key, arch):
+def training_component(output_path: str, code_dir: Path, config, training_epochs: int, metric_key: str, arch: ArchaiModel):
     # we need a folder containing all the specific code we need here, which is not everything in this repo.
     training = config['training']
     learning_rate = training['learning_rate']
@@ -53,7 +53,7 @@ def training_component(output_path, code_dir, config, training_epochs, metric_ke
 
 def start_training_pipeline(description: str, ml_client: MLClient, store: ArchaiStore,
                             model_architectures: List[ArchaiModel],
-                            config: Config, training_epochs: float, output_folder: Path):
+                            config: Config, training_epochs: int, output_folder: Path):
     """ Creates a new Azure ML Pipeline for training a set of models, updating the status of
     these jobs in a given Azure Storage Table.  This command does not wait for those jobs to
     finish.  For that use the monitor.py script which monitors the same Azure Storage Table

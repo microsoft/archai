@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--output_dir', type=Path, help='Output directory.', required=True)
     parser.add_argument('--lr', type=float, default=2e-4)
     parser.add_argument('--batch_size', type=int, default=16)
-    parser.add_argument('--epochs', type=int, default=1.0)
+    parser.add_argument('--epochs', type=int, default=1)
     parser.add_argument('--val_check_interval', type=float, default=1.0)
     parser.add_argument('--model_id', type=str, default=None)
     parser.add_argument('--metric_key', type=str, default='val_iou')
@@ -31,6 +31,7 @@ def main():
     model_id = args.model_id
     store: ArchaiStore = None
     metric_key = args.metric_key
+    epochs = 1 if args.epochs < 1 else args.epochs
 
     experiment_name = os.getenv("EXPERIMENT_NAME", "facesynthetics")
     con_str = os.getenv('MODEL_STORAGE_CONNECTION_STRING')
@@ -75,7 +76,7 @@ def main():
         trainer = Trainer(
             default_root_dir=str(args.output_dir), accelerator='gpu',
             val_check_interval=args.val_check_interval,
-            max_epochs=args.epochs,
+            max_epochs=epochs,
             callbacks=callbacks
         )
 
