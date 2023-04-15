@@ -41,7 +41,7 @@ def data_prep_component(environment_name, datastore_path):
     )
 
 
-def search_component(config, environment_name, modelstore_path, output_path: Path):
+def search_component(config, environment_name, seed, modelstore_path, output_path: Path):
     # we need a folder containing all the specific code we need here, which is not everything in this repo.
     scripts_path = output_path / 'scripts'
     os.makedirs(str(scripts_path), exist_ok=True)
@@ -52,6 +52,8 @@ def search_component(config, environment_name, modelstore_path, output_path: Pat
     copy_code_folder('training', str(scripts_path / 'training'))
     copy_code_folder('utils', str(scripts_path / 'utils'))
     config.save(str(config_dir / 'aml_search.yaml'))
+
+    fixed_args = f'--seed {seed} --search_config confs/aml_search.yaml'
     
     return command(
         name="search",
@@ -69,8 +71,7 @@ def search_component(config, environment_name, modelstore_path, output_path: Pat
         command="""python3 search.py \
                 --dataset_dir ${{inputs.data}} \
                 --output_dir ${{outputs.results}} \
-                --search_config confs/aml_search.yaml \
-                """,
+                """ + fixed_args,
         environment=environment_name,
     )
 
@@ -136,11 +137,9 @@ def main(output_dir: Path, experiment_name:str, seed: int):
 
     # save this in the output folder so it can be found by pipeline components.
     aml_config['experiment_name'] = experiment_name
-    aml_config['seed'] = seed
     aml_config['environment_name'] = environment_name
     aml_config['datastore_path'] = datastore_path
     aml_config['results_path'] = results_path
-    aml_config['metric_name'] = 'val_iou'
 
     # make sure the datasets container exists
     store = configure_store(aml_config, data_container_name)
@@ -162,7 +161,7 @@ def main(output_dir: Path, experiment_name:str, seed: int):
             name=experiment_name
         )
 
-        search_job = search_component(config, environment_name, results_path, output_dir)(
+        search_job = search_component(config, environment_name, seed, results_path, output_dir)(
             data=data_prep_job.outputs.data
         )
 
