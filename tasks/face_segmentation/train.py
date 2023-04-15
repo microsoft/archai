@@ -25,10 +25,12 @@ def main():
     parser.add_argument('--epochs', type=int, default=1)
     parser.add_argument('--val_check_interval', type=float, default=1.0)
     parser.add_argument('--model_id', type=str, default=None)
+    parser.add_argument('--metric_key', type=str, default='val_iou')
     args = parser.parse_args()
 
     model_id = args.model_id
-    store = None
+    store: ArchaiStore = None
+    metric_key = args.metric_key
 
     experiment_name = os.getenv("EXPERIMENT_NAME", "facesynthetics")
     con_str = os.getenv('MODEL_STORAGE_CONNECTION_STRING')
@@ -96,7 +98,7 @@ def main():
         if storing:
             metric = val_result[0]['validation_mIOU']
             e = store.get_status(model_id)
-            e['val_iou'] = float(metric)
+            e[metric_key] = float(metric)
             e['status'] = 'completed'
             store.unlock_entity(e)
 

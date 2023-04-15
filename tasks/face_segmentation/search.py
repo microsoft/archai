@@ -86,7 +86,9 @@ def main():
     assert target_name in ['cpu', 'snp', 'aml']
 
     max_latency = 0.3 if target_name == 'cpu' else 0.185
-    max_parameters = float(target_config.pop('max_parameters', 5e7))
+    algo_config = search_config['algorithm']
+    algo_params = algo_config.get('params', {})
+    max_parameters = float(algo_params.pop('max_parameters', 5e7))
 
     # Adds a constraint on number of parameters so we don't sample models that are too large
     so.add_constraint(
@@ -159,15 +161,14 @@ def main():
         partial_tr_obj,
         higher_is_better=True,
         compute_intensive=True
-    )
+    )    
 
     # Search algorithm
-    algo_config = search_config['algorithm']
     algo = AVAILABLE_ALGOS[algo_config['name']](
         search_space, so,
         output_dir=args.output_dir,
         seed=args.seed,
-        **algo_config.get('params', {}),
+        **algo_params,
     )
 
     algo.search()

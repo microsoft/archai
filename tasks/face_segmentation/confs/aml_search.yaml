@@ -34,6 +34,7 @@ search:
       num_crossovers: 6
       max_unseen_population: 20
       num_random_mix: 6
+      max_parameters: 5e7
 
   target:
     name: aml
@@ -41,12 +42,13 @@ search:
     max_retries: 15
     retry_interval: 60
     verbose: true
-    max_parameters: 5e7
+
 
 training:
   batch_size: 16
   learning_rate: 2e-4
   partial_training_epochs: 1
+  metric_key: val_iou
 
 aml:
   connection_str: ${MODEL_STORAGE_CONNECTION_STRING}

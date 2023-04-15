@@ -18,7 +18,7 @@ from shutil import copyfile
 from archai.common.file_utils import TemporaryFiles
 
 
-def training_component(output_path, code_dir, config, training_epochs, arch):
+def training_component(output_path, code_dir, config, training_epochs, metric_key, arch):
     # we need a folder containing all the specific code we need here, which is not everything in this repo.
     training = config['training']
     learning_rate = training['learning_rate']
@@ -27,7 +27,9 @@ def training_component(output_path, code_dir, config, training_epochs, arch):
     environment_name = aml_config['environment_name']
     model_id = get_valid_arch_id(arch)
 
-    fixed_args = f'--lr {learning_rate} --batch_size {batch_size} --epochs {training_epochs} --model_id {model_id} {model_id}.json'
+    fixed_args = f'--lr {learning_rate} --batch_size {batch_size} ' +\
+                 f'--epochs {training_epochs} --model_id {model_id} --metric_key {metric_key}' +\
+                 f'{model_id}.json'
 
     return command(
         name="train",
@@ -66,7 +68,7 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
     root_uri = aml_config['results_path']
     environment_name = aml_config['environment_name']
     experiment_name = aml_config['experiment_name']
-    metric_key = config['search']['target']['metric_key']
+    metric_key = config['training'].get('metric_key', 'val_iou')
 
     print(f"Cluster: {compute_cluster_name}")
     print(f"Dataset: {datastore_path}")
@@ -127,7 +129,7 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
             model_id = get_valid_arch_id(arch)
             output_path = f'{root_uri}/{model_id}'
             train_job = training_component(
-                output_path, code_dir, config, training_epochs, arch)(
+                output_path, code_dir, config, training_epochs, metric_key, arch)(
                 data=data_input
             )
 
