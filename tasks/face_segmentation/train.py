@@ -36,7 +36,7 @@ def main():
         storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
         store = ArchaiStore(storage_account_name, storage_account_key, table_name=experiment_name)
 
-    storing = model_id is not None and store is not None:
+    storing = model_id is not None and store is not None
     if storing:
         e = store.lock(model_id, 'training')
         pipeline_id = os.getenv('AZUREML_ROOT_RUN_ID')
