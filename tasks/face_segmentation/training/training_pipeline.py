@@ -7,8 +7,6 @@ from pathlib import Path
 from typing import List
 from archai.common.store import ArchaiStore
 from azure.ai.ml import MLClient
-from azure.ai.ml.identity import AzureMLOnBehalfOfCredential
-from azure.identity import DefaultAzureCredential
 from archai.discrete_search.api import ArchaiModel
 from archai.discrete_search.search_spaces.config import ArchConfig
 from azure.ai.ml import command, Input, Output, dsl

@@ -112,7 +112,7 @@ def main():
         # Gets connection string from env variable
         aml_config = config['aml']
         experiment_name = aml_config.get('experiment_name', 'facesynthetics')
-        store = configure_store(aml_config)
+        store: ArchaiStore = configure_store(aml_config)
 
         evaluator = RemoteAzureBenchmarkEvaluator(
             input_shape=input_shape,

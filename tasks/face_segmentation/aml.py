@@ -48,6 +48,7 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
     config_dir = scripts_path / 'confs'
     os.makedirs(str(config_dir), exist_ok=True)
     copyfile('search.py', str(scripts_path / 'search.py'))
+    copyfile('train.py', str(scripts_path / 'train.py'))
     copy_code_folder('search_space', str(scripts_path / 'search_space'))
     copy_code_folder('training', str(scripts_path / 'training'))
     copy_code_folder('utils', str(scripts_path / 'utils'))

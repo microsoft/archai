@@ -13,6 +13,7 @@ from shutil import copyfile
 from archai.common.monitor import JobCompletionMonitor
 from training.training_pipeline import start_training_pipeline
 from azure.identity import DefaultAzureCredential
+from azure.ai.ml.identity import AzureMLOnBehalfOfCredential
 from azure.ai.ml import MLClient
 from utils.setup import configure_store
 
@@ -32,8 +33,12 @@ class AmlPartialTrainingValIOU(AsyncModelEvaluator):
         subscription_id = aml_config['subscription_id']
         resource_group_name = aml_config['resource_group']
 
+        identity = DefaultAzureCredential()
+        if os.getenv('AZUREML_ROOT_RUN_ID'):
+            identity = AzureMLOnBehalfOfCredential()
+
         self.ml_client = MLClient(
-            credential=DefaultAzureCredential(),
+            credential=identity,
             subscription_id=subscription_id,
             resource_group_name=resource_group_name,
             workspace_name=workspace_name
