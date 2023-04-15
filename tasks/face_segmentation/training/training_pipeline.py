@@ -10,6 +10,7 @@ from azure.ai.ml import MLClient
 from archai.discrete_search.api import ArchaiModel
 from archai.discrete_search.search_spaces.config import ArchConfig
 from azure.ai.ml import command, Input, Output, dsl
+from azure.ai.ml.entities import UserIdentityConfiguration
 from archai.common.config import Config
 from utils.setup import copy_code_folder, get_valid_arch_id
 from shutil import copyfile
@@ -39,7 +40,7 @@ def training_component(output_path, code_dir, config, training_epochs, metric_ke
         outputs={
             "results": Output(type="uri_folder", path=output_path, mode="rw_mount")
         },
-
+        identity= UserIdentityConfiguration(),
         # The source folder of the component
         code=str(code_dir),
         command="""python3 train.py \
@@ -81,6 +82,7 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
     os.makedirs(config_dir, exist_ok=True)
     copyfile('train.py', str(code_dir / 'train.py'))
     copy_code_folder('training', str(code_dir / 'training'))
+    copy_code_folder('search_space', str(code_dir / 'search_space'))
     copy_code_folder('utils', str(code_dir / 'utils'))
     config.save(str(config_dir / 'aml_search.yaml'))
 

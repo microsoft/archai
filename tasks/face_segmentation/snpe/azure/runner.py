@@ -303,7 +303,7 @@ def get_avg_latency(latencies):
     return sum / count
 
 
-def benchmark(entity, onnx_model, model, name, test_input):
+def benchmark(experiment, entity, onnx_model, model, name, test_input):
     global BENCHMARK_RUN_COUNT, CLEAR_RANDOM_INPUTS, store, usage
 
     # next highest priority is to get benchmark times
@@ -330,7 +330,7 @@ def benchmark(entity, onnx_model, model, name, test_input):
         add_usage(usage, get_device(), start, end)
 
         for file in glob.glob(os.path.join(output_dir, 'perf_results*.csv')):
-            store.upload_blob(name, file)
+            store.upload_blob(f'{experiment}/{name}', file)
 
         total_inference_avg = get_total_inference_avg(entity)
         total_inference_avg += [ifs]
@@ -462,7 +462,7 @@ def run_model(experiment, name, dataset, use_device, benchmark_only, no_quantiza
     if use_device:
         check_dataset(input_shape, 'test', 1000)
         test_input = os.path.realpath(os.path.join('data', 'test'))
-        if benchmark(entity, onnx_model, quantized_model, name, test_input):
+        if benchmark(experiment, entity, onnx_model, quantized_model, name, test_input):
             return
 
     if benchmark_only:

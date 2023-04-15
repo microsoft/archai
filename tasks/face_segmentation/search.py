@@ -55,7 +55,7 @@ def main():
     parser.add_argument('--serial_training', help='Search config file.', action='store_true')
     parser.add_argument('--gpus_per_job', type=float, help='Number of GPUs used per job (if `serial_training` flag is disabled)',
                         default=0.5)
-    parser.add_argument('--partial_tr_epochs', type=float, help='Number of epochs to run partial training', default=1.0)
+    parser.add_argument('--partial_tr_epochs', type=int, help='Number of epochs to run partial training', default=1.0)
     parser.add_argument('--seed', type=int, help='Random seed', default=42)
 
     args, extra_args = parser.parse_known_args()

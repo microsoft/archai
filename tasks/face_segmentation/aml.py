@@ -7,6 +7,7 @@ import sys
 import yaml
 from typing import Optional, Dict
 from azure.identity import DefaultAzureCredential
+from azure.ai.ml.entities import UserIdentityConfiguration
 from azure.ai.ml import MLClient
 from azure.ai.ml import command, Input, Output, dsl
 from archai.common.config import Config
@@ -66,7 +67,7 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
         outputs={
             "results": Output(type="uri_folder", path=modelstore_path, mode="rw_mount")
         },
-
+        identity= UserIdentityConfiguration(),
         # The source folder of the component
         code=str(scripts_path),
         command="""python3 search.py \

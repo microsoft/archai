@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--output_dir', type=Path, help='Output directory.', required=True)
     parser.add_argument('--lr', type=float, default=2e-4)
     parser.add_argument('--batch_size', type=int, default=16)
-    parser.add_argument('--epochs', type=int, default=1)
+    parser.add_argument('--epochs', type=int, default=1.0)
     parser.add_argument('--val_check_interval', type=float, default=1.0)
     parser.add_argument('--model_id', type=str, default=None)
     parser.add_argument('--metric_key', type=str, default='val_iou')
@@ -44,7 +44,8 @@ def main():
         pipeline_id = os.getenv('AZUREML_ROOT_RUN_ID')
         if pipeline_id is not None:
             e['pipeline_id'] = pipeline_id
-            store.merge_status_entity(e)
+            store.merge_status_entity(e)        
+        store.download(f'{experiment_name}/{model_id}', '.', specific_file=args.arch)
 
     try:
         arch_config = ArchConfig.from_file(args.arch)

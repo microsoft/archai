@@ -23,7 +23,7 @@ class AmlPartialTrainingValIOU(AsyncModelEvaluator):
     def __init__(self,
                  config : Config,
                  local_output: Path,
-                 tr_epochs: float = 1.0,
+                 tr_epochs: int = 1,
                  timeout_seconds=3600):
         self.config = config
         self.tr_epochs = tr_epochs
