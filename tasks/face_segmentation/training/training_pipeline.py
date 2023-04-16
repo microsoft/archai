@@ -17,18 +17,17 @@ from shutil import copyfile
 from archai.common.file_utils import TemporaryFiles
 
 
-def training_component(output_path: str, code_dir: Path, config, training_epochs: int, metric_key: str, arch: ArchaiModel):
+def training_component(output_path: str, code_dir: Path, config, training_epochs: int, metric_key: str, model_id: str, filename: str):
     # we need a folder containing all the specific code we need here, which is not everything in this repo.
     training = config['training']
     learning_rate = training['learning_rate']
     batch_size = training['batch_size']
     aml_config = config['aml']
     environment_name = aml_config['environment_name']
-    model_id = get_valid_arch_id(arch)
 
     fixed_args = f'--lr {learning_rate} --batch_size {batch_size} ' +\
-                 f'--epochs {training_epochs} --model_id {model_id} --metric_key {metric_key}' +\
-                 f'{model_id}.json'
+                 f'--epochs {int(training_epochs)} --model_id {model_id} --metric_key {metric_key} ' +\
+                 f'{filename}'
 
     return command(
         name="train",
@@ -40,7 +39,7 @@ def training_component(output_path: str, code_dir: Path, config, training_epochs
         outputs={
             "results": Output(type="uri_folder", path=output_path, mode="rw_mount")
         },
-        identity= UserIdentityConfiguration(),
+        identity=UserIdentityConfiguration(),
         # The source folder of the component
         code=str(code_dir),
         command="""python3 train.py \
@@ -80,6 +79,8 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
     os.makedirs(code_dir, exist_ok=True)
     config_dir = code_dir / 'confs'
     os.makedirs(config_dir, exist_ok=True)
+    archs_dir = code_dir / 'archs'
+    os.makedirs(archs_dir, exist_ok=True)
     copyfile('train.py', str(code_dir / 'train.py'))
     copy_code_folder('training', str(code_dir / 'training'))
     copy_code_folder('search_space', str(code_dir / 'search_space'))
@@ -88,30 +89,29 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
 
     models = []
     model_names = []
-    with TemporaryFiles() as tmp_file:
-        for arch in model_architectures:        
-            
-            model_id = get_valid_arch_id(arch)
-            model_names += [model_id]
-            print(f'Launching training job for model {model_id}')
+    for arch in model_architectures:
 
-            # upload the model architecture to our blob store so we can find it later.
-            metadata: ArchConfig = arch.metadata['config']
-            filename = tmp_file.get_temp_file()
-            metadata.to_file(filename)
-            store.upload_blob(f'{experiment_name}/{model_id}', filename, blob_name=f'{model_id}.json')
+        model_id = get_valid_arch_id(arch)
+        model_names += [model_id]
+        print(f'Launching training job for model {model_id}')
 
-            # create status entry in azure table
-            e = store.get_status(model_id)
-            e['experiment'] = experiment_name
-            e['epochs'] = training_epochs
-            store.merge_status_entity(e)
-            models += [{
-                'id': model_id,
-                'status': 'training',
-                'epochs': training_epochs,
-                metric_key: e[metric_key] if metric_key in e else 0.0
-            }]
+        # upload the model architecture to our blob store so we can find it later.
+        metadata: ArchConfig = arch.metadata['config']
+        filename = str(archs_dir / f'{model_id}.json')
+        metadata.to_file(filename)
+        store.upload_blob(f'{experiment_name}/{model_id}', filename, blob_name=filename)
+
+        # create status entry in azure table
+        e = store.get_status(model_id)
+        e['experiment'] = experiment_name
+        e['epochs'] = training_epochs
+        store.merge_status_entity(e)
+        models += [{
+            'id': model_id,
+            'status': 'training',
+            'epochs': training_epochs,
+            metric_key: e[metric_key] if metric_key in e else 0.0
+        }]
 
     results = {
         'models': models
@@ -128,8 +128,9 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
         for arch in model_architectures:
             model_id = get_valid_arch_id(arch)
             output_path = f'{root_uri}/{model_id}'
+            filename = str(archs_dir / f'{model_id}.json')
             train_job = training_component(
-                output_path, code_dir, config, training_epochs, metric_key, arch)(
+                output_path, code_dir, config, training_epochs, metric_key, model_id, filename)(
                 data=data_input
             )
 

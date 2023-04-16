@@ -55,7 +55,7 @@ def main():
     parser.add_argument('--serial_training', help='Search config file.', action='store_true')
     parser.add_argument('--gpus_per_job', type=float, help='Number of GPUs used per job (if `serial_training` flag is disabled)',
                         default=0.5)
-    parser.add_argument('--partial_tr_epochs', type=int, help='Number of epochs to run partial training', default=1.0)
+    parser.add_argument('--partial_tr_epochs', type=int, help='Number of epochs to run partial training', default=1)
     parser.add_argument('--seed', type=int, help='Random seed', default=42)
 
     args, extra_args = parser.parse_known_args()
@@ -133,7 +133,7 @@ def main():
         # do the partial training in an AML gpu cluster
         partial_tr_obj = AmlPartialTrainingValIOU(
             config,
-            tr_epochs=args.partial_tr_epochs,
+            tr_epochs=int(args.partial_tr_epochs),
             local_output=partial_training_output
         )
 
@@ -161,7 +161,7 @@ def main():
         partial_tr_obj,
         higher_is_better=True,
         compute_intensive=True
-    )    
+    )
 
     # Search algorithm
     algo = AVAILABLE_ALGOS[algo_config['name']](

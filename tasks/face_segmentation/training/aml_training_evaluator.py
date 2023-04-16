@@ -26,7 +26,7 @@ class AmlPartialTrainingValIOU(AsyncModelEvaluator):
                  tr_epochs: int = 1,
                  timeout_seconds=3600):
         self.config = config
-        self.tr_epochs = tr_epochs
+        self.tr_epochs = int(tr_epochs)
 
         aml_config = config['aml']
         workspace_name = aml_config['workspace_name']
