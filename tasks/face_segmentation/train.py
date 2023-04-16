@@ -13,6 +13,7 @@ from archai.discrete_search.search_spaces.config import ArchConfig
 from search_space.hgnet import StackedHourglass
 from training.pl_trainer import SegmentationTrainingLoop
 from archai.common.store import ArchaiStore
+from archai.common.config import Config
 
 
 def main():
@@ -25,7 +26,7 @@ def main():
     parser.add_argument('--epochs', type=int, default=1)
     parser.add_argument('--val_check_interval', type=float, default=1.0)
     parser.add_argument('--model_id', type=str, default=None)
-    parser.add_argument('--metric_key', type=str, default='val_iou')
+    parser.add_argument('--config', type=Path, default=None)
     args = parser.parse_args()
 
     model_id = args.model_id
@@ -33,20 +34,26 @@ def main():
     metric_key = args.metric_key
     epochs = 1 if args.epochs < 1 else args.epochs
 
-    experiment_name = os.getenv("EXPERIMENT_NAME", "facesynthetics")
-    con_str = os.getenv('MODEL_STORAGE_CONNECTION_STRING')
-    if con_str is not None:
-        storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-        store = ArchaiStore(storage_account_name, storage_account_key, table_name=experiment_name)
+    storing = False
+    config = args.config
+    experiment_name = None
+    if config and os.path.isfile(config):
+        config = Config(config)
+        if 'aml' in config:
+            # we are running in azure ml.
+            aml_config = config['aml']
+            connection_str = aml_config['connection_str']
+            experiment_name = aml_config['experiment_name']
+            storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(connection_str)
+            store = ArchaiStore(storage_account_name, storage_account_key, table_name=experiment_name)
+            storing = True
 
-    storing = model_id is not None and store is not None
     if storing:
         e = store.lock(model_id, 'training')
         pipeline_id = os.getenv('AZUREML_ROOT_RUN_ID')
         if pipeline_id is not None:
             e['pipeline_id'] = pipeline_id
-            store.merge_status_entity(e)        
-        store.download(f'{experiment_name}/{model_id}', '.', specific_file=args.arch)
+            store.merge_status_entity(e)
 
     try:
         arch_config = ArchConfig.from_file(args.arch)
@@ -85,7 +92,16 @@ def main():
         val_result = trainer.validate(trainer.model, val_dl)
         print(val_result)
 
-        trainer.save_checkpoint(args.output_dir / 'final_model.ckpt')
+        if storing:
+            # post updated progress to our unified status table and unlock the row.
+            metric = float(val_result[0]['validation_mIOU'])
+            print(f"Storing {metric_key}={metric} for model {model_id}")
+            e = store.get_status(model_id)
+            e[metric_key] = metric
+            e['status'] = 'complete'
+            store.unlock_entity(e)
+
+        trainer.save_checkpoint(args.output_dir / 'model.ckpt')
 
         # Save onnx model.
         input_shape = (1, 3, 256, 256)
@@ -93,16 +109,9 @@ def main():
         export_kwargs = {'opset_version': 11}
         rand_min, rand_max = rand_range
         sample_input = ((rand_max - rand_min) * torch.rand(*input_shape) + rand_min).type("torch.FloatTensor")
-        onnx_file = str(args.output_dir / 'final_model.onnx')
+        onnx_file = str(args.output_dir / 'model.onnx')
         torch.onnx.export(model, (sample_input,), onnx_file, input_names=["input_0"], **export_kwargs, )
 
-        # post updated progress to our unified status table.
-        if storing:
-            metric = val_result[0]['validation_mIOU']
-            e = store.get_status(model_id)
-            e[metric_key] = float(metric)
-            e['status'] = 'completed'
-            store.unlock_entity(e)
 
     except Exception as ex:
         # record failed state.

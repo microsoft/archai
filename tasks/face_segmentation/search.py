@@ -57,8 +57,11 @@ def main():
                         default=0.5)
     parser.add_argument('--partial_tr_epochs', type=int, help='Number of epochs to run partial training', default=1)
     parser.add_argument('--seed', type=int, help='Random seed', default=42)
+    parser.add_argument('--timeout', type=int, help='Timeout for partial training (in seconds)(default 10800)', default=10800)
 
     args, extra_args = parser.parse_known_args()
+
+    timeout_seconds = args.timeout
 
     # Filters extra args that have the prefix `search_space`
     search_extra_args = filter_extra_args(extra_args, 'search.')
@@ -134,6 +137,7 @@ def main():
         partial_tr_obj = AmlPartialTrainingValIOU(
             config,
             tr_epochs=int(args.partial_tr_epochs),
+            timeout_seconds=timeout_seconds,
             local_output=partial_training_output
         )
 

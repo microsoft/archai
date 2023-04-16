@@ -58,6 +58,7 @@ aml:
   subscription_id: ${AZURE_SUBSCRIPTION_ID}
   resource_group: ${AML_RESOURCE_GROUP}
   workspace_name: ${AML_WORKSPACE_NAME}
+  timeout: 18000
 
   search_cluster:
     name: nas-cpu-cluster-D14-v2
@@ -68,7 +69,7 @@ aml:
     name: nas-gpu-cluster-NC6
     size: Standard_NC6
     location: westus2
-    max_instances: 8
+    max_instances: 20
 
   environment:
     name: facesynthetics-nas-env

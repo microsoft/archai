@@ -99,12 +99,13 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
         metadata: ArchConfig = arch.metadata['config']
         filename = str(archs_dir / f'{model_id}.json')
         metadata.to_file(filename)
-        store.upload_blob(f'{experiment_name}/{model_id}', filename, blob_name=filename)
+        store.upload_blob(f'{experiment_name}/{model_id}', filename, blob_name=f'{model_id}.json')
 
         # create status entry in azure table
         e = store.get_status(model_id)
         e['experiment'] = experiment_name
         e['epochs'] = training_epochs
+        e['status'] = 'preparing'
         store.merge_status_entity(e)
         models += [{
             'id': model_id,
@@ -128,7 +129,7 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
         for arch in model_architectures:
             model_id = get_valid_arch_id(arch)
             output_path = f'{root_uri}/{model_id}'
-            filename = str(archs_dir / f'{model_id}.json')
+            filename = f'archs/{model_id}.json'
             train_job = training_component(
                 output_path, code_dir, config, training_epochs, metric_key, model_id, filename)(
                 data=data_input

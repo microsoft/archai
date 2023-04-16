@@ -55,8 +55,11 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
     copy_code_folder('utils', str(scripts_path / 'utils'))
     config.save(str(config_dir / 'aml_search.yaml'))
 
-    fixed_args = f'--seed {seed} --search_config confs/aml_search.yaml'
-    
+    aml_config = config['aml_config']
+    timeout = int(aml_config.get('timeout', 3600))
+
+    fixed_args = f'--seed {seed} --timeout {timeout} --search_config confs/aml_search.yaml'
+
     return command(
         name="search",
         display_name="Archai search job",
@@ -67,7 +70,7 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
         outputs={
             "results": Output(type="uri_folder", path=modelstore_path, mode="rw_mount")
         },
-        identity= UserIdentityConfiguration(),
+        identity=UserIdentityConfiguration(),
         # The source folder of the component
         code=str(scripts_path),
         command="""python3 search.py \
@@ -78,7 +81,7 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
     )
 
 
-def main(output_dir: Path, experiment_name:str, seed: int):    
+def main(output_dir: Path, experiment_name: str, seed: int):
     if output_dir.exists():
         rmtree(str(output_dir))
     output_dir.mkdir(parents=True)
@@ -88,7 +91,6 @@ def main(output_dir: Path, experiment_name:str, seed: int):
     config = Config(config_file, resolve_env_vars=True)
 
     aml_config = config['aml']
-
     con_str = aml_config.get('connection_str', '$')
     if '$' in con_str:
         print("Please set environment variable MODEL_STORAGE_CONNECTION_STRING containing the Azure" +
@@ -131,7 +133,6 @@ def main(output_dir: Path, experiment_name:str, seed: int):
     data_container_name = 'datasets'
     model_store_name = 'models'
     model_container_name = aml_config.get('blob_container_name', 'models')
-    root_folder = experiment_name
 
     # register our azure datastores
     results_path = register_datastore(ml_client, model_store_name, model_container_name, storage_account_name, storage_account_key, experiment_name)
