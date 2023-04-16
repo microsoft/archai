@@ -93,4 +93,4 @@ aml:
         - torchvision
         - torchaudio
         - lightning>=2.0.0
-        - archai[dev] @ git+https://github.com/microsoft/archai.git@clovett/aml
+        - archai[dev] @ git+https://github.com/microsoft/archai.git
