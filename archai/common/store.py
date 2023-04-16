@@ -20,17 +20,17 @@ CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 
 class ArchaiStore:
     """ArchaiStore wraps an Azure 'status' Table and associated Blob Storage used to provide a backing
-    store and collating status for long running jobs.  This is actually a general purpose utility class
-    that could be used for anything.
+    store for models and an associated table for collating status of long running jobs.  This is actually a general
+    purpose utility class that could be used for anything.
 
-    The naming scheme is such that each Entity in the table has a 'name' property which is a simple
-    friendly name or a guid, and this row will have an associated folder in the blob storage container
-    with the same name where models and other peripheral files can be stored.
+    The naming scheme is such that each Entity in the table has a 'name' property which is a simple friendly name or a
+    guid, and this row will have an associated folder in the blob storage container with the same name where models and
+    other peripheral files can be stored.
 
-    The 'status' table supports a locking concept that allows the status table to be used as a way of
-    coordinating jobs across multiple machines where each machine grabs free work, locks that row until
-    the work is done, uploads new files, and updates the status to 'complete' then unlocks that row.
-    So this ArchaiStore can be used as the backing store for a simple distributed job scheduler.
+    The 'status' table supports a locking concept that allows the status table to be used as a way of coordinating jobs
+    across multiple machines where each machine grabs free work, locks that row until the work is done, uploads new
+    files, and updates the status to 'complete' then unlocks that row. So this ArchaiStore can be used as the backing
+    store for a simple distributed job scheduler.
 
     This also has a convenient command line interface provided below.
     """
@@ -150,6 +150,7 @@ class ArchaiStore:
                 'name': name,
                 'status': 'new'
             }
+            self.update_status_entity(entity)
         return entity
 
     def _wrap_numeric_types(self, entity):
