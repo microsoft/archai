@@ -55,7 +55,7 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
     copy_code_folder('utils', str(scripts_path / 'utils'))
     config.save(str(config_dir / 'aml_search.yaml'))
 
-    aml_config = config['aml_config']
+    aml_config = config['aml']
     timeout = int(aml_config.get('timeout', 3600))
 
     fixed_args = f'--seed {seed} --timeout {timeout} --search_config confs/aml_search.yaml'
@@ -125,7 +125,7 @@ def main(output_dir: Path, experiment_name: str, seed: int):
         ml_client,
         image="mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest",
         conda_file="conda.yaml",
-        version='1.0.6')
+        version='1.0.7')
     environment_name = f"{archai_job_env.name}:{archai_job_env.version}"
 
     # Register the datastore with AML
