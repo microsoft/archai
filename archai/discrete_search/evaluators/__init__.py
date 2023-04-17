@@ -15,6 +15,5 @@ __all__ = [
     'EvaluationFunction', 'AvgOnnxLatency', 'ProgressiveTraining',
     'RayProgressiveTraining', 'TorchFlops', 'TorchLatency',
     'TorchPeakCpuMemory', 'TorchPeakCudaMemory',
-    'TorchNumParameters', 'RayParallelEvaluator',
-    'RemoteAzureBenchmarkEvaluator'
+    'TorchNumParameters', 'RayParallelEvaluator'
 ]
