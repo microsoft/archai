@@ -12,8 +12,8 @@ from archai.discrete_search.evaluators.pt_profiler import (
 from archai.discrete_search.evaluators.ray import RayParallelEvaluator
 
 __all__ = [
-    'EvaluationFunction', 'AvgOnnxLatency', 'ProgressiveTraining', 
-    'RayProgressiveTraining', 'TorchFlops', 'TorchLatency', 
+    'EvaluationFunction', 'AvgOnnxLatency', 'ProgressiveTraining',
+    'RayProgressiveTraining', 'TorchFlops', 'TorchLatency',
     'TorchPeakCpuMemory', 'TorchPeakCudaMemory',
     'TorchNumParameters', 'RayParallelEvaluator'
 ]
