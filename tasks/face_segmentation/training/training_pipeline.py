@@ -17,7 +17,7 @@ from shutil import copyfile
 from archai.common.file_utils import TemporaryFiles
 
 
-def training_component(output_path: str, code_dir: Path, config, training_epochs: int, metric_key: str, model_id: str, filename: str):
+def training_component(output_path: str, code_dir: Path, config, training_epochs: int, config_filename: str, model_id: str, arch: str):
     # we need a folder containing all the specific code we need here, which is not everything in this repo.
     training = config['training']
     learning_rate = training['learning_rate']
@@ -26,8 +26,8 @@ def training_component(output_path: str, code_dir: Path, config, training_epochs
     environment_name = aml_config['environment_name']
 
     fixed_args = f'--lr {learning_rate} --batch_size {batch_size} ' +\
-                 f'--epochs {int(training_epochs)} --model_id {model_id} --metric_key {metric_key} ' +\
-                 f'{filename}'
+                 f'--epochs {int(training_epochs)} --model_id {model_id} --config {config_filename} ' +\
+                 f'{arch}'
 
     return command(
         name="train",
@@ -131,7 +131,7 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
             output_path = f'{root_uri}/{model_id}'
             filename = f'archs/{model_id}.json'
             train_job = training_component(
-                output_path, code_dir, config, training_epochs, metric_key, model_id, filename)(
+                output_path, code_dir, config, training_epochs, 'archs/aml_search.yaml', model_id, filename)(
                 data=data_input
             )
 
