@@ -35,7 +35,7 @@ import train as model_trainer
 from discrete_search_space_mnv2_config import (
     ConfigSearchSpaceExt, _create_model_from_csv, _load_pretrain_weight
     )
-from latency_measurement import AvgOnnxLatencyOneCPU
+from latency_measurement import AvgOnnxLatency
 
 #for debugging otherwise setting from command line
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
@@ -55,7 +55,8 @@ def convert_args_dict_to_list(d):
 
     return new_list
 
-class AccuracyEvaluator(AsyncModelEvaluator):
+#class AccuracyEvaluator(AsyncModelEvaluator):
+class AccuracyEvaluator(ModelEvaluator):
     
     def __init__(self, lit_args) -> None:
         self.lit_args = lit_args
@@ -81,11 +82,11 @@ class OnnxLatencyEvaluator(ModelEvaluator):
 
     def __init__(self, args) -> None:
         self.args = args
+        self.latency_evaluator = AvgOnnxLatency(input_shape=(1, 3, 128, 128), num_trials=self.args.nas_num_latency_measurements, num_input=self.args.nas_num_input_per_latency_measurement)
 
     @overrides
     def evaluate(self, model, dataset_provider, budget = None) -> float:
-        latency = AvgOnnxLatencyOneCPU(input_shape=(1, 3, 128, 128), num_trials=self.args.nas_num_latency_measurements, num_input=self.args.nas_num_input_per_latency_measurement)
-        return latency
+        return self.latency_evaluator.evaluate(model)
         
 class NASLandmarks():
     def __init__(self) -> None:
@@ -151,7 +152,7 @@ class NASLandmarks():
         search_objectives = SearchObjectives()
         search_objectives.add_objective(
                 "onnx_latency (ms)",
-                OnnxLatencyEvaluator(),
+                OnnxLatencyEvaluator(self.nas_args),
                 higher_is_better=False,
                 compute_intensive=False)
         search_objectives.add_objective(
@@ -161,8 +162,8 @@ class NASLandmarks():
                 compute_intensive=True)
 
         algo = EvolutionParetoSearch(
-            search_space=ss,
-            objectives=search_objectives,
+            search_space=ss,        
+            search_objectives=search_objectives,
             output_dir=self.nas_args.nas_output_dir,
             num_iters=self.nas_args.nas_num_iters,
             init_num_models=self.nas_args.nas_init_num_models,
@@ -170,7 +171,8 @@ class NASLandmarks():
             max_unseen_population=self.nas_args.nas_max_unseen_population,
             mutations_per_parent=self.nas_args.nas_mutations_per_parent,
             num_crossovers=self.nas_args.nas_num_crossovers,
-            seed=self.nas_args.seed)
+            seed=self.nas_args.seed,
+            save_pareto_model_weights = False)
 
         search_results = algo.search()
         results_df = search_results.get_search_state_df()

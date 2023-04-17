@@ -6,12 +6,11 @@ os.environ["OMP_NUM_THREADS"] = "1"
 import onnxruntime as rt
 import psutil
 import torch
-from overrides import overrides
 
 from archai.common.timing import MeasureBlockTime
-from archai.datasets.dataset_provider import DatasetProvider
+from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.discrete_search.api.objective import Objective
+from archai.discrete_search.api.search_objectives import SearchObjectives
 
 import os
 import statistics
@@ -21,7 +20,7 @@ from time import perf_counter, sleep
 from typing import Dict, Optional, Tuple
 
 
-class AvgOnnxLatencyOneCPU(Objective):
+class AvgOnnxLatency:
     higher_is_better: bool = False
 
     def __init__(self, input_shape: Union[Tuple, List[Tuple]], num_trials: int = 1, num_input: int = 10,
@@ -53,7 +52,6 @@ class AvgOnnxLatencyOneCPU(Objective):
         self.export_kwargs = export_kwargs or dict()
         self.inf_session_kwargs = inf_session_kwargs or dict()
 
-    @overrides
     def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider = None,
                 budget: Optional[float] = None) -> float:
         model.arch.to('cpu')

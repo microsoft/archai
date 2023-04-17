@@ -16,9 +16,8 @@ import torch.nn as nn
 from overrides.overrides import overrides
 
 from archai.common.common import logger
-from archai.discrete_search import (ArchaiModel, BayesOptSearchSpace,
-                                    DiscreteSearchSpace,
-                                    EvolutionarySearchSpace)
+from archai.discrete_search.api.archai_model import ArchaiModel
+from archai.discrete_search.api.search_space import DiscreteSearchSpace, BayesOptSearchSpace, EvolutionarySearchSpace
 
 from custom_mobilenetv2 import CustomMobileNetV2
 
