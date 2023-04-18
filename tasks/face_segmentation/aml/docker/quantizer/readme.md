@@ -33,7 +33,7 @@ talk to the right azure storage account.  On linux this would be an export in yo
 don't forget the double quotes.
 
 ```
-export MODEL_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=https;AccountName=mymodels;AccountKey=...==;EndpointSuffix=core.windows.net"
+export MODEL_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=...==;EndpointSuffix=core.windows.net"
 ```
 
 ## Dockerfile
@@ -44,11 +44,9 @@ you increase your Qualcomm device utilization.
 
 The `setup.ps1` script shows what docker commands to run to build the image, how to login to your
 azure docker container registry, how to take your image for that container registry and push it
-to Azure.  So you do not need to use the public docker.org container registry.  You will decide
-what version number to attach to your image here and the same version needs to be specified in the
-following `quantizer.yaml`.
+to Azure.  So you do not need to use the public docker.org container registry.
 
-You can also test your docker image locally by running:
+You can test your docker image locally by running:
 ```
 docker run -e MODEL_STORAGE_CONNECTION_STRING=$MODEL_STORAGE_CONNECTION_STRING -it <image_id>
 ```
@@ -75,7 +73,7 @@ that shows a string like this:
 ```
 az aks get-credentials --resource-group snpe-quantizaton-rg --name snpe-quantizer-aks
 ```
-Run that locally and then you can push docker images to this registry.:
+Run that locally and then you can push docker images to this registry:
 
 ```
 docker push snpecontainerregistry001.azurecr.io/quantizer:1.27
@@ -86,9 +84,7 @@ increment this version number each time it runs in case you need to push new ver
 
 ## quantizer.yaml
 
-Then you can use `kubectl apply -f quantizer.yaml` to configure the AKS custer.  Note that the version
-of the image to use is specified in this file so you may need to edit the file and change the
-version `1.13` to whatever you just tagged and pushed to the azure container registry.
+Then you can use `kubectl apply -f quantizer.yaml` to deploy this new image version to your AKS custer.
 
 Notice this yaml configures AKS to scale up to 100 nodes if necessary and the scaling is triggered
 when a given node passes 40% CPU utilization.  You can tweak these numbers however you like to fit
@@ -132,4 +128,6 @@ face segmentation ONNX model to do a test run.  You can train one of these model
 ## run.sh
 
 This little script is used as the entry point to the Docker image, you will see this in the last
-`RUN` command in the Dockerfile.
+`RUN` command in the Dockerfile. The reason this `run.sh` contains a loop is because the Python
+script checks for memory leaks and auto-terminates itself if it sees memory usage climb too high.
+This way the quantizer pod can run pretty much forever, or at least until you deploy a new version.

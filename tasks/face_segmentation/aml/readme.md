@@ -1,26 +1,25 @@
 # Readme
 
-This folder contains code that automates the search, partial training and inference latency
-testing in [Azure ML](https://azure.microsoft.com/en-us/products/machine-learning/).
-
-The inference testing of ONNX models can be performed across one or more machines that are connected
-via USB to Qualcomm 888 boards.
+This folder contains code that automates the search, partial training and inference latency testing in [Azure
+ML](https://azure.microsoft.com/en-us/products/machine-learning/). The inference testing of ONNX models can be performed
+across one or more machines that are connected via USB to Qualcomm 888 boards.
 
 The code is organized into:
 
 1. [Training](training/readme.md) code that plugs into the Archai Search to perform partial training
-of selected models in Azure ML.
+of selected models on a GPU cluster in Azure ML.
 
 1. [SNPE Device](snpe/readme.md) code that uses [Microsoft
-Olive](https://github.com/microsoft/olive) to drive the the Qualcomm Neural Processing SDK to talk
-to the device, convert ONNX models to .dlc, quantize them, and test them on the board using the
-Android `adb` tool.
+Olive](https://github.com/microsoft/olive) to drive the the
+[Qualcomm Neural Processing SDK](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk) to talk
+to the device, convert ONNX models to .dlc, quantize them, and test them on one or more
+[Qualcomm 888 dev kits](https://developer.qualcomm.com/hardware/snapdragon-888-hdk).
 
 1. [Azure Code](azure/readme.md) that talks to a configured Azure storage account for uploading
 models to test, downloading them, uploading test results, and keeping an Azure status table that
-summarizes results of all your models.
+summarizes results of all the work in progress.
 
-1. [Docker](docker/quantizer/readme.md) scripts for setting up your Azure account and optionally
+1. [Docker](docker/quantizer/readme.md) contains scripts for setting up your Azure account and optionally
 creating a docker image for running in an Azure Kubernetes cluster to do model quantization using
 the Qualcomm Neural Processing SDK. Quantization is time consuming so having an elastic scale speeds
 things up a lot.
@@ -31,11 +30,13 @@ results from your Azure "status" table.
 
 ## Workflow
 
-The overall workflow starts with an Archai Search that contains an `AmlPartialTrainingEvaluator` and a
+The overall workflow begins with the top level [aml.py](../../aml.py) script which
+starts with an Archai Search that contains an `AmlPartialTrainingEvaluator` and a
 `RemoteAzureBenchmarkEvaluator`.  The remote benchmark evaluator performs inference latency testing
 on Qualcomm hardware.  The `AmlPartialTrainingEvaluator` then kicks off one new Azure ML
 training pipeline for each batch of new model architectures that need to be partially trained, it
-stores the validation IOU results in an Azure blob store and an Azure table as follows:
+stores the validation IOU results in an Azure blob store and an Azure table so the search can get
+those results and use them to figure out the next iteration of the search algorithm:
 
 ![system](images/system.png)
 
@@ -43,8 +44,8 @@ See [AML Training Readme](training/readme.md) for more information.
 
 ## Remote Inference Testing
 
-The remote inference testing workflow looks like this, the `R`emoteAzureBenchmarkEvaluator` uploads models to the same
-Azure blob store, and adds a row to the status table.  This triggers remote instances of the `runner.py` script
+The remote inference testing workflow looks like this, the `RemoteAzureBenchmarkEvaluator` uploads models to the same
+Azure blob store, and adds a row to the status table.  This triggers remote instances of the [runner.py](azure/runner.py) script
 to process these new models on an attached Qualcomm device.  Optionally some of the work can be done in the cloud
 using a Kubernetes cluster, this includes model quantization and accuracy testing using the ONNX runtime.
 The workflow looks like this:

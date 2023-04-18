@@ -37,9 +37,8 @@ configurations based on the desired target (CPU or Snapdragon processor), `searc
 
 * [cpu_search.yaml](confs/cpu_search.yaml)
 * [snp_search.yaml](confs/snp_search.yaml)
-* [aml_search.yaml](confs/aml_search.yaml)
 
-Note: to use `snp_search.yaml` or `aml_search.yaml` you will need to follow the [Azure ML setup instructions](aml/readme.md).
+Note: to use `snp_search.yaml` you will need to follow the [Azure ML setup instructions](aml/readme.md).
 
 By default, `search.py` will run multiple partial training jobs using Ray (2 jobs per GPU). To change the number of gpus
 per job, set `--gpus_per_job`, or use the `--serial_training` flag to disable parallel training jobs altogether.

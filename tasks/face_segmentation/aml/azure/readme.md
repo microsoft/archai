@@ -12,7 +12,7 @@ named `Connection string`.
 In Linux you should use double quotes around the connection string like this:
 
 ```
-export MODEL_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=https;AccountName=mymodels;AccountKey=...==;EndpointSuffix=core.windows.net"
+export MODEL_STORAGE_CONNECTION_STRING="DefaultEndpointsProtocol=...EndpointSuffix=core.windows.net"
 ```
 
 You'll use it a lot so it is handy if you put it in your `~/.profile`.
@@ -49,8 +49,9 @@ python ~/git/archai/tasks/face_Segmentation/aml/azure/runner.py --working ~/expe
 
 This will monitor the Azure blob store for new work to do, and run those jobs in priority order.  If you also provide a
 `--device` option pointing to the `adb device` for a Qualcomm 888 Dev Board then it will also run the quantized models
-on that device and report the performance and F1 score results.
+on that device and report the performance and F1 score results.  If the row in the azure table contains the property
+`benchmark_only` equal to 1, then it will skip computing any F1 scores.
 
 If you setup a quantization only runner in the cloud using the `docker/quantizer` image, you can pass
 `--no_quantization` argument when you have a `--device` so that the local runs do not do quantization. This will stop
-your linux machine from getting overloaded with quantization work so it can focus on the SNPE device workloads.
+your linux machine from getting overloaded with quantization work so it can focus on managing the SNPE device workloads.
