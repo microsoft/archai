@@ -15,7 +15,7 @@ import archai.common.azureml_helper as aml_helper
 from archai.common.store import ArchaiStore
 from archai.common.file_utils import TemporaryFiles
 from shutil import copyfile, rmtree
-from utils.setup import register_datastore, configure_store, create_cluster, copy_code_folder
+from aml.util.setup import register_datastore, configure_store, create_cluster, copy_code_folder
 
 
 confs_path = Path(__file__).absolute().parent / 'confs'
@@ -52,7 +52,8 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
     copyfile('train.py', str(scripts_path / 'train.py'))
     copy_code_folder('search_space', str(scripts_path / 'search_space'))
     copy_code_folder('training', str(scripts_path / 'training'))
-    copy_code_folder('utils', str(scripts_path / 'utils'))
+    copy_code_folder(os.path.join('aml', 'training'), str(scripts_path / 'aml' / 'training'))
+    copy_code_folder(os.path.join('aml', 'util'), str(scripts_path / 'aml' / 'util'))
     config.save(str(config_dir / 'aml_search.yaml'))
 
     aml_config = config['aml']
@@ -64,6 +65,7 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
         name="search",
         display_name="Archai search job",
         description="Searches for the best face segmentation model.",
+        is_deterministic=False,
         inputs={
             "data": Input(type="uri_folder")
         },
@@ -125,7 +127,7 @@ def main(output_dir: Path, experiment_name: str, seed: int):
         ml_client,
         image="mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest",
         conda_file="conda.yaml",
-        version='1.0.9')
+        version='1.0.13')
     environment_name = f"{archai_job_env.name}:{archai_job_env.version}"
 
     # Register the datastore with AML

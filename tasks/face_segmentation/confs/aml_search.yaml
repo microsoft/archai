@@ -35,6 +35,8 @@ search:
       max_unseen_population: 20
       num_random_mix: 6
       max_parameters: 5e7
+      # we are training elsewhere, so tell the search not to try and save them locally!
+      save_pareto_model_weights: false
 
   target:
     name: aml

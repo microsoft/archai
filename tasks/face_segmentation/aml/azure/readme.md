@@ -44,7 +44,7 @@ Then to get the ball rolling create a temp folder and run this:
 
 ```
 mkdir -p ~/experiment
-python ~/git/archai/tasks/face_Segmentation/snpe/azure/runner.py --working ~/experiment
+python ~/git/archai/tasks/face_Segmentation/aml/azure/runner.py --working ~/experiment
 ```
 
 This will monitor the Azure blob store for new work to do, and run those jobs in priority order.  If you also provide a

@@ -7,6 +7,7 @@ import sys
 import logging
 import datetime
 import platform
+import time
 import numpy as np
 import re
 from torch import Tensor
@@ -88,7 +89,17 @@ class ArchaiStore:
         if not self.table_client:
             if not self.service:
                 self.service = self._get_status_table_service()
-            self.table_client = self.service.create_table_if_not_exists(self.status_table_name)
+            for i in range(6):
+                try:
+                    self.table_client = self.service.create_table_if_not_exists(self.status_table_name)
+                    return self.table_client
+                except Exception as e:
+                    if i == 5:
+                        raise e
+                    else:
+                        print(f"### error getting table client, sleeping 10 seconds and trying again: {e}")
+                        time.sleep(10)
+
         return self.table_client
 
     def _get_container_client(self, name):
@@ -228,7 +239,6 @@ class ArchaiStore:
         entity = self.get_existing_status(name)
         if entity is None:
             entity = self.get_status(name)
-            self.update_status_entity(entity)
 
         entity['status'] = status
         if priority:
@@ -277,7 +287,6 @@ class ArchaiStore:
         e = self.get_existing_status(name)
         if e is None:
             e = self.get_status(name)
-            self.update_status_entity(e)
         return self.lock_entity(e, status)
 
     def lock_entity(self, e, status):
@@ -287,8 +296,8 @@ class ArchaiStore:
         running job is allocated to a particular node in a distributed cluster using this
         locking mechanism.  Be sure to call unlock when done, preferably in a try/finally block. """
         node_id = self._get_node_id()
-        if 'node' in e and e['node'] != node_id:
-            name = e['name']
+        name = e['name']
+        if self.is_locked_by_other(name):
             print(f"The model {name} is locked by {e['node']}")
             return None
         e['status'] = status
@@ -319,7 +328,7 @@ class ArchaiStore:
         if e is None:
             return False
         node_id = self._get_node_id()
-        return 'node' in e and e['node'] != node_id
+        return 'node' in e and e['node'] and e['node'] != node_id
 
     def unlock(self, name):
         """ Unlock the entity (regardless of who owns it - so use carefully, preferably only

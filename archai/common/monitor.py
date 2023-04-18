@@ -15,7 +15,7 @@ class JobCompletionMonitor:
     """ This helper class uses the ArchaiStore to monitor the status of some long running
     training operations and the status of the Azure ML pipeline those jobs are running in
     and waits for them to finish (either successfully or with a failure)"""
-    def __init__(self, store : ArchaiStore, ml_client : MLClient, pipeline_id=None, timeout=3600):
+    def __init__(self, store : ArchaiStore, ml_client : MLClient, metric_keys: List[str], pipeline_id=None, timeout=3600):
         """
         Initialize a JobCompletionMonitor instance.
         :param store: an instance of ArchaiStore to monitor the status of some long running training operations
@@ -27,6 +27,7 @@ class JobCompletionMonitor:
         self.ml_client = ml_client
         self.timeout = timeout
         self.pipeline_id = pipeline_id
+        self.metric_keys = metric_keys
 
     def wait(self, model_ids: List[str]) -> List[Dict[str, str]]:
         """
@@ -105,10 +106,11 @@ class JobCompletionMonitor:
         # stitch together the models.json file from our status table.
         print('Top model results: ')
         models = []
+        interesting_columns = self.metric_keys + ['status', 'error', 'epochs']
         for id in model_ids:
             row = {'id': id}
             e = completed[id] if id in completed else {}
-            for key in ['nb_layers', 'kernel_size', 'hidden_dim', 'val_acc', 'job_id', 'status', 'error', 'epochs']:
+            for key in interesting_columns:
                 if key in e:
                     row[key] = e[key]
             models += [row]
@@ -129,12 +131,16 @@ def main():
     parser.add_argument('--config', help='bin hexed config json info for MLClient')
     parser.add_argument('--timeout', type=int, help='pipeline timeout in seconds (default 1 hour)', default=3600)
     parser.add_argument('--model_path', required=True, help='mounted path containing the pending.json file')
-    parser.add_argument('--output', required=True, help='folder to write the results to)')
+    parser.add_argument('--output', required=True, help='folder to write the results to')
+    parser.add_argument('--metrics', type=str, help='metrics to return from the azure table')
 
     args = parser.parse_args()
     output = args.output
     timeout = args.timeout
     model_path = args.model_path
+    metrics = []
+    if args.metrics:
+        metrics = [x.strip() for x in args.metrics.split(',')]
 
     print(f"Monitor running with model_path={model_path}")
     if not os.path.isdir(model_path):
@@ -175,7 +181,7 @@ def main():
 
     store = ArchaiStore(storage_account_name, storage_account_key)
 
-    monitor = JobCompletionMonitor(store, ml_client, timeout=timeout)
+    monitor = JobCompletionMonitor(store, ml_client, metrics, timeout=timeout)
     results = monitor.wait(model_ids)
     if output is not None:
         # save the results with updated validation accuracies to models.json

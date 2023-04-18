@@ -31,4 +31,5 @@
 
 # Tasks
 /tasks/face_segmentation @piero2c
+/tasks/face_segmentation/aml @lovettchris
 /tasks/text_generation @gugarosa

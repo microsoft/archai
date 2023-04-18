@@ -1,39 +1,55 @@
 # Readme
 
-This folder contains code that automates the testing of ONNX models across one or more machines that are connected via
-USB to Qualcomm 888 boards.
+This folder contains code that automates the search, partial training and inference latency
+testing in [Azure ML](https://azure.microsoft.com/en-us/products/machine-learning/).
+
+The inference testing of ONNX models can be performed across one or more machines that are connected
+via USB to Qualcomm 888 boards.
 
 The code is organized into:
 
-1. [SNPE Device Code](snpe/readme.md) that knows how to use the Qualcomm Neural Processing SDK to talk to the device,
-convert ONNX models to .dlc, quantize them, and test them on the board using the Android `adb` tool.
+1. [Training](training/readme.md) code that plugs into the Archai Search to perform partial training
+of selected models in Azure ML.
 
-1. [Azure Code](azure/readme.md) that talks to a configured Azure storage account for uploading models to test,
-downloading them, uploading test results, and keeping an Azure status table that summarizes results of all your
-models.
+1. [SNPE Device](snpe/readme.md) code that uses [Microsoft
+Olive](https://github.com/microsoft/olive) to drive the the Qualcomm Neural Processing SDK to talk
+to the device, convert ONNX models to .dlc, quantize them, and test them on the board using the
+Android `adb` tool.
 
-1. [Docker](docker/quantizer/readme.md) scripts for setting up your Azure account and optionally creating a docker image
-for running in an Azure Kubernetes cluster to do model quantization using the Qualcomm Neural Processing SDK.
-Quantization is time consuming so having an elastic scale speeds things up a lot.
+1. [Azure Code](azure/readme.md) that talks to a configured Azure storage account for uploading
+models to test, downloading them, uploading test results, and keeping an Azure status table that
+summarizes results of all your models.
 
-1. [Notebooks](notebook/gallery_performance.md) contains a Jupyter Notebook that can visualize the results from the
-Azure "status" table.
+1. [Docker](docker/quantizer/readme.md) scripts for setting up your Azure account and optionally
+creating a docker image for running in an Azure Kubernetes cluster to do model quantization using
+the Qualcomm Neural Processing SDK. Quantization is time consuming so having an elastic scale speeds
+things up a lot.
 
-It is best if you setup a new Conda Python environment for Python 3.10 with the `requirements.txt` included here using:
+1. [Notebooks](notebook/gallery_performance.md) contains a Jupyter Notebook that can visualize the
+results from your Azure "status" table.
 
-```shell
-pip install -r requirements.txt
-```
-
-The SNPE SDK only works on Linux, so you need a Linux machine with this repo. Then follow additional setup in each of
-the above readmes.
 
 ## Workflow
 
-The overall workflow looks like this. One or more Linux machines are setup as above and are running `azure/runner.py`
-including a Kubernetes cluster setup for quantization (see [docker/quantizer](docker/quantizer) folder).
+The overall workflow starts with an Archai Search that contains an `AmlPartialTrainingEvaluator` and a
+`RemoteAzureBenchmarkEvaluator`.  The remote benchmark evaluator performs inference latency testing
+on Qualcomm hardware.  The `AmlPartialTrainingEvaluator` then kicks off one new Azure ML
+training pipeline for each batch of new model architectures that need to be partially trained, it
+stores the validation IOU results in an Azure blob store and an Azure table as follows:
 
 ![system](images/system.png)
+
+See [AML Training Readme](training/readme.md) for more information.
+
+## Remote Inference Testing
+
+The remote inference testing workflow looks like this, the `R`emoteAzureBenchmarkEvaluator` uploads models to the same
+Azure blob store, and adds a row to the status table.  This triggers remote instances of the `runner.py` script
+to process these new models on an attached Qualcomm device.  Optionally some of the work can be done in the cloud
+using a Kubernetes cluster, this includes model quantization and accuracy testing using the ONNX runtime.
+The workflow looks like this:
+
+![snpe](images/snpe.png)
 
 Each instance of `runner.py` looks for work, and executes it in priority order where the prioritization is defined by
 the `find_work_prioritized` function in the runner.  This script is completely restartable, and can distribute the work
@@ -69,7 +85,7 @@ there so you can see which machine is doing what and is in what stage of the job
 
 Next you can go to the `notebook` page and get some pretty pictures of your Pareto Curves.
 
-## Portal
+## Azure Portal
 
 When everything is running you will see progress happening in your Azure status table.  Here you see the snpe-quantizer
 kubernetes cluster is quantizing a bunch of models while other machines are running the bench mark tests on the Qualcomm

@@ -17,7 +17,7 @@ pushd /home/archai/experiment
 
 while true
 do
-    python -u /home/archai/archai/tasks/face_segmentation/snpe/azure/runner.py
+    python -u /home/archai/archai/tasks/face_segmentation/aml/azure/runner.py
     if [ $? != 0 ]; then
       echo "Script returned an error code!"
     fi

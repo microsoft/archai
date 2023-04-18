@@ -31,31 +31,37 @@ def main():
 
     model_id = args.model_id
     store: ArchaiStore = None
-    metric_key = args.metric_key
     epochs = 1 if args.epochs < 1 else args.epochs
 
     storing = False
     config = args.config
     experiment_name = None
-    if config and os.path.isfile(config):
-        config = Config(config)
+    if config and config.is_file():
+        config = Config(str(config))
         if 'aml' in config:
             # we are running in azure ml.
             aml_config = config['aml']
+            metric_key = config['training'].get('metric_key')
             connection_str = aml_config['connection_str']
             experiment_name = aml_config['experiment_name']
             storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(connection_str)
             store = ArchaiStore(storage_account_name, storage_account_key, table_name=experiment_name)
             storing = True
 
-    if storing:
-        e = store.lock(model_id, 'training')
-        pipeline_id = os.getenv('AZUREML_ROOT_RUN_ID')
-        if pipeline_id is not None:
-            e['pipeline_id'] = pipeline_id
-            store.merge_status_entity(e)
-
     try:
+        if storing:
+            print(f'Locking entity {model_id}')
+            e = store.lock(model_id, 'training')
+            if e is None:
+                e = store.get_status(model_id)
+                node = e['node']
+                raise Exception(f'Entity should not be locked by: "{node}"')
+
+            pipeline_id = os.getenv('AZUREML_ROOT_RUN_ID')
+            if pipeline_id is not None:
+                e['pipeline_id'] = pipeline_id
+                store.merge_status_entity(e)
+
         arch_config = ArchConfig.from_file(args.arch)
         model = StackedHourglass(arch_config, num_classes=18)
 
@@ -111,7 +117,6 @@ def main():
         sample_input = ((rand_max - rand_min) * torch.rand(*input_shape) + rand_min).type("torch.FloatTensor")
         onnx_file = str(args.output_dir / 'model.onnx')
         torch.onnx.export(model, (sample_input,), onnx_file, input_names=["input_0"], **export_kwargs, )
-
 
     except Exception as ex:
         # record failed state.

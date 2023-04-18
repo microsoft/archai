@@ -37,7 +37,7 @@ bits.  If you plan to use Qualcomm hardware devices then set the `SNPE_ANDROID_R
 1. **Install required packages including Olive **
 
     ```
-    pushd tasks/face_segmentation/snpe
+    pushd tasks/face_segmentation/aml
     pip install -r requirements.txt
     ```
 

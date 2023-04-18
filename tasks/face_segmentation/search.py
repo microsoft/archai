@@ -21,8 +21,8 @@ from archai.discrete_search.evaluators.remote_azure_benchmark import RemoteAzure
 
 from search_space.hgnet import HgnetSegmentationSearchSpace
 from training.partial_training_evaluator import PartialTrainingValIOU
-from training.aml_training_evaluator import AmlPartialTrainingValIOU
-from utils.setup import configure_store
+from aml.training.aml_training_evaluator import AmlPartialTrainingEvaluator
+from aml.util.setup import configure_store
 
 AVAILABLE_ALGOS = {
     'mo_bananas': MoBananasSearch,
@@ -134,7 +134,7 @@ def main():
 
     if target_name == 'aml':
         # do the partial training in an AML gpu cluster
-        partial_tr_obj = AmlPartialTrainingValIOU(
+        partial_tr_obj = AmlPartialTrainingEvaluator(
             config,
             tr_epochs=int(args.partial_tr_epochs),
             timeout_seconds=timeout_seconds,

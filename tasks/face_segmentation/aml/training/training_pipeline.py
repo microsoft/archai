@@ -12,9 +12,8 @@ from archai.discrete_search.search_spaces.config import ArchConfig
 from azure.ai.ml import command, Input, Output, dsl
 from azure.ai.ml.entities import UserIdentityConfiguration
 from archai.common.config import Config
-from utils.setup import copy_code_folder, get_valid_arch_id
+from aml.util.setup import copy_code_folder, get_valid_arch_id
 from shutil import copyfile
-from archai.common.file_utils import TemporaryFiles
 
 
 def training_component(output_path: str, code_dir: Path, config, training_epochs: int, config_filename: str, model_id: str, arch: str):
@@ -36,6 +35,7 @@ def training_component(output_path: str, code_dir: Path, config, training_epochs
         inputs={
             "data": Input(type="uri_folder", mode="download")
         },
+        is_deterministic=False,
         outputs={
             "results": Output(type="uri_folder", path=output_path, mode="rw_mount")
         },
@@ -84,7 +84,8 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
     copyfile('train.py', str(code_dir / 'train.py'))
     copy_code_folder('training', str(code_dir / 'training'))
     copy_code_folder('search_space', str(code_dir / 'search_space'))
-    copy_code_folder('utils', str(code_dir / 'utils'))
+    copy_code_folder(os.path.join('aml', 'training'), str(code_dir / 'aml' / 'training'))
+    copy_code_folder(os.path.join('aml', 'util'), str(code_dir / 'aml' / 'util'))
     config.save(str(config_dir / 'aml_search.yaml'))
 
     models = []
@@ -131,7 +132,7 @@ def start_training_pipeline(description: str, ml_client: MLClient, store: Archai
             output_path = f'{root_uri}/{model_id}'
             filename = f'archs/{model_id}.json'
             train_job = training_component(
-                output_path, code_dir, config, training_epochs, 'archs/aml_search.yaml', model_id, filename)(
+                output_path, code_dir, config, training_epochs, 'confs/aml_search.yaml', model_id, filename)(
                 data=data_input
             )
 

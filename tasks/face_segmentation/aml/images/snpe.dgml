@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="..." Bounds="-891.259155273438,-397.317448474421,50,25.96" UseManualLocation="True" />
+    <Node Id="...1" Bounds="-899.17041015625,-141.018983432007,50,25.96" Label="..." UseManualLocation="True" />
+    <Node Id="AzureBlobStore" Bounds="-1193.71833333333,-519.02,106.03,25.96" Label="azure blob store" UseManualLocation="True" />
+    <Node Id="AzureStatusTable" Bounds="-1193.71833333333,-445.02,112.973333333333,25.96" Label="azure status table" UseManualLocation="True" />
+    <Node Id="JupyterNotebook" Bounds="-1373.73103800456,-374.529480438232,115.163333333333,25.96" Label="Jupyter Notebook" UseManualLocation="True" />
+    <Node Id="KubernetesCluster" Bounds="-1208.17041666667,-308.193725585938,119.78,25.96" Label="Kubernetes Cluster" UseManualLocation="True" />
+    <Node Id="QualcommDevice" Bounds="-769.718333333333,-534.029998779297,115.2,25.96" Label="Qualcomm device" UseManualLocation="True" />
+    <Node Id="QualcommDevice1" Bounds="-771.540833333333,-453.524998168945,115.2,25.96" Label="Qualcomm device" UseManualLocation="True" />
+    <Node Id="Runner.py" Bounds="-903.436666666667,-534.04,70.4533333333334,25.96" Label="runner.py" UseManualLocation="True" />
+    <Node Id="Runner.py1" Bounds="-900.436666666666,-453.277548474121,70.4533333333334,25.96" Label="runner.py" UseManualLocation="True" />
+    <Node Id="Runner.py2" Bounds="-899.452100016276,-313.899282537842,70.4533333333334,25.96" Label="runner.py" UseManualLocation="True" />
+    <Node Id="Runner.py3" Bounds="-903.170422770182,-257.939182537842,70.4533333333334,25.96" Label="runner.py" UseManualLocation="True" />
+    <Node Id="Runner.py4" Bounds="-901.449353434245,-196.979083432007,70.4533333333334,25.96" Label="runner.py" UseManualLocation="True" />
+    <Node Id="SnpeQuantiation" Bounds="-760.452083333333,-251.989580438032,109.126666666667,25.96" Label="snpe quantiation" UseManualLocation="True" />
+    <Node Id="SnpeQuantization" Bounds="-765.452083333333,-319.111862182617,114.553333333333,25.96" Label="snpe quantization" UseManualLocation="True" />
+    <Node Id="Test_onnx" Bounds="-761.731038004557,-196.029480438032,70.6,25.96" Label="test_onnx" UseManualLocation="True" />
+    <Node Id="Upload" Bounds="-1358,-486,56.9533333333334,25.96" Label="upload" UseManualLocation="True" />
+  </Nodes>
+  <Links>
+    <Link Source="AzureBlobStore" Target="Runner.py" Bounds="-1087.68833333333,-518.622950863832,175.265307859855,9.66073148231777" />
+    <Link Source="AzureBlobStore" Target="Runner.py1" Bounds="-1088.87312747027,-493.671480024217,179.682271416389,42.8785440131106" />
+    <Link Source="AzureBlobStore" Target="Runner.py2" Bounds="-1123.20786439099,-493.06,234.258979177112,173.798230829991" />
+    <Link Source="AzureStatusTable" Target="JupyterNotebook" Bounds="-1274.83022938267,-419.06,104.652972002948,41.2314834002964" />
+    <Link Source="AzureStatusTable" Target="Runner.py" Bounds="-1080.81652832031,-509.130645751953,168.557861328125,66.4595947265625" />
+    <Link Source="AzureStatusTable" Target="Runner.py1" Bounds="-1080.74499511719,-440.441986083984,171.315490722656,16.3391418457031" />
+    <Link Source="AzureStatusTable" Target="Runner.py2" Bounds="-1139.12512207031,-419.059997558594,230.889526367188,109.594512939453" />
+    <Link Source="KubernetesCluster" Target="Runner.py2" Bounds="-1088.39041666667,-300.030977720837,179.940131632676,3.61429557395724" />
+    <Link Source="KubernetesCluster" Target="Runner.py3" Bounds="-1088.48300877702,-284.494145054022,176.453803054895,31.6319857124957" />
+    <Link Source="KubernetesCluster" Target="Runner.py4" Bounds="-1115.36110619474,-282.233725585938,207.979834247903,82.005917190745" />
+    <Link Source="Runner.py" Target="AzureStatusTable" Bounds="-1072.1494140625,-508.079986572266,204.017822265625,68.9985656738281" />
+    <Link Source="Runner.py" Target="QualcommDevice" Bounds="-832.983333333334,-521.057742930962,54.2650000184744,0.00347690721241634" />
+    <Link Source="Runner.py1" Target="AzureStatusTable" Bounds="-1072.06420898438,-446.465148925781,171.627563476563,13.8491516113281" />
+    <Link Source="Runner.py1" Target="QualcommDevice1" Bounds="-829.983333333333,-440.43605232718,49.4425120416125,0.0808792352441969" />
+    <Link Source="Runner.py2" Target="AzureStatusTable" Bounds="-1121.76196289063,-413.858764648438,222.812377929688,101.29736328125" />
+    <Link Source="Runner.py2" Target="SnpeQuantization" Bounds="-828.998766682943,-303.918172876787,54.5517001524775,1.82220475106016" />
+    <Link Source="Runner.py3" Target="SnpeQuantiation" Bounds="-832.717089436849,-243.665889260401,63.2710654347352,2.32290055592145" />
+    <Link Source="Runner.py4" Target="Test_onnx" Bounds="-830.996020100912,-183.759789107701,60.2651897402561,0.409380711338741" />
+    <Link Source="Upload" Target="AzureBlobStore" Bounds="-1301.04666666667,-495.218620705108,98.462871841466,17.2187481633575" />
+    <Link Source="Upload" Target="AzureStatusTable" Bounds="-1301.04666666667,-466.951230509209,99.2138266043523,21.1438315800457" />
+  </Links>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+  </Properties>
+</DirectedGraph>

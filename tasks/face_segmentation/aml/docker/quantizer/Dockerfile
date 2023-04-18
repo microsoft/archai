@@ -62,13 +62,13 @@ RUN wget -O azcopy_v10.tar.gz https://aka.ms/downloadazcopy-v10-linux && tar -xf
 
 # this echo is a trick to bypass docker build cache.
 # simply change the echo string every time you want docker build to pull down new bits.
-RUN echo '04/15/2023 06:28 PM' >/dev/null && git clone https://github.com/microsoft/archai.git
-RUN cd archai && git checkout && pip install -e .[dev]
+RUN echo '04/18/2023 11:49 AM' >/dev/null && git clone https://github.com/microsoft/archai.git
+RUN cd archai && git checkout clovett/aml && pip install -e .[dev]
 
 RUN echo "using this pip version: " && which pip
 RUN echo "using this python version: " && which python
 
-RUN pushd /home/archai/archai/tasks/face_segmentation/snpe && \
+RUN pushd /home/archai/archai/tasks/face_segmentation/aml && \
     python --version && \
     pip install -r requirements.txt
 

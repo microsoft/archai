@@ -632,7 +632,6 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
             priority = 30 + total_benchmark_runs
         elif is_benchmark_only(entity, benchmark_only):
             # this model is done!
-            ensure_complete(entity)
             continue
         elif not is_complete(entity, 'f1_onnx'):
             priority = 60
@@ -645,7 +644,6 @@ def find_work_prioritized(use_device, benchmark_only, subset_list, no_quantizati
             priority = 100 + get_mean_benchmark(entity) * 100
         else:
             # this model is done!
-            ensure_complete(entity)
             continue
 
         if 'priority' in entity:
