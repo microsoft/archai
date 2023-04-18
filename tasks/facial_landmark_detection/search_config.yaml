@@ -3,7 +3,6 @@
 #
 
 # NAS args
-nas_search_backbone: "mobilenetv2"
 nas_num_iters: 6
 nas_init_num_models: 4 #16 #32
 nas_num_random_mix: 32

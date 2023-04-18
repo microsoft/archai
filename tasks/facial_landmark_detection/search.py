@@ -23,7 +23,7 @@ from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.api.search_objectives import SearchObjectives
 
 from search_space import (ConfigSearchSpaceExt, _create_model_from_csv, _load_pretrain_weight)
-from latency_measurement import AvgOnnxLatency
+from latency import AvgOnnxLatency
 import train as model_trainer
 
 #hardcoded need to get as a parameter
@@ -106,17 +106,9 @@ class NASLandmarks():
         self.nas_args, remaining_args = _parse_args_from_config()
         self.lit_args, _ = model_trainer.get_args_parser().parse_known_args(remaining_args)
 
-#TBD
-#        print (f"Loading dataset from {self.trainer_args.data_dir}")
-        self.datamodule = None
-
     def search(self):
-        if (self.nas_args.nas_search_backbone == 'mobilenetv2'):
-            ss = ConfigSearchSpaceExt (self.nas_args, num_classes = NUM_LANDMARK_CLASSES)
-        else:
-            print(f"self.nas_args.nas_search_backbone: {self.nas_args.nas_search_backbone}, not supported")
-            assert (False)
 
+        ss = ConfigSearchSpaceExt (self.nas_args, num_classes = NUM_LANDMARK_CLASSES)
         search_objectives = SearchObjectives()
         search_objectives.add_objective(
                 'Partial training Validation Accuracy',
