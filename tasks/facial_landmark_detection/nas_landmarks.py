@@ -1,45 +1,34 @@
 import sys
+
 if ('--debug' in sys.argv):
     import debugpy
     debugpy.listen(5678)
     print("Waiting for debugger")
     debugpy.wait_for_client()
 
+import math
 import os
-import pathlib 
-root = pathlib.Path(__file__).parent.absolute().parent
-sys.path.append(str(root))
-
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
 
-import math
 import pandas as pd
 import torch
+import train as model_trainer
 import yaml
+from discrete_search_space_mnv2_config import (
+    ConfigSearchSpaceExt,
+    _create_model_from_csv,
+    _load_pretrain_weight,
+)
+from latency_measurement import AvgOnnxLatency
 from overrides.overrides import overrides
 
 from archai.common.common import logger
-from archai.discrete_search.api.search_objectives import SearchObjectives
 from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
+from archai.discrete_search.api.model_evaluator import ModelEvaluator
+from archai.discrete_search.api.search_objectives import SearchObjectives
 
-from archai.discrete_search.api.model_evaluator import (
-    AsyncModelEvaluator,
-    ModelEvaluator,
-)
-import train as model_trainer
-
-#SyntheticsDataModule #this needs to be exported from trainer code so it can be reused by multiple training calls
-
-from discrete_search_space_mnv2_config import (
-    ConfigSearchSpaceExt, _create_model_from_csv, _load_pretrain_weight
-    )
-from latency_measurement import AvgOnnxLatency
-
-#for debugging otherwise setting from command line
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0,1,2,3"
 
 #hardcoded need to get as a parameter
 NUM_LANDMARK_CLASSES = 140
@@ -55,7 +44,6 @@ def convert_args_dict_to_list(d):
 
     return new_list
 
-#class AccuracyEvaluator(AsyncModelEvaluator):
 class AccuracyEvaluator(ModelEvaluator):
     
     def __init__(self, lit_args) -> None:
@@ -69,13 +57,6 @@ class AccuracyEvaluator(ModelEvaluator):
         if (math.isnan(val_error)):
             logger.info(f"Warning: model {model.arch.archid} has val_error NaN. Set to 10000.0 to avoid corrupting the Pareto front.")
             val_error = 10000.0
-        """
-        #smoothing
-        w = 0.8
-        if (self.prev_metric is not None):
-            val_error = val_error * (1 - w) + self.prev_metric * w
-        """        
-        self.prev_metric = val_error
         return val_error
 
 class OnnxLatencyEvaluator(ModelEvaluator):
@@ -140,26 +121,17 @@ class NASLandmarks():
             print(f"self.nas_args.nas_search_backbone: {self.nas_args.nas_search_backbone}, not supported")
             assert (False)
 
-        """
-        objectives = {
-            'Onnx Latency (ms)': AvgOnnxLatencyOneCPU(input_shape=(1, 3, 128, 128), num_trials=self.nas_args.nas_num_latency_measurements, num_input=self.nas_args.nas_num_input_per_latency_measurement),
-            'Partial training Validation Accuracy': FaceLandmarkTrainingObjective(self.lit_args),
-#            'Partial training Validation Accuracy': RayParallelObjective(FaceLandmarkTrainingObjective(self.lit_args),
-#                                                                         num_gpus=1.0/self.nas_args.nas_num_jobs_per_gpu, 
-#                                                                         max_calls=1),
-        }
-        """
         search_objectives = SearchObjectives()
-        search_objectives.add_objective(
-                "onnx_latency (ms)",
-                OnnxLatencyEvaluator(self.nas_args),
-                higher_is_better=False,
-                compute_intensive=False)
         search_objectives.add_objective(
                 'Partial training Validation Accuracy',
                 AccuracyEvaluator(self.lit_args),
                 higher_is_better=False,
                 compute_intensive=True)
+        search_objectives.add_objective(
+                "onnx_latency (ms)",
+                OnnxLatencyEvaluator(self.nas_args),
+                higher_is_better=False,
+                compute_intensive=False)
 
         algo = EvolutionParetoSearch(
             search_space=ss,        
@@ -180,7 +152,7 @@ class NASLandmarks():
         ids = results_df.archid.values.tolist()
         if (len(set(ids)) > len(ids)):
             print("Duplidated models detected in nas results. This is not supposed to happen.")
-            #assert (False)
+            assert (False)
 
         configs = []
         for archid in ids:
@@ -189,8 +161,7 @@ class NASLandmarks():
         config_df = pd.DataFrame({'archid' : ids, 'config' : configs})
         config_df = results_df.merge(config_df)
 
-        output_csv_name = '-'.join([self.nas_args.nas_search_backbone,
-                                    'config-search',
+        output_csv_name = '-'.join(['search',
                                     datetime.now().strftime("%Y%m%d-%H%M%S"),
                                     'output.csv'])
         output_csv_path = os.path.join(self.nas_args.nas_output_dir, output_csv_name)

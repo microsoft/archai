@@ -4,19 +4,13 @@ from typing import Dict, List, Optional, Tuple, Union
 import os
 os.environ["OMP_NUM_THREADS"] = "1"
 import onnxruntime as rt
-import psutil
 import torch
 
-from archai.common.timing import MeasureBlockTime
-from archai.api.dataset_provider import DatasetProvider
 from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.discrete_search.api.search_objectives import SearchObjectives
 
 import os
 import statistics
 from math import sqrt
-from multiprocessing import Process, Queue
-from time import perf_counter, sleep
 from typing import Dict, Optional, Tuple
 
 
@@ -52,8 +46,7 @@ class AvgOnnxLatency:
         self.export_kwargs = export_kwargs or dict()
         self.inf_session_kwargs = inf_session_kwargs or dict()
 
-    def evaluate(self, model: ArchaiModel, dataset_provider: DatasetProvider = None,
-                budget: Optional[float] = None) -> float:
+    def evaluate(self, model: ArchaiModel) -> float:
         model.arch.to('cpu')
 
         # Exports model to ONNX
@@ -102,36 +95,7 @@ class AvgOnnxLatency:
         assert (inf_time_std < 0.1 * inf_time_avg,  f"inf_time_std = {inf_time_std}, inf_time_avg = {inf_time_avg:}")
         return inf_time_avg
 
-    def get_model_latency_1cpu(self, onnx_session, model, sample_input, cpu: int, onnx: bool = False, num_input:int = 15, num_measures:int = 15) -> Tuple[float, float] :
-        """ runs the timing measurement code on 1 cpu (use cpu #1 since that is what I have been using"""
-        # IMPORTANT: the next two lines as a hack are needed for many multiproc issues torch has 
-        torch.set_num_threads(1) #do this even though it maybe already be 1
-        assert (torch.get_num_threads() == 1)
-        sleep(1.0) #not sure why this is needed but it *is*, otherwise some onnx_session.run() could never return from the capi call
-
-        return_q = Queue()
-        p = Process(target=self.get_time_elapsed_process, args=(return_q, cpu, onnx_session, model, sample_input, onnx, num_input, num_measures))
-        p.start()
-        p.join()
-        ret = return_q.get()
-        return ret
-
-    def get_time_elapsed_process (self, return_q, cpu, onnx_session, model, sample_input, onnx: bool = False, num_input:int = 15, num_measures:int = 15):
-        """ wrapper to handle return values"""
-
-        assert (cpu < os.cpu_count())
-        # pin created processes 
-        pid = os.getpid()
-        assert (pid != None)
-        print(f"get_time_elapsed_process pid: {pid}")
-        
-        p = psutil.Process(pid)
-        print(f"Setting CPU affinity for pid {pid} to CPU {cpu}")
-        p.cpu_affinity([cpu])
     
-        ret = self.get_time_elapsed (onnx_session, model, sample_input, onnx, num_input, num_measures)
-        return_q.put (ret)
-
     def get_time_elapsed (self, onnx_session, model, sample_input, onnx: bool = False, num_input:int = 15, num_measures:int = 15) -> Tuple[float, float] :
         #print("get_time_elapsed: entering")
         def meausre_func() : 
