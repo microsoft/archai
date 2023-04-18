@@ -7,6 +7,7 @@ import sys
 import logging
 import datetime
 import platform
+import time
 import numpy as np
 import re
 from torch import Tensor
@@ -88,7 +89,17 @@ class ArchaiStore:
         if not self.table_client:
             if not self.service:
                 self.service = self._get_status_table_service()
-            self.table_client = self.service.create_table_if_not_exists(self.status_table_name)
+            for i in range(6):
+                try:
+                    self.table_client = self.service.create_table_if_not_exists(self.status_table_name)
+                    return self.table_client
+                except Exception as e:
+                    if i == 5:
+                        raise e
+                    else:
+                        print(f"### error getting table client, sleeping 10 seconds and trying again: {e}")
+                        time.sleep(10)
+
         return self.table_client
 
     def _get_container_client(self, name):
