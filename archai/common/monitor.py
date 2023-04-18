@@ -15,7 +15,7 @@ class JobCompletionMonitor:
     """ This helper class uses the ArchaiStore to monitor the status of some long running
     training operations and the status of the Azure ML pipeline those jobs are running in
     and waits for them to finish (either successfully or with a failure)"""
-    def __init__(self, store : ArchaiStore, ml_client : MLClient, pipeline_id=None, timeout=3600):
+    def __init__(self, store : ArchaiStore, ml_client : MLClient, metric_keys: List[str], pipeline_id=None, timeout=3600):
         """
         Initialize a JobCompletionMonitor instance.
         :param store: an instance of ArchaiStore to monitor the status of some long running training operations
@@ -27,6 +27,7 @@ class JobCompletionMonitor:
         self.ml_client = ml_client
         self.timeout = timeout
         self.pipeline_id = pipeline_id
+        self.metric_keys = metric_keys
 
     def wait(self, model_ids: List[str]) -> List[Dict[str, str]]:
         """
@@ -105,10 +106,11 @@ class JobCompletionMonitor:
         # stitch together the models.json file from our status table.
         print('Top model results: ')
         models = []
+        interesting_columns = self.metric_keys + ['status', 'error', 'epochs']
         for id in model_ids:
             row = {'id': id}
             e = completed[id] if id in completed else {}
-            for key in ['nb_layers', 'kernel_size', 'hidden_dim', 'val_acc', 'job_id', 'status', 'error', 'epochs']:
+            for key in interesting_columns:
                 if key in e:
                     row[key] = e[key]
             models += [row]
