@@ -22,7 +22,7 @@ archai_job_env = aml_helper.create_environment_from_file(
     ml_client,
     image="mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest",
     conda_file="conda.yaml",
-    version='1.0.14')
+    version='1.0.15')
 environment_name = f"{archai_job_env.name}:{archai_job_env.version}"
 
 test_component = command(experiment_name="testenv",
