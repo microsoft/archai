@@ -14,14 +14,7 @@ from pathlib import Path
 
 import pandas as pd
 import torch
-import train as model_trainer
 import yaml
-from discrete_search_space_mnv2_config import (
-    ConfigSearchSpaceExt,
-    _create_model_from_csv,
-    _load_pretrain_weight,
-)
-from latency_measurement import AvgOnnxLatency
 from overrides.overrides import overrides
 
 from archai.common.common import logger
@@ -29,6 +22,9 @@ from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.api.search_objectives import SearchObjectives
 
+from search_space import (ConfigSearchSpaceExt, _create_model_from_csv, _load_pretrain_weight)
+from latency_measurement import AvgOnnxLatency
+import train as model_trainer
 
 #hardcoded need to get as a parameter
 NUM_LANDMARK_CLASSES = 140
