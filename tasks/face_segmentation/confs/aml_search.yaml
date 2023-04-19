@@ -90,6 +90,7 @@ aml:
         - matplotlib
         - mldesigner
         - mlflow
+        - onnxruntime>=1.10.0
         - torch
         - torchvision
         - torchaudio
