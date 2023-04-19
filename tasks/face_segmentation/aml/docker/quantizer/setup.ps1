@@ -246,4 +246,4 @@ Write-Host "  kubectl apply -f quantizer.yaml"
 
 Write-Host ""
 Write-Host "### To run the runner script locally please set the following environment variable: "
-Write-HOst "set MODEL_STORAGE_CONNECTION_STRING=$conn_str"
+Write-Host "set MODEL_STORAGE_CONNECTION_STRING=$conn_str"

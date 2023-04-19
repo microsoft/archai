@@ -86,7 +86,7 @@ def main():
 
     target_config = search_config.get('target', {})
     target_name = target_config.pop('name', 'cpu')
-    assert target_name in ['cpu', 'snp', 'aml']
+    assert target_name in ['cpu', 'snp']
 
     max_latency = 0.3 if target_name == 'cpu' else 0.185
     algo_config = search_config['algorithm']
@@ -111,12 +111,13 @@ def main():
         constraint=[0, max_latency]
     )
 
-    if target_name == 'snp' or target_name == 'aml':
+    aml_training = False
+
+    if target_name == 'snp':
         # Gets connection string from env variable
         aml_config = config['aml']
         experiment_name = aml_config.get('experiment_name', 'facesynthetics')
         store: ArchaiStore = configure_store(aml_config)
-
         evaluator = RemoteAzureBenchmarkEvaluator(
             input_shape=input_shape,
             store=store,
@@ -132,15 +133,16 @@ def main():
             compute_intensive=True
         )
 
-    if target_name == 'aml':
-        # do the partial training in an AML gpu cluster
+        aml_training = 'training_cluster' in aml_config
+
+    if aml_training:
+        # do the partial training on an AML gpu cluster
         partial_tr_obj = AmlPartialTrainingEvaluator(
             config,
             tr_epochs=int(args.partial_tr_epochs),
             timeout_seconds=timeout_seconds,
             local_output=partial_training_output
         )
-
     else:
         if args.dataset_dir is None:
             raise ValueError('--dataset_dir must be specified if target is not aml')

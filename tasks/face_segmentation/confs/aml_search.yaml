@@ -39,12 +39,11 @@ search:
       save_pareto_model_weights: false
 
   target:
-    name: aml
+    name: snp
     metric_key: mean
     max_retries: 15
     retry_interval: 60
     verbose: true
-
 
 training:
   batch_size: 16

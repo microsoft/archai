@@ -34,6 +34,7 @@ search:
       num_crossovers: 6
       max_unseen_population: 20
       num_random_mix: 6
+      max_parameters: 5e7
 
   target:
     name: snp
@@ -41,7 +42,6 @@ search:
     max_retries: 15
     retry_interval: 60
     verbose: true
-    max_parameters: 5e7
 
 aml:
   connection_str: ${MODEL_STORAGE_CONNECTION_STRING}
