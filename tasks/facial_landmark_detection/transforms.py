@@ -71,18 +71,6 @@ class WarpRegion():
         """The 3x3 perspective matrix for warping source points to destination points."""
         return cv2.findHomography(self.src_pts, self.dst_pts)[0][:3, :3]
 
-    @property
-    def bounds(self):
-        """The rectangular bounds of the source region: top left and bottom right."""
-        return (self.src_pts[0], self.src_pts[2])
-
-    @property
-    def size(self):
-        """The average size of the region in the source image, in pixels."""
-        other_corners = np.roll(self.src_pts, -1, axis=0)
-        dists = np.linalg.norm(self.src_pts - other_corners, axis=1)
-        return np.mean(dists)
-
     def scale(self, scale):
         """Uniformly scale the source points about their center."""
         scale_mat = cv2.getRotationMatrix2D(self.src_pts_center, angle=0, scale=scale)
@@ -105,18 +93,15 @@ class WarpRegion():
 class GetWarpRegion():
     """Builds a warp region for the face, with square bounds enclosing the given 2D landmarks."""
 
-    def __init__(self, roi_size, scale=2.0, landmarks_definition=None):
+    def __init__(self, roi_size, scale=2.0):
         self.roi_size = roi_size
         self.scale = scale
-        self.landmarks_definition = landmarks_definition
 
     def __call__(self, sample: Sample):
 
         assert sample.landmarks is not None
 
         ldmks_2d = sample.landmarks
-        if self.landmarks_definition:
-            ldmks_2d = self.landmarks_definition.apply(sample.landmarks)
 
         sample.warp_region = WarpRegion(*get_square_bounds(ldmks_2d), self.roi_size)
         sample.warp_region.scale(self.scale)
@@ -126,9 +111,8 @@ class GetWarpRegion():
 class ExtractWarpRegion():
     """Extract the Warp Region from a sample."""
 
-    def __init__(self, invalid_depth_value=0.0, keep_unwarped=False):
+    def __init__(self):
         self.kwargs_bgr = {"flags": cv2.INTER_AREA, "borderMode": cv2.BORDER_REPLICATE}
-        self.keep_unwarped = keep_unwarped
 
     def __call__(self, sample : tuple):
 
@@ -136,10 +120,6 @@ class ExtractWarpRegion():
         assert sample.warp_region is not None
 
         warp_region = sample.warp_region
-
-        if self.keep_unwarped:
-            # Useful for visualizations and debugging
-            sample.image_unwarped = np.copy(sample.image)
 
         sample.image = warp_region.extract_from_image(sample.image, **self.kwargs_bgr)
 
