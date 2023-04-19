@@ -33,7 +33,7 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
                  timeout_seconds=3600):
         self.config = config
         self.tr_epochs = int(tr_epochs)
-
+        self.iteration = 0
         aml_config = config['aml']
         workspace_name = aml_config['workspace_name']
         subscription_id = aml_config['subscription_id']
@@ -76,6 +76,7 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
     def fetch_all(self) -> List[Union[float, None]]:
         snapshot = self.models
         self.models = []  # reset for next run.
+        self.iteration += 1
 
         if len(self.results) > 0:
             print(f'AmlPartialTrainingEvaluator: found {len(self.results)} were already trained.')
@@ -87,7 +88,7 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
             # happening in parallel which greatly reduces the overall Archai Search process.
             description = f"AmlPartialTrainingEvaluator training {self.tr_epochs} epochs"
             pipeline_job, model_names = start_training_pipeline(
-                description,  self.ml_client, self.store, snapshot, self.config, self.tr_epochs, self.local_output)
+                description,  self.iteration, self.ml_client, self.store, snapshot, self.config, self.tr_epochs, self.local_output)
 
             job_id = pipeline_job.name
             print(f'AmlPartialTrainingEvaluator: Started training pipeline: {job_id}')
