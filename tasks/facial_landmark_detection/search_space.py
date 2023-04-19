@@ -130,7 +130,7 @@ class ConfigSearchModel(nn.Module):
     def forward(self, x):
         return self.model.forward(x)
 
-class DiscreteSearchSpaceMNv2Config(DiscreteSearchSpace):
+class DiscreteSearchSpaceMobileNetV2(DiscreteSearchSpace):
     def __init__(self, args, num_classes=140):
         super().__init__()
         ##mvn2's config 
@@ -187,7 +187,6 @@ class DiscreteSearchSpaceMNv2Config(DiscreteSearchSpace):
         self.k_range = tuple(args.k_range)
         self.channel_mult_range = tuple(args.channel_mult_range)
         self.depth_mult_range = tuple(args.depth_mult_range)
-        self.NUM_NEIGHBORS = args.num_neighbors
         torch.manual_seed(0)
         random.seed(0)
         np.random.seed(0)
@@ -310,7 +309,7 @@ class DiscreteSearchSpaceMNv2Config(DiscreteSearchSpace):
 
         return arch
 
-class ConfigSearchSpaceExt(DiscreteSearchSpaceMNv2Config, EvolutionarySearchSpace, BayesOptSearchSpace):
+class ConfigSearchSpaceExt(DiscreteSearchSpaceMobileNetV2, EvolutionarySearchSpace, BayesOptSearchSpace):
     ''' We are subclassing CNNSearchSpace just to save up space'''
     
     @overrides
@@ -377,7 +376,7 @@ if __name__ == "__main__":
         return arch
 
     #conf = common.common_init(config_filepath= '../nas_landmarks_darts.yaml')
-    ss = DiscreteSearchSpaceMNv2Config()  
+    ss = DiscreteSearchSpaceMobileNetV2()  
     for i in range(0, 2): 
         archai_model = create_random_model(ss)
         print(archai_model.metadata['config'])

@@ -2,15 +2,15 @@
 # Config file for NAS search - Debug run
 #
 
-# NAS args
-nas_num_iters: 6
-nas_init_num_models: 4 #16 #32
-nas_num_random_mix: 32
-nas_num_crossovers: 4
-nas_mutations_per_parent: 4
-nas_max_unseen_population: 4 #16 #32
-nas_num_latency_measurements: 15
-nas_num_input_per_latency_measurement: 15
+# search args
+num_iters: 6
+init_num_models: 4 #16 #32
+num_random_mix: 32
+num_crossovers: 4
+mutations_per_parent: 4
+max_unseen_population: 4 #16 #32
+num_latency_measurements: 15
+num_input_per_latency_measurement: 15
 seed: 0
 
 # Search space args
@@ -22,7 +22,6 @@ k_range:
 - 7
 channel_mult_range: [0.25, 0.5, 0.75, 1.0, 1.25]
 depth_mult_range: [0.25, 0.5, 0.75, 1.0, 1.25]
-num_neighbors: 100
 
 # model trainer args
 data_path: /data/public_face_synthetics/dataset_100000
