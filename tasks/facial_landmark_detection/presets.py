@@ -69,10 +69,10 @@ class ClassificationPresetEval:
 class Sample():
 
     # pylint: disable=too-many-arguments
-    def __init__(self, bgr_img=None, ldmks_2d=None):
+    def __init__(self, image=None, landmarks=None):
 
-        self.bgr_img = np.array(bgr_img)
-        self.ldmks_2d = ldmks_2d
+        self.image = np.array(image)
+        self.landmarks = landmarks
         self.warp_region = None
 
 def get_bounds(points):
@@ -219,11 +219,11 @@ class GetWarpRegion():
 
     def __call__(self, sample: Sample):
 
-        assert sample.ldmks_2d is not None
+        assert sample.landmarks is not None
 
-        ldmks_2d = sample.ldmks_2d
+        ldmks_2d = sample.landmarks
         if self.landmarks_definition:
-            ldmks_2d = self.landmarks_definition.apply(sample.ldmks_2d)
+            ldmks_2d = self.landmarks_definition.apply(sample.landmarks)
 
         sample.warp_region = WarpRegion(*get_square_bounds(ldmks_2d), self.roi_size)
         sample.warp_region.scale(self.scale)
@@ -239,19 +239,19 @@ class ExtractWarpRegion():
 
     def __call__(self, sample : tuple):
 
-        assert sample.bgr_img is not None
+        assert sample.image is not None
         assert sample.warp_region is not None
 
         warp_region = sample.warp_region
 
         if self.keep_unwarped:
             # Useful for visualizations and debugging
-            sample.bgr_img_unwarped = np.copy(sample.bgr_img)
+            sample.image_unwarped = np.copy(sample.image)
 
-        sample.bgr_img = warp_region.extract_from_image(sample.bgr_img, **self.kwargs_bgr)
+        sample.image = warp_region.extract_from_image(sample.image, **self.kwargs_bgr)
 
-        if sample.ldmks_2d is not None:
-            sample.ldmks_2d = warp_region.transform_points(sample.ldmks_2d)
+        if sample.landmarks is not None:
+            sample.landmarks = warp_region.transform_points(sample.landmarks)
 
         return sample
 
@@ -265,9 +265,9 @@ class NormalizeCoordinates():
     """Normalize coordinates from pixel units to [-1, 1]."""
     def __call__(self, sample: Sample):
 
-        assert (sample.ldmks_2d is not None)
-        width, height = sample.bgr_img.shape[-2::]
-        sample.ldmks_2d =  normalize_coordinates(sample.ldmks_2d, width, height)
+        assert (sample.landmarks is not None)
+        width, height = sample.image.shape[-2::]
+        sample.landmarks =  normalize_coordinates(sample.landmarks, width, height)
 
         return sample
 
@@ -276,12 +276,12 @@ class SampleToTensor():
     """ Turns a NumPy data in a Sample into PyTorch data """
 
     def __call__(self, sample: Sample):
-        sample.bgr_img = torch.from_numpy(np.transpose(sample.bgr_img, (2, 0, 1)))
-        sample.bgr_img = sample.bgr_img / 255.0 
-        sample.bgr_img = sample.bgr_img.float() 
+        sample.image = torch.from_numpy(np.transpose(sample.image, (2, 0, 1)))
+        sample.image = sample.image / 255.0 
+        sample.image = sample.image.float() 
 
-        if sample.ldmks_2d is not None:
-            sample.ldmks_2d = torch.from_numpy(sample.ldmks_2d).float()
+        if sample.landmarks is not None:
+            sample.landmarks = torch.from_numpy(sample.landmarks).float()
 
         return sample
 

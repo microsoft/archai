@@ -3,30 +3,29 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import os
 os.environ["OMP_NUM_THREADS"] = "1"
+import statistics
+from time import perf_counter
+
 import onnxruntime as rt
 import torch
 
 from archai.discrete_search.api.archai_model import ArchaiModel
 
-import os
-import statistics
-from math import sqrt
-from time import perf_counter
-from typing import Dict, Optional, Tuple
-
 
 class AvgOnnxLatency:
     higher_is_better: bool = False
 
-    def __init__(self, input_shape: Union[Tuple, List[Tuple]], num_trials: int = 1, num_input: int = 10,
+    def __init__(self, input_shape: Union[Tuple, List[Tuple]], num_trials: int = 15, num_input: int = 15,
                  input_dtype: str = 'torch.FloatTensor', rand_range: Tuple[float, float] = (0.0, 1.0),
                  export_kwargs: Optional[Dict] = None, inf_session_kwargs: Optional[Dict] = None):
-        """Uses the average ONNX Latency (in seconds) of an architecture as an objective function for
-        minimization.
+        """ Measure the average ONNX Latency (in millseconds) of a model
 
         Args:
             input_shape (Union[Tuple, List[Tuple]]): Model Input shape or list of model input shapes.
-            num_trials (int, optional): Number of trials. Defaults to 1.
+            num_trials (int, optional): Number of trials. Defaults to 15.
+            num_input (int, optional): Number of input per trial. Defaults to 15.
+            input_dtype (str, optional): Data type of input samples.
+            rand_range (Tuple[float, float], optional): The min and max range of input samples.
             export_kwargs (Optional[Dict], optional): Optional dictionary of key-value args passed to
                 `torch.onnx.export`. Defaults to None.
             inf_session_kwargs (Optional[Dict], optional): Optional dictionary of key-value args 
@@ -40,17 +39,17 @@ class AvgOnnxLatency:
             for input_shape in input_shapes
         ])
 
-        self.input_dtype = input_dtype
-        self.rand_range = rand_range
         self.num_trials = num_trials
         self.num_input_per_trial = num_input
         self.export_kwargs = export_kwargs or dict()
         self.inf_session_kwargs = inf_session_kwargs or dict()
 
     def evaluate(self, model: ArchaiModel) -> float:
-        model.arch.to('cpu')
+        """Evaluate the model and return the average latency (in milliseconds)"""
+        """Args: model (ArchaiModel): Model to evaluate"""
+        """Returns: float: Average latency (in milliseconds)"""
 
-        # Exports model to ONNX
+        model.arch.to('cpu')
         exported_model_buffer = io.BytesIO()
         torch.onnx.export(
             model.arch, self.sample_input, exported_model_buffer,
@@ -58,69 +57,37 @@ class AvgOnnxLatency:
             opset_version=11,
             **self.export_kwargs
         )
-        print("torch.onnx.export done")
         exported_model_buffer.seek(0)
 
         opts = rt.SessionOptions()
         opts.inter_op_num_threads = 1
         opts.intra_op_num_threads = 1
-        # Benchmarks ONNX model
         onnx_session = rt.InferenceSession(exported_model_buffer.read(), sess_options=opts, **self.inf_session_kwargs)
         sample_input = {f'input_{i}': inp.numpy() for i, inp in enumerate(self.sample_input)}
-        # inf_times = []
+        inf_time_avg = self.get_time_elapsed (onnx_session, sample_input, num_input = self.num_input_per_trial, num_measures = self.num_trials)
 
-        # for _ in range(self.num_trials):
-        #     with MeasureBlockTime('onnx_inference') as t:
-        #         onnx_session.run(None, input_feed=sample_input)
-        #     inf_times.append(t.elapsed)
-
-        # return sum(inf_times) / self.num_trials
-
-        num_input_per_trial = self.num_input_per_trial
-        #inf_time_avg, inf_time_std = self.get_model_latency_1cpu(onnx_session, model.arch, sample_input, cpu = 1, onnx = True, 
-        inf_time_avg, inf_time_std = self.get_time_elapsed (onnx_session, model.arch, sample_input, onnx = True, num_input = num_input_per_trial, num_measures = self.num_trials)
-
-        #per trial time is idealy longer so that timing can be more accurate
-        if (inf_time_avg * num_input_per_trial < 100) : 
-            num_input_per_trial = int(1.5 * 100 / inf_time_avg + 0.5)
-            #inf_time_avg, inf_time_std = self.get_model_latency_1cpu(onnx_session, model.arch, sample_input, cpu = 1, onnx = True, num_input = num_input_per_trial, num_measures = self.num_trials)
-            inf_time_avg, inf_time_std = self.get_time_elapsed (onnx_session, model.arch, sample_input, onnx = True, num_input = num_input_per_trial, num_measures = self.num_trials)
-
-        if (inf_time_std > 0.1 * inf_time_avg):
-            ratio = (0.1 * inf_time_avg) / inf_time_std
-            ratio *= ratio * 1.1 
-            num_trails_scaled = int(self.num_trials * ratio + 0.5)
-            #inf_time_avg, inf_time_std = self.get_model_latency_1cpu(onnx_session, model.arch, sample_input, cpu = 1, onnx = True, num_input = num_input_per_trial, num_measures = num_trails_scaled)
-            inf_time_avg, inf_time_std = self.get_time_elapsed (onnx_session, model.arch, sample_input, onnx = True, num_input = num_input_per_trial, num_measures = self.num_trials)
-
-        assert (inf_time_std < 0.1 * inf_time_avg,  f"inf_time_std = {inf_time_std}, inf_time_avg = {inf_time_avg:}")
         return inf_time_avg
 
     
-    def get_time_elapsed (self, onnx_session, model, sample_input, onnx: bool = False, num_input:int = 15, num_measures:int = 15) -> Tuple[float, float] :
-        #print("get_time_elapsed: entering")
+    def get_time_elapsed (self, onnx_session, sample_input, num_input:int = 15, num_measures:int = 15) -> float:
+        """Measure the average time elapsed (in milliseconds) for a given model and input for anumber of times
+        Args:
+            onnx_session (onnxruntime.InferenceSession): ONNX Inference Session
+            sample_input (Dict[str, np.ndarray]): Sample input to the model
+            num_input (int, optional): Number of input per trial. Defaults to 15.
+            num_measures (int, optional): Number of measures. Defaults to 15.
+        Returns:
+            float: Average time elapsed (in milliseconds)"""
+
         def meausre_func() : 
-            #print(f"measure_func entered")
+            """Measure the time elapsed (in milliseconds) for a given model and input, once
+            Returns: float: Time elapsed (in milliseconds)"""
+
             t0 = perf_counter()
-            for _ in range(num_input): #this is to incease the accuracy as 1 run maybe too short to measure
-                #print(f"measure_func iter: {_}")
-                if (onnx):
-                    #print(f"measure_func: start onnx_session.run")
-                    onnx_session.run(None, input_feed=sample_input)[0]
-                    #print(f"measure_func: left onnx_session.run")
-                else:
-                    pred = model.forward(sample_input)
+            for _ in range(num_input): 
+                onnx_session.run(None, input_feed=sample_input)[0]
             t1 = perf_counter()                
             time_measured = 1e3 * (t1 - t0) / num_input
-            #print(f"measure_func return: {time_measured}")
             return time_measured
 
-
-        time_measured_all = []
-        #print("get_time_elapsed: starting measure_func")
-        time_measured_all = [meausre_func() for _ in range (num_measures)]
-        time_measured_avg = statistics.mean(time_measured_all)
-        time_measured_std = sqrt(num_input) * statistics.stdev(time_measured_all) #sigma^2(x+y) = sigma^2(x) + sigma^2(y); then there is average
-        time_measured_std /= sqrt(num_measures) #stdev of the sample mean, not the population
-        #print(f"get_time_elapsed return: {time_measured_avg}, {time_measured_std}")
-        return time_measured_avg, time_measured_std #, time_measured_all
+        return statistics.mean([meausre_func() for _ in range (num_measures)])
