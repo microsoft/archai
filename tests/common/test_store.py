@@ -14,7 +14,7 @@ def test_store():
         return
 
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name='unittest')
     name = str(uuid.uuid4())
     try:
         entities = store.get_all_status_entities()
@@ -59,3 +59,6 @@ def test_store():
     finally:
         store.delete_blobs(name)
         store.delete_status_entity(e)
+
+
+test_store()
