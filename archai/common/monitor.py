@@ -47,7 +47,7 @@ class JobCompletionMonitor:
                 e = self.store.get_status(id)
                 if self.pipeline_id is None and 'pipeline_id' in e:
                     self.pipeline_id = e['pipeline_id']
-                if e is not None and 'status' in e and (e['status'] == 'completed' or e['status'] == 'failed'):
+                if e is not None and 'status' in e and (e['status'] == 'complete' or e['status'] == 'failed'):
                     del waiting[i]
                     completed[id] = e
                     if e['status'] == 'failed':
@@ -82,7 +82,7 @@ class JobCompletionMonitor:
                         e = self.store.get_status(id)
                         if 'error' not in e:
                             e['error'] = f'Pipeline {pipeline_status}'
-                        if 'status' not in e or e['status'] != 'completed':
+                        if 'status' not in e or e['status'] != 'complete':
                             e['status'] = pipeline_status.lower()
                         self.store.update_status_entity(e)
                     raise Exception('Partial Training Pipeline failed')
