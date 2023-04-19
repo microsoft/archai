@@ -8,7 +8,7 @@ import torch
 from PIL import Image
 from torch.utils.data import Dataset
 
-import presets
+import transforms
 
 class FaceLandmarkDataset(Dataset):
     """Dataset class for Microsoft Face Synthetics dataset.
@@ -35,7 +35,7 @@ class FaceLandmarkDataset(Dataset):
         assert len(self.png_files) > 0, f"Can't find any PNG image in folder: {directory}"
         if limit is not None:
             self.png_files = self.png_files[:limit]
-        self.transform = presets.FaceLandmarkTransform(crop_size = (crop_size, crop_size))
+        self.transform = transforms.FaceLandmarkTransform(crop_size = (crop_size, crop_size))
         self._num_landmarks = None
 
     def __len__(self):
@@ -59,7 +59,7 @@ class FaceLandmarkDataset(Dataset):
         assert label.size > 0, "Can't find data in landmarks file: f{label_file}"
         #label[:, 1] = image.height - label[:, 1]  #flip due to the landmarks Y definition
 
-        sample = presets.Sample(image=image, landmarks=label)
+        sample = transforms.Sample(image=image, landmarks=label)
         assert sample is not None
         sample_transformed = self.transform(sample)
         assert sample_transformed is not None
