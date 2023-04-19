@@ -56,15 +56,7 @@ class WarpRegion():
         self.roi_size = dst_w, dst_h = roi_size
         self.dst_pts = np.array([[0, 0], [dst_w, 0], [dst_w, dst_h], [0, dst_h]], dtype=float)
 
-    @property
-    def src_pts_h(self):
-        """Destination points in homogenous form."""
-        return np.hstack([self.src_pts, np.ones((len(self.src_pts), 1))])
 
-    @property
-    def src_pts_center(self):
-        """The center of the destination points."""
-        return tuple(get_bounds_middle(self.src_pts))
 
     @property
     def matrix(self):
@@ -73,8 +65,10 @@ class WarpRegion():
 
     def scale(self, scale):
         """Uniformly scale the source points about their center."""
-        scale_mat = cv2.getRotationMatrix2D(self.src_pts_center, angle=0, scale=scale)
-        self.src_pts = self.src_pts_h.dot(scale_mat.T)
+        src_pts_center = tuple(get_bounds_middle(self.src_pts))
+        scale_mat = cv2.getRotationMatrix2D(src_pts_center, angle=0, scale=scale)
+        src_pts_h = np.hstack([self.src_pts, np.ones((len(self.src_pts), 1))])
+        self.src_pts = src_pts_h.dot(scale_mat.T)
 
     def extract_from_image(self, image, **kwargs):
         """Extract this region from an image. Pass additional OpenCV warping arguments via kwargs."""
@@ -128,23 +122,14 @@ class ExtractWarpRegion():
 
         return sample
 
-def normalize_coordinates(coords: torch.Tensor, width: int, height: int):
-    """Normalize coordinates from pixel units to [-1, 1]."""
-    roi_size = torch.tensor([width, height], device=coords.device, dtype=coords.dtype)
-    return (coords - (roi_size / 2)) / (roi_size / 2)
-
-
 class NormalizeCoordinates():
     """Normalize coordinates from pixel units to [-1, 1]."""
     def __call__(self, sample: Sample):
-
         assert (sample.landmarks is not None)
-        width, height = sample.image.shape[-2::]
-        sample.landmarks =  normalize_coordinates(sample.landmarks, width, height)
-
+        roi_size = torch.tensor(sample.image.shape[-2::], dtype=sample.landmarks.dtype) 
+        sample.landmarks =  (sample.landmarks - (roi_size / 2)) / (roi_size / 2)
         return sample
-
-
+    
 class SampleToTensor():
     """ Turns a NumPy data in a Sample into PyTorch data """
 
