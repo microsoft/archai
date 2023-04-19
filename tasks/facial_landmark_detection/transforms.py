@@ -83,45 +83,10 @@ class WarpRegion():
         dists = np.linalg.norm(self.src_pts - other_corners, axis=1)
         return np.mean(dists)
 
-    def shift(self, offset):
-        """Shift the source points by some offset, scaled by the size of the region."""
-        self.src_pts += offset * self.size
-
     def scale(self, scale):
         """Uniformly scale the source points about their center."""
         scale_mat = cv2.getRotationMatrix2D(self.src_pts_center, angle=0, scale=scale)
         self.src_pts = self.src_pts_h.dot(scale_mat.T)
-
-    def rotate(self, angle):
-        """Rotate the region anti-clockwise."""
-        rot_mat = cv2.getRotationMatrix2D(self.src_pts_center, angle=angle, scale=1)
-        self.src_pts = self.src_pts_h.dot(rot_mat.T)
-
-    def random_shift(self, amount):
-        """Randomly rigidly shift the entire region."""
-        self.shift(np.random.uniform(-amount, amount, size=2))
-
-    def random_jiggle(self, amount):
-        """Shift each corner of the source quad independently."""
-        self.shift(np.random.uniform(-amount, amount, size=self.src_pts.shape))
-
-    def random_scale(self, amount):
-        """Randomly scale the source region up or down by a given amount."""
-        self.scale(1.0 + np.random.uniform(-amount, amount))
-
-    def random_squash(self, amount_range):
-        """Randomly squash along horizontal or vertical axis by a given amount."""
-
-        amount = -np.random.uniform(amount_range[0], amount_range[1])
-        # horizontal/vertical
-        if np.random.uniform() < 0.5:
-            self.dst_pts += np.array([[amount, 0], [-amount, 0], [-amount, 0], [amount, 0]]) * self.roi_size
-        else:
-            self.dst_pts += np.array([[0, amount], [0, amount], [0, -amount], [0, -amount]]) * self.roi_size
-
-    def random_rotate(self, amount):
-        """Randomly rotate the source region by up to a given amount, in degrees."""
-        self.rotate(np.random.uniform(-amount, amount))
 
     def extract_from_image(self, image, **kwargs):
         """Extract this region from an image. Pass additional OpenCV warping arguments via kwargs."""
@@ -136,21 +101,6 @@ class WarpRegion():
         points_h = points_h.dot(self.matrix.T)
         return points_h[:, :2] / points_h[:, 2][..., None] # Dehomogenize
 
-    def composite_roi_onto_image(self, roi, image, interp_mode=cv2.INTER_NEAREST):
-        """Composites a ROI-sized image onto a full image."""
-
-        assert roi.shape[:2] == self.roi_size
-
-        dsize = image.shape[1], image.shape[0]
-        cv2.warpPerspective(roi, self.matrix, dsize, dst=image, borderMode=cv2.BORDER_TRANSPARENT,
-                            flags=interp_mode|cv2.WARP_INVERSE_MAP)
-
-    def roi_to_full_image(self, points):
-        """Transform 2D points in ROI space to full-frame space."""
-        assert points.ndim == 2 and points.shape[-1] == 2, "Expecting a 2D array of points."
-        points_h = np.hstack([points, np.ones((points.shape[0], 1))]) # Homogenize
-        points_h = points_h.dot(np.linalg.inv(self.matrix).T)
-        return points_h[:, :2] / points_h[:, 2][..., None] # Dehomogenize
 
 class GetWarpRegion():
     """Builds a warp region for the face, with square bounds enclosing the given 2D landmarks."""
