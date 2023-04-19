@@ -58,6 +58,7 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
 
     @overrides
     def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
+        self.models += [arch]
         model_id = get_valid_arch_id(arch)
         e = self.store.get_status(model_id)
         if self.metric_key in e and e[self.metric_key]:
@@ -69,26 +70,34 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
                 'status': _get_entity_value(e, 'status'),
                 'error': _get_entity_value(e, 'error')
             }]
-        else:
-            self.models += [arch]
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
-        snapshot = self.models
-        self.models = []  # reset for next run.
         self.iteration += 1
 
         if len(self.results) > 0:
             print(f'AmlPartialTrainingEvaluator: found {len(self.results)} were already trained.')
-        models = []
-        if len(snapshot) > 0:
-            print(f"AmlPartialTrainingEvaluator: Starting training on {len(snapshot)} models")
 
-            # train all the models listed in the snapshot on a GPU cluster so we get much training
+        index = {}
+        for existing in self.results:
+            id = existing['id']
+            index[id] = existing
+
+        # pull out the models that have not yet been trained.
+        pending = []
+        for arch in self.models:
+            model_id = get_valid_arch_id(arch)
+            if model_id not in index:
+                pending += [arch]
+
+        if len(pending) > 0:
+            print(f"AmlPartialTrainingEvaluator: Starting training on {len(pending)} models")
+
+            # train all the models listed in the pending on a GPU cluster so we get much training
             # happening in parallel which greatly reduces the overall Archai Search process.
             description = f"AmlPartialTrainingEvaluator training {self.tr_epochs} epochs"
             pipeline_job, model_names = start_training_pipeline(
-                description,  self.iteration, self.ml_client, self.store, snapshot, self.config, self.tr_epochs, self.local_output)
+                description,  self.iteration, self.ml_client, self.store, pending, self.config, self.tr_epochs, self.local_output)
 
             job_id = pipeline_job.name
             print(f'AmlPartialTrainingEvaluator: Started training pipeline: {job_id}')
@@ -97,13 +106,18 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
             keys = [self.metric_key]
             monitor = JobCompletionMonitor(self.store, self.ml_client, keys, job_id, self.timeout)
             models = monitor.wait(model_names)['models']
+            for m in models:
+                id = m['id']
+                index[id] = m
 
-        for existing in self.results:
-            models += [existing]
+        # now reassemble all results in the right order (order of the send method calls)
+        models = []
+        for arch in self.models:
+            model_id = get_valid_arch_id(arch)
+            result = index[model_id]
+            models += [result]
 
-        results = {
-            'models': models
-        }
+        results = {'models': models}
 
         # save the results to the output folder (which is mapped by the AML pipeline to our
         # blob store under the container 'models' in the folder named the same as the
@@ -122,9 +136,10 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
         # Archai search needs to figure out which models to continue to evolve and which are
         # not so good.
         metrics = []
-        for i, m in enumerate(results['models']):
+        for m in results['models']:
             metric = m[self.metric_key]
             metrics += [metric]
 
+        self.models = []  # reset for next run.
         print(f'AmlPartialTrainingEvaluator: fetch_all returning : {summary}')
         return metrics
