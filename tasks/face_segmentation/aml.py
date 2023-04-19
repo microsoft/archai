@@ -58,6 +58,7 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
 
     aml_config = config['aml']
     timeout = int(aml_config.get('timeout', 3600))
+    con_str = aml_config['connection_str']
 
     fixed_args = f'--seed {seed} --timeout {timeout} --search_config confs/aml_search.yaml'
 
@@ -75,6 +76,7 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
         identity=UserIdentityConfiguration(),
         # The source folder of the component
         code=str(scripts_path),
+        environment_variables={'MODEL_STORAGE_CONNECTION_STRING': con_str},
         command="""python3 search.py \
                 --dataset_dir ${{inputs.data}} \
                 --output_dir ${{outputs.results}} \
@@ -127,7 +129,7 @@ def main(output_dir: Path, experiment_name: str, seed: int):
         ml_client,
         image="mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest",
         conda_file="conda.yaml",
-        version='1.0.17')
+        version='1.0.18')
     environment_name = f"{archai_job_env.name}:{archai_job_env.version}"
 
     # Register the datastore with AML
@@ -153,7 +155,9 @@ def main(output_dir: Path, experiment_name: str, seed: int):
     store = configure_store(aml_config, model_container_name)
     with TemporaryFiles() as tmp_files:
         filename = tmp_files.get_temp_file()
+        aml_config['connection_str'] = "${MODEL_STORAGE_CONNECTION_STRING}"
         config.save(filename)
+        aml_config['connection_str'] = con_str
         store.upload_blob(f"{experiment_name}/config", filename, 'aml_search.yaml')
 
     @dsl.pipeline(

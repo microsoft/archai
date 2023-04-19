@@ -23,6 +23,7 @@ def training_component(output_path: str, code_dir: Path, config, training_epochs
     batch_size = training['batch_size']
     aml_config = config['aml']
     environment_name = aml_config['environment_name']
+    con_str = aml_config['connection_str']
 
     fixed_args = f'--lr {learning_rate} --batch_size {batch_size} ' +\
                  f'--epochs {int(training_epochs)} --model_id {model_id} --config {config_filename} ' +\
@@ -39,6 +40,7 @@ def training_component(output_path: str, code_dir: Path, config, training_epochs
         outputs={
             "results": Output(type="uri_folder", path=output_path, mode="rw_mount")
         },
+        environment_variables={'MODEL_STORAGE_CONNECTION_STRING': con_str},
         identity=UserIdentityConfiguration(),
         # The source folder of the component
         code=str(code_dir),

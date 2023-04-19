@@ -46,7 +46,7 @@ search:
     verbose: true
 
 training:
-  batch_size: 16
+  batch_size: 64
   learning_rate: 2e-4
   partial_training_epochs: 1
   metric_key: val_iou
@@ -90,6 +90,7 @@ aml:
         - matplotlib
         - mldesigner
         - mlflow
+        - onnx>=1.10.2
         - onnxruntime>=1.10.0
         - torch
         - torchvision
