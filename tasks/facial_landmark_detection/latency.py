@@ -11,6 +11,7 @@ from archai.discrete_search.api.archai_model import ArchaiModel
 import os
 import statistics
 from math import sqrt
+from time import perf_counter
 from typing import Dict, Optional, Tuple
 
 
