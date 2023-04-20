@@ -20,6 +20,9 @@ def test_store():
         entities = store.get_all_status_entities()
         assert len([x for x in entities if x['name'] == name]) == 0
 
+        e = store.get_existing_status(name)
+        assert e is None
+
         e = store.get_status(name)
         assert e['status'] == 'new'
         e['status'] = 'running'
@@ -52,6 +55,13 @@ def test_store():
         store.unlock(name)
         assert not store.is_locked(name)
 
+        e = store.get_existing_status(name)
+        e['node'] = 'fake'
+        store.merge_status_entity(e)
+
+        f = store.lock_entity(e, 'busy')
+        assert f is None
+
         with tempfile.TemporaryDirectory() as tmpdir:
             store.download(name, tmpdir)
             assert os.path.exists(os.path.join(tmpdir, filename))
@@ -59,6 +69,3 @@ def test_store():
     finally:
         store.delete_blobs(name)
         store.delete_status_entity(e)
-
-
-test_store()
