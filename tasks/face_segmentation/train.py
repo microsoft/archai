@@ -4,6 +4,7 @@
 from pathlib import Path
 from argparse import ArgumentParser
 import os
+import time
 import torch
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
@@ -33,6 +34,7 @@ def main():
     store: ArchaiStore = None
     epochs = 1 if args.epochs < 1 else args.epochs
 
+    start_time = time.time()
     storing = False
     config = args.config
     experiment_name = None
@@ -97,6 +99,7 @@ def main():
 
         val_result = trainer.validate(trainer.model, val_dl)
         print(val_result)
+        end_time = time.time()
 
         if storing:
             # post updated progress to our unified status table and unlock the row.
@@ -105,6 +108,7 @@ def main():
             e = store.get_status(model_id)
             e[metric_key] = metric
             e['status'] = 'complete'
+            e['training_time'] = end_time - start_time
             store.unlock_entity(e)
 
         trainer.save_checkpoint(args.output_dir / 'model.ckpt')

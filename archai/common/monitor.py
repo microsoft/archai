@@ -56,8 +56,12 @@ class JobCompletionMonitor:
                         failed += 1
                         self.store.update_status_entity(e)
                     else:
-                        msg = f"{e['val_acc']}" if 'val_acc' in e else ''
-                        print(f'Training job {id} completed with validation accuracy: {msg}')
+                        if len(self.metric_keys) > 0 and self.metric_keys[0] in e:
+                            key = self.metric_keys[0]
+                            metric = e[key]
+                            print(f'Training job {id} completed with {key} = {metric}')
+                        else:
+                            print(f'Training job {id} completed')
 
             if len(waiting) == 0:
                 break

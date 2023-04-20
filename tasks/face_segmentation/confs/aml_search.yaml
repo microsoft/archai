@@ -46,7 +46,8 @@ search:
     verbose: true
 
 training:
-  batch_size: 64
+  # https://learn.microsoft.com/en-us/answers/questions/1215210/limited-gpu-ram
+  batch_size: 16
   learning_rate: 2e-4
   partial_training_epochs: 1
   metric_key: val_iou
