@@ -33,7 +33,7 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
                  timeout_seconds=3600):
         self.config = config
         self.tr_epochs = int(tr_epochs)
-        self.iteration = 0
+        self.iteration = 1
         aml_config = config['aml']
         workspace_name = aml_config['workspace_name']
         subscription_id = aml_config['subscription_id']
@@ -63,6 +63,9 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
         e = self.store.get_status(model_id)
         if self.metric_key in e and e[self.metric_key]:
             # seems to have already been trained then, so to make this a restartable job we pick up those results.
+            if 'iteration' not in e:
+                e['iteration'] = self.iteration
+                self.store.merge_status_entity(e)
             metric = float(e[self.metric_key])
             self.results += [{
                 'id': model_id,
@@ -73,7 +76,6 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
-        self.iteration += 1
 
         if len(self.results) > 0:
             print(f'AmlPartialTrainingEvaluator: found {len(self.results)} were already trained.')
@@ -142,4 +144,6 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
 
         self.models = []  # reset for next run.
         print(f'AmlPartialTrainingEvaluator: fetch_all returning : {summary}')
+
+        self.iteration += 1
         return metrics
