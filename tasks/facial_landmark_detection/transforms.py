@@ -18,6 +18,19 @@ class Sample():
         self.landmarks = landmarks
         self.warp_region = None
 
+class Rectangle:
+    def __init__(self, top_left, bottom_right):
+        assert isinstance(top_left, np.ndarray)
+        assert isinstance(bottom_right, np.ndarray)
+        self.top_left = top_left
+        self.bottom_right = bottom_right
+
+    @property
+    def corners(self):
+        top_right = np.array([self.bottom_right[0], self.top_left[1]])
+        bottom_left = np.array([self.top_left[0], self.bottom_right[1]])
+        return np.array([self.top_left, top_right, bottom_left, self.bottom_right])
+    
 def get_bounds(points):
     """Returns the bounds of a set of N-dimensional points, e.g. 2D or 3D."""
     return np.min(points, axis=0), np.max(points, axis=0)
@@ -33,46 +46,26 @@ def get_square_bounds(points):
     size = np.max(bounds[1] - bounds[0])
     center = get_bounds_middle(bounds)
 
-    return np.array([center - size / 2, center + size / 2])
+    return Rectangle(top_left = center - size / 2, bottom_right = center + size / 2)
 
-class WarpRegion():
+class ExtractRegionOfInterest():
     """A warpable Region Of Interest (ROI) within an image."""
 
-    def __init__(self, top_left, bottom_right, roi_size):
-        """Create a warpable region of interest from an axis-aligned bounding box.
+    def __init__(self, roi_size, scale = 2):
 
-        Args:
-            top_left: The top-left corner of the source bounding box.
-            bottom_right: The bottom-right corner of the source bounding box.
-            roi_size: the size in pixels of the desired output ROI image.
-        """
-
-        # Source and destination points ordered: [Top Left, Top Right, Bottom Right, Bottom Left]
-
-        tl_x, tl_y = top_left
-        br_x, br_y = bottom_right
-        self.src_pts = np.array([[tl_x, tl_y], [br_x, tl_y], [br_x, br_y], [tl_x, br_y]], dtype=float)
-
-        self.roi_size = dst_w, dst_h = roi_size
-        self.dst_pts = np.array([[0, 0], [dst_w, 0], [dst_w, dst_h], [0, dst_h]], dtype=float)
-
-
+        self.roi_size = roi_size
+        self.dst_pts = Rectangle(np.array([0, 0]), np.array([self.roi_size, self.roi_size])).corners
+        self.scale = scale
+        self.kwargs_bgr = {"flags": cv2.INTER_AREA, "borderMode": cv2.BORDER_REPLICATE}
 
     @property
     def matrix(self):
         """The 3x3 perspective matrix for warping source points to destination points."""
         return cv2.findHomography(self.src_pts, self.dst_pts)[0][:3, :3]
 
-    def scale(self, scale):
-        """Uniformly scale the source points about their center."""
-        src_pts_center = tuple(get_bounds_middle(self.src_pts))
-        scale_mat = cv2.getRotationMatrix2D(src_pts_center, angle=0, scale=scale)
-        src_pts_h = np.hstack([self.src_pts, np.ones((len(self.src_pts), 1))])
-        self.src_pts = src_pts_h.dot(scale_mat.T)
-
-    def extract_from_image(self, image, **kwargs):
+    def transform_image(self, image, **kwargs):
         """Extract this region from an image. Pass additional OpenCV warping arguments via kwargs."""
-        return cv2.warpPerspective(image, self.matrix, self.roi_size, **kwargs)
+        return cv2.warpPerspective(image, self.matrix, (self.roi_size, self.roi_size), **kwargs)
 
     def transform_points(self, points):
         """Transform a set of 2D points using this ROI's matrix."""
@@ -83,36 +76,26 @@ class WarpRegion():
         points_h = points_h.dot(self.matrix.T)
         return points_h[:, :2] / points_h[:, 2][..., None] # Dehomogenize
 
+    def define_src_roi(self, sample: Sample):
 
-class ExtractWarpRegion():
-    """Extract the Warp Region from a sample."""
+        bbox = get_square_bounds(sample.landmarks)
+        center = np.mean(bbox.corners, axis=0)
+        M = cv2.getRotationMatrix2D(center, angle=0, scale=self.scale)
+        
+        corners = np.hstack([bbox.corners, np.ones((bbox.corners.shape[0], 1))])
+        self.src_pts = corners.dot(M.T)
 
-    def __init__(self, roi_size, scale=2.0):
-        self.roi_size = roi_size
-        self.scale = scale
-        self.kwargs_bgr = {"flags": cv2.INTER_AREA, "borderMode": cv2.BORDER_REPLICATE}
-
-    def get_warp_region(self, sample: Sample):
-
-        assert sample.landmarks is not None
-
-        ldmks_2d = sample.landmarks
-
-        warp_region = WarpRegion(*get_square_bounds(ldmks_2d), self.roi_size)
-        warp_region.scale(self.scale)
-
-        return warp_region
+        return
 
     def __call__(self, sample : tuple):
 
         assert sample.image is not None
+        assert sample.landmarks is not None
 
-        warp_region = self.get_warp_region(sample)
+        self.define_src_roi(sample)
 
-        sample.image = warp_region.extract_from_image(sample.image, **self.kwargs_bgr)
-
-        if sample.landmarks is not None:
-            sample.landmarks = warp_region.transform_points(sample.landmarks)
+        sample.image = self.transform_image(sample.image, **self.kwargs_bgr)
+        sample.landmarks = self.transform_points(sample.landmarks)
 
         return sample
 
@@ -144,7 +127,7 @@ class FaceLandmarkTransform:
     ):
         self.transform = Compose(
             [
-                ExtractWarpRegion(roi_size = crop_size),
+                ExtractRegionOfInterest(roi_size = crop_size),
                 SampleToTensor(),
                 NormalizeCoordinates()
             ]

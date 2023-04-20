@@ -35,7 +35,7 @@ class FaceLandmarkDataset(Dataset):
         assert len(self.png_files) > 0, f"Can't find any PNG image in folder: {directory}"
         if limit is not None:
             self.png_files = self.png_files[:limit]
-        self.transform = transforms.FaceLandmarkTransform(crop_size = (crop_size, crop_size))
+        self.transform = transforms.FaceLandmarkTransform(crop_size = crop_size)
         self._num_landmarks = None
 
     def __len__(self):

@@ -26,8 +26,8 @@ depth_mult_range: [0.25, 0.5, 0.75, 1.0, 1.25]
 # model trainer args
 data_path: /data/public_face_synthetics/dataset_100000
 output_dir: /home/wchen/tmp
-#max_num_images: 20000
-max_num_images: 1000
+max_num_images: 20000
+#max_num_images: 1000
 train_crop_size: 128 
 epochs: 30 
 batch_size: 128
