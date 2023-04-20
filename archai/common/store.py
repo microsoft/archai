@@ -130,8 +130,9 @@ class ArchaiStore:
             except Exception as e:
                 if "Bad Request" in str(e):
                     raise e
-                if e.exc_type in expected:
-                    return None
+                for t in expected:
+                    if isinstance(e, t):
+                        return None
                 print(f"error {label}: {e}")
                 if i == 5:
                     raise e
@@ -172,7 +173,7 @@ class ArchaiStore:
         using e['name'], you can then add keys to that dictionary and call update_status_entity. """
         entity = self._retry_table_operation(lambda: self.table_client.get_entity(partition_key=self.partition_key, row_key=name),
                                              label='reading entity',
-                                             expected=['ResourceNotFoundError'])
+                                             expected=[ResourceNotFoundError])
         if entity is None:
             entity = {
                 'PartitionKey': self.partition_key,
@@ -212,7 +213,7 @@ class ArchaiStore:
         """ Find the given entity by name, and return it, or return None if the name is not found."""
         entity = self._retry_table_operation(lambda: self.table_client.get_entity(partition_key=self.partition_key, row_key=name),
                                              label='reading entity',
-                                             expected=['ResourceNotFoundError'])
+                                             expected=[ResourceNotFoundError])
         if entity is not None:
             return self._unwrap_numeric_types(entity)
         return None
@@ -239,8 +240,9 @@ class ArchaiStore:
         The entity can store strings, bool, float, int, datetime, so anything like a python list
         is best serialized using json.dumps and stored as a string, the you can use json.loads to
         parse it later."""
+        entity = self._wrap_numeric_types(entity)
         self._retry_table_operation(lambda: self.table_client.update_entity(entity=entity, mode=UpdateMode.MERGE),
-                                    label='update entity')
+                                    label='merge entity')
 
     def update_status(self, name, status, priority=None):
         """ This is a simple wrapper that gets the entity by name, and updates the status field.
@@ -267,7 +269,7 @@ class ArchaiStore:
         See delete_blobs for that.  """
         self._retry_table_operation(lambda: self.table_client.delete_entity(e),
                                     label='deleting status',
-                                    expected=['ResourceNotFoundError'])
+                                    expected=[ResourceNotFoundError])
 
     def upload_blob(self, folder_name, file, blob_name=None):
         """ Upload the given file to the blob store, under the given folder name.
@@ -687,6 +689,18 @@ def unlock(con_str, args):
     store.unlock_all(args.node)
 
 
+def lock(con_str, args):
+    parser = argparse.ArgumentParser(
+        description='Lock the named entity.')
+    parser.add_argument('name', help='The name of the entity to lock')
+    parser.add_argument('--status', help='The new status of the entity (default "busy")', default='busy')
+    parser.add_argument('--table', help='Table name to use (default "status")', default='status')
+    args = parser.parse_args(args)
+    storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=args.table)
+    store.lock(args.name, args.status)
+
+
 if __name__ == '__main__':
     con_str = os.getenv(CONNECTION_NAME)
     if not con_str:
@@ -714,6 +728,8 @@ if __name__ == '__main__':
         reset(con_str, args)
     elif cmd == 'unlock':
         unlock(con_str, args)
+    elif cmd == 'lock':
+        lock(con_str, args)
     else:
         print(f"Unknown command: {cmd}, expecting one of status, upload, download, delete, lock, unlock")
         sys.exit(1)
