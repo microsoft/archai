@@ -129,7 +129,7 @@ def main(output_dir: Path, experiment_name: str, seed: int):
         ml_client,
         image="mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04:latest",
         conda_file="conda.yaml",
-        version='1.0.18')
+        version='1.0.19')
     environment_name = f"{archai_job_env.name}:{archai_job_env.version}"
 
     # Register the datastore with AML

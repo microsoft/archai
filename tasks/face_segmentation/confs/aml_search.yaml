@@ -92,6 +92,7 @@ aml:
         - mlflow
         - onnx>=1.10.2
         - onnxruntime>=1.10.0
+        - psutil
         - torch
         - torchvision
         - torchaudio
