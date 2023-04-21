@@ -15,13 +15,13 @@ import os
 import time
 import warnings
 
-import presets
+#import presets
 import torch
 import torch.utils.data
 import torchvision
 import transforms
 import utils
-from sampler import RASampler
+#from sampler import RASampler
 from torch import nn
 from torch.utils.data.dataloader import default_collate
 from torchvision.transforms.functional import InterpolationMode
@@ -221,10 +221,10 @@ def load_data(traindir, valdir, args):
 
     print("Creating data loaders")
     if args.distributed:
-        if hasattr(args, "ra_sampler") and args.ra_sampler:
-            train_sampler = RASampler(dataset, shuffle=True, repetitions=args.ra_reps)
-        else:
-            train_sampler = torch.utils.data.distributed.DistributedSampler(dataset)
+#        if hasattr(args, "ra_sampler") and args.ra_sampler:
+#            train_sampler = RASampler(dataset, shuffle=True, repetitions=args.ra_reps)
+#        else:
+        train_sampler = torch.utils.data.distributed.DistributedSampler(dataset)
         test_sampler = torch.utils.data.distributed.DistributedSampler(dataset_test, shuffle=False)
     else:
         train_sampler = torch.utils.data.RandomSampler(dataset)
@@ -562,3 +562,56 @@ def get_args_parser(add_help=True):
 if __name__ == "__main__":
     args, _ = get_args_parser().parse_known_args()
     train(args)
+
+    ###To be moved to trainder
+    """
+        model = _create_model_from_csv (
+            nas.search_args.nas_finalize_archid,
+            nas.search_args.nas_finalize_models_csv,
+            num_classes=NUM_LANDMARK_CLASSES)
+
+        print(f'Loading weights from {str(nas.search_args.nas_finalize_pretrained_weight_file)}')
+        if (not nas.search_args.nas_load_nonqat_weights):
+            if (nas.search_args.nas_finalize_pretrained_weight_file is not None) :
+                model = _load_pretrain_weight(nas.search_args.nas_finalize_pretrained_weight_file, model)
+
+        if (nas.search_args.nas_use_tvmodel):
+            model.classifier = torch.nn.Sequential(torch.nn.Dropout(0.2), torch.nn.Linear(model.last_channel, NUM_LANDMARK_CLASSES))
+
+        # Load pretrained weights after fixing classifier as the weights match the exact network architecture
+        if (nas.search_args.nas_load_nonqat_weights):
+            assert os.path.exists(nas.search_args.nas_finalize_pretrained_weight_file)
+            print(f'Loading weights from previous non-QAT training {nas.search_args.nas_finalize_pretrained_weight_file}')
+            model.load_state_dict(torch.load(nas.search_args.nas_finalize_pretrained_weight_file))
+
+        val_error = model_trainer.train(nas.trainer_args, model)
+        print(f"Final validation error for model {nas.search_args.nas_finalize_archid}: {val_error}")
+    """
+
+""" TBD: need to move to trainer? Or delete.
+def _create_model_from_csv(archid, csv_file : str, num_classes, use_tvmodel:bool=False, qat:bool=False) :
+    csv_path = Path(csv_file)
+    assert csv_path.exists()
+    df0 = pd.read_csv(csv_path)#.query('metric == @metric')
+    row = df0[df0['archid'] == archid]
+    cfg = json.loads(row['config'].to_list()[0])
+
+    # Ignore number of classes for now. The classifier layer will be rebuilt after loading pretrained weights
+    # kwargs.pop('num_classes', None) 
+    # wchen: This doesn't seem to work. _load_pretrain_weight already pops the state_dict so it should be safe to fix the num_classes for now.
+    model = _gen_tv_mobilenet(cfg['arch_def'], 
+                                channel_multiplier=cfg['channel_multiplier'], 
+                                depth_multiplier=cfg['depth_multiplier'],
+                                num_classes=num_classes)
+    return model
+
+def _load_pretrain_weight(weight_file: str, model) : 
+    print("=> loading pretrained weight '{}'".format(weight_file))
+    assert path.isfile(weight_file)
+    source_state = torch.load(weight_file)
+    state_dict = source_state['state_dict']
+    state_dict.pop('classifier' + '.weight', None)
+    state_dict.pop('classifier' + '.bias', None)
+    model.load_state_dict(state_dict, strict = False)
+    return model
+"""

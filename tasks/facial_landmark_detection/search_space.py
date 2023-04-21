@@ -1,3 +1,5 @@
+"""Search space for facial landmark detection task"""
+
 import copy
 import json
 import math
@@ -5,38 +7,27 @@ import random
 import re
 import sys
 from hashlib import sha1
-from os import path
-from pathlib import Path
 from typing import List
 
 import numpy as np
-import pandas as pd
 import torch
-import torch.nn as nn
 from overrides.overrides import overrides
 
 from archai.common.common import logger
 from archai.discrete_search.api.archai_model import ArchaiModel
-from archai.discrete_search.api.search_space import DiscreteSearchSpace, BayesOptSearchSpace, EvolutionarySearchSpace
+from archai.discrete_search.api.search_space import (
+    BayesOptSearchSpace,
+    DiscreteSearchSpace,
+    EvolutionarySearchSpace,
+)
 
 from model import CustomMobileNetV2
-
 
 def _gen_tv_mobilenet ( arch_def, 
                         channel_multiplier=1.0, 
                         depth_multiplier=1.0,
                         num_classes=1000):
-                # default mbv2 setting 
-                # t - exp factor, c - channels, n - number of block repeats, s - stride
-                # # t, c, n, s
-                # [1, 16, 1, 1],
-                # [6, 24, 2, 2],
-                # [6, 32, 3, 2],
-                # [6, 64, 4, 2],
-                # [6, 96, 3, 1],
-                # [6, 160, 3, 2],
-                # [6, 320, 1, 1],       
-    # archid 0a7b6 - {"arch_def": [["ds_r1_k3_s1_c16"], ["ir_r2_k3_s2_e6_c24"], ["ir_r3_k3_s2_e6_c32"], ["ir_r4_k3_s2_e6_c64"], ["ir_r2_k3_s1_e4_c96"], ["ir_r2_k3_s2_e6_c160"], ["ir_r1_k3_s1_e5_c320"]], "channel_multiplier": 1.0, "depth_multiplier": 0.75}
+    """generate mobilenet v2 from torchvision. Adapted from timm source code"""
     ir_setting = []
     for block_def in arch_def:
         parts = block_def[0].split("_")
@@ -83,44 +74,9 @@ def _gen_tv_mobilenet ( arch_def,
     model = CustomMobileNetV2(inverted_residual_setting=ir_setting, dropout=0, num_classes=num_classes)
 
     return model
-    # return mobilenet_v2(quantize=False, 
-    #     inverted_residual_setting = [
-    #         [1, 16, 1, 1],
-    #         [6, 24, 2, 2],
-    #         [6, 32, 3, 2],
-    #         [6, 64, 3, 2],
-    #         [4, 96, 2, 1],
-    #         [6, 160, 2, 2],
-    #         [5, 320, 1, 1],
-    #     ])
 
-def _create_model_from_csv(archid, csv_file : str, num_classes, use_tvmodel:bool=False, qat:bool=False) :
-    csv_path = Path(csv_file)
-    assert csv_path.exists()
-    df0 = pd.read_csv(csv_path)#.query('metric == @metric')
-    row = df0[df0['archid'] == archid]
-    cfg = json.loads(row['config'].to_list()[0])
-
-    # Ignore number of classes for now. The classifier layer will be rebuilt after loading pretrained weights
-    # kwargs.pop('num_classes', None) 
-    # wchen: This doesn't seem to work. _load_pretrain_weight already pops the state_dict so it should be safe to fix the num_classes for now.
-    model = _gen_tv_mobilenet(cfg['arch_def'], 
-                                channel_multiplier=cfg['channel_multiplier'], 
-                                depth_multiplier=cfg['depth_multiplier'],
-                                num_classes=num_classes)
-    return model
-
-def _load_pretrain_weight(weight_file: str, model) : 
-    print("=> loading pretrained weight '{}'".format(weight_file))
-    assert path.isfile(weight_file)
-    source_state = torch.load(weight_file)
-    state_dict = source_state['state_dict']
-    state_dict.pop('classifier' + '.weight', None)
-    state_dict.pop('classifier' + '.bias', None)
-    model.load_state_dict(state_dict, strict = False)
-    return model
-
-class ConfigSearchModel(nn.Module):
+class ConfigSearchModel(torch.nn.Module):
+    """This is a wrapper class to allow the model to be used in the search space"""
     def __init__(self, model : ArchaiModel, archid: str, metadata : dict):
         super().__init__()
         self.model = model
@@ -133,52 +89,72 @@ class ConfigSearchModel(nn.Module):
 class DiscreteSearchSpaceMobileNetV2(DiscreteSearchSpace):
     def __init__(self, args, num_classes=140):
         super().__init__()
-        ##mvn2's config 
-        self.cfgs_orig = {'arch_def':   [['ds_r1_k3_s1_c16'],
-                                        ['ir_r2_k3_s2_e6_c24'],
-                                        ['ir_r3_k3_s2_e6_c32'],
-                                        ['ir_r4_k3_s2_e6_c64'],
-                                        ['ir_r3_k3_s1_e6_c96'],
-                                        ['ir_r3_k3_s2_e6_c160'],
-                                        ['ir_r1_k3_s1_e6_c320']],
-                          'channel_multiplier': 1.00,
-                          'depth_multiplier':   1.00}
-        self.cfgs_orig1 = {'arch_def':   [['ds_r1_k3_s1_c16'],
-                                        ['ir_r2_k3_s2_e6_c24'],
-                                        ['ir_r3_k3_s2_e6_c32'],
-                                        ['ir_r4_k3_s2_e6_c64'],
-                                        ['ir_r3_k3_s1_e6_c96'],
-                                        ['ir_r3_k3_s2_e6_c160'],
-                                        ['ir_r1_k3_s1_e6_c320']],
-                          'channel_multiplier': 0.75,
-                          'depth_multiplier':   0.75}
-        self.cfgs_orig2 = {'arch_def':   [['ds_r1_k3_s1_c16'],
-                                        ['ir_r2_k3_s2_e6_c24'],
-                                        ['ir_r3_k3_s2_e6_c32'],
-                                        ['ir_r4_k3_s2_e6_c64'],
-                                        ['ir_r3_k3_s1_e6_c96'],
-                                        ['ir_r3_k3_s2_e6_c160'],
-                                        ['ir_r1_k3_s1_e6_c320']],
-                          'channel_multiplier': 0.5,
-                          'depth_multiplier':   0.5}
-        self.cfgs_orig3 = {'arch_def':   [['ds_r1_k3_s1_c16'],
-                                        ['ir_r2_k3_s2_e6_c24'],
-                                        ['ir_r3_k3_s2_e6_c32'],
-                                        ['ir_r4_k3_s2_e6_c64'],
-                                        ['ir_r3_k3_s1_e6_c96'],
-                                        ['ir_r3_k3_s2_e6_c160'],
-                                        ['ir_r1_k3_s1_e6_c320']],
-                          'channel_multiplier': 1.25,
-                          'depth_multiplier':   1.25}
-        self.cfgs_orig_el0 = {'arch_def':   [['ds_r1_k3_s1_e1_c16'],
-                                            ['ir_r2_k3_s2_e6_c24'],
-                                            ['ir_r2_k5_s2_e6_c40'],
-                                            ['ir_r3_k3_s2_e6_c80'],
-                                            ['ir_r3_k5_s1_e6_c112'],
-                                            ['ir_r4_k5_s2_e6_c192'],
-                                            ['ir_r1_k3_s1_e6_c320']],
-                          'channel_multiplier': 1.00,
-                          'depth_multiplier':   1.00}
+        """ Default mobilenetv2 setting in more readable format
+            t - exp factor, c - channels, n - number of block repeats, s - stride
+            t, c, n, s
+            [1, 16, 1, 1],
+            [6, 24, 2, 2],
+            [6, 32, 3, 2],
+            [6, 64, 4, 2],
+            [6, 96, 3, 1],
+            [6, 160, 3, 2],
+            [6, 320, 1, 1]"""
+        #set up a few models configs with variable depth and width
+        self.cfgs_orig = [
+            {
+                'arch_def': [
+                    ['ds_r1_k3_s1_c16'],
+                    ['ir_r2_k3_s2_e6_c24'],
+                    ['ir_r3_k3_s2_e6_c32'],
+                    ['ir_r4_k3_s2_e6_c64'],
+                    ['ir_r3_k3_s1_e6_c96'],
+                    ['ir_r3_k3_s2_e6_c160'],
+                    ['ir_r1_k3_s1_e6_c320']
+                ],
+                'channel_multiplier': 1.00,
+                'depth_multiplier': 1.00
+            },
+            {
+                'arch_def': [
+                    ['ds_r1_k3_s1_c16'],
+                    ['ir_r2_k3_s2_e6_c24'],
+                    ['ir_r3_k3_s2_e6_c32'],
+                    ['ir_r4_k3_s2_e6_c64'],
+                    ['ir_r3_k3_s1_e6_c96'],
+                    ['ir_r3_k3_s2_e6_c160'],
+                    ['ir_r1_k3_s1_e6_c320']
+                ],
+                'channel_multiplier': 0.75,
+                'depth_multiplier': 0.75
+            },
+            {
+                'arch_def': [
+                    ['ds_r1_k3_s1_c16'],
+                    ['ir_r2_k3_s2_e6_c24'],
+                    ['ir_r3_k3_s2_e6_c32'],
+                    ['ir_r4_k3_s2_e6_c64'],
+                    ['ir_r3_k3_s1_e6_c96'],
+                    ['ir_r3_k3_s2_e6_c160'],
+                    ['ir_r1_k3_s1_e6_c320']
+                ],
+                'channel_multiplier': 0.5,
+                'depth_multiplier': 0.5
+            },
+            {
+                'arch_def': [
+                    ['ds_r1_k3_s1_c16'],
+                    ['ir_r2_k3_s2_e6_c24'],
+                    ['ir_r3_k3_s2_e6_c32'],
+                    ['ir_r4_k3_s2_e6_c64'],
+                    ['ir_r3_k3_s1_e6_c96'],
+                    ['ir_r3_k3_s2_e6_c160'],
+                    ['ir_r1_k3_s1_e6_c320']
+                ],
+                'channel_multiplier': 1.25,
+                'depth_multiplier': 1.25
+            }
+        ]
+
         self.config_all = {}
         self.arch_counter= 0
         self.num_classes = num_classes
@@ -187,31 +163,22 @@ class DiscreteSearchSpaceMobileNetV2(DiscreteSearchSpace):
         self.k_range = tuple(args.k_range)
         self.channel_mult_range = tuple(args.channel_mult_range)
         self.depth_mult_range = tuple(args.depth_mult_range)
+        #make each run deterministic
         torch.manual_seed(0)
         random.seed(0)
         np.random.seed(0)
 
     @overrides
     def random_sample(self)->ArchaiModel:
-        ''' Uniform random sample an architecture, always start with the original model'''
+        ''' Uniform random sample an architecture, always start with a few seed models'''
 
-        if (self.arch_counter== 0):
-            cfg = copy.deepcopy(self.cfgs_orig)
-            arch = self._create_uniq_arch(cfg)
-        elif (self.arch_counter== 1):
-            cfg = copy.deepcopy(self.cfgs_orig1)
-            arch = self._create_uniq_arch(cfg)
-        elif (self.arch_counter== 2):
-            cfg = copy.deepcopy(self.cfgs_orig2)
-            arch = self._create_uniq_arch(cfg)
-        elif (self.arch_counter== 3):
-            cfg = copy.deepcopy(self.cfgs_orig3)
+        if (self.arch_counter >= 0 and self.arch_counter <= 3):
+            cfg = copy.deepcopy(self.cfgs_orig[self.arch_counter])
             arch = self._create_uniq_arch(cfg)
         else:
-            #del cfg [block]
             arch = None
             while (arch == None) : 
-                cfg = self._rand_modify_config(self.cfgs_orig, len(self.e_range), len(self.r_range), len(self.k_range), 
+                cfg = self._rand_modify_config(self.cfgs_orig[0], len(self.e_range), len(self.r_range), len(self.k_range), 
                                                     len(self.channel_mult_range), len(self.depth_mult_range))
                 arch = self._create_uniq_arch(cfg)
             assert (arch != None)
@@ -291,12 +258,11 @@ class DiscreteSearchSpaceMobileNetV2(DiscreteSearchSpace):
         return cfg
 
     def _create_uniq_arch(self, cfg):
-
+        """create a unique arch from the config"""
         cfg_str = json.dumps(cfg)
         archid = sha1(cfg_str.encode('ascii')).hexdigest()[0:8]
 
         if cfg_str in list(self.config_all.values()):
-            #return None
             print(f"Creating duplicated model: {cfg_str} ")
         else :
             self.config_all[archid] = cfg_str
@@ -310,8 +276,7 @@ class DiscreteSearchSpaceMobileNetV2(DiscreteSearchSpace):
         return arch
 
 class ConfigSearchSpaceExt(DiscreteSearchSpaceMobileNetV2, EvolutionarySearchSpace, BayesOptSearchSpace):
-    ''' We are subclassing CNNSearchSpace just to save up space'''
-    
+    """Search space for config search"""    
     @overrides
     def mutate(self, model_1: ArchaiModel) -> ArchaiModel:
 
@@ -349,33 +314,27 @@ class ConfigSearchSpaceExt(DiscreteSearchSpaceMobileNetV2, EvolutionarySearchSpa
         logger.info(f"{sys._getframe(0).f_code.co_name} return archid = {arch.archid} with config = {arch.metadata}")
         
         return ArchaiModel(arch=arch, archid=arch.archid, metadata={'config' : arch.metadata})
- 
+
     @overrides
     def encode(self, model: ArchaiModel) -> np.ndarray:
-        #TBD
+        #TBD, this is not needed for this implementation
         assert (False)
 
 if __name__ == "__main__":
+    """unit test for this module"""
     from torchinfo import summary
-    img_size = 192
+    img_size = 128
     def create_random_model(ss):
 
         arch = ss.random_sample()
         model = arch.arch
-        #print(type(model))
-        #print(isinstance(model, torch.nn.Module))
 
-        #make sure it works
         model.to('cpu').eval()
         pred = model(torch.randn(1, 3, img_size, img_size))
-
         model_summary =summary(model, input_size=(1, 3, img_size, img_size), col_names=['input_size', 'output_size', 'num_params', 'kernel_size', 'mult_adds'], device='cpu')
-        #print(model_summary)
 
-        #print(model.summary) #model_desc_builder's
         return arch
 
-    #conf = common.common_init(config_filepath= '../nas_landmarks_darts.yaml')
     ss = DiscreteSearchSpaceMobileNetV2()  
     for i in range(0, 2): 
         archai_model = create_random_model(ss)

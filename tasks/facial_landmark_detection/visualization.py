@@ -1,3 +1,5 @@
+#to be removed before merging
+
 """This module contains methods and callbacks for visualizing training or validation data."""
 
 from heapq import heapify, heappush, heappushpop

@@ -1,13 +1,16 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import math
 from typing import Tuple
 
-import torch
-from torch import Tensor
-from torchvision.transforms import functional as F
-
-from torchvision.transforms import ToTensor, Compose
-import numpy as np
 import cv2
+import numpy as np
+import torch
+
+from torch import Tensor
+from torchvision.transforms import Compose, ToTensor
+from torchvision.transforms import functional as F
 
 class Sample():
     """A sample of an image and its landmarks."""

@@ -1,4 +1,5 @@
-"""Datasets for Microsoft Face Synthetics dataset."""
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 
 import glob
 import os

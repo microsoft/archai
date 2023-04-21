@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import io
 from typing import Dict, List, Optional, Tuple, Union
 

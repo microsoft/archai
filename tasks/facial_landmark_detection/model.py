@@ -1,18 +1,13 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
+import torch
+import warnings
 from typing import Any, Callable, List, Optional
 
-import torch
 from torch import nn, Tensor
-
-#from torchvision.ops import Conv2dNormActivation
 from torchvision.models._utils import _make_divisible
 
-import warnings
-from typing import Callable, List, Optional
-
-import torch
-from torch import Tensor
-
-#from ..utils import _log_api_usage_once
 def _log_api_usage_once(obj: Any) -> None:
 
     """

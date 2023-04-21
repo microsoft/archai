@@ -1,5 +1,8 @@
-import sys
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
 
+import sys
+# to be removed before merging
 if ('--debug' in sys.argv):
     import debugpy
     debugpy.listen(5678)
@@ -148,31 +151,6 @@ def _main() -> None:
 
     search = SearchFaceLandmarkModels()
     search.search()
-
-    ###To be moved to trainder
-    """
-        model = _create_model_from_csv (
-            nas.search_args.nas_finalize_archid,
-            nas.search_args.nas_finalize_models_csv,
-            num_classes=NUM_LANDMARK_CLASSES)
-
-        print(f'Loading weights from {str(nas.search_args.nas_finalize_pretrained_weight_file)}')
-        if (not nas.search_args.nas_load_nonqat_weights):
-            if (nas.search_args.nas_finalize_pretrained_weight_file is not None) :
-                model = _load_pretrain_weight(nas.search_args.nas_finalize_pretrained_weight_file, model)
-
-        if (nas.search_args.nas_use_tvmodel):
-            model.classifier = torch.nn.Sequential(torch.nn.Dropout(0.2), torch.nn.Linear(model.last_channel, NUM_LANDMARK_CLASSES))
-
-        # Load pretrained weights after fixing classifier as the weights match the exact network architecture
-        if (nas.search_args.nas_load_nonqat_weights):
-            assert os.path.exists(nas.search_args.nas_finalize_pretrained_weight_file)
-            print(f'Loading weights from previous non-QAT training {nas.search_args.nas_finalize_pretrained_weight_file}')
-            model.load_state_dict(torch.load(nas.search_args.nas_finalize_pretrained_weight_file))
-
-        val_error = model_trainer.train(nas.trainer_args, model)
-        print(f"Final validation error for model {nas.search_args.nas_finalize_archid}: {val_error}")
-    """
 
 if __name__ == "__main__":
     _main()
