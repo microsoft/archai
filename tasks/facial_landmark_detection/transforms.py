@@ -10,91 +10,84 @@ import numpy as np
 import cv2
 
 class Sample():
-
-    # pylint: disable=too-many-arguments
+    """A sample of an image and its landmarks."""
     def __init__(self, image=None, landmarks=None):
 
         self.image = np.array(image)
         self.landmarks = landmarks
-        self.warp_region = None
-
-class Rectangle:
-    def __init__(self, top_left, bottom_right):
-        assert isinstance(top_left, np.ndarray)
-        assert isinstance(bottom_right, np.ndarray)
-        self.top_left = top_left
-        self.bottom_right = bottom_right
-
-    @property
-    def corners(self):
-        top_right = np.array([self.bottom_right[0], self.top_left[1]])
-        bottom_left = np.array([self.top_left[0], self.bottom_right[1]])
-        return np.array([self.top_left, top_right, bottom_left, self.bottom_right])
     
-def get_bounds(points):
-    """Returns the bounds of a set of N-dimensional points, e.g. 2D or 3D."""
-    return np.min(points, axis=0), np.max(points, axis=0)
-
-def get_bounds_middle(points):
-    """Gets the middle of the bounds of a set of N-dimensional points."""
-    return np.mean(np.stack(get_bounds(points)), axis=0)
-
-def get_square_bounds(points):
-    """Gets the square bounds that enclose a set of points."""
-
-    bounds = get_bounds(points)
-    size = np.max(bounds[1] - bounds[0])
-    center = get_bounds_middle(bounds)
-
-    return Rectangle(top_left = center - size / 2, bottom_right = center + size / 2)
-
 class ExtractRegionOfInterest():
-    """A warpable Region Of Interest (ROI) within an image."""
+    """Extracts a region of interest from an image and its landmarks."""
+
+    class Rectangle:
+        """A rectangle defined by its top-left and bottom-right corners."""
+        def __init__(self, top_left, bottom_right):
+            assert isinstance(top_left, np.ndarray)
+            assert isinstance(bottom_right, np.ndarray)
+            self.top_left = top_left
+            self.bottom_right = bottom_right
+
+        @property
+        def corners(self):
+            top_right = np.array([self.bottom_right[0], self.top_left[1]])
+            bottom_left = np.array([self.top_left[0], self.bottom_right[1]])
+            return np.array([self.top_left, top_right, bottom_left, self.bottom_right])
 
     def __init__(self, roi_size, scale = 2):
 
         self.roi_size = roi_size
-        self.dst_pts = Rectangle(np.array([0, 0]), np.array([self.roi_size, self.roi_size])).corners
+        self.rect_dst = self.Rectangle(np.array([0, 0]), np.array([self.roi_size, self.roi_size]))
         self.scale = scale
-        self.kwargs_bgr = {"flags": cv2.INTER_AREA, "borderMode": cv2.BORDER_REPLICATE}
 
     @property
-    def matrix(self):
-        """The 3x3 perspective matrix for warping source points to destination points."""
-        return cv2.findHomography(self.src_pts, self.dst_pts)[0][:3, :3]
+    def src_to_dst_mapping(self):
+        """Returns the homography matrix that maps the source ROI to the destination ROI."""
+        return cv2.findHomography(self.rect_src.corners, self.rect_dst.corners)[0][:3, :3]
 
-    def transform_image(self, image, **kwargs):
-        """Extract this region from an image. Pass additional OpenCV warping arguments via kwargs."""
-        return cv2.warpPerspective(image, self.matrix, (self.roi_size, self.roi_size), **kwargs)
+    def transform_image(self, image):
+        """Transforms an image to the destination ROI."""
+        return cv2.warpPerspective(image, self.src_to_dst_mapping, (self.roi_size, self.roi_size)) 
 
     def transform_points(self, points):
-        """Transform a set of 2D points using this ROI's matrix."""
-
+        """Transforms points to the destination ROI."""
         assert points.ndim == 2 and points.shape[-1] == 2, "Expecting a 2D array of points."
 
         points_h = np.hstack([points, np.ones((points.shape[0], 1))]) # Homogenize
-        points_h = points_h.dot(self.matrix.T)
+        points_h = points_h.dot(self.src_to_dst_mapping.T)
         return points_h[:, :2] / points_h[:, 2][..., None] # Dehomogenize
 
-    def define_src_roi(self, sample: Sample):
-
-        bbox = get_square_bounds(sample.landmarks)
+    def find_src_roi(self, sample: Sample):
+        """Finds the source ROI that encloses the landmarks. Enlarged with scale a factor"""
+        bbox = self._get_bbox(sample.landmarks)
         center = np.mean(bbox.corners, axis=0)
         M = cv2.getRotationMatrix2D(center, angle=0, scale=self.scale)
         
         corners = np.hstack([bbox.corners, np.ones((bbox.corners.shape[0], 1))])
-        self.src_pts = corners.dot(M.T)
+        corners_scaled = corners.dot(M.T)
+        self.rect_src = self.Rectangle(corners_scaled[0], corners_scaled[3])
 
         return
+    
+    def _get_bbox(self, points):
+        """Gets the square bounding box that enclose points."""
+
+        min_point = np.min(points, axis=0)
+        max_point = np.max(points, axis=0)
+        size = max(max_point - min_point)
+        center = (min_point + max_point) / 2
+
+        top_left = center - size / 2
+        bottom_right = center + size / 2
+        return self.Rectangle(top_left, bottom_right)    
 
     def __call__(self, sample : tuple):
-
+        """Extracts a region of interest from an image and its landmarks."""
         assert sample.image is not None
         assert sample.landmarks is not None
 
-        self.define_src_roi(sample)
+        self.find_src_roi(sample)
 
-        sample.image = self.transform_image(sample.image, **self.kwargs_bgr)
+        sample.image = self.transform_image(sample.image)
         sample.landmarks = self.transform_points(sample.landmarks)
 
         return sample
@@ -121,6 +114,7 @@ class SampleToTensor():
         return sample
 
 class FaceLandmarkTransform:
+    """Transforms a sample of an image and its landmarks."""
     def __init__(
         self,
         crop_size,
@@ -132,7 +126,6 @@ class FaceLandmarkTransform:
                 NormalizeCoordinates()
             ]
         )
-
 
     def __call__(self, sample: Sample):
         return self.transform(sample)
