@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Quantization &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.quantization';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.quantization.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Natural Language Processing" href="archai.quantization.nlp.html" />
@@ -408,13 +407,134 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.modules">Modules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.observers">Observers</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantizers">Quantizers</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantization_utils">Quantization (Utilities)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.ptq">Post-Training Quantization (PTQ)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.qat">Quantization-Aware Training (QAT)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.mixed_qat">Mixed-QAT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.modules">Modules</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.fake_quant_weight"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.fake_quant_weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.from_float"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.from_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.to_float"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.to_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.num_embeddings"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.num_embeddings</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.embedding_dim"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.embedding_dim</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.padding_idx"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.padding_idx</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.max_norm"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.max_norm</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.norm_type"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.norm_type</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.scale_grad_by_freq"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.scale_grad_by_freq</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.weight"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.freeze"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.freeze</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.sparse"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.sparse</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.num_embeddings"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.num_embeddings</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.embedding_dim"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.embedding_dim</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.padding_idx"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.padding_idx</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.max_norm"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.max_norm</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.norm_type"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.norm_type</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.scale_grad_by_freq"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.scale_grad_by_freq</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.weight"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.freeze"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.freeze</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.sparse"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.sparse</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.training"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.fake_quant_weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.fake_quant_weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.forward"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.from_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.from_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.to_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.to_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.in_features"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.in_features</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.out_features"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.out_features</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.weight</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinearForOnnx</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx.in_features"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinearForOnnx.in_features</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx.out_features"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinearForOnnx.out_features</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx.weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinearForOnnx.weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx.training"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinearForOnnx.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.fake_quant_weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.fake_quant_weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.forward"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.from_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.from_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.to_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.to_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.bias"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.bias</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.in_channels"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.in_channels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.out_channels"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.out_channels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.kernel_size"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.kernel_size</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.stride"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.stride</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.padding"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.padding</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.dilation"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.dilation</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.transposed"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.transposed</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.output_padding"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.output_padding</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.groups"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.groups</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.padding_mode"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.padding_mode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.weight</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.bias"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.bias</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.in_channels"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.in_channels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.out_channels"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.out_channels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.kernel_size"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.kernel_size</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.stride"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.stride</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.padding"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.padding</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.dilation"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.dilation</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.transposed"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.transposed</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.output_padding"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.output_padding</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.groups"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.groups</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.padding_mode"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.padding_mode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.training"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.observers">Observers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.observers.OnnxDynamicObserver"><code class="docutils literal notranslate"><span class="pre">OnnxDynamicObserver</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.observers.OnnxDynamicObserver.calculate_qparams"><code class="docutils literal notranslate"><span class="pre">OnnxDynamicObserver.calculate_qparams()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantizers">Quantizers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.quantizers.FakeDynamicQuant"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuant</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.quantizers.FakeDynamicQuant.training"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuant.training</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.quantizers.FakeDynamicQuant.forward"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuant.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantization_utils">Quantization (Utilities)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.quantization_utils.rgetattr"><code class="docutils literal notranslate"><span class="pre">rgetattr()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.quantization_utils.rsetattr"><code class="docutils literal notranslate"><span class="pre">rsetattr()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.ptq">Post-Training Quantization (PTQ)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.ptq.GemmQuant"><code class="docutils literal notranslate"><span class="pre">GemmQuant</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.ptq.GemmQuant.quantize"><code class="docutils literal notranslate"><span class="pre">GemmQuant.quantize()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.ptq.add_new_quant_operators"><code class="docutils literal notranslate"><span class="pre">add_new_quant_operators()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.ptq.dynamic_quantization_onnx"><code class="docutils literal notranslate"><span class="pre">dynamic_quantization_onnx()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.ptq.dynamic_quantization_torch"><code class="docutils literal notranslate"><span class="pre">dynamic_quantization_torch()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.qat">Quantization-Aware Training (QAT)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.qat.qat_to_float_modules"><code class="docutils literal notranslate"><span class="pre">qat_to_float_modules()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.qat.float_to_qat_modules"><code class="docutils literal notranslate"><span class="pre">float_to_qat_modules()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.qat.prepare_with_qat"><code class="docutils literal notranslate"><span class="pre">prepare_with_qat()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.mixed_qat">Mixed-QAT</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.mixed_qat.MixedQAT"><code class="docutils literal notranslate"><span class="pre">MixedQAT</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.mixed_qat.MixedQAT.forward"><code class="docutils literal notranslate"><span class="pre">MixedQAT.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.mixed_qat.MixedQAT.training"><code class="docutils literal notranslate"><span class="pre">MixedQAT.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -427,7 +547,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="quantization">
-<h1>Quantization<a class="headerlink" href="#quantization" title="Permalink to this headline">#</a></h1>
+<h1>Quantization<a class="headerlink" href="#quantization" title="Permalink to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="archai.quantization.nlp.html">Natural Language Processing</a><ul>
@@ -437,20 +557,20 @@ document.write(`
 </ul>
 </div>
 <section id="module-archai.quantization.modules">
-<span id="modules"></span><h2>Modules<a class="headerlink" href="#module-archai.quantization.modules" title="Permalink to this headline">#</a></h2>
+<span id="modules"></span><h2>Modules<a class="headerlink" href="#module-archai.quantization.modules" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbedding">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeQuantEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeQuantEmbedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding" title="Permalink to this definition">#</a></dt>
 <dd><p>Translate a torch-based Embedding layer into a QAT-ready Embedding layer.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbedding.fake_quant_weight">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.fake_quant_weight" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.fake_quant_weight" title="Permalink to this definition">#</a></dt>
 <dd><p>Return a fake quantization over the weight matrix.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbedding.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeQuantEmbedding.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.forward" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeQuantEmbedding.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -464,16 +584,16 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbedding.from_float">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.quantization.modules.FakeQuantEmbedding" title="archai.quantization.modules.FakeQuantEmbedding"><span class="pre">archai.quantization.modules.FakeQuantEmbedding</span></a></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeQuantEmbedding.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.from_float" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.quantization.modules.FakeQuantEmbedding" title="archai.quantization.modules.FakeQuantEmbedding"><span class="pre">FakeQuantEmbedding</span></a></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeQuantEmbedding.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.from_float" title="Permalink to this definition">#</a></dt>
 <dd><p>Map module from float to QAT-ready.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mod</strong> – Module to be mapped.</p></li>
 <li><p><strong>qconfig</strong> – Quantization configuration.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>QAT-ready module.</p>
 </dd>
 </dl>
@@ -481,10 +601,10 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbedding.to_float">
-<span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeQuantEmbedding.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.to_float" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Module</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeQuantEmbedding.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.to_float" title="Permalink to this definition">#</a></dt>
 <dd><p>Map module from QAT-ready to float.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Float-based module.</p>
 </dd>
 </dl>
@@ -502,12 +622,12 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbedding.padding_idx">
-<span class="sig-name descname"><span class="pre">padding_idx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.padding_idx" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">padding_idx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.padding_idx" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbedding.max_norm">
-<span class="sig-name descname"><span class="pre">max_norm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.max_norm" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">max_norm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.max_norm" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -522,7 +642,12 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbedding.weight">
-<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.weight" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.weight" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbedding.freeze">
+<span class="sig-name descname"><span class="pre">freeze</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbedding.freeze" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -548,12 +673,12 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbeddingForOnnx.padding_idx">
-<span class="sig-name descname"><span class="pre">padding_idx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.padding_idx" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">padding_idx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.padding_idx" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbeddingForOnnx.max_norm">
-<span class="sig-name descname"><span class="pre">max_norm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.max_norm" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">max_norm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.max_norm" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -568,7 +693,12 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbeddingForOnnx.weight">
-<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.weight" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.weight" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="archai.quantization.modules.FakeQuantEmbeddingForOnnx.freeze">
+<span class="sig-name descname"><span class="pre">freeze</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.freeze" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -585,17 +715,17 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantLinear">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantLinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantLinear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantLinear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantLinear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear" title="Permalink to this definition">#</a></dt>
 <dd><p>Translate a torch-based Linear layer into a QAT-ready Linear layer.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantLinear.fake_quant_weight">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear.fake_quant_weight" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear.fake_quant_weight" title="Permalink to this definition">#</a></dt>
 <dd><p>Return a fake quantization over the weight matrix.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantLinear.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantLinear.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear.forward" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantLinear.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -609,17 +739,17 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantLinear.from_float">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.quantization.modules.FakeDynamicQuantLinear" title="archai.quantization.modules.FakeDynamicQuantLinear"><span class="pre">archai.quantization.modules.FakeDynamicQuantLinear</span></a></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantLinear.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear.from_float" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.quantization.modules.FakeDynamicQuantLinear" title="archai.quantization.modules.FakeDynamicQuantLinear"><span class="pre">FakeDynamicQuantLinear</span></a></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantLinear.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear.from_float" title="Permalink to this definition">#</a></dt>
 <dd><p>Map module from float to QAT-ready.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mod</strong> – Module to be mapped.</p></li>
 <li><p><strong>qconfig</strong> – Quantization configuration.</p></li>
 <li><p><strong>activation_reduce_range</strong> – Whether to reduce the range of activations.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>QAT-ready module.</p>
 </dd>
 </dl>
@@ -627,10 +757,10 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantLinear.to_float">
-<span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantLinear.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear.to_float" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Module</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantLinear.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear.to_float" title="Permalink to this definition">#</a></dt>
 <dd><p>Map module from QAT-ready to float.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Float-based module.</p>
 </dd>
 </dl>
@@ -648,7 +778,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantLinear.weight">
-<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear.weight" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinear.weight" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -669,7 +799,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantLinearForOnnx.weight">
-<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx.weight" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx.weight" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -681,17 +811,17 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1d">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantConv1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantConv1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantConv1d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantConv1d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d" title="Permalink to this definition">#</a></dt>
 <dd><p>Translate a torch-based Conv1d layer into a QAT-ready Conv1d layer.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1d.fake_quant_weight">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.fake_quant_weight" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.fake_quant_weight" title="Permalink to this definition">#</a></dt>
 <dd><p>Return a fake quantization over the weight matrix.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1d.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantConv1d.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.forward" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantConv1d.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -705,17 +835,17 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1d.from_float">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.quantization.modules.FakeDynamicQuantConv1d" title="archai.quantization.modules.FakeDynamicQuantConv1d"><span class="pre">archai.quantization.modules.FakeDynamicQuantConv1d</span></a></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantConv1d.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.from_float" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.quantization.modules.FakeDynamicQuantConv1d" title="archai.quantization.modules.FakeDynamicQuantConv1d"><span class="pre">FakeDynamicQuantConv1d</span></a></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantConv1d.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.from_float" title="Permalink to this definition">#</a></dt>
 <dd><p>Map module from float to QAT-ready.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mod</strong> – Module to be mapped.</p></li>
 <li><p><strong>qconfig</strong> – Quantization configuration.</p></li>
 <li><p><strong>activation_reduce_range</strong> – Whether to reduce the range of activations.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>QAT-ready module.</p>
 </dd>
 </dl>
@@ -723,10 +853,10 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1d.to_float">
-<span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantConv1d.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.to_float" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Module</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/modules.html#FakeDynamicQuantConv1d.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.to_float" title="Permalink to this definition">#</a></dt>
 <dd><p>Map module from QAT-ready to float.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Float-based module.</p>
 </dd>
 </dl>
@@ -734,7 +864,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1d.bias">
-<span class="sig-name descname"><span class="pre">bias</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.bias" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">bias</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.bias" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -759,7 +889,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1d.padding">
-<span class="sig-name descname"><span class="pre">padding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.padding" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">padding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.padding" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -789,7 +919,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1d.weight">
-<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.weight" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1d.weight" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -800,7 +930,7 @@ registered hooks while the latter silently ignores them.</p>
 <dd><p>Allow a QAT-ready Conv1d layer to be exported with ONNX.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.bias">
-<span class="sig-name descname"><span class="pre">bias</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.bias" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">bias</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.bias" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -825,7 +955,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.padding">
-<span class="sig-name descname"><span class="pre">padding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.padding" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">padding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.padding" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -855,7 +985,7 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.weight">
-<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.weight" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.weight" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -867,7 +997,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.quantization.observers">
-<span id="observers"></span><h2>Observers<a class="headerlink" href="#module-archai.quantization.observers" title="Permalink to this headline">#</a></h2>
+<span id="observers"></span><h2>Observers<a class="headerlink" href="#module-archai.quantization.observers" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.quantization.observers.OnnxDynamicObserver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.observers.</span></span><span class="sig-name descname"><span class="pre">OnnxDynamicObserver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/observers.html#OnnxDynamicObserver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.observers.OnnxDynamicObserver" title="Permalink to this definition">#</a></dt>
@@ -885,10 +1015,10 @@ used for assymetric quantization.</p>
 
 </section>
 <section id="module-archai.quantization.quantizers">
-<span id="quantizers"></span><h2>Quantizers<a class="headerlink" href="#module-archai.quantization.quantizers" title="Permalink to this headline">#</a></h2>
+<span id="quantizers"></span><h2>Quantizers<a class="headerlink" href="#module-archai.quantization.quantizers" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.quantization.quantizers.FakeDynamicQuant">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.quantizers.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.dtype</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">torch.quint8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/quantizers.html#FakeDynamicQuant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.quantizers.FakeDynamicQuant" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.quantizers.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dtype</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">torch.quint8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/quantizers.html#FakeDynamicQuant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.quantizers.FakeDynamicQuant" title="Permalink to this definition">#</a></dt>
 <dd><p>Fake dynamic quantizer to allow for scale/zero point calculation during Quantization-Aware Training.</p>
 <p>This class allows inserting a fake dynamic quantization operator in a PyTorch model,
 in order to calculate scale and zero point values that can be used to quantize the
@@ -903,7 +1033,7 @@ in the final, deployed model.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.quantizers.FakeDynamicQuant.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/quantizers.html#FakeDynamicQuant.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.quantizers.FakeDynamicQuant.forward" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/quantizers.html#FakeDynamicQuant.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.quantizers.FakeDynamicQuant.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -919,7 +1049,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.quantization.quantization_utils">
-<span id="quantization-utilities"></span><h2>Quantization (Utilities)<a class="headerlink" href="#module-archai.quantization.quantization_utils" title="Permalink to this headline">#</a></h2>
+<span id="quantization-utilities"></span><h2>Quantization (Utilities)<a class="headerlink" href="#module-archai.quantization.quantization_utils" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.quantization.quantization_utils.rgetattr">
 <span class="sig-prename descclassname"><span class="pre">archai.quantization.quantization_utils.</span></span><span class="sig-name descname"><span class="pre">rgetattr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/quantization_utils.html#rgetattr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.quantization_utils.rgetattr" title="Permalink to this definition">#</a></dt>
@@ -928,13 +1058,13 @@ registered hooks while the latter silently ignores them.</p>
 If any attribute along the chain does not exist, the function returns the default value
 specified in the <cite>*args</cite> parameter.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – Object from which the attribute will be retrieved.</p></li>
 <li><p><strong>attr</strong> – Name of the attribute to be retrieved, with each level separated by a dot.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Attribute from the object.</p>
 </dd>
 </dl>
@@ -955,7 +1085,7 @@ specified in the <cite>*args</cite> parameter.</p>
 <dd><p>Recursively set an attribute on an object.</p>
 <p>This function allows setting nested attributes by separating each level with a dot (e.g., “attr1.attr2.attr3”).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>obj</strong> – Object on which the attribute will be set.</p></li>
 <li><p><strong>attr</strong> – Name of the attribute to be set, with each level separated by a dot.</p></li>
@@ -976,10 +1106,10 @@ specified in the <cite>*args</cite> parameter.</p>
 
 </section>
 <section id="module-archai.quantization.ptq">
-<span id="post-training-quantization-ptq"></span><h2>Post-Training Quantization (PTQ)<a class="headerlink" href="#module-archai.quantization.ptq" title="Permalink to this headline">#</a></h2>
+<span id="post-training-quantization-ptq"></span><h2>Post-Training Quantization (PTQ)<a class="headerlink" href="#module-archai.quantization.ptq" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.quantization.ptq.GemmQuant">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.ptq.</span></span><span class="sig-name descname"><span class="pre">GemmQuant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_quantizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnxruntime.quantization.onnx_quantizer.ONNXQuantizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnx.onnx_ml_pb2.NodeProto</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/ptq.html#GemmQuant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.ptq.GemmQuant" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.ptq.</span></span><span class="sig-name descname"><span class="pre">GemmQuant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_quantizer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ONNXQuantizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">NodeProto</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/ptq.html#GemmQuant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.ptq.GemmQuant" title="Permalink to this definition">#</a></dt>
 <dd><p>Quantized version of the Gemm operator.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.ptq.GemmQuant.quantize">
@@ -1006,10 +1136,10 @@ internal onnxruntime registry dictionaries.</p>
 <p>The quantized model is saved to a new file with “-int8” appended
 to the original file name.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>onnx_model_path</strong> – Path to the ONNX model to be quantized.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Path to the dynamic quantized ONNX model.</p>
 </dd>
 </dl>
@@ -1017,12 +1147,12 @@ to the original file name.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.quantization.ptq.dynamic_quantization_torch">
-<span class="sig-prename descclassname"><span class="pre">archai.quantization.ptq.</span></span><span class="sig-name descname"><span class="pre">dynamic_quantization_torch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['word_emb',</span> <span class="pre">'transformer.wpe',</span> <span class="pre">'transformer.wte']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/ptq.html#dynamic_quantization_torch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.ptq.dynamic_quantization_torch" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.quantization.ptq.</span></span><span class="sig-name descname"><span class="pre">dynamic_quantization_torch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['word_emb',</span> <span class="pre">'transformer.wpe',</span> <span class="pre">'transformer.wte']</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/ptq.html#dynamic_quantization_torch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.ptq.dynamic_quantization_torch" title="Permalink to this definition">#</a></dt>
 <dd><p>Perform dynamic quantization on a PyTorch model.</p>
 <p>This function performs dynamic quantization on the input PyTorch model, including
 any specified embedding layers.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – PyTorch model to be quantized.</p></li>
 <li><p><strong>embedding_layers</strong> – List of string-based identifiers of embedding layers to be quantized.</p></li>
@@ -1033,16 +1163,16 @@ any specified embedding layers.</p>
 
 </section>
 <section id="module-archai.quantization.qat">
-<span id="quantization-aware-training-qat"></span><h2>Quantization-Aware Training (QAT)<a class="headerlink" href="#module-archai.quantization.qat" title="Permalink to this headline">#</a></h2>
+<span id="quantization-aware-training-qat"></span><h2>Quantization-Aware Training (QAT)<a class="headerlink" href="#module-archai.quantization.qat" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.quantization.qat.qat_to_float_modules">
-<span class="sig-prename descclassname"><span class="pre">archai.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">qat_to_float_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/qat.html#qat_to_float_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.qat.qat_to_float_modules" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">qat_to_float_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/qat.html#qat_to_float_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.qat.qat_to_float_modules" title="Permalink to this definition">#</a></dt>
 <dd><p>Convert QAT-ready modules to float-based modules.</p>
 <p>This function converts all QAT-ready modules in the input model to float-based modules.
 It does this recursively, so all sub-modules within the input model will also be
 converted if applicable.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>model</strong> – QAT-ready module to be converted.</p>
 </dd>
 </dl>
@@ -1050,14 +1180,14 @@ converted if applicable.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.quantization.qat.float_to_qat_modules">
-<span class="sig-prename descclassname"><span class="pre">archai.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">float_to_qat_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_mapping:</span> <span class="pre">Optional[Dict[torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">torch.nn.modules.module.Module]]</span> <span class="pre">=</span> <span class="pre">{&lt;class</span> <span class="pre">'torch.nn.modules.conv.Conv1d'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.quantization.modules.FakeDynamicQuantConv1d'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'torch.nn.modules.linear.Linear'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.quantization.modules.FakeDynamicQuantLinear'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'torch.nn.modules.sparse.Embedding'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.quantization.modules.FakeQuantEmbedding'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'transformers.pytorch_utils.Conv1D'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D'&gt;}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig:</span> <span class="pre">Optional[Dict[torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Any]]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/qat.html#float_to_qat_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.qat.float_to_qat_modules" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">float_to_qat_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model:</span> <span class="pre">~torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_mapping:</span> <span class="pre">~typing.Dict[~torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~torch.nn.modules.module.Module]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">{&lt;class</span> <span class="pre">'torch.nn.modules.conv.Conv1d'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.quantization.modules.FakeDynamicQuantConv1d'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'torch.nn.modules.linear.Linear'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.quantization.modules.FakeDynamicQuantLinear'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'torch.nn.modules.sparse.Embedding'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.quantization.modules.FakeQuantEmbedding'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'transformers.pytorch_utils.Conv1D'&gt;:</span> <span class="pre">&lt;class</span> <span class="pre">'archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D'&gt;}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig:</span> <span class="pre">~typing.Dict[~torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/qat.html#float_to_qat_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.qat.float_to_qat_modules" title="Permalink to this definition">#</a></dt>
 <dd><p>Convert float-based modules to QAT-ready modules.</p>
 <p>This function converts all float-based modules in the input model to QAT-ready
 modules using the provided module mapping. It does this recursively, so all sub-modules
 within the input model will also be converted if applicable.</p>
 <p>A quantization configuration can also be supplied.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – Float-based module to be converted.</p></li>
 <li><p><strong>module_mapping</strong> – Maps between float and QAT-ready modules.</p></li>
@@ -1069,12 +1199,12 @@ within the input model will also be converted if applicable.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.quantization.qat.prepare_with_qat">
-<span class="sig-prename descclassname"><span class="pre">archai.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">prepare_with_qat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'qnnpack'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/qat.html#prepare_with_qat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.qat.prepare_with_qat" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.quantization.qat.</span></span><span class="sig-name descname"><span class="pre">prepare_with_qat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'qnnpack'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Module</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/qat.html#prepare_with_qat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.qat.prepare_with_qat" title="Permalink to this definition">#</a></dt>
 <dd><p>Prepare a float-based PyTorch model for quantization-aware training (QAT).</p>
 <p>This function modifies the input model in place by inserting
 QAT-based modules and configurations.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – Float-based PyTorch module to be prepared for QAT.</p></li>
 <li><p><strong>inplace</strong> – Whether the prepared QAT model should replace the original model.</p></li>
@@ -1082,7 +1212,7 @@ QAT-based modules and configurations.</p>
 <li><p><strong>backend</strong> – Quantization backend to be used.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The input model, modified in place (or not) to be ready for QAT.</p>
 </dd>
 </dl>
@@ -1090,15 +1220,15 @@ QAT-based modules and configurations.</p>
 
 </section>
 <section id="module-archai.quantization.mixed_qat">
-<span id="mixed-qat"></span><h2>Mixed-QAT<a class="headerlink" href="#module-archai.quantization.mixed_qat" title="Permalink to this headline">#</a></h2>
+<span id="mixed-qat"></span><h2>Mixed-QAT<a class="headerlink" href="#module-archai.quantization.mixed_qat" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.quantization.mixed_qat.MixedQAT">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.mixed_qat.</span></span><span class="sig-name descname"><span class="pre">MixedQAT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qat_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/mixed_qat.html#MixedQAT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.mixed_qat.MixedQAT" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.mixed_qat.</span></span><span class="sig-name descname"><span class="pre">MixedQAT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qat_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/mixed_qat.html#MixedQAT"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.mixed_qat.MixedQAT" title="Permalink to this definition">#</a></dt>
 <dd><p>Mixed QAT (Quantization-Aware Training) model, which can be fine-tuned
 using a linear combination of regular and QAT losses.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.mixed_qat.MixedQAT.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.LongTensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.LongTensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/quantization/mixed_qat.html#MixedQAT.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.mixed_qat.MixedQAT.forward" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LongTensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LongTensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/quantization/mixed_qat.html#MixedQAT.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.mixed_qat.MixedQAT.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -1162,13 +1292,134 @@ registered hooks while the latter silently ignores them.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.modules">Modules</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.observers">Observers</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantizers">Quantizers</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantization_utils">Quantization (Utilities)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.ptq">Post-Training Quantization (PTQ)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.qat">Quantization-Aware Training (QAT)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.mixed_qat">Mixed-QAT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.modules">Modules</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.fake_quant_weight"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.fake_quant_weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.from_float"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.from_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.to_float"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.to_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.num_embeddings"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.num_embeddings</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.embedding_dim"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.embedding_dim</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.padding_idx"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.padding_idx</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.max_norm"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.max_norm</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.norm_type"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.norm_type</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.scale_grad_by_freq"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.scale_grad_by_freq</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.weight"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.freeze"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.freeze</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbedding.sparse"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbedding.sparse</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.num_embeddings"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.num_embeddings</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.embedding_dim"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.embedding_dim</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.padding_idx"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.padding_idx</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.max_norm"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.max_norm</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.norm_type"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.norm_type</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.scale_grad_by_freq"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.scale_grad_by_freq</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.weight"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.freeze"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.freeze</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.sparse"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.sparse</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeQuantEmbeddingForOnnx.training"><code class="docutils literal notranslate"><span class="pre">FakeQuantEmbeddingForOnnx.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.fake_quant_weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.fake_quant_weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.forward"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.from_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.from_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.to_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.to_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.in_features"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.in_features</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.out_features"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.out_features</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinear.weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinear.weight</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinearForOnnx</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx.in_features"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinearForOnnx.in_features</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx.out_features"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinearForOnnx.out_features</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx.weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinearForOnnx.weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantLinearForOnnx.training"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantLinearForOnnx.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.fake_quant_weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.fake_quant_weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.forward"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.from_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.from_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.to_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.to_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.bias"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.bias</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.in_channels"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.in_channels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.out_channels"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.out_channels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.kernel_size"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.kernel_size</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.stride"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.stride</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.padding"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.padding</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.dilation"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.dilation</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.transposed"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.transposed</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.output_padding"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.output_padding</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.groups"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.groups</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.padding_mode"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.padding_mode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1d.weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1d.weight</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.bias"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.bias</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.in_channels"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.in_channels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.out_channels"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.out_channels</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.kernel_size"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.kernel_size</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.stride"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.stride</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.padding"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.padding</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.dilation"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.dilation</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.transposed"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.transposed</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.output_padding"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.output_padding</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.groups"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.groups</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.padding_mode"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.padding_mode</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.modules.FakeDynamicQuantConv1dForOnnx.training"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantConv1dForOnnx.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.observers">Observers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.observers.OnnxDynamicObserver"><code class="docutils literal notranslate"><span class="pre">OnnxDynamicObserver</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.observers.OnnxDynamicObserver.calculate_qparams"><code class="docutils literal notranslate"><span class="pre">OnnxDynamicObserver.calculate_qparams()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantizers">Quantizers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.quantizers.FakeDynamicQuant"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuant</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.quantizers.FakeDynamicQuant.training"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuant.training</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.quantizers.FakeDynamicQuant.forward"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuant.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.quantization_utils">Quantization (Utilities)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.quantization_utils.rgetattr"><code class="docutils literal notranslate"><span class="pre">rgetattr()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.quantization_utils.rsetattr"><code class="docutils literal notranslate"><span class="pre">rsetattr()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.ptq">Post-Training Quantization (PTQ)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.ptq.GemmQuant"><code class="docutils literal notranslate"><span class="pre">GemmQuant</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.ptq.GemmQuant.quantize"><code class="docutils literal notranslate"><span class="pre">GemmQuant.quantize()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.ptq.add_new_quant_operators"><code class="docutils literal notranslate"><span class="pre">add_new_quant_operators()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.ptq.dynamic_quantization_onnx"><code class="docutils literal notranslate"><span class="pre">dynamic_quantization_onnx()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.ptq.dynamic_quantization_torch"><code class="docutils literal notranslate"><span class="pre">dynamic_quantization_torch()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.qat">Quantization-Aware Training (QAT)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.qat.qat_to_float_modules"><code class="docutils literal notranslate"><span class="pre">qat_to_float_modules()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.qat.float_to_qat_modules"><code class="docutils literal notranslate"><span class="pre">float_to_qat_modules()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.qat.prepare_with_qat"><code class="docutils literal notranslate"><span class="pre">prepare_with_qat()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.mixed_qat">Mixed-QAT</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.mixed_qat.MixedQAT"><code class="docutils literal notranslate"><span class="pre">MixedQAT</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.mixed_qat.MixedQAT.forward"><code class="docutils literal notranslate"><span class="pre">MixedQAT.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.mixed_qat.MixedQAT.training"><code class="docutils literal notranslate"><span class="pre">MixedQAT.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -1201,7 +1452,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

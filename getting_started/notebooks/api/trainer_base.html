@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Implementing a Custom Trainer &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/api/trainer_base';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/api/trainer_base.html" />
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Discrete Search" href="../discrete_search.html" />
@@ -429,7 +428,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Implementing-a-Custom-Trainer">
-<h1>Implementing a Custom Trainer<a class="headerlink" href="#Implementing-a-Custom-Trainer" title="Permalink to this headline">#</a></h1>
+<h1>Implementing a Custom Trainer<a class="headerlink" href="#Implementing-a-Custom-Trainer" title="Permalink to this heading">#</a></h1>
 <p>Abstract base classes (ABCs) define a blueprint for a class, specifying its methods and attributes, but not its implementation. They are important in implementing a consistent interface, as they enforce a set of requirements on implementing classes and make it easier to write code that can work with multiple implementations.</p>
 <p>First, we define a boilerplate for the <code class="docutils literal notranslate"><span class="pre">TrainerBase</span></code> class, which is the same implemented in <code class="docutils literal notranslate"><span class="pre">archai.api.trainer_base</span></code> module.</p>
 <div class="nbinput nblast docutils container">
@@ -460,7 +459,7 @@ document.write(`
 </div>
 </div>
 <section id="PyTorch-based-Trainer">
-<h2>PyTorch-based Trainer<a class="headerlink" href="#PyTorch-based-Trainer" title="Permalink to this headline">#</a></h2>
+<h2>PyTorch-based Trainer<a class="headerlink" href="#PyTorch-based-Trainer" title="Permalink to this heading">#</a></h2>
 <p>In the context of a custom trainer, using ABCs can help ensure that the provider implements the required methods and provides a consistent interface for training, evaluating and predicting. In this example, we will implement a PyTorch-based trainer, as follows:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -561,7 +560,7 @@ document.write(`
 </div>
 </div>
 <section id="Defining-the-Model">
-<h3>Defining the Model<a class="headerlink" href="#Defining-the-Model" title="Permalink to this headline">#</a></h3>
+<h3>Defining the Model<a class="headerlink" href="#Defining-the-Model" title="Permalink to this heading">#</a></h3>
 <p>Once the data is loaded, we can define any CV-based model. In this example, we will create a simple linear model using PyTorch:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -583,7 +582,7 @@ document.write(`
 </div>
 </section>
 <section id="Creating-and-Training-with-the-Trainer">
-<h3>Creating and Training with the Trainer<a class="headerlink" href="#Creating-and-Training-with-the-Trainer" title="Permalink to this headline">#</a></h3>
+<h3>Creating and Training with the Trainer<a class="headerlink" href="#Creating-and-Training-with-the-Trainer" title="Permalink to this heading">#</a></h3>
 <p>After loading the data and creating the data, we need to plug these instances into the <code class="docutils literal notranslate"><span class="pre">PyTorchTrainer</span></code> and start the training, as follows:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -702,7 +701,7 @@ Batch 930 loss: 0.5461382602454512
 </div>
 </section>
 <section id="Evaluating-and-Predicting-with-the-Trainer">
-<h3>Evaluating and Predicting with the Trainer<a class="headerlink" href="#Evaluating-and-Predicting-with-the-Trainer" title="Permalink to this headline">#</a></h3>
+<h3>Evaluating and Predicting with the Trainer<a class="headerlink" href="#Evaluating-and-Predicting-with-the-Trainer" title="Permalink to this heading">#</a></h3>
 <p>Finally, we evaluate our pre-trained model with the validation set and create a set of random-based inputs to calculate the model’s predictions:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -813,7 +812,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

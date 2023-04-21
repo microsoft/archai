@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Manual &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.supergraph.algos.manual';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.supergraph.algos.manual.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="NasBench-101" href="archai.supergraph.algos.nasbench101.html" />
@@ -408,9 +407,31 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_evaluater">Evaluater</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_exp_runner">Experiment Runner</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_searcher">Searcher</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_evaluater">Evaluater</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater"><code class="docutils literal notranslate"><span class="pre">ManualEvaluater</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater.create_model"><code class="docutils literal notranslate"><span class="pre">ManualEvaluater.create_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_exp_runner">Experiment Runner</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.model_desc_builder"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner.model_desc_builder()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.trainer_class"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner.trainer_class()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.searcher"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner.searcher()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.evaluater"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner.evaluater()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.copy_search_to_eval"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner.copy_search_to_eval()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_searcher">Searcher</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_searcher.ManualSearcher"><code class="docutils literal notranslate"><span class="pre">ManualSearcher</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_searcher.ManualSearcher.search"><code class="docutils literal notranslate"><span class="pre">ManualSearcher.search()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -423,44 +444,44 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="manual">
-<h1>Manual<a class="headerlink" href="#manual" title="Permalink to this headline">#</a></h1>
+<h1>Manual<a class="headerlink" href="#manual" title="Permalink to this heading">#</a></h1>
 <section id="module-archai.supergraph.algos.manual.manual_evaluater">
-<span id="evaluater"></span><h2>Evaluater<a class="headerlink" href="#module-archai.supergraph.algos.manual.manual_evaluater" title="Permalink to this headline">#</a></h2>
+<span id="evaluater"></span><h2>Evaluater<a class="headerlink" href="#module-archai.supergraph.algos.manual.manual_evaluater" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.manual.manual_evaluater.</span></span><span class="sig-name descname"><span class="pre">ManualEvaluater</span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_evaluater.html#ManualEvaluater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater.create_model">
-<span class="sig-name descname"><span class="pre">create_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_eval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_desc_builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc_builder.ModelDescBuilder" title="archai.supergraph.nas.model_desc_builder.ModelDescBuilder"><span class="pre">archai.supergraph.nas.model_desc_builder.ModelDescBuilder</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_desc_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_desc_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_evaluater.html#ManualEvaluater.create_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater.create_model" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">create_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_eval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_desc_builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc_builder.ModelDescBuilder" title="archai.supergraph.nas.model_desc_builder.ModelDescBuilder"><span class="pre">ModelDescBuilder</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_desc_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_desc_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Module</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_evaluater.html#ManualEvaluater.create_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater.create_model" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-archai.supergraph.algos.manual.manual_exp_runner">
-<span id="experiment-runner"></span><h2>Experiment Runner<a class="headerlink" href="#module-archai.supergraph.algos.manual.manual_exp_runner" title="Permalink to this headline">#</a></h2>
+<span id="experiment-runner"></span><h2>Experiment Runner<a class="headerlink" href="#module-archai.supergraph.algos.manual.manual_exp_runner" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.manual.manual_exp_runner.</span></span><span class="sig-name descname"><span class="pre">ManualExperimentRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_expdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_exp_runner.html#ManualExperimentRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner" title="Permalink to this definition">#</a></dt>
 <dd><p>Runs manually designed models such as resnet</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.model_desc_builder">
-<span class="sig-name descname"><span class="pre">model_desc_builder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc_builder.ModelDescBuilder" title="archai.supergraph.nas.model_desc_builder.ModelDescBuilder"><span class="pre">archai.supergraph.nas.model_desc_builder.ModelDescBuilder</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_exp_runner.html#ManualExperimentRunner.model_desc_builder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.model_desc_builder" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_desc_builder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc_builder.ModelDescBuilder" title="archai.supergraph.nas.model_desc_builder.ModelDescBuilder"><span class="pre">ModelDescBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_exp_runner.html#ManualExperimentRunner.model_desc_builder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.model_desc_builder" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.trainer_class">
-<span class="sig-name descname"><span class="pre">trainer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">ArchTrainer</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_exp_runner.html#ManualExperimentRunner.trainer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.trainer_class" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">trainer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.arch_trainer.ArchTrainer" title="archai.supergraph.nas.arch_trainer.ArchTrainer"><span class="pre">ArchTrainer</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_exp_runner.html#ManualExperimentRunner.trainer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.trainer_class" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.searcher">
-<span class="sig-name descname"><span class="pre">searcher</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.supergraph.algos.manual.manual_searcher.ManualSearcher" title="archai.supergraph.algos.manual.manual_searcher.ManualSearcher"><span class="pre">archai.supergraph.algos.manual.manual_searcher.ManualSearcher</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_exp_runner.html#ManualExperimentRunner.searcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.searcher" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">searcher</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.supergraph.algos.manual.manual_searcher.ManualSearcher" title="archai.supergraph.algos.manual.manual_searcher.ManualSearcher"><span class="pre">ManualSearcher</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_exp_runner.html#ManualExperimentRunner.searcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.searcher" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.evaluater">
-<span class="sig-name descname"><span class="pre">evaluater</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater" title="archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater"><span class="pre">archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_exp_runner.html#ManualExperimentRunner.evaluater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.evaluater" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">evaluater</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater" title="archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater"><span class="pre">ManualEvaluater</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_exp_runner.html#ManualExperimentRunner.evaluater"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.evaluater" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -472,13 +493,13 @@ document.write(`
 
 </section>
 <section id="module-archai.supergraph.algos.manual.manual_searcher">
-<span id="searcher"></span><h2>Searcher<a class="headerlink" href="#module-archai.supergraph.algos.manual.manual_searcher" title="Permalink to this headline">#</a></h2>
+<span id="searcher"></span><h2>Searcher<a class="headerlink" href="#module-archai.supergraph.algos.manual.manual_searcher" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.manual.manual_searcher.ManualSearcher">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.manual.manual_searcher.</span></span><span class="sig-name descname"><span class="pre">ManualSearcher</span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_searcher.html#ManualSearcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_searcher.ManualSearcher" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.manual.manual_searcher.ManualSearcher.search">
-<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_search</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_desc_builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc_builder.ModelDescBuilder" title="archai.supergraph.nas.model_desc_builder.ModelDescBuilder"><span class="pre">archai.supergraph.nas.model_desc_builder.ModelDescBuilder</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">ArchTrainer</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">finalizers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.finalizers.Finalizers" title="archai.supergraph.nas.finalizers.Finalizers"><span class="pre">archai.supergraph.nas.finalizers.Finalizers</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.searcher.SearchResult" title="archai.supergraph.nas.searcher.SearchResult"><span class="pre">archai.supergraph.nas.searcher.SearchResult</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_searcher.html#ManualSearcher.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_searcher.ManualSearcher.search" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_search</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_desc_builder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc_builder.ModelDescBuilder" title="archai.supergraph.nas.model_desc_builder.ModelDescBuilder"><span class="pre">ModelDescBuilder</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.arch_trainer.ArchTrainer" title="archai.supergraph.nas.arch_trainer.ArchTrainer"><span class="pre">ArchTrainer</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">finalizers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.finalizers.Finalizers" title="archai.supergraph.nas.finalizers.Finalizers"><span class="pre">Finalizers</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.searcher.SearchResult" title="archai.supergraph.nas.searcher.SearchResult"><span class="pre">SearchResult</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/manual/manual_searcher.html#ManualSearcher.search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.manual.manual_searcher.ManualSearcher.search" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -528,9 +549,31 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_evaluater">Evaluater</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_exp_runner">Experiment Runner</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_searcher">Searcher</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_evaluater">Evaluater</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater"><code class="docutils literal notranslate"><span class="pre">ManualEvaluater</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_evaluater.ManualEvaluater.create_model"><code class="docutils literal notranslate"><span class="pre">ManualEvaluater.create_model()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_exp_runner">Experiment Runner</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.model_desc_builder"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner.model_desc_builder()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.trainer_class"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner.trainer_class()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.searcher"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner.searcher()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.evaluater"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner.evaluater()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_exp_runner.ManualExperimentRunner.copy_search_to_eval"><code class="docutils literal notranslate"><span class="pre">ManualExperimentRunner.copy_search_to_eval()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.manual.manual_searcher">Searcher</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_searcher.ManualSearcher"><code class="docutils literal notranslate"><span class="pre">ManualSearcher</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.manual.manual_searcher.ManualSearcher.search"><code class="docutils literal notranslate"><span class="pre">ManualSearcher.search()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -563,7 +606,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>ShakeShake &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.supergraph.models.shakeshake';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.supergraph.models.shakeshake.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Neural Architecture Search" href="archai.supergraph.nas.html" />
@@ -408,9 +407,45 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakeshake.shake_resnet">Shake ResNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakeshake.shake_resnext">Shake ResNext</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">ShakeShake</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakeshake.shake_resnet">Shake ResNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeBlock"><code class="docutils literal notranslate"><span class="pre">ShakeBlock</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeBlock.forward"><code class="docutils literal notranslate"><span class="pre">ShakeBlock.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeBlock.training"><code class="docutils literal notranslate"><span class="pre">ShakeBlock.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeResNet"><code class="docutils literal notranslate"><span class="pre">ShakeResNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeResNet.forward"><code class="docutils literal notranslate"><span class="pre">ShakeResNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeResNet.training"><code class="docutils literal notranslate"><span class="pre">ShakeResNet.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakeshake.shake_resnext">Shake ResNext</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeBottleNeck"><code class="docutils literal notranslate"><span class="pre">ShakeBottleNeck</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeBottleNeck.forward"><code class="docutils literal notranslate"><span class="pre">ShakeBottleNeck.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeBottleNeck.training"><code class="docutils literal notranslate"><span class="pre">ShakeBottleNeck.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeResNeXt"><code class="docutils literal notranslate"><span class="pre">ShakeResNeXt</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeResNeXt.forward"><code class="docutils literal notranslate"><span class="pre">ShakeResNeXt.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeResNeXt.training"><code class="docutils literal notranslate"><span class="pre">ShakeResNeXt.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">ShakeShake</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.ShakeShake"><code class="docutils literal notranslate"><span class="pre">ShakeShake</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.ShakeShake.forward"><code class="docutils literal notranslate"><span class="pre">ShakeShake.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.ShakeShake.backward"><code class="docutils literal notranslate"><span class="pre">ShakeShake.backward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.Shortcut"><code class="docutils literal notranslate"><span class="pre">Shortcut</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.Shortcut.forward"><code class="docutils literal notranslate"><span class="pre">Shortcut.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.Shortcut.training"><code class="docutils literal notranslate"><span class="pre">Shortcut.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -423,9 +458,9 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="shakeshake">
-<h1>ShakeShake<a class="headerlink" href="#shakeshake" title="Permalink to this headline">#</a></h1>
+<h1>ShakeShake<a class="headerlink" href="#shakeshake" title="Permalink to this heading">#</a></h1>
 <section id="module-archai.supergraph.models.shakeshake.shake_resnet">
-<span id="shake-resnet"></span><h2>Shake ResNet<a class="headerlink" href="#module-archai.supergraph.models.shakeshake.shake_resnet" title="Permalink to this headline">#</a></h2>
+<span id="shake-resnet"></span><h2>Shake ResNet<a class="headerlink" href="#module-archai.supergraph.models.shakeshake.shake_resnet" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.shakeshake.shake_resnet.ShakeBlock">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.shakeshake.shake_resnet.</span></span><span class="sig-name descname"><span class="pre">ShakeBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/shakeshake/shake_resnet.html#ShakeBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeBlock" title="Permalink to this definition">#</a></dt>
@@ -476,7 +511,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.models.shakeshake.shake_resnext">
-<span id="shake-resnext"></span><h2>Shake ResNext<a class="headerlink" href="#module-archai.supergraph.models.shakeshake.shake_resnext" title="Permalink to this headline">#</a></h2>
+<span id="shake-resnext"></span><h2>Shake ResNext<a class="headerlink" href="#module-archai.supergraph.models.shakeshake.shake_resnext" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.shakeshake.shake_resnext.ShakeBottleNeck">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.shakeshake.shake_resnext.</span></span><span class="sig-name descname"><span class="pre">ShakeBottleNeck</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mid_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_ch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cardinary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/shakeshake/shake_resnext.html#ShakeBottleNeck"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeBottleNeck" title="Permalink to this definition">#</a></dt>
@@ -527,17 +562,44 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="id1">
-<h2>ShakeShake<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h2>
+<h2>ShakeShake<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
 <span class="target" id="module-archai.supergraph.models.shakeshake.shakeshake"></span><dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.shakeshake.shakeshake.ShakeShake">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.shakeshake.shakeshake.</span></span><span class="sig-name descname"><span class="pre">ShakeShake</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/shakeshake/shakeshake.html#ShakeShake"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.shakeshake.shakeshake.ShakeShake" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.models.shakeshake.shakeshake.ShakeShake.forward">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/shakeshake/shakeshake.html#ShakeShake.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.shakeshake.shakeshake.ShakeShake.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs the operation.</p>
-<p>This function is to be overridden by all subclasses.</p>
-<p>It must accept a context ctx as the first argument, followed by any
-number of arguments (tensors or other types).</p>
+<dd><p>This function is to be overridden by all subclasses. There are two ways
+to define forward:</p>
+<p>Usage 1 (Combined forward and ctx):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>It must accept a context ctx as the first argument, followed by any
+number of arguments (tensors or other types).</p></li>
+<li><p>See <span class="xref std std-ref">combining-forward-context</span> for more details</p></li>
+</ul>
+<p>Usage 2 (Separate forward and ctx):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">setup_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">output</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The forward no longer accepts a ctx argument.</p></li>
+<li><p>Instead, you must also override the <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.autograd.Function.setup_context()</span></code>
+staticmethod to handle setting up the <code class="docutils literal notranslate"><span class="pre">ctx</span></code> object.
+<code class="docutils literal notranslate"><span class="pre">output</span></code> is the output of the forward, <code class="docutils literal notranslate"><span class="pre">inputs</span></code> are a Tuple of inputs
+to the forward.</p></li>
+<li><p>See <span class="xref std std-ref">extending-autograd</span> for more details</p></li>
+</ul>
 <p>The context can be used to store arbitrary data that can be then
 retrieved during the backward pass. Tensors should not be stored
 directly on <cite>ctx</cite> (though this is not currently enforced for
@@ -640,9 +702,45 @@ registered hooks while the latter silently ignores them.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakeshake.shake_resnet">Shake ResNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakeshake.shake_resnext">Shake ResNext</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">ShakeShake</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakeshake.shake_resnet">Shake ResNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeBlock"><code class="docutils literal notranslate"><span class="pre">ShakeBlock</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeBlock.forward"><code class="docutils literal notranslate"><span class="pre">ShakeBlock.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeBlock.training"><code class="docutils literal notranslate"><span class="pre">ShakeBlock.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeResNet"><code class="docutils literal notranslate"><span class="pre">ShakeResNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeResNet.forward"><code class="docutils literal notranslate"><span class="pre">ShakeResNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnet.ShakeResNet.training"><code class="docutils literal notranslate"><span class="pre">ShakeResNet.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakeshake.shake_resnext">Shake ResNext</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeBottleNeck"><code class="docutils literal notranslate"><span class="pre">ShakeBottleNeck</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeBottleNeck.forward"><code class="docutils literal notranslate"><span class="pre">ShakeBottleNeck.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeBottleNeck.training"><code class="docutils literal notranslate"><span class="pre">ShakeBottleNeck.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeResNeXt"><code class="docutils literal notranslate"><span class="pre">ShakeResNeXt</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeResNeXt.forward"><code class="docutils literal notranslate"><span class="pre">ShakeResNeXt.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shake_resnext.ShakeResNeXt.training"><code class="docutils literal notranslate"><span class="pre">ShakeResNeXt.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">ShakeShake</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.ShakeShake"><code class="docutils literal notranslate"><span class="pre">ShakeShake</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.ShakeShake.forward"><code class="docutils literal notranslate"><span class="pre">ShakeShake.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.ShakeShake.backward"><code class="docutils literal notranslate"><span class="pre">ShakeShake.backward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.Shortcut"><code class="docutils literal notranslate"><span class="pre">Shortcut</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.Shortcut.forward"><code class="docutils literal notranslate"><span class="pre">Shortcut.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakeshake.shakeshake.Shortcut.training"><code class="docutils literal notranslate"><span class="pre">Shortcut.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -675,7 +773,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Natural Language Processing &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.quantization.nlp';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.quantization.nlp.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Supergraph" href="archai.supergraph.html" />
@@ -408,7 +407,21 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.nlp.modules">Modules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.nlp.modules">Modules</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.fake_quant_weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D.fake_quant_weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.forward"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.from_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D.from_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.to_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D.to_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.training"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1DForOnnx"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1DForOnnx</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1DForOnnx.training"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1DForOnnx.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -421,22 +434,22 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="natural-language-processing">
-<h1>Natural Language Processing<a class="headerlink" href="#natural-language-processing" title="Permalink to this headline">#</a></h1>
+<h1>Natural Language Processing<a class="headerlink" href="#natural-language-processing" title="Permalink to this heading">#</a></h1>
 <section id="module-archai.quantization.nlp.modules">
-<span id="modules"></span><h2>Modules<a class="headerlink" href="#module-archai.quantization.nlp.modules" title="Permalink to this headline">#</a></h2>
+<span id="modules"></span><h2>Modules<a class="headerlink" href="#module-archai.quantization.nlp.modules" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.nlp.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantHFConv1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/nlp/modules.html#FakeDynamicQuantHFConv1D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.quantization.nlp.modules.</span></span><span class="sig-name descname"><span class="pre">FakeDynamicQuantHFConv1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_compatible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/quantization/nlp/modules.html#FakeDynamicQuantHFConv1D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D" title="Permalink to this definition">#</a></dt>
 <dd><p>Translate a huggingface/transformers Conv1D layer into a QAT-ready Conv1D layer.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.fake_quant_weight">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.fake_quant_weight" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fake_quant_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tensor</span></em><a class="headerlink" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.fake_quant_weight" title="Permalink to this definition">#</a></dt>
 <dd><p>Return a fake quantization over the weight matrix.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/nlp/modules.html#FakeDynamicQuantHFConv1D.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.forward" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/nlp/modules.html#FakeDynamicQuantHFConv1D.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -450,17 +463,17 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.from_float">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D" title="archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D"><span class="pre">archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D</span></a></span></span><a class="reference internal" href="../../_modules/archai/quantization/nlp/modules.html#FakeDynamicQuantHFConv1D.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.from_float" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mod</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qconfig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Module</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_reduce_range</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D" title="archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D"><span class="pre">FakeDynamicQuantHFConv1D</span></a></span></span><a class="reference internal" href="../../_modules/archai/quantization/nlp/modules.html#FakeDynamicQuantHFConv1D.from_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.from_float" title="Permalink to this definition">#</a></dt>
 <dd><p>Map module from float to QAT-ready.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mod</strong> – Module to be mapped.</p></li>
 <li><p><strong>qconfig</strong> – Quantization configuration.</p></li>
 <li><p><strong>activation_reduce_range</strong> – Whether to reduce the range of activations.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>QAT-ready module.</p>
 </dd>
 </dl>
@@ -468,10 +481,10 @@ registered hooks while the latter silently ignores them.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.to_float">
-<span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/nlp/modules.html#FakeDynamicQuantHFConv1D.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.to_float" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_float</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Module</span></span></span><a class="reference internal" href="../../_modules/archai/quantization/nlp/modules.html#FakeDynamicQuantHFConv1D.to_float"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.to_float" title="Permalink to this definition">#</a></dt>
 <dd><p>Map module from QAT-ready to float.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Float-based module.</p>
 </dd>
 </dl>
@@ -540,7 +553,21 @@ registered hooks while the latter silently ignores them.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.nlp.modules">Modules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.quantization.nlp.modules">Modules</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.fake_quant_weight"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D.fake_quant_weight</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.forward"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.from_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D.from_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.to_float"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D.to_float()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1D.training"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1D.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1DForOnnx"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1DForOnnx</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.quantization.nlp.modules.FakeDynamicQuantHFConv1DForOnnx.training"><code class="docutils literal notranslate"><span class="pre">FakeDynamicQuantHFConv1DForOnnx.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -573,7 +600,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

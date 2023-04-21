@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Benchmark &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.discrete_search.search_spaces.benchmark';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.search_spaces.benchmark.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Configuration-Based" href="archai.discrete_search.search_spaces.config.html" />
@@ -408,7 +407,22 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.search_spaces.benchmark.natsbench_tss">NATS-Bench</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.search_spaces.benchmark.natsbench_tss">NATS-Bench</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.OPS"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.OPS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.model_from_natsbench_tss"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.model_from_natsbench_tss()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.save_arch"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.save_arch()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.load_arch"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.load_arch()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.load_model_weights"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.load_model_weights()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.save_model_weights"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.save_model_weights()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.random_sample"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.random_sample()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.mutate"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.mutate()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.crossover"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.crossover()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.encode"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.encode()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -421,12 +435,12 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="benchmark">
-<h1>Benchmark<a class="headerlink" href="#benchmark" title="Permalink to this headline">#</a></h1>
+<h1>Benchmark<a class="headerlink" href="#benchmark" title="Permalink to this heading">#</a></h1>
 <section id="module-archai.discrete_search.search_spaces.benchmark.natsbench_tss">
-<span id="nats-bench"></span><h2>NATS-Bench<a class="headerlink" href="#module-archai.discrete_search.search_spaces.benchmark.natsbench_tss" title="Permalink to this headline">#</a></h2>
+<span id="nats-bench"></span><h2>NATS-Bench<a class="headerlink" href="#module-archai.discrete_search.search_spaces.benchmark.natsbench_tss" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.search_spaces.benchmark.natsbench_tss.</span></span><span class="sig-name descname"><span class="pre">NatsbenchTssSearchSpace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">natsbench_location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.search_spaces.benchmark.natsbench_tss.</span></span><span class="sig-name descname"><span class="pre">NatsbenchTssSearchSpace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">natsbench_location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace" title="Permalink to this definition">#</a></dt>
 <dd><p>Search space for NATS-Bench-TSS.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.OPS">
@@ -438,10 +452,10 @@ document.write(`
 <span class="sig-name descname"><span class="pre">model_from_natsbench_tss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">natsbench_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.model_from_natsbench_tss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.model_from_natsbench_tss" title="Permalink to this definition">#</a></dt>
 <dd><p>Get a model from NATS-Bench-TSS dataset.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>natsbench_id</strong> – NATS-Bench-TSS identifier.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Model from NATS-Bench-TSS dataset.</p>
 </dd>
 </dl>
@@ -449,10 +463,10 @@ document.write(`
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.save_arch">
-<span class="sig-name descname"><span class="pre">save_arch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.save_arch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.save_arch" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_arch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.save_arch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.save_arch" title="Permalink to this definition">#</a></dt>
 <dd><p>Save an architecture to a file without saving the weights.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – Model’s architecture to save.</p></li>
 <li><p><strong>file_path</strong> – File path to save the architecture.</p></li>
@@ -463,13 +477,13 @@ document.write(`
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.load_arch">
-<span class="sig-name descname"><span class="pre">load_arch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.load_arch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.load_arch" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_arch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.load_arch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.load_arch" title="Permalink to this definition">#</a></dt>
 <dd><p>Load from a file an architecture that was saved using <cite>SearchSpace.save_arch()</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>file_path</strong> – File path to load the architecture.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Loaded model.</p>
 </dd>
 </dl>
@@ -477,11 +491,11 @@ document.write(`
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.load_model_weights">
-<span class="sig-name descname"><span class="pre">load_model_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.load_model_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.load_model_weights" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">load_model_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.load_model_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.load_model_weights" title="Permalink to this definition">#</a></dt>
 <dd><p>Load the weights (created with <cite>SearchSpace.save_model_weights()</cite>) into a model
 of the same architecture.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – Model to load the weights.</p></li>
 <li><p><strong>file_path</strong> – File path to load the weights.</p></li>
@@ -492,10 +506,10 @@ of the same architecture.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.save_model_weights">
-<span class="sig-name descname"><span class="pre">save_model_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.save_model_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.save_model_weights" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_model_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">ArchaiModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.save_model_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.save_model_weights" title="Permalink to this definition">#</a></dt>
 <dd><p>Save the weights of a model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – Model to save the weights.</p></li>
 <li><p><strong>file_path</strong> – File path to save the weights.</p></li>
@@ -506,10 +520,10 @@ of the same architecture.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.random_sample">
-<span class="sig-name descname"><span class="pre">random_sample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.random_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.random_sample" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">random_sample</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.random_sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.random_sample" title="Permalink to this definition">#</a></dt>
 <dd><p>Randomly sample an architecture from the search spaces.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Sampled architecture.</p>
 </dd>
 </dl>
@@ -517,19 +531,19 @@ of the same architecture.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.mutate">
-<span class="sig-name descname"><span class="pre">mutate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.mutate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.mutate" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">mutate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">ArchaiModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.mutate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.mutate" title="Permalink to this definition">#</a></dt>
 <dd><p>Reused from <a class="github reference external" href="https://github.com/naszilla/naszilla/blob/master/naszilla/nas_bench_201/cell_201.py">naszilla/naszilla</a>.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.crossover">
-<span class="sig-name descname"><span class="pre">crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.crossover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.crossover" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">crossover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">ArchaiModel</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">ArchaiModel</span></a></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.crossover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.crossover" title="Permalink to this definition">#</a></dt>
 <dd><p>Combine a list of architectures into a new one.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>arch_list</strong> – List of architectures.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Resulting model.</p>
 </dd>
 </dl>
@@ -537,13 +551,13 @@ of the same architecture.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.encode">
-<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">archai.discrete_search.api.archai_model.ArchaiModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.encode" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.discrete_search.api.html#archai.discrete_search.api.archai_model.ArchaiModel" title="archai.discrete_search.api.archai_model.ArchaiModel"><span class="pre">ArchaiModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/search_spaces/benchmark/natsbench_tss.html#NatsbenchTssSearchSpace.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.encode" title="Permalink to this definition">#</a></dt>
 <dd><p>Encode an architecture into a fixed-length vector representation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>arch</strong> – Model from the search space.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Fixed-length vector representation of <cite>arch</cite>.</p>
 </dd>
 </dl>
@@ -596,7 +610,22 @@ of the same architecture.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.search_spaces.benchmark.natsbench_tss">NATS-Bench</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.search_spaces.benchmark.natsbench_tss">NATS-Bench</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.OPS"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.OPS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.model_from_natsbench_tss"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.model_from_natsbench_tss()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.save_arch"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.save_arch()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.load_arch"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.load_arch()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.load_model_weights"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.load_model_weights()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.save_model_weights"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.save_model_weights()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.random_sample"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.random_sample()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.mutate"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.mutate()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.crossover"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.crossover()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.search_spaces.benchmark.natsbench_tss.NatsbenchTssSearchSpace.encode"><code class="docutils literal notranslate"><span class="pre">NatsbenchTssSearchSpace.encode()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -629,7 +658,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

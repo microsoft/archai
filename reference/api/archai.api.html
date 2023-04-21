@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>API &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.api';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.api.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Common Packages" href="archai.common.html" />
@@ -408,8 +407,24 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.api.dataset_provider">Dataset Provider</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.api.trainer_base">Trainer (Base Class)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.api.dataset_provider">Dataset Provider</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.dataset_provider.DatasetProvider"><code class="docutils literal notranslate"><span class="pre">DatasetProvider</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.dataset_provider.DatasetProvider.get_train_dataset"><code class="docutils literal notranslate"><span class="pre">DatasetProvider.get_train_dataset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.dataset_provider.DatasetProvider.get_val_dataset"><code class="docutils literal notranslate"><span class="pre">DatasetProvider.get_val_dataset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.dataset_provider.DatasetProvider.get_test_dataset"><code class="docutils literal notranslate"><span class="pre">DatasetProvider.get_test_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.api.trainer_base">Trainer (Base Class)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.trainer_base.TrainerBase"><code class="docutils literal notranslate"><span class="pre">TrainerBase</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.trainer_base.TrainerBase.train"><code class="docutils literal notranslate"><span class="pre">TrainerBase.train()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.trainer_base.TrainerBase.evaluate"><code class="docutils literal notranslate"><span class="pre">TrainerBase.evaluate()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.trainer_base.TrainerBase.predict"><code class="docutils literal notranslate"><span class="pre">TrainerBase.predict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -422,9 +437,9 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="api">
-<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">#</a></h1>
+<h1>API<a class="headerlink" href="#api" title="Permalink to this heading">#</a></h1>
 <section id="module-archai.api.dataset_provider">
-<span id="dataset-provider"></span><h2>Dataset Provider<a class="headerlink" href="#module-archai.api.dataset_provider" title="Permalink to this headline">#</a></h2>
+<span id="dataset-provider"></span><h2>Dataset Provider<a class="headerlink" href="#module-archai.api.dataset_provider" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.api.dataset_provider.DatasetProvider">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.api.dataset_provider.</span></span><span class="sig-name descname"><span class="pre">DatasetProvider</span></span><a class="reference internal" href="../../_modules/archai/api/dataset_provider.html#DatasetProvider"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.api.dataset_provider.DatasetProvider" title="Permalink to this definition">#</a></dt>
@@ -443,15 +458,15 @@ subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyDatasetProvider</span><span class="p">(</span><span class="n">DatasetProvider</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">get_train_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">get_val_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">get_test_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">MNIST</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -462,7 +477,7 @@ subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_train_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/api/dataset_provider.html#DatasetProvider.get_train_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.api.dataset_provider.DatasetProvider.get_train_dataset" title="Permalink to this definition">#</a></dt>
 <dd><p>Get a training dataset.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>An instance of a training dataset.</p>
 </dd>
 </dl>
@@ -473,7 +488,7 @@ subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_val_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/api/dataset_provider.html#DatasetProvider.get_val_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.api.dataset_provider.DatasetProvider.get_val_dataset" title="Permalink to this definition">#</a></dt>
 <dd><p>Get a validation dataset.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>An instance of a validation dataset, or the training dataset if
 validation dataset is not available.</p>
 </dd>
@@ -485,7 +500,7 @@ validation dataset is not available.</p>
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_test_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="../../_modules/archai/api/dataset_provider.html#DatasetProvider.get_test_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.api.dataset_provider.DatasetProvider.get_test_dataset" title="Permalink to this definition">#</a></dt>
 <dd><p>Get a testing dataset.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>An instance of a testing dataset, or the training/validation
 dataset if testing dataset is not available.</p>
 </dd>
@@ -496,7 +511,7 @@ dataset if testing dataset is not available.</p>
 
 </section>
 <section id="module-archai.api.trainer_base">
-<span id="trainer-base-class"></span><h2>Trainer (Base Class)<a class="headerlink" href="#module-archai.api.trainer_base" title="Permalink to this headline">#</a></h2>
+<span id="trainer-base-class"></span><h2>Trainer (Base Class)<a class="headerlink" href="#module-archai.api.trainer_base" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.api.trainer_base.TrainerBase">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.api.trainer_base.</span></span><span class="sig-name descname"><span class="pre">TrainerBase</span></span><a class="reference internal" href="../../_modules/archai/api/trainer_base.html#TrainerBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.api.trainer_base.TrainerBase" title="Permalink to this definition">#</a></dt>
@@ -515,15 +530,15 @@ subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyTrainer</span><span class="p">(</span><span class="n">TrainerBase</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">pytorch_lightining</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">Trainer</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_dataloaders</span><span class="o">=</span><span class="n">train_dataloader</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">pytorch_lightining</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">Trainer</span><span class="p">()</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dataloaders</span><span class="o">=</span><span class="n">val_dataloader</span><span class="p">)</span>
-<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="nd">@overrides</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="gp">&gt;&gt;&gt; </span>        <span class="k">return</span> <span class="n">pytorch_lightining</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">Trainer</span><span class="p">()</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">dataloaders</span><span class="o">=</span><span class="n">predict_dataloader</span><span class="p">)</span>
@@ -597,8 +612,24 @@ subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.api.dataset_provider">Dataset Provider</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.api.trainer_base">Trainer (Base Class)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.api.dataset_provider">Dataset Provider</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.dataset_provider.DatasetProvider"><code class="docutils literal notranslate"><span class="pre">DatasetProvider</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.dataset_provider.DatasetProvider.get_train_dataset"><code class="docutils literal notranslate"><span class="pre">DatasetProvider.get_train_dataset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.dataset_provider.DatasetProvider.get_val_dataset"><code class="docutils literal notranslate"><span class="pre">DatasetProvider.get_val_dataset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.dataset_provider.DatasetProvider.get_test_dataset"><code class="docutils literal notranslate"><span class="pre">DatasetProvider.get_test_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.api.trainer_base">Trainer (Base Class)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.trainer_base.TrainerBase"><code class="docutils literal notranslate"><span class="pre">TrainerBase</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.trainer_base.TrainerBase.train"><code class="docutils literal notranslate"><span class="pre">TrainerBase.train()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.trainer_base.TrainerBase.evaluate"><code class="docutils literal notranslate"><span class="pre">TrainerBase.evaluate()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.api.trainer_base.TrainerBase.predict"><code class="docutils literal notranslate"><span class="pre">TrainerBase.predict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -631,7 +662,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

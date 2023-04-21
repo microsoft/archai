@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Discrete Search Spaces &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/discrete_search/search_space';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/discrete_search/search_space.html" />
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Evaluators" href="evaluators.html" />
@@ -434,7 +433,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Discrete-Search-Spaces">
-<h1>Discrete Search Spaces<a class="headerlink" href="#Discrete-Search-Spaces" title="Permalink to this headline">#</a></h1>
+<h1>Discrete Search Spaces<a class="headerlink" href="#Discrete-Search-Spaces" title="Permalink to this heading">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -449,7 +448,7 @@ document.write(`
 </div>
 </div>
 <section id="The-ArchaiModel-class">
-<h2>The <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> class<a class="headerlink" href="#The-ArchaiModel-class" title="Permalink to this headline">#</a></h2>
+<h2>The <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> class<a class="headerlink" href="#The-ArchaiModel-class" title="Permalink to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> class is a base class used to wrap all model objects. <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> also stores an architecture ID (<code class="docutils literal notranslate"><span class="pre">ArchaiModel.archid</span></code>) and optionally a metadata dictionary (<code class="docutils literal notranslate"><span class="pre">ArchaiModel.metadata</span></code>).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -584,7 +583,7 @@ MyModel(
 </div>
 </section>
 <section id="Building-a-Search-Space">
-<h2>Building a Search Space<a class="headerlink" href="#Building-a-Search-Space" title="Permalink to this headline">#</a></h2>
+<h2>Building a Search Space<a class="headerlink" href="#Building-a-Search-Space" title="Permalink to this heading">#</a></h2>
 <p>Discrete search spaces in Archai are defined using the <code class="docutils literal notranslate"><span class="pre">DiscreteSearchSpace</span></code> abstract class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DiscreteSearchSpace</span><span class="p">(</span><span class="n">EnforceOverrides</span><span class="p">):</span>
 
@@ -782,22 +781,22 @@ ArchaiModel(
 </div>
 </section>
 <section id="Making-the-search-space-compatible-with-NAS-algorithms">
-<h2>Making the search space compatible with NAS algorithms<a class="headerlink" href="#Making-the-search-space-compatible-with-NAS-algorithms" title="Permalink to this headline">#</a></h2>
+<h2>Making the search space compatible with NAS algorithms<a class="headerlink" href="#Making-the-search-space-compatible-with-NAS-algorithms" title="Permalink to this heading">#</a></h2>
 <p>Search spaces serve as the main interface between NAS algorithms and the application. Different classes of NAS algorithms interact with architectures from the search space using specific abstract classes:</p>
 <section id="Evolutionary-algorithms:">
-<h3>Evolutionary algorithms:<a class="headerlink" href="#Evolutionary-algorithms:" title="Permalink to this headline">#</a></h3>
+<h3>Evolutionary algorithms:<a class="headerlink" href="#Evolutionary-algorithms:" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>User must subclass <code class="docutils literal notranslate"><span class="pre">EvolutionarySearchSpace</span></code> and implement <code class="docutils literal notranslate"><span class="pre">EvolutionarySearchSpace.mutate</span></code> and <code class="docutils literal notranslate"><span class="pre">EvolutionarySearchSpace.crossover</span></code></p></li>
 </ul>
 </section>
 <section id="Bayesian-Optimization-algorithms:">
-<h3>Bayesian Optimization algorithms:<a class="headerlink" href="#Bayesian-Optimization-algorithms:" title="Permalink to this headline">#</a></h3>
+<h3>Bayesian Optimization algorithms:<a class="headerlink" href="#Bayesian-Optimization-algorithms:" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>User must subclass <code class="docutils literal notranslate"><span class="pre">BayesOptSearchSpace</span></code> and override <code class="docutils literal notranslate"><span class="pre">BayesOptSearchSpace.encode</span></code></p></li>
 <li><p>Encode should take an <code class="docutils literal notranslate"><span class="pre">ArchaiModel</span></code> and produce a fixed-length vector representation of that architecture. This numerical representation will be used to train surrogate models.</p></li>
 </ul>
 <section id="Example:-Making-CNNSearchSpace-compatible-with-NAS-algorithsm">
-<h4>Example: Making <code class="docutils literal notranslate"><span class="pre">CNNSearchSpace</span></code> compatible with NAS algorithsm<a class="headerlink" href="#Example:-Making-CNNSearchSpace-compatible-with-NAS-algorithsm" title="Permalink to this headline">#</a></h4>
+<h4>Example: Making <code class="docutils literal notranslate"><span class="pre">CNNSearchSpace</span></code> compatible with NAS algorithsm<a class="headerlink" href="#Example:-Making-CNNSearchSpace-compatible-with-NAS-algorithsm" title="Permalink to this heading">#</a></h4>
 <p>Let’s make our search space compatible with Evolutionary and Bayesian Optimization NAS algorithms. To do that, we need to subclass <code class="docutils literal notranslate"><span class="pre">EvolutionarySearchSpace</span></code> and <code class="docutils literal notranslate"><span class="pre">BayesOptSearchSpace</span></code>, and implement <code class="docutils literal notranslate"><span class="pre">mutation</span></code>, <code class="docutils literal notranslate"><span class="pre">crossover</span></code> and <code class="docutils literal notranslate"><span class="pre">encode</span></code> method.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
@@ -947,7 +946,7 @@ array([ 3,  1, 64])
 </section>
 </section>
 <section id="Built-in-Search-Spaces">
-<h2>Built-in Search Spaces<a class="headerlink" href="#Built-in-Search-Spaces" title="Permalink to this headline">#</a></h2>
+<h2>Built-in Search Spaces<a class="headerlink" href="#Built-in-Search-Spaces" title="Permalink to this heading">#</a></h2>
 <p>Instead of creating a search space from scratch, Archai has a list of built-in search spaces that can be used for many Machine Learning tasks. A list of built-in search spaces can be found in <code class="docutils literal notranslate"><span class="pre">archai/discrete_search/search_spaces</span></code>.</p>
 <p>Example: Semantic Segmentation Search Space (<code class="docutils literal notranslate"><span class="pre">SegmentationDagSearchSpace</span></code>)</p>
 <div class="nbinput docutils container">
@@ -1098,7 +1097,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

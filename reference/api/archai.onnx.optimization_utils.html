@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Optimization Utilities &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.onnx.optimization_utils';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.onnx.optimization_utils.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Quantization" href="archai.quantization.html" />
@@ -408,8 +407,39 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization_utils.fusion_options">Fusion Options</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization_utils.transfo_xl_onnx_model">Transfomer-XL ONNX Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization_utils.fusion_options">Fusion Options</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat"><code class="docutils literal notranslate"><span class="pre">AttentionMaskFormat</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat.MaskIndexEnd"><code class="docutils literal notranslate"><span class="pre">AttentionMaskFormat.MaskIndexEnd</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat.MaskIndexEndAndStart"><code class="docutils literal notranslate"><span class="pre">AttentionMaskFormat.MaskIndexEndAndStart</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat.AttentionMask"><code class="docutils literal notranslate"><span class="pre">AttentionMaskFormat.AttentionMask</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat.NoMask"><code class="docutils literal notranslate"><span class="pre">AttentionMaskFormat.NoMask</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.FusionOptions"><code class="docutils literal notranslate"><span class="pre">FusionOptions</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.FusionOptions.use_raw_attention_mask"><code class="docutils literal notranslate"><span class="pre">FusionOptions.use_raw_attention_mask()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.FusionOptions.disable_attention_mask"><code class="docutils literal notranslate"><span class="pre">FusionOptions.disable_attention_mask()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization_utils.transfo_xl_onnx_model">Transfomer-XL ONNX Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_input_type"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.change_graph_input_type()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_inputs_to_int32"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.change_graph_inputs_to_int32()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_layer_norm"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_layer_norm()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_skip_layer_norm"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_skip_layer_norm()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_add_bias_skip_layer_norm"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_add_bias_skip_layer_norm()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_attention"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_attention()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_reshape"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_reshape()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_shape"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_shape()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.use_dynamic_axes"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.use_dynamic_axes()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.adjust_reshape_and_expand"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.adjust_reshape_and_expand()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.clean_graph"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.clean_graph()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.optimize"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.optimize()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -422,9 +452,9 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="optimization-utilities">
-<h1>Optimization Utilities<a class="headerlink" href="#optimization-utilities" title="Permalink to this headline">#</a></h1>
+<h1>Optimization Utilities<a class="headerlink" href="#optimization-utilities" title="Permalink to this heading">#</a></h1>
 <section id="module-archai.onnx.optimization_utils.fusion_options">
-<span id="fusion-options"></span><h2>Fusion Options<a class="headerlink" href="#module-archai.onnx.optimization_utils.fusion_options" title="Permalink to this headline">#</a></h2>
+<span id="fusion-options"></span><h2>Fusion Options<a class="headerlink" href="#module-archai.onnx.optimization_utils.fusion_options" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.onnx.optimization_utils.fusion_options.</span></span><span class="sig-name descname"><span class="pre">AttentionMaskFormat</span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/fusion_options.html#AttentionMaskFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat" title="Permalink to this definition">#</a></dt>
@@ -457,10 +487,10 @@ document.write(`
 <dd><p>Options to control the fusion of operators in the ONNX graph.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.onnx.optimization_utils.fusion_options.FusionOptions.use_raw_attention_mask">
-<span class="sig-name descname"><span class="pre">use_raw_attention_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_raw_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/fusion_options.html#FusionOptions.use_raw_attention_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.fusion_options.FusionOptions.use_raw_attention_mask" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">use_raw_attention_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_raw_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/fusion_options.html#FusionOptions.use_raw_attention_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.fusion_options.FusionOptions.use_raw_attention_mask" title="Permalink to this definition">#</a></dt>
 <dd><p>Enable the usage of raw attention mask.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>use_raw_mask</strong> – Whether raw mask should be used or not.</p>
 </dd>
 </dl>
@@ -476,25 +506,25 @@ document.write(`
 
 </section>
 <section id="module-archai.onnx.optimization_utils.transfo_xl_onnx_model">
-<span id="transfomer-xl-onnx-model"></span><h2>Transfomer-XL ONNX Model<a class="headerlink" href="#module-archai.onnx.optimization_utils.transfo_xl_onnx_model" title="Permalink to this headline">#</a></h2>
+<span id="transfomer-xl-onnx-model"></span><h2>Transfomer-XL ONNX Model<a class="headerlink" href="#module-archai.onnx.optimization_utils.transfo_xl_onnx_model" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.onnx.optimization_utils.transfo_xl_onnx_model.</span></span><span class="sig-name descname"><span class="pre">TransfoXLOnnxModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnx.onnx_ml_pb2.ModelProto</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.onnx.optimization_utils.transfo_xl_onnx_model.</span></span><span class="sig-name descname"><span class="pre">TransfoXLOnnxModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ModelProto</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel" title="Permalink to this definition">#</a></dt>
 <dd><p>ONNX model optimized for Transformer-XL models.</p>
 <p>This model extends the <cite>OnnxModel</cite> class by enabling additional ONNX optimizations.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_input_type">
-<span class="sig-name descname"><span class="pre">change_graph_input_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnx.onnx_ml_pb2.GraphProto</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">onnx.onnx_ml_pb2.ValueInfoProto</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">onnx.onnx_ml_pb2.NodeProto</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">onnx.onnx_ml_pb2.NodeProto</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.change_graph_input_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_input_type" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">change_graph_input_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GraphProto</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ValueInfoProto</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">NodeProto</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">NodeProto</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.change_graph_input_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_input_type" title="Permalink to this definition">#</a></dt>
 <dd><p>Change the input type of the graph and add <cite>Cast</cite> nodes if necessary.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> – Graph instance.</p></li>
 <li><p><strong>graph_input</strong> – Graph input value.</p></li>
 <li><p><strong>new_type</strong> – New data type.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A tuple containing a <cite>Cast</cite> node to be added and a list of <cite>Cast</cite> nodes to be removed.</p>
 </dd>
 </dl>
@@ -544,10 +574,10 @@ document.write(`
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.use_dynamic_axes">
-<span class="sig-name descname"><span class="pre">use_dynamic_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dynamic_batch_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_seq_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sequence'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.use_dynamic_axes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.use_dynamic_axes" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">use_dynamic_axes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dynamic_batch_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'batch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_seq_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sequence'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.use_dynamic_axes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.use_dynamic_axes" title="Permalink to this definition">#</a></dt>
 <dd><p>Update inputs and outputs shapes to use dynamic axes.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dynamic_batch_dim</strong> – Name of batch size dimension.</p></li>
 <li><p><strong>dynamic_seq_len</strong> – Name of sequence length dimension.</p></li>
@@ -570,10 +600,10 @@ document.write(`
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.optimize">
-<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#archai.onnx.optimization_utils.fusion_options.FusionOptions" title="archai.onnx.optimization_utils.fusion_options.FusionOptions"><span class="pre">archai.onnx.optimization_utils.fusion_options.FusionOptions</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_dynamic_axes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.optimize" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">optimize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#archai.onnx.optimization_utils.fusion_options.FusionOptions" title="archai.onnx.optimization_utils.fusion_options.FusionOptions"><span class="pre">FusionOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_dynamic_axes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization_utils/transfo_xl_onnx_model.html#TransfoXLOnnxModel.optimize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.optimize" title="Permalink to this definition">#</a></dt>
 <dd><p>Perform additional transformer-based optimization.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>options</strong> – Options holding which operators should be fused.</p></li>
 <li><p><strong>add_dynamic_axes</strong> – Whether dynamic axes should be added.</p></li>
@@ -629,8 +659,39 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization_utils.fusion_options">Fusion Options</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization_utils.transfo_xl_onnx_model">Transfomer-XL ONNX Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization_utils.fusion_options">Fusion Options</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat"><code class="docutils literal notranslate"><span class="pre">AttentionMaskFormat</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat.MaskIndexEnd"><code class="docutils literal notranslate"><span class="pre">AttentionMaskFormat.MaskIndexEnd</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat.MaskIndexEndAndStart"><code class="docutils literal notranslate"><span class="pre">AttentionMaskFormat.MaskIndexEndAndStart</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat.AttentionMask"><code class="docutils literal notranslate"><span class="pre">AttentionMaskFormat.AttentionMask</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.AttentionMaskFormat.NoMask"><code class="docutils literal notranslate"><span class="pre">AttentionMaskFormat.NoMask</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.FusionOptions"><code class="docutils literal notranslate"><span class="pre">FusionOptions</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.FusionOptions.use_raw_attention_mask"><code class="docutils literal notranslate"><span class="pre">FusionOptions.use_raw_attention_mask()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.fusion_options.FusionOptions.disable_attention_mask"><code class="docutils literal notranslate"><span class="pre">FusionOptions.disable_attention_mask()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization_utils.transfo_xl_onnx_model">Transfomer-XL ONNX Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_input_type"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.change_graph_input_type()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.change_graph_inputs_to_int32"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.change_graph_inputs_to_int32()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_layer_norm"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_layer_norm()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_skip_layer_norm"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_skip_layer_norm()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_add_bias_skip_layer_norm"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_add_bias_skip_layer_norm()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_attention"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_attention()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_reshape"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_reshape()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.fuse_shape"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.fuse_shape()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.use_dynamic_axes"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.use_dynamic_axes()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.adjust_reshape_and_expand"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.adjust_reshape_and_expand()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.clean_graph"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.clean_graph()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization_utils.transfo_xl_onnx_model.TransfoXLOnnxModel.optimize"><code class="docutils literal notranslate"><span class="pre">TransfoXLOnnxModel.optimize()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -663,7 +724,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

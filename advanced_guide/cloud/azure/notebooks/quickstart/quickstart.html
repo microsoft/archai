@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>QuickStart &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
-    <script src="../../../../../_static/jquery.js"></script>
-    <script src="../../../../../_static/underscore.js"></script>
     <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/sphinx_highlight.js"></script>
     <script src="../../../../../_static/tabs.js"></script>
     <script src="../../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'advanced_guide/cloud/azure/notebooks/quickstart/quickstart';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/advanced_guide/cloud/azure/notebooks/quickstart/quickstart.html" />
-    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
     <link rel="next" title="Task: Text Generation" href="../text_generation/text_generation.html" />
@@ -434,10 +433,10 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="QuickStart">
-<h1>QuickStart<a class="headerlink" href="#QuickStart" title="Permalink to this headline">#</a></h1>
+<h1>QuickStart<a class="headerlink" href="#QuickStart" title="Permalink to this heading">#</a></h1>
 <p>In this Notebook we run Archai’s <a class="reference external" href="https://microsoft.github.io/archai/getting_started/quick_start.html">Quickstart</a> example on Azure Machine Learning.</p>
 <section id="Prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Permalink to this headline">#</a></h2>
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Permalink to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Python 3.7 or later</p></li>
 <li><p>An Azure subscription</p></li>
@@ -462,7 +461,7 @@ document.write(`
 </div>
 </div>
 <section id="Get-a-handle-to-the-workspace">
-<h3>Get a handle to the workspace<a class="headerlink" href="#Get-a-handle-to-the-workspace" title="Permalink to this headline">#</a></h3>
+<h3>Get a handle to the workspace<a class="headerlink" href="#Get-a-handle-to-the-workspace" title="Permalink to this heading">#</a></h3>
 <p>We load the workspace from a workspace <a class="reference external" href="https://learn.microsoft.com/en-us/azure/machine-learning/how-to-configure-environment#local-and-dsvm-only-create-a-workspace-configuration-file">configuration file</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -475,7 +474,7 @@ document.write(`
 </div>
 </section>
 <section id="Create-a-compute-cluster">
-<h3>Create a compute cluster<a class="headerlink" href="#Create-a-compute-cluster" title="Permalink to this headline">#</a></h3>
+<h3>Create a compute cluster<a class="headerlink" href="#Create-a-compute-cluster" title="Permalink to this heading">#</a></h3>
 <p>We provision a Linux <a class="reference external" href="https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-attach-compute-cluster?tabs=python">compute cluster</a> for this Notebook. See the <a class="reference external" href="https://azure.microsoft.com/en-ca/pricing/details/machine-learning/">full list</a> on VM sizes and prices.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -496,7 +495,7 @@ You already have a cluster named nas-cpu-cluster-D14-v2, we&#39;ll reuse it as i
 </div>
 </section>
 <section id="Create-an-environment-based-on-a-YAML-file">
-<h3>Create an environment based on a YAML file<a class="headerlink" href="#Create-an-environment-based-on-a-YAML-file" title="Permalink to this headline">#</a></h3>
+<h3>Create an environment based on a YAML file<a class="headerlink" href="#Create-an-environment-based-on-a-YAML-file" title="Permalink to this heading">#</a></h3>
 <p>Azure Machine Learning maintains a set of CPU and GPU Ubuntu Linux-based base images with common system dependencies. For the set of base images and their corresponding Dockerfiles, see the <a class="reference external" href="https://github.com/Azure/AzureML-Containers">AzureML Containers</a> repo.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -519,7 +518,7 @@ Environment with name aml-archai is registered to workspace, the environment ver
 </div>
 </section>
 <section id="Create-job">
-<h3>Create job<a class="headerlink" href="#Create-job" title="Permalink to this headline">#</a></h3>
+<h3>Create job<a class="headerlink" href="#Create-job" title="Permalink to this heading">#</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -539,7 +538,7 @@ Environment with name aml-archai is registered to workspace, the environment ver
 </div>
 </section>
 <section id="Run-job">
-<h3>Run job<a class="headerlink" href="#Run-job" title="Permalink to this headline">#</a></h3>
+<h3>Run job<a class="headerlink" href="#Run-job" title="Permalink to this heading">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -581,7 +580,7 @@ Started job: busy_shampoo_cqjgwy28gc
 </div>
 </section>
 <section id="Download-job's-output">
-<h3>Download job’s output<a class="headerlink" href="#Download-job's-output" title="Permalink to this headline">#</a></h3>
+<h3>Download job’s output<a class="headerlink" href="#Download-job's-output" title="Permalink to this heading">#</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -597,7 +596,7 @@ Started job: busy_shampoo_cqjgwy28gc
 </div>
 </section>
 <section id="Show-Pareto-Frontiers">
-<h3>Show Pareto Frontiers<a class="headerlink" href="#Show-Pareto-Frontiers" title="Permalink to this headline">#</a></h3>
+<h3>Show Pareto Frontiers<a class="headerlink" href="#Show-Pareto-Frontiers" title="Permalink to this heading">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
@@ -648,7 +647,7 @@ Started job: busy_shampoo_cqjgwy28gc
 </div>
 </section>
 <section id="Show-search-state-of-the-last-iteration">
-<h3>Show search state of the last iteration<a class="headerlink" href="#Show-search-state-of-the-last-iteration" title="Permalink to this headline">#</a></h3>
+<h3>Show search state of the last iteration<a class="headerlink" href="#Show-search-state-of-the-last-iteration" title="Permalink to this heading">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
@@ -967,7 +966,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

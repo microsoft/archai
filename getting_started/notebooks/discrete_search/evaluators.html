@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Evaluators &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/discrete_search/evaluators';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/discrete_search/evaluators.html" />
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Search Algorithms" href="algos.html" />
@@ -433,7 +432,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Evaluators">
-<h1>Evaluators<a class="headerlink" href="#Evaluators" title="Permalink to this headline">#</a></h1>
+<h1>Evaluators<a class="headerlink" href="#Evaluators" title="Permalink to this heading">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -496,7 +495,7 @@ document.write(`
 <img alt="../../../_images/getting_started_notebooks_discrete_search_evaluators_7_0.svg" src="../../../_images/getting_started_notebooks_discrete_search_evaluators_7_0.svg" /></div>
 </div>
 <section id="Evaluating-models">
-<h2>Evaluating models<a class="headerlink" href="#Evaluating-models" title="Permalink to this headline">#</a></h2>
+<h2>Evaluating models<a class="headerlink" href="#Evaluating-models" title="Permalink to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Evaluators</span></code> are the main tool used to evaluate architectures in given criteria (task performance, speed, size, etc.). Archai supports two types of <code class="docutils literal notranslate"><span class="pre">Evaluators</span></code>:</p>
 <ul class="simple">
 <li><p>ModelEvaluator (<a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#module-archai.discrete_search.api.evaluator.ModelEvaluator">archai.discrete_search.api.evaluator.ModelEvaluator</a>)</p>
@@ -516,7 +515,7 @@ document.write(`
 <p>The <code class="docutils literal notranslate"><span class="pre">budget</span></code> argument, if provided, is a multiplier value used by search algorithms like <code class="docutils literal notranslate"><span class="pre">SuccessiveHalving</span></code> to specify how much compute should be spent on the evaluation.</p>
 <p>Read more about Evaluators <a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.api.html#module-archai.discrete_search.api.evaluator">here</a>. You can find a list of built-in evaluators in <code class="docutils literal notranslate"><span class="pre">archai.discrete_search.evaluators</span></code>.</p>
 <section id="Example:-Using-a-built-in-evaluator-(AvgOnnxLatency)">
-<h3>Example: Using a built-in evaluator (<code class="docutils literal notranslate"><span class="pre">AvgOnnxLatency</span></code>)<a class="headerlink" href="#Example:-Using-a-built-in-evaluator-(AvgOnnxLatency)" title="Permalink to this headline">#</a></h3>
+<h3>Example: Using a built-in evaluator (<code class="docutils literal notranslate"><span class="pre">AvgOnnxLatency</span></code>)<a class="headerlink" href="#Example:-Using-a-built-in-evaluator-(AvgOnnxLatency)" title="Permalink to this heading">#</a></h3>
 <p>Let’s use a built-in evaluator to measure ONNX latency of PyTorch models</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -559,7 +558,7 @@ document.write(`
 </div>
 </section>
 <section id="Custom-Evaluator-Example">
-<h3>Custom Evaluator Example<a class="headerlink" href="#Custom-Evaluator-Example" title="Permalink to this headline">#</a></h3>
+<h3>Custom Evaluator Example<a class="headerlink" href="#Custom-Evaluator-Example" title="Permalink to this heading">#</a></h3>
 <p>Let’s create a simple custom <code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code> that counts the number of modules in a model</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -612,13 +611,13 @@ document.write(`
 </div>
 </section>
 <section id="Useful-Evaluators">
-<h3>Useful Evaluators<a class="headerlink" href="#Useful-Evaluators" title="Permalink to this headline">#</a></h3>
+<h3>Useful Evaluators<a class="headerlink" href="#Useful-Evaluators" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.objectives.html#module-archai.discrete_search.evaluators.ray">RayParallelEvaluator</a> - Wraps an existing <code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code> into a new <code class="docutils literal notranslate"><span class="pre">AsyncModelEvaluator</span></code> that runs evaluation jobs using multiple Ray workers.</p></li>
 <li><p><a class="reference external" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.objectives.html#module-archai.discrete_search.evaluators.functional">EvaluationFunction</a> - Wraps a function that takes (model, budget) arguments and creates a <code class="docutils literal notranslate"><span class="pre">ModelEvaluator</span></code></p></li>
 </ul>
 <section id="Example:-Parallelizing-NumberOfModules">
-<h4>Example: Parallelizing NumberOfModules<a class="headerlink" href="#Example:-Parallelizing-NumberOfModules" title="Permalink to this headline">#</a></h4>
+<h4>Example: Parallelizing NumberOfModules<a class="headerlink" href="#Example:-Parallelizing-NumberOfModules" title="Permalink to this heading">#</a></h4>
 <p>Let’s use <code class="docutils literal notranslate"><span class="pre">RayParallelEvaluator</span></code> to make our custom evaluator <code class="docutils literal notranslate"><span class="pre">NumberOfModules</span></code> run more efficiently.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
@@ -714,7 +713,7 @@ Dispatching job for 9b0f792a6e6c37c4e40abde72b4fbd2cdca9ebae_64_64
 </div>
 </section>
 <section id="Example:-Wrapping-custom-training-code-into-an-Evaluator">
-<h4>Example: Wrapping custom training code into an Evaluator<a class="headerlink" href="#Example:-Wrapping-custom-training-code-into-an-Evaluator" title="Permalink to this headline">#</a></h4>
+<h4>Example: Wrapping custom training code into an Evaluator<a class="headerlink" href="#Example:-Wrapping-custom-training-code-into-an-Evaluator" title="Permalink to this heading">#</a></h4>
 <p>Let’s consider the problem of measuring the task performance on a specific dataset with custom training code.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
@@ -851,7 +850,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Creating CV-based Data &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/cv/cv_dataset_provider';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/cv/cv_dataset_provider.html" />
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Training a CV-based Model" href="pl_trainer.html" />
@@ -425,10 +424,10 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Creating-CV-based-Data">
-<h1>Creating CV-based Data<a class="headerlink" href="#Creating-CV-based-Data" title="Permalink to this headline">#</a></h1>
+<h1>Creating CV-based Data<a class="headerlink" href="#Creating-CV-based-Data" title="Permalink to this heading">#</a></h1>
 <p>In this notebook, we will create CV-based data using PyTorch’s <code class="docutils literal notranslate"><span class="pre">torchvision</span></code> library, which provides access to popular CV datasets, such as CIFAR10, MNIST, and ImageNet, among others.</p>
 <section id="Loading-the-Data">
-<h2>Loading the Data<a class="headerlink" href="#Loading-the-Data" title="Permalink to this headline">#</a></h2>
+<h2>Loading the Data<a class="headerlink" href="#Loading-the-Data" title="Permalink to this heading">#</a></h2>
 <p>The first step is to create an instance of the <code class="docutils literal notranslate"><span class="pre">MnistDatasetProvider</span></code>, which offers pre-loads the dataset and offers three methods to retrieve them: <code class="docutils literal notranslate"><span class="pre">get_train_dataset()</span></code>, <code class="docutils literal notranslate"><span class="pre">get_val_dataset()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_test_dataset()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -532,7 +531,7 @@ Transform: ToTensor()
 </div>
 </section>
 <section id="Transforming-the-Data">
-<h2>Transforming the Data<a class="headerlink" href="#Transforming-the-Data" title="Permalink to this headline">#</a></h2>
+<h2>Transforming the Data<a class="headerlink" href="#Transforming-the-Data" title="Permalink to this heading">#</a></h2>
 <p>Additionally, the <code class="docutils literal notranslate"><span class="pre">torchvision</span></code> library supports various data augmentation techniques, such as random cropping, flipping, and rotation, to increase the size and diversity of the dataset, leading to better model generalization and performance. This can be applied as a post-processing function or by passing the <code class="docutils literal notranslate"><span class="pre">transform</span></code> argument when retrieving the dataset.</p>
 <p><em>By default, every dataset retrieved by the dataset providers use the ``ToTensor()`` transform.</em></p>
 <div class="nbinput docutils container">
@@ -646,7 +645,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>DiDARTS &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.supergraph.algos.didarts';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.supergraph.algos.didarts.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="DivNAS" href="archai.supergraph.algos.divnas.html" />
@@ -408,8 +407,21 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.didarts.didarts_arch_trainer">Architecture Trainer</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.didarts.didarts_exp_runner">Experiment Runner</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.didarts.didarts_arch_trainer">Architecture Trainer</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.didarts.didarts_arch_trainer.DidartsArchTrainer"><code class="docutils literal notranslate"><span class="pre">DidartsArchTrainer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.didarts.didarts_arch_trainer.DidartsArchTrainer.create_multi_optim"><code class="docutils literal notranslate"><span class="pre">DidartsArchTrainer.create_multi_optim()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.didarts.didarts_exp_runner">Experiment Runner</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner"><code class="docutils literal notranslate"><span class="pre">DiDartsExperimentRunner</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner.model_desc_builder"><code class="docutils literal notranslate"><span class="pre">DiDartsExperimentRunner.model_desc_builder()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner.trainer_class"><code class="docutils literal notranslate"><span class="pre">DiDartsExperimentRunner.trainer_class()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -422,34 +434,34 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="didarts">
-<h1>DiDARTS<a class="headerlink" href="#didarts" title="Permalink to this headline">#</a></h1>
+<h1>DiDARTS<a class="headerlink" href="#didarts" title="Permalink to this heading">#</a></h1>
 <section id="module-archai.supergraph.algos.didarts.didarts_arch_trainer">
-<span id="architecture-trainer"></span><h2>Architecture Trainer<a class="headerlink" href="#module-archai.supergraph.algos.didarts.didarts_arch_trainer" title="Permalink to this headline">#</a></h2>
+<span id="architecture-trainer"></span><h2>Architecture Trainer<a class="headerlink" href="#module-archai.supergraph.algos.didarts.didarts_arch_trainer" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.didarts.didarts_arch_trainer.DidartsArchTrainer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.didarts.didarts_arch_trainer.</span></span><span class="sig-name descname"><span class="pre">DidartsArchTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model.Model" title="archai.supergraph.nas.model.Model"><span class="pre">archai.supergraph.nas.model.Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.utils.html#archai.supergraph.utils.checkpoint.CheckPoint" title="archai.supergraph.utils.checkpoint.CheckPoint"><span class="pre">archai.supergraph.utils.checkpoint.CheckPoint</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/didarts/didarts_arch_trainer.html#DidartsArchTrainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.didarts.didarts_arch_trainer.DidartsArchTrainer" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.didarts.didarts_arch_trainer.</span></span><span class="sig-name descname"><span class="pre">DidartsArchTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model.Model" title="archai.supergraph.nas.model.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.utils.html#archai.supergraph.utils.checkpoint.CheckPoint" title="archai.supergraph.utils.checkpoint.CheckPoint"><span class="pre">CheckPoint</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/didarts/didarts_arch_trainer.html#DidartsArchTrainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.didarts.didarts_arch_trainer.DidartsArchTrainer" title="Permalink to this definition">#</a></dt>
 <dd><p>Train network using different optimizers for alphas and other parameters</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.didarts.didarts_arch_trainer.DidartsArchTrainer.create_multi_optim">
-<span class="sig-name descname"><span class="pre">create_multi_optim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.utils.html#archai.supergraph.utils.multi_optim.MultiOptim" title="archai.supergraph.utils.multi_optim.MultiOptim"><span class="pre">archai.supergraph.utils.multi_optim.MultiOptim</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/didarts/didarts_arch_trainer.html#DidartsArchTrainer.create_multi_optim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.didarts.didarts_arch_trainer.DidartsArchTrainer.create_multi_optim" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">create_multi_optim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.utils.html#archai.supergraph.utils.multi_optim.MultiOptim" title="archai.supergraph.utils.multi_optim.MultiOptim"><span class="pre">MultiOptim</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/didarts/didarts_arch_trainer.html#DidartsArchTrainer.create_multi_optim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.didarts.didarts_arch_trainer.DidartsArchTrainer.create_multi_optim" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-archai.supergraph.algos.didarts.didarts_exp_runner">
-<span id="experiment-runner"></span><h2>Experiment Runner<a class="headerlink" href="#module-archai.supergraph.algos.didarts.didarts_exp_runner" title="Permalink to this headline">#</a></h2>
+<span id="experiment-runner"></span><h2>Experiment Runner<a class="headerlink" href="#module-archai.supergraph.algos.didarts.didarts_exp_runner" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.didarts.didarts_exp_runner.</span></span><span class="sig-name descname"><span class="pre">DiDartsExperimentRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_expdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/didarts/didarts_exp_runner.html#DiDartsExperimentRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner.model_desc_builder">
-<span class="sig-name descname"><span class="pre">model_desc_builder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.algos.darts.html#archai.supergraph.algos.darts.darts_model_desc_builder.DartsModelDescBuilder" title="archai.supergraph.algos.darts.darts_model_desc_builder.DartsModelDescBuilder"><span class="pre">archai.supergraph.algos.darts.darts_model_desc_builder.DartsModelDescBuilder</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/didarts/didarts_exp_runner.html#DiDartsExperimentRunner.model_desc_builder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner.model_desc_builder" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_desc_builder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.algos.darts.html#archai.supergraph.algos.darts.darts_model_desc_builder.DartsModelDescBuilder" title="archai.supergraph.algos.darts.darts_model_desc_builder.DartsModelDescBuilder"><span class="pre">DartsModelDescBuilder</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/didarts/didarts_exp_runner.html#DiDartsExperimentRunner.model_desc_builder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner.model_desc_builder" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner.trainer_class">
-<span class="sig-name descname"><span class="pre">trainer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">ArchTrainer</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/didarts/didarts_exp_runner.html#DiDartsExperimentRunner.trainer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner.trainer_class" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">trainer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.arch_trainer.ArchTrainer" title="archai.supergraph.nas.arch_trainer.ArchTrainer"><span class="pre">ArchTrainer</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/didarts/didarts_exp_runner.html#DiDartsExperimentRunner.trainer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner.trainer_class" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -499,8 +511,21 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.didarts.didarts_arch_trainer">Architecture Trainer</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.didarts.didarts_exp_runner">Experiment Runner</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.didarts.didarts_arch_trainer">Architecture Trainer</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.didarts.didarts_arch_trainer.DidartsArchTrainer"><code class="docutils literal notranslate"><span class="pre">DidartsArchTrainer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.didarts.didarts_arch_trainer.DidartsArchTrainer.create_multi_optim"><code class="docutils literal notranslate"><span class="pre">DidartsArchTrainer.create_multi_optim()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.didarts.didarts_exp_runner">Experiment Runner</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner"><code class="docutils literal notranslate"><span class="pre">DiDartsExperimentRunner</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner.model_desc_builder"><code class="docutils literal notranslate"><span class="pre">DiDartsExperimentRunner.model_desc_builder()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.didarts.didarts_exp_runner.DiDartsExperimentRunner.trainer_class"><code class="docutils literal notranslate"><span class="pre">DiDartsExperimentRunner.trainer_class()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -533,7 +558,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

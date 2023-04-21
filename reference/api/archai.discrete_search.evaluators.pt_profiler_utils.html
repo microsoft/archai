@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>PyTorch Profiler (Utilities) &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.discrete_search.evaluators.pt_profiler_utils';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.discrete_search.evaluators.pt_profiler_utils.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Predictors" href="archai.discrete_search.predictors.html" />
@@ -408,9 +407,32 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval">Evaluator</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks">Hooks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model">Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval">Evaluator</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval.profile"><code class="docutils literal notranslate"><span class="pre">profile()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks">Hooks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.enable_functional_hooks"><code class="docutils literal notranslate"><span class="pre">enable_functional_hooks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.disable_functional_hooks"><code class="docutils literal notranslate"><span class="pre">disable_functional_hooks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.enable_tensor_hooks"><code class="docutils literal notranslate"><span class="pre">enable_tensor_hooks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.disable_tensor_hooks"><code class="docutils literal notranslate"><span class="pre">disable_tensor_hooks()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model">Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel"><code class="docutils literal notranslate"><span class="pre">ProfilerModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.start"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.start()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.stop"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.stop()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.reset"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.reset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.end"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.end()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_flops"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.get_flops()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_macs"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.get_macs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_params"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.get_params()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_latency"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.get_latency()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_peak_memory"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.get_peak_memory()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -423,16 +445,16 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="pytorch-profiler-utilities">
-<h1>PyTorch Profiler (Utilities)<a class="headerlink" href="#pytorch-profiler-utilities" title="Permalink to this headline">#</a></h1>
+<h1>PyTorch Profiler (Utilities)<a class="headerlink" href="#pytorch-profiler-utilities" title="Permalink to this heading">#</a></h1>
 <section id="module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval">
-<span id="evaluator"></span><h2>Evaluator<a class="headerlink" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval" title="Permalink to this headline">#</a></h2>
+<span id="evaluator"></span><h2>Evaluator<a class="headerlink" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval.profile">
-<span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval.</span></span><span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_warmups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cuda</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_median</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_eval.html#profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval.profile" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval.</span></span><span class="sig-name descname"><span class="pre">profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_warmups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cuda</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_median</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_eval.html#profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval.profile" title="Permalink to this definition">#</a></dt>
 <dd><p>Profile a PyTorch model.</p>
 <p>Outputs FLOPs, MACs, number of parameters, latency and peak memory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – PyTorch model.</p></li>
 <li><p><strong>forward_args</strong> – <cite>model.forward()</cite> arguments used for profilling.</p></li>
@@ -444,7 +466,7 @@ document.write(`
 <li><p><strong>ignore_layers</strong> – List of layer names that should be ignored during profiling.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>FLOPs, MACs, number of parameters, latency (seconds) and peak memory (bytes).</p>
 </dd>
 </dl>
@@ -452,7 +474,7 @@ document.write(`
 
 </section>
 <section id="module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks">
-<span id="hooks"></span><h2>Hooks<a class="headerlink" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks" title="Permalink to this headline">#</a></h2>
+<span id="hooks"></span><h2>Hooks<a class="headerlink" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.enable_functional_hooks">
 <span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.</span></span><span class="sig-name descname"><span class="pre">enable_functional_hooks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_hooks.html#enable_functional_hooks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.enable_functional_hooks" title="Permalink to this definition">#</a></dt>
@@ -479,17 +501,17 @@ document.write(`
 
 </section>
 <section id="module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model">
-<span id="model"></span><h2>Model<a class="headerlink" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model" title="Permalink to this headline">#</a></h2>
+<span id="model"></span><h2>Model<a class="headerlink" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.</span></span><span class="sig-name descname"><span class="pre">ProfilerModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_model.html#ProfilerModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.</span></span><span class="sig-name descname"><span class="pre">ProfilerModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_model.html#ProfilerModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel" title="Permalink to this definition">#</a></dt>
 <dd><p>Prepare a model to be used with profilling.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.start">
-<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ignore_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_model.html#ProfilerModel.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.start" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ignore_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_model.html#ProfilerModel.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.start" title="Permalink to this definition">#</a></dt>
 <dd><p>Start profiling.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>ignore_layers</strong> – Layers to be ignored when profiling.</p>
 </dd>
 </dl>
@@ -518,7 +540,7 @@ document.write(`
 <span class="sig-name descname"><span class="pre">get_flops</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_model.html#ProfilerModel.get_flops"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_flops" title="Permalink to this definition">#</a></dt>
 <dd><p>Get the model’s number of FLOPs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Number of floating point operations.</p>
 </dd>
 </dl>
@@ -529,7 +551,7 @@ document.write(`
 <span class="sig-name descname"><span class="pre">get_macs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_model.html#ProfilerModel.get_macs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_macs" title="Permalink to this definition">#</a></dt>
 <dd><p>Get the model’s number of MACs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Number of multiply-accumulate operations.</p>
 </dd>
 </dl>
@@ -540,7 +562,7 @@ document.write(`
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_model.html#ProfilerModel.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_params" title="Permalink to this definition">#</a></dt>
 <dd><p>Get the model’s total number of parameters.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Number of parameters.</p>
 </dd>
 </dl>
@@ -551,7 +573,7 @@ document.write(`
 <span class="sig-name descname"><span class="pre">get_latency</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_model.html#ProfilerModel.get_latency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_latency" title="Permalink to this definition">#</a></dt>
 <dd><p>Get the model’s latency.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Latency (seconds).</p>
 </dd>
 </dl>
@@ -562,7 +584,7 @@ document.write(`
 <span class="sig-name descname"><span class="pre">get_peak_memory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/archai/discrete_search/evaluators/pt_profiler_utils/pt_profiler_model.html#ProfilerModel.get_peak_memory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_peak_memory" title="Permalink to this definition">#</a></dt>
 <dd><p>Get the model’s peak memory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Peak memory (bytes).</p>
 </dd>
 </dl>
@@ -615,9 +637,32 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval">Evaluator</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks">Hooks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model">Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval">Evaluator</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_eval.profile"><code class="docutils literal notranslate"><span class="pre">profile()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks">Hooks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.enable_functional_hooks"><code class="docutils literal notranslate"><span class="pre">enable_functional_hooks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.disable_functional_hooks"><code class="docutils literal notranslate"><span class="pre">disable_functional_hooks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.enable_tensor_hooks"><code class="docutils literal notranslate"><span class="pre">enable_tensor_hooks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_hooks.disable_tensor_hooks"><code class="docutils literal notranslate"><span class="pre">disable_tensor_hooks()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model">Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel"><code class="docutils literal notranslate"><span class="pre">ProfilerModel</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.start"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.start()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.stop"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.stop()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.reset"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.reset()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.end"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.end()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_flops"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.get_flops()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_macs"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.get_macs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_params"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.get_params()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_latency"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.get_latency()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.evaluators.pt_profiler_utils.pt_profiler_model.ProfilerModel.get_peak_memory"><code class="docutils literal notranslate"><span class="pre">ProfilerModel.get_peak_memory()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -650,7 +695,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

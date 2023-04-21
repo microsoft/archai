@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Quantizing Models with PyTorch &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/nlp/torch_quantization';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/nlp/torch_quantization.html" />
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Transformer++ Search Space" href="tfpp_ss.html" />
@@ -426,10 +425,10 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Quantizing-Models-with-PyTorch">
-<h1>Quantizing Models with PyTorch<a class="headerlink" href="#Quantizing-Models-with-PyTorch" title="Permalink to this headline">#</a></h1>
+<h1>Quantizing Models with PyTorch<a class="headerlink" href="#Quantizing-Models-with-PyTorch" title="Permalink to this heading">#</a></h1>
 <p>Quantizing an NLP-based model in PyTorch involves reducing the precision of the model’s parameters to improve its inference speed and reduce its memory footprint. The process involves converting floating-point parameters to integers and can be implemented by adding a few lines of code.</p>
 <section id="Loading-the-Model">
-<h2>Loading the Model<a class="headerlink" href="#Loading-the-Model" title="Permalink to this headline">#</a></h2>
+<h2>Loading the Model<a class="headerlink" href="#Loading-the-Model" title="Permalink to this heading">#</a></h2>
 <p>The first step is to load any NLP-related model. In this notebook, we will be using a pre-trained GPT-2 model from the Hugging Face’s Hub.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -443,7 +442,7 @@ document.write(`
 </div>
 </section>
 <section id="Post-Training-Quantization-(PTQ)">
-<h2>Post-Training Quantization (PTQ)<a class="headerlink" href="#Post-Training-Quantization-(PTQ)" title="Permalink to this headline">#</a></h2>
+<h2>Post-Training Quantization (PTQ)<a class="headerlink" href="#Post-Training-Quantization-(PTQ)" title="Permalink to this heading">#</a></h2>
 <p>Post-Training Quantization (PTQ) is a technique of quantizing a pre-trained model, where dynamic quantization is used to adjust the quantization levels during runtime to ensure optimal accuracy and performance.</p>
 <p>Archai’s offer a wrapper function, denoted as <code class="docutils literal notranslate"><span class="pre">dynamic_quantization_torch()</span></code>, which takes care of dynamically quantizing the pre-trained model.</p>
 <p><em>Note that we set PyTorch’s number of threads to 1 because quantized models will only use a single thread.</em></p>
@@ -469,7 +468,7 @@ document.write(`
 </div>
 </section>
 <section id="Comparing-Default-and-Quantized-Models">
-<h2>Comparing Default and Quantized Models<a class="headerlink" href="#Comparing-Default-and-Quantized-Models" title="Permalink to this headline">#</a></h2>
+<h2>Comparing Default and Quantized Models<a class="headerlink" href="#Comparing-Default-and-Quantized-Models" title="Permalink to this heading">#</a></h2>
 <p>Finally, we can compare the size of default and quantized models, as well as their logits different. Nevertheless, please note that if the model has not been pre-trained with Quantization Aware Training (QAT), it might produce different logits and have its performance diminished.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -585,7 +584,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

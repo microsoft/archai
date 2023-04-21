@@ -38,16 +38,15 @@
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/jquery.js"></script>
-    <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
     <script src="../../../../_static/tabs.js"></script>
     <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/archai/discrete_search/evaluators/remote_azure_benchmark';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/_modules/archai/discrete_search/evaluators/remote_azure_benchmark.html" />
-    <link rel="shortcut icon" href="../../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -410,30 +409,19 @@ document.write(`
   <h1>Source code for archai.discrete_search.evaluators.remote_azure_benchmark</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) Microsoft Corporation.</span>
 <span class="c1"># Licensed under the MIT license.</span>
-
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">platform</span>
 <span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryDirectory</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">from</span> <span class="nn">azure.core.exceptions</span> <span class="kn">import</span> <span class="n">ResourceNotFoundError</span>
-<span class="kn">from</span> <span class="nn">azure.data.tables</span> <span class="kn">import</span> <span class="n">TableServiceClient</span><span class="p">,</span> <span class="n">UpdateMode</span>
-<span class="kn">from</span> <span class="nn">azure.storage.blob</span> <span class="kn">import</span> <span class="n">BlobServiceClient</span>
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">overrides</span>
 
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.archai_model</span> <span class="kn">import</span> <span class="n">ArchaiModel</span>
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.model_evaluator</span> <span class="kn">import</span> <span class="n">AsyncModelEvaluator</span>
-
-
-<span class="k">def</span> <span class="nf">_get_utc_date</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="n">current_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
-    <span class="n">current_date</span> <span class="o">=</span> <span class="n">current_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">current_date</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">archai.common.store</span> <span class="kn">import</span> <span class="n">ArchaiStore</span>
 
 
 <div class="viewcode-block" id="RemoteAzureBenchmarkEvaluator"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator">[docs]</a><span class="k">class</span> <span class="nc">RemoteAzureBenchmarkEvaluator</span><span class="p">(</span><span class="n">AsyncModelEvaluator</span><span class="p">):</span>
@@ -447,15 +435,14 @@ document.write(`
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">input_shape</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]],</span>
-        <span class="n">connection_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">blob_container_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">store</span><span class="p">:</span> <span class="n">ArchaiStore</span><span class="p">,</span>
+        <span class="n">experiment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">metric_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">partition_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">overwrite</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">max_retries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">retry_interval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">120</span><span class="p">,</span>
         <span class="n">onnx_export_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the evaluator.</span>
 
@@ -470,160 +457,142 @@ document.write(`
 <span class="sd">            max_retries: Maximum number of retries in `fetch_all`.</span>
 <span class="sd">            retry_interval: Interval between each retry attempt.</span>
 <span class="sd">            onnx_export_kwargs: Dictionary containing key-value arguments for `torch.onnx.export`.</span>
-
+<span class="sd">            verbose: Whether to print debug messages.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># TODO: Make this class more general / less pipeline-specific</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">store</span>
         <span class="n">input_shapes</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_shape</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_shape</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="n">input_shape</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_input</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="o">*</span><span class="n">input_shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">input_shape</span> <span class="ow">in</span> <span class="n">input_shapes</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">blob_container_name</span> <span class="o">=</span> <span class="n">blob_container_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">blob_service_client</span> <span class="o">=</span> <span class="n">BlobServiceClient</span><span class="o">.</span><span class="n">from_connection_string</span><span class="p">(</span><span class="n">connection_string</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span> <span class="o">=</span> <span class="n">table_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">table_service_client</span> <span class="o">=</span> <span class="n">TableServiceClient</span><span class="o">.</span><span class="n">from_connection_string</span><span class="p">(</span>
-            <span class="n">connection_string</span><span class="p">,</span> <span class="n">logging_enable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">logging_level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Changes the Azure logging level to ERROR to avoid unnecessary output</span>
-        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;azure.core.pipeline.policies.http_logging_policy&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_name</span> <span class="o">=</span> <span class="n">experiment_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span> <span class="o">=</span> <span class="n">metric_key</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">partition_key</span> <span class="o">=</span> <span class="n">partition_key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span> <span class="o">=</span> <span class="n">overwrite</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span> <span class="o">=</span> <span class="n">max_retries</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">retry_interval</span> <span class="o">=</span> <span class="n">retry_interval</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">onnx_export_kwargs</span> <span class="o">=</span> <span class="n">onnx_export_kwargs</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="c1"># Architecture list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">archids</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rowkey_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_entity</span><span class="p">(</span><span class="n">rowkey_id</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">ResourceNotFoundError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="k">return</span> <span class="kc">True</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">table_client</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the table client.&quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_service_client</span><span class="o">.</span><span class="n">create_table_if_not_exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_upload_blob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Upload a file to Azure Blob storage.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            src_path: Path to the source file.</span>
-<span class="sd">            dst_path: Path to the destination file.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">src_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">src_path</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">src_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">src_path</span><span class="si">}</span><span class="s2"> does not exist or is not a file&quot;</span>
-
-        <span class="n">blob_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blob_service_client</span><span class="o">.</span><span class="n">get_blob_client</span><span class="p">(</span><span class="n">container</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">blob_container_name</span><span class="p">,</span> <span class="n">blob</span><span class="o">=</span><span class="n">dst_path</span><span class="p">)</span>
-
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
-            <span class="n">blob_client</span><span class="o">.</span><span class="n">upload_blob</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_get_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rowkey_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the entity with the given `rowkey_id`.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            rowkey_id: Row key of the entity.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Entity dictionary.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_client</span><span class="o">.</span><span class="n">get_entity</span><span class="p">(</span><span class="n">partition_key</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">partition_key</span><span class="p">,</span> <span class="n">row_key</span><span class="o">=</span><span class="n">rowkey_id</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_update_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rowkey_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">entity_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the entity with the given `rowkey_id`.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            rowkey_id: Row key of the entity.</span>
-<span class="sd">            entity_dict: Dictionary containing the entity properties.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Entity dictionary.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">entity</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;PartitionKey&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_key</span><span class="p">,</span> <span class="s2">&quot;RowKey&quot;</span><span class="p">:</span> <span class="n">rowkey_id</span><span class="p">}</span>
-        <span class="n">entity</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">entity_dict</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_client</span><span class="o">.</span><span class="n">upsert_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">UpdateMode</span><span class="o">.</span><span class="n">REPLACE</span><span class="p">)</span>
+        <span class="c1"># Test connection string works</span>
+        <span class="n">unknown_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">unknown_id</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="n">unknown_id</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RemoteAzureBenchmarkEvaluator.send"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator.send">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">archid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">arch</span><span class="o">.</span><span class="n">archid</span><span class="p">)</span>
+        <span class="c1"># bug in azure ml sdk requires blob store folder names not begin with digits, so we prefix with &#39;id_&#39;</span>
+        <span class="n">archid</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;id_</span><span class="si">{</span><span class="n">arch</span><span class="o">.</span><span class="n">archid</span><span class="si">}</span><span class="s1">&#39;</span>
 
         <span class="c1"># Checks if architecture was already benchmarked</span>
-        <span class="k">if</span> <span class="n">archid</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_entity</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>
+        <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;complete&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span> <span class="ow">in</span> <span class="n">entity</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entry for </span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s2"> already exists with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># complete but missing the mean, so reset everything so we can try again below.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">archid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;benchmark_only&#39;</span><span class="p">,</span> <span class="s1">&#39;model_date&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># job is still running, let it continue</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Job for </span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s2"> is running...&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>
                 <span class="k">return</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span> <span class="ow">in</span> <span class="n">entity</span> <span class="ow">and</span> <span class="n">entity</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>
-                <span class="k">return</span>
+        <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>  <span class="c1"># this is a get or create operation.</span>
+        <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;benchmark_only&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;model_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get_utc_date</span><span class="p">()</span>
+        <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;model_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;model.onnx&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">update_status_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>  <span class="c1"># must be an update, not a merge.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">lock_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="s2">&quot;uploading&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
+                <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
 
-        <span class="n">entity</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;uploading&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">archid</span><span class="p">,</span>
-            <span class="s2">&quot;node&quot;</span><span class="p">:</span> <span class="n">platform</span><span class="o">.</span><span class="n">node</span><span class="p">(),</span>
-            <span class="s2">&quot;benchmark_only&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="s2">&quot;model_date&quot;</span><span class="p">:</span> <span class="n">_get_utc_date</span><span class="p">(),</span>
-            <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="s2">&quot;model.onnx&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
+                <span class="c1"># Uploads ONNX file to blob storage and updates the table entry</span>
+                <span class="n">arch</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+                <span class="n">file_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_dir</span> <span class="o">/</span> <span class="s2">&quot;model.onnx&quot;</span><span class="p">)</span>
+                <span class="c1"># Exports model to ONNX</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+                    <span class="n">arch</span><span class="o">.</span><span class="n">arch</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sample_input</span><span class="p">,</span>
+                    <span class="n">file_name</span><span class="p">,</span>
+                    <span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;input_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_input</span><span class="p">))],</span>
+                    <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">onnx_export_kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
 
-        <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
-            <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">upload_blob</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;model.onnx&quot;</span><span class="p">)</span>
+                <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;new&quot;</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">unlock_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
 
-            <span class="c1"># Uploads ONNX file to blob storage and updates the table entry</span>
-            <span class="n">arch</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>
 
-            <span class="c1"># Exports model to ONNX</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
-                <span class="n">arch</span><span class="o">.</span><span class="n">arch</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">sample_input</span><span class="p">,</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">tmp_dir</span> <span class="o">/</span> <span class="s2">&quot;model.onnx&quot;</span><span class="p">),</span>
-                <span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;input_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_input</span><span class="p">))],</span>
-                <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">onnx_export_kwargs</span><span class="p">,</span>
-            <span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_entity</span><span class="p">(</span><span class="n">archid</span><span class="p">,</span> <span class="n">entity</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_upload_blob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_dir</span> <span class="o">/</span> <span class="s2">&quot;model.onnx&quot;</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s2">/model.onnx&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Updates model status</span>
-        <span class="k">del</span> <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;node&quot;</span><span class="p">]</span>
-        <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;new&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_entity</span><span class="p">(</span><span class="n">archid</span><span class="p">,</span> <span class="n">entity</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sent </span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s2"> to Remote Benchmark&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="RemoteAzureBenchmarkEvaluator.fetch_all"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator.fetch_all">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">fetch_all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="p">]</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="p">)</span>
+        <span class="n">completed</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span><span class="p">):</span>
+        <span class="c1"># retries defines how long we wait for progress, as soon as we see something complete we</span>
+        <span class="c1"># reset this counter because we are making progress.</span>
+        <span class="n">retries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">retries</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">archid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">archid</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                    <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_entity</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">completed</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span> <span class="ow">in</span> <span class="n">entity</span> <span class="ow">and</span> <span class="n">entity</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="p">]:</span>
+                            <span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">entity</span><span class="p">:</span>
+                            <span class="n">error</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping architecture </span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s2"> because of remote error: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="n">completed</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="n">retries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span>
+                        <span class="k">elif</span> <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;complete&quot;</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Architecture </span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s2"> is complete with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="w"> </span><span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="n">completed</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="n">retries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_retries</span>
 
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span> <span class="ow">in</span> <span class="n">entity</span> <span class="ow">and</span> <span class="n">entity</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="p">]:</span>
-                        <span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">entity</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="p">]</span>
-
-            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">r</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">completed</span><span class="p">):</span>
                 <span class="k">break</span>
 
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">completed</span> <span class="k">if</span> <span class="n">c</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="n">remaining</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="p">)</span> <span class="o">-</span> <span class="n">count</span>
+                <span class="n">estimate</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">remaining</span>
+
+                <span class="n">status_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;complete&quot;</span><span class="p">:</span> <span class="n">count</span><span class="p">,</span>
+                    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">),</span>
+                    <span class="s2">&quot;time_remaining&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">estimate</span><span class="p">))</span>
+                <span class="p">}</span>
+
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Waiting for results. Current status: </span><span class="si">{</span><span class="n">status_dict</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Pending Archids: </span><span class="si">{</span><span class="p">[</span><span class="n">archid</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">archid</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="p">,</span><span class="w"> </span><span class="n">results</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">retry_interval</span><span class="p">)</span>
+            <span class="n">retries</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">completed</span> <span class="k">if</span> <span class="n">c</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Something is wrong, the uploaded models are not being processed. Please check your SNPE remote runner setup.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Resets state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">archids</span> <span class="o">=</span> <span class="p">[]</span>
@@ -672,7 +641,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

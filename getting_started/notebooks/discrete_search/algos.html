@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Search Algorithms &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/discrete_search/algos';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/discrete_search/algos.html" />
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Config Search Spaces" href="config_search.html" />
@@ -435,7 +434,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Search-Algorithms">
-<h1>Search Algorithms<a class="headerlink" href="#Search-Algorithms" title="Permalink to this headline">#</a></h1>
+<h1>Search Algorithms<a class="headerlink" href="#Search-Algorithms" title="Permalink to this heading">#</a></h1>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -517,7 +516,7 @@ ArchaiModel(
 </pre></div></div>
 </div>
 <section id="Dataset-Provider">
-<h2>Dataset Provider<a class="headerlink" href="#Dataset-Provider" title="Permalink to this headline">#</a></h2>
+<h2>Dataset Provider<a class="headerlink" href="#Dataset-Provider" title="Permalink to this heading">#</a></h2>
 <p>Datasets are represented in Archai throught the <code class="docutils literal notranslate"><span class="pre">`DatasetProvider</span></code> &lt;../../reference/api/archai.discrete_search.api.rst&gt;`__ class. For this example, we will use the built-in dataset provider of the MNIST dataset.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -547,7 +546,7 @@ ArchaiModel(
 </div>
 </section>
 <section id="Wrapping-custom-evaluation-code">
-<h2>Wrapping custom evaluation code<a class="headerlink" href="#Wrapping-custom-evaluation-code" title="Permalink to this headline">#</a></h2>
+<h2>Wrapping custom evaluation code<a class="headerlink" href="#Wrapping-custom-evaluation-code" title="Permalink to this heading">#</a></h2>
 <p>We will evaluate the models using partial training validation accuracy as a proxy for final task performance. This notebook will take about an hour to complete if you run it on a Intel Core i9 CPU. If you have CUDA enabled version of pytorch installed, it will be about 30 minutes if you pass the <code class="docutils literal notranslate"><span class="pre">device</span></code> argument <code class="docutils literal notranslate"><span class="pre">cuda</span></code> in the following <code class="docutils literal notranslate"><span class="pre">PartialTrainingValAccuracy</span></code> constructor.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -736,7 +735,7 @@ Training model L=8, K=5, H=64: 100%|██████████| 1/1 [00:05&l
 </div>
 </section>
 <section id="Defining-Search-Objectives">
-<h2>Defining Search Objectives<a class="headerlink" href="#Defining-Search-Objectives" title="Permalink to this headline">#</a></h2>
+<h2>Defining Search Objectives<a class="headerlink" href="#Defining-Search-Objectives" title="Permalink to this heading">#</a></h2>
 <p>Search optimization objectives are specified using the <code class="docutils literal notranslate"><span class="pre">archai.discrete_search.SearchObjectives</span></code> class</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -749,7 +748,7 @@ Training model L=8, K=5, H=64: 100%|██████████| 1/1 [00:05&l
 </div>
 </div>
 <section id="Adding-objectives">
-<h3>Adding objectives<a class="headerlink" href="#Adding-objectives" title="Permalink to this headline">#</a></h3>
+<h3>Adding objectives<a class="headerlink" href="#Adding-objectives" title="Permalink to this heading">#</a></h3>
 <p>To add search objectives, we can use the <code class="docutils literal notranslate"><span class="pre">SearchObjectives.add_objective</span></code> method</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
@@ -902,7 +901,7 @@ False
 <p>Alternatively, all objectives (expensive and cheap) can also be evaluated using <code class="docutils literal notranslate"><span class="pre">SearchObjectives.eval_all_objs</span></code>.</p>
 </section>
 <section id="Adding-extra-constraints">
-<h3>Adding extra constraints<a class="headerlink" href="#Adding-extra-constraints" title="Permalink to this headline">#</a></h3>
+<h3>Adding extra constraints<a class="headerlink" href="#Adding-extra-constraints" title="Permalink to this heading">#</a></h3>
 <p>Besides the constraint parameter from cheap objectives, it is also possible to add extra constraints that are not search objectives (and thus should not be optimized by NAS algorithms).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
@@ -956,10 +955,10 @@ False
 </section>
 </section>
 <section id="Using-a-search-algorithm">
-<h2>Using a search algorithm<a class="headerlink" href="#Using-a-search-algorithm" title="Permalink to this headline">#</a></h2>
+<h2>Using a search algorithm<a class="headerlink" href="#Using-a-search-algorithm" title="Permalink to this heading">#</a></h2>
 <p>Now that we know how to create and use search objectives, we can finally use a search algorithm do to Neural Architecture Search!</p>
 <section id="Example:-EvolutionParetoSearch">
-<h3>Example: <code class="docutils literal notranslate"><span class="pre">EvolutionParetoSearch</span></code><a class="headerlink" href="#Example:-EvolutionParetoSearch" title="Permalink to this headline">#</a></h3>
+<h3>Example: <code class="docutils literal notranslate"><span class="pre">EvolutionParetoSearch</span></code><a class="headerlink" href="#Example:-EvolutionParetoSearch" title="Permalink to this heading">#</a></h3>
 <p>Let’s start with an evolutionary-based search algorithm</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
@@ -2312,7 +2311,7 @@ Note: you may need to restart the kernel to use updated packages.
 <p>You can get much faster search times using Azure ML with partial training happening in parallel across a GPU cluster. See the <a class="reference external" href="https://microsoft.github.io/archai/advanced_guide/cloud/azure/notebooks/multi_node_search/multi_node_search.html">Advanced Guide, Cloud-Based, Azure, Multi node search</a> example for details.</p>
 </section>
 <section id="Troubleshooting">
-<h3>Troubleshooting<a class="headerlink" href="#Troubleshooting" title="Permalink to this headline">#</a></h3>
+<h3>Troubleshooting<a class="headerlink" href="#Troubleshooting" title="Permalink to this heading">#</a></h3>
 <p><strong>OMP: Error #15: Initializing libiomp5md.dll, but found libiomp5md.dll already initialized.</strong></p>
 <p>This error might happen on Windows if your python environment has multiple version of this <code class="docutils literal notranslate"><span class="pre">libiomp5md.dll</span></code> in different locations, for example, one in <code class="docutils literal notranslate"><span class="pre">~\Library\bin</span></code> and another in <code class="docutils literal notranslate"><span class="pre">Lib\site-packages\torch\lib</span></code>. To resolve this copy the newest one over the older one so that the same dll is found in both places.</p>
 </section>
@@ -2405,7 +2404,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

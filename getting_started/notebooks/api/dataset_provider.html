@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Implementing a Custom Dataset Provider &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/api/dataset_provider';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/api/dataset_provider.html" />
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Implementing a Custom Trainer" href="trainer_base.html" />
@@ -427,7 +426,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Implementing-a-Custom-Dataset-Provider">
-<h1>Implementing a Custom Dataset Provider<a class="headerlink" href="#Implementing-a-Custom-Dataset-Provider" title="Permalink to this headline">#</a></h1>
+<h1>Implementing a Custom Dataset Provider<a class="headerlink" href="#Implementing-a-Custom-Dataset-Provider" title="Permalink to this heading">#</a></h1>
 <p>Abstract base classes (ABCs) define a blueprint for a class, specifying its methods and attributes, but not its implementation. They are important in implementing a consistent interface, as they enforce a set of requirements on implementing classes and make it easier to write code that can work with multiple implementations.</p>
 <p>First, we define a boilerplate for the <code class="docutils literal notranslate"><span class="pre">DatasetProvider</span></code> class, which is the same implemented in <code class="docutils literal notranslate"><span class="pre">archai.api.dataset_provider</span></code> module.</p>
 <div class="nbinput nblast docutils container">
@@ -459,7 +458,7 @@ document.write(`
 </div>
 </div>
 <section id="Torchvision-based-Dataset-Provider">
-<h2>Torchvision-based Dataset Provider<a class="headerlink" href="#Torchvision-based-Dataset-Provider" title="Permalink to this headline">#</a></h2>
+<h2>Torchvision-based Dataset Provider<a class="headerlink" href="#Torchvision-based-Dataset-Provider" title="Permalink to this heading">#</a></h2>
 <p>In the context of a custom dataset provider, using ABCs can help ensure that the provider implements the required methods and provides a consistent interface for loading and processing data. In this example, we will implement a Torchvision-based dataset provider, as follows:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -525,7 +524,7 @@ document.write(`
 </div>
 </div>
 <section id="Using-the-Dataset-Provider">
-<h3>Using the Dataset Provider<a class="headerlink" href="#Using-the-Dataset-Provider" title="Permalink to this headline">#</a></h3>
+<h3>Using the Dataset Provider<a class="headerlink" href="#Using-the-Dataset-Provider" title="Permalink to this heading">#</a></h3>
 <p>Finally, one need to call the implemented methods to retrieve the datasets, as follows:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -718,7 +717,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

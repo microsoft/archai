@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>ONNX &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.onnx';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.onnx.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Configuration Utilities" href="archai.onnx.config_utils.html" />
@@ -408,11 +407,28 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.onnx_forward">ONNX Forward</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.onnx_loader">ONNX Loader</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.export">Export</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.export_utils">Export (Utilities)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization">Optimization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.onnx_forward">ONNX Forward</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.onnx_forward.gpt2_onnx_forward"><code class="docutils literal notranslate"><span class="pre">gpt2_onnx_forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.onnx_loader">ONNX Loader</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.onnx_loader.load_from_onnx"><code class="docutils literal notranslate"><span class="pre">load_from_onnx()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.export">Export</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.export.validate_onnx_outputs"><code class="docutils literal notranslate"><span class="pre">validate_onnx_outputs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.export.export_to_onnx"><code class="docutils literal notranslate"><span class="pre">export_to_onnx()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.export_utils">Export (Utilities)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.export_utils.prepare_model_for_onnx"><code class="docutils literal notranslate"><span class="pre">prepare_model_for_onnx()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.export_utils.weight_sharing"><code class="docutils literal notranslate"><span class="pre">weight_sharing()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization">Optimization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization.optimize_onnx"><code class="docutils literal notranslate"><span class="pre">optimize_onnx()</span></code></a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -425,7 +441,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="onnx">
-<h1>ONNX<a class="headerlink" href="#onnx" title="Permalink to this headline">#</a></h1>
+<h1>ONNX<a class="headerlink" href="#onnx" title="Permalink to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="archai.onnx.config_utils.html">Configuration Utilities</a><ul>
@@ -442,21 +458,21 @@ document.write(`
 </ul>
 </div>
 <section id="module-archai.onnx.onnx_forward">
-<span id="onnx-forward"></span><h2>ONNX Forward<a class="headerlink" href="#module-archai.onnx.onnx_forward" title="Permalink to this headline">#</a></h2>
+<span id="onnx-forward"></span><h2>ONNX Forward<a class="headerlink" href="#module-archai.onnx.onnx_forward" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.onnx.onnx_forward.gpt2_onnx_forward">
-<span class="sig-prename descclassname"><span class="pre">archai.onnx.onnx_forward.</span></span><span class="sig-name descname"><span class="pre">gpt2_onnx_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.LongTensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">past_key_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.FloatTensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.FloatTensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/onnx/onnx_forward.html#gpt2_onnx_forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.onnx_forward.gpt2_onnx_forward" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.onnx.onnx_forward.</span></span><span class="sig-name descname"><span class="pre">gpt2_onnx_forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LongTensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">past_key_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">FloatTensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FloatTensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/onnx/onnx_forward.html#gpt2_onnx_forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.onnx_forward.gpt2_onnx_forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Forward pass through the GPT-2 model with ONNX exportability.</p>
 <p>This method overrides the default GPT-2 forward method and returns
 both output probabilities and past key/values.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_ids</strong> – Input tensor.</p></li>
 <li><p><strong>past_key_values</strong> – Past pre-computed key/values tensor.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Output probabilities and past key/values.</p>
 </dd>
 </dl>
@@ -464,21 +480,21 @@ both output probabilities and past key/values.</p>
 
 </section>
 <section id="module-archai.onnx.onnx_loader">
-<span id="onnx-loader"></span><h2>ONNX Loader<a class="headerlink" href="#module-archai.onnx.onnx_loader" title="Permalink to this headline">#</a></h2>
+<span id="onnx-loader"></span><h2>ONNX Loader<a class="headerlink" href="#module-archai.onnx.onnx_loader" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.onnx.onnx_loader.load_from_onnx">
-<span class="sig-prename descclassname"><span class="pre">archai.onnx.onnx_loader.</span></span><span class="sig-name descname"><span class="pre">load_from_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">providers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">onnxruntime.capi.onnxruntime_inference_collection.InferenceSession</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/onnx_loader.html#load_from_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.onnx_loader.load_from_onnx" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.onnx.onnx_loader.</span></span><span class="sig-name descname"><span class="pre">load_from_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">providers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">InferenceSession</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/onnx_loader.html#load_from_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.onnx_loader.load_from_onnx" title="Permalink to this definition">#</a></dt>
 <dd><p>Load an ONNX-based model from file.</p>
 <p>This function loads an ONNX-based model from the specified file path and
 returns an ONNX inference session. Performance optimization constants are set as well.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>onnx_model_path</strong> – Path to the ONNX model file.</p></li>
 <li><p><strong>providers</strong> – List of providers to use for inference.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>ONNX inference session.</p>
 </dd>
 </dl>
@@ -486,13 +502,13 @@ returns an ONNX inference session. Performance optimization constants are set as
 
 </section>
 <section id="module-archai.onnx.export">
-<span id="export"></span><h2>Export<a class="headerlink" href="#module-archai.onnx.export" title="Permalink to this headline">#</a></h2>
+<span id="export"></span><h2>Export<a class="headerlink" href="#module-archai.onnx.export" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.onnx.export.validate_onnx_outputs">
-<span class="sig-prename descclassname"><span class="pre">archai.onnx.export.</span></span><span class="sig-name descname"><span class="pre">validate_onnx_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.onnx.config_utils.html#archai.onnx.config_utils.onnx_config_base.OnnxConfig" title="archai.onnx.config_utils.onnx_config_base.OnnxConfig"><span class="pre">archai.onnx.config_utils.onnx_config_base.OnnxConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/export.html#validate_onnx_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.export.validate_onnx_outputs" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.onnx.export.</span></span><span class="sig-name descname"><span class="pre">validate_onnx_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.onnx.config_utils.html#archai.onnx.config_utils.onnx_config_base.OnnxConfig" title="archai.onnx.config_utils.onnx_config_base.OnnxConfig"><span class="pre">OnnxConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/export.html#validate_onnx_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.export.validate_onnx_outputs" title="Permalink to this definition">#</a></dt>
 <dd><p>Validate the outputs of an ONNX model against a reference PyTorch model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>onnx_config</strong> – Configuration for ONNX model.</p></li>
 <li><p><strong>reference_model</strong> – PyTorch model to use as reference.</p></li>
@@ -500,7 +516,7 @@ returns an ONNX inference session. Performance optimization constants are set as
 <li><p><strong>atol</strong> – Tolerance value for comparing the model outputs.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If the shapes or values of the ONNX model outputs do not match
     the reference model outputs within the specified tolerance.</p>
 </dd>
@@ -509,10 +525,10 @@ returns an ONNX inference session. Performance optimization constants are set as
 
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.onnx.export.export_to_onnx">
-<span class="sig-prename descclassname"><span class="pre">archai.onnx.export.</span></span><span class="sig-name descname"><span class="pre">export_to_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'causal-lm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_past</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.onnx.config_utils.html#archai.onnx.config_utils.onnx_config_base.OnnxConfig" title="archai.onnx.config_utils.onnx_config_base.OnnxConfig"><span class="pre">archai.onnx.config_utils.onnx_config_base.OnnxConfig</span></a></span></span><a class="reference internal" href="../../_modules/archai/onnx/export.html#export_to_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.export.export_to_onnx" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.onnx.export.</span></span><span class="sig-name descname"><span class="pre">export_to_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'causal-lm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_past</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.onnx.config_utils.html#archai.onnx.config_utils.onnx_config_base.OnnxConfig" title="archai.onnx.config_utils.onnx_config_base.OnnxConfig"><span class="pre">OnnxConfig</span></a></span></span><a class="reference internal" href="../../_modules/archai/onnx/export.html#export_to_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.export.export_to_onnx" title="Permalink to this definition">#</a></dt>
 <dd><p>Export a pre-trained PyTorch model to ONNX format.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – Instance of the PyTorch model to be exported.</p></li>
 <li><p><strong>output_model_path</strong> – Path to save the exported ONNX model.</p></li>
@@ -524,7 +540,7 @@ returns an ONNX inference session. Performance optimization constants are set as
 <li><p><strong>atol</strong> – Tolerance between input and exported model.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>ONNX configuration of the model that was exported.</p>
 </dd>
 </dl>
@@ -532,20 +548,20 @@ returns an ONNX inference session. Performance optimization constants are set as
 
 </section>
 <section id="module-archai.onnx.export_utils">
-<span id="export-utilities"></span><h2>Export (Utilities)<a class="headerlink" href="#module-archai.onnx.export_utils" title="Permalink to this headline">#</a></h2>
+<span id="export-utilities"></span><h2>Export (Utilities)<a class="headerlink" href="#module-archai.onnx.export_utils" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.onnx.export_utils.prepare_model_for_onnx">
-<span class="sig-prename descclassname"><span class="pre">archai.onnx.export_utils.</span></span><span class="sig-name descname"><span class="pre">prepare_model_for_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/export_utils.html#prepare_model_for_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.export_utils.prepare_model_for_onnx" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.onnx.export_utils.</span></span><span class="sig-name descname"><span class="pre">prepare_model_for_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Module</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/export_utils.html#prepare_model_for_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.export_utils.prepare_model_for_onnx" title="Permalink to this definition">#</a></dt>
 <dd><p>Prepare a PyTorch model for ONNX export by modifying the forward function and performing
 any additional pre-processing steps.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – Instance of the model to prepare for ONNX export.</p></li>
 <li><p><strong>model_type</strong> – Type of model.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>The prepared PyTorch model, ready for ONNX export.</p>
 </dd>
 </dl>
@@ -556,7 +572,7 @@ any additional pre-processing steps.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.onnx.export_utils.</span></span><span class="sig-name descname"><span class="pre">weight_sharing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/export_utils.html#weight_sharing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.export_utils.weight_sharing" title="Permalink to this definition">#</a></dt>
 <dd><p>Share weights between embedding and softmax layers in an ONNX model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>onnx_model_path</strong> – Path to the ONNX model that will have weights shared.</p></li>
 <li><p><strong>model_type</strong> – Type of model to share the weights.</p></li>
@@ -567,14 +583,14 @@ any additional pre-processing steps.</p>
 
 </section>
 <section id="module-archai.onnx.optimization">
-<span id="optimization"></span><h2>Optimization<a class="headerlink" href="#module-archai.onnx.optimization" title="Permalink to this headline">#</a></h2>
+<span id="optimization"></span><h2>Optimization<a class="headerlink" href="#module-archai.onnx.optimization" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.onnx.optimization.optimize_onnx">
-<span class="sig-prename descclassname"><span class="pre">archai.onnx.optimization.</span></span><span class="sig-name descname"><span class="pre">optimize_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.onnx.config_utils.html#archai.onnx.config_utils.onnx_config_base.OnnxConfig" title="archai.onnx.config_utils.onnx_config_base.OnnxConfig"><span class="pre">archai.onnx.config_utils.onnx_config_base.OnnxConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_gpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_ort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float16</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_int32</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization.html#optimize_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization.optimize_onnx" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.onnx.optimization.</span></span><span class="sig-name descname"><span class="pre">optimize_onnx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">onnx_model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">onnx_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.onnx.config_utils.html#archai.onnx.config_utils.onnx_config_base.OnnxConfig" title="archai.onnx.config_utils.onnx_config_base.OnnxConfig"><span class="pre">OnnxConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_gpu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_ort</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float16</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_int32</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/archai/onnx/optimization.html#optimize_onnx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.onnx.optimization.optimize_onnx" title="Permalink to this definition">#</a></dt>
 <dd><p>Optimize an ONNX model using a combination of standard ORT-based optimization
 and additional transformer-based optimization.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>onnx_model_path</strong> – Path to the ONNX model to be optimized.</p></li>
 <li><p><strong>onnx_config</strong> – ONNX configuration of model to be optimized.</p></li>
@@ -585,7 +601,7 @@ and additional transformer-based optimization.</p>
 <li><p><strong>input_int32</strong> – Whether to use inputs with int32.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Path to the optimized ONNX model.</p>
 </dd>
 </dl>
@@ -636,11 +652,28 @@ and additional transformer-based optimization.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.onnx_forward">ONNX Forward</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.onnx_loader">ONNX Loader</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.export">Export</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.export_utils">Export (Utilities)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization">Optimization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.onnx_forward">ONNX Forward</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.onnx_forward.gpt2_onnx_forward"><code class="docutils literal notranslate"><span class="pre">gpt2_onnx_forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.onnx_loader">ONNX Loader</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.onnx_loader.load_from_onnx"><code class="docutils literal notranslate"><span class="pre">load_from_onnx()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.export">Export</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.export.validate_onnx_outputs"><code class="docutils literal notranslate"><span class="pre">validate_onnx_outputs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.export.export_to_onnx"><code class="docutils literal notranslate"><span class="pre">export_to_onnx()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.export_utils">Export (Utilities)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.export_utils.prepare_model_for_onnx"><code class="docutils literal notranslate"><span class="pre">prepare_model_for_onnx()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.export_utils.weight_sharing"><code class="docutils literal notranslate"><span class="pre">weight_sharing()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.onnx.optimization">Optimization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.onnx.optimization.optimize_onnx"><code class="docutils literal notranslate"><span class="pre">optimize_onnx()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -673,7 +706,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

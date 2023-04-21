@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Training a CV-based Model &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/cv/pl_trainer';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/cv/pl_trainer.html" />
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Natural Language Processing" href="../nlp.html" />
@@ -426,10 +425,10 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Training-a-CV-based-Model">
-<h1>Training a CV-based Model<a class="headerlink" href="#Training-a-CV-based-Model" title="Permalink to this headline">#</a></h1>
+<h1>Training a CV-based Model<a class="headerlink" href="#Training-a-CV-based-Model" title="Permalink to this heading">#</a></h1>
 <p>Training a CV-based model with PyTorch-Lightning is a simplified process, where the model architecture, loss function, and training process are defined using the <code class="docutils literal notranslate"><span class="pre">LightningModule</span></code>. Archai offers a set of dataset providers to load and pre-process the data. Additionally, Archai provides a <code class="docutils literal notranslate"><span class="pre">PlTrainer</span></code> which wraps the <code class="docutils literal notranslate"><span class="pre">TrainerBase</span></code> abstraction and renames methods so they fit in the search interface.</p>
 <section id="Loading-the-Data">
-<h2>Loading the Data<a class="headerlink" href="#Loading-the-Data" title="Permalink to this headline">#</a></h2>
+<h2>Loading the Data<a class="headerlink" href="#Loading-the-Data" title="Permalink to this heading">#</a></h2>
 <p>When using a dataset provider, the data loading process is simplified, as the provider takes care of downloading and pre-processing the required dataset.</p>
 <p>This step is accomplished in the same way as the <a class="reference internal" href="cv_dataset_provider.html"><span class="doc">previous notebook</span></a>:</p>
 <div class="nbinput nblast docutils container">
@@ -447,7 +446,7 @@ document.write(`
 </div>
 </section>
 <section id="Defining-the-Model">
-<h2>Defining the Model<a class="headerlink" href="#Defining-the-Model" title="Permalink to this headline">#</a></h2>
+<h2>Defining the Model<a class="headerlink" href="#Defining-the-Model" title="Permalink to this heading">#</a></h2>
 <p>Once the data is loaded, we can define any CV-based model. In this example, we will create a simple linear model using PyTorch and wrapping it with <code class="docutils literal notranslate"><span class="pre">LightningModule</span></code> from PyTorch-Lightning.</p>
 <p>Additionally, PyTorch-Lightning requires that some methods are implemented, such as:</p>
 <ul class="simple">
@@ -505,7 +504,7 @@ document.write(`
 </div>
 </section>
 <section id="Running-the-Trainer">
-<h2>Running the Trainer<a class="headerlink" href="#Running-the-Trainer" title="Permalink to this headline">#</a></h2>
+<h2>Running the Trainer<a class="headerlink" href="#Running-the-Trainer" title="Permalink to this heading">#</a></h2>
 <p>The final step is to use the PyTorch-Lightning trainer abstraction (<code class="docutils literal notranslate"><span class="pre">PlTrainer</span></code>) to conduct the training process, which involves optimizing the model’s parameters using a pre-defined optimization algorithm and loss function, and updating the model’s parameters based on the training data. This process is repeated until the model converges to a satisfactory accuracy or performance level.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -672,7 +671,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

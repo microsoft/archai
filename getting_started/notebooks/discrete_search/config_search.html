@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Config Search Spaces &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/discrete_search/config_search';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/discrete_search/config_search.html" />
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Computer Vision" href="../cv.html" />
@@ -442,7 +441,7 @@ document.write(`
 </div>
 </div>
 <section id="Config-Search-Spaces">
-<h1>Config Search Spaces<a class="headerlink" href="#Config-Search-Spaces" title="Permalink to this headline">#</a></h1>
+<h1>Config Search Spaces<a class="headerlink" href="#Config-Search-Spaces" title="Permalink to this heading">#</a></h1>
 <p>As seen before, discrete search spaces in Archai are defined using the <code class="docutils literal notranslate"><span class="pre">DiscreteSearchSpace</span></code> abstract class. This tutorial shows how to use the Config Search Space API, which allows building search spaces automatically without having to subclass <code class="docutils literal notranslate"><span class="pre">DiscreteSearchSpace</span></code> .</p>
 <p>Let’s first start with a simple Pytorch model</p>
 <div class="nbinput nblast docutils container">
@@ -509,7 +508,7 @@ torch.Size([2, 32, 16, 16])
 </pre></div></div>
 </div>
 <section id="Creating-an-ArchParamTree">
-<h2>Creating an <code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code><a class="headerlink" href="#Creating-an-ArchParamTree" title="Permalink to this headline">#</a></h2>
+<h2>Creating an <code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code><a class="headerlink" href="#Creating-an-ArchParamTree" title="Permalink to this heading">#</a></h2>
 <p>To turn this model into a search space, first we need to define an <code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code> with the architecture parameters we want to search</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -765,9 +764,9 @@ cc3aba2e903b62619035a871ff3bcdc65dc151de
 <p>We can now use this with any Archai search algorithm and objective!</p>
 </section>
 <section id="More-features-of-ArchParamTrees">
-<h2>More features of ArchParamTrees<a class="headerlink" href="#More-features-of-ArchParamTrees" title="Permalink to this headline">#</a></h2>
+<h2>More features of ArchParamTrees<a class="headerlink" href="#More-features-of-ArchParamTrees" title="Permalink to this heading">#</a></h2>
 <section id="Nesting-dictionaries-inside-an-ArchParamTree">
-<h3>Nesting dictionaries inside an <code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code><a class="headerlink" href="#Nesting-dictionaries-inside-an-ArchParamTree" title="Permalink to this headline">#</a></h3>
+<h3>Nesting dictionaries inside an <code class="docutils literal notranslate"><span class="pre">ArchParamTree</span></code><a class="headerlink" href="#Nesting-dictionaries-inside-an-ArchParamTree" title="Permalink to this heading">#</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -849,7 +848,7 @@ ArchConfig({
 </div>
 </section>
 <section id="Sharing-architecture-parameters">
-<h3>Sharing architecture parameters<a class="headerlink" href="#Sharing-architecture-parameters" title="Permalink to this headline">#</a></h3>
+<h3>Sharing architecture parameters<a class="headerlink" href="#Sharing-architecture-parameters" title="Permalink to this heading">#</a></h3>
 <p>We can share configuration of different parts of the architecture by re-using references</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
@@ -969,7 +968,7 @@ ArchConfig({
 </div>
 </section>
 <section id="Repeating-configs-a-variable-number-of-times">
-<h3>Repeating configs a variable number of times<a class="headerlink" href="#Repeating-configs-a-variable-number-of-times" title="Permalink to this headline">#</a></h3>
+<h3>Repeating configs a variable number of times<a class="headerlink" href="#Repeating-configs-a-variable-number-of-times" title="Permalink to this heading">#</a></h3>
 <p>We can repeat a block of arch parameters using the <code class="docutils literal notranslate"><span class="pre">repeat_config</span></code> function</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
@@ -1174,7 +1173,7 @@ ArchConfig({
 </section>
 </section>
 <section id="Example:-Building-an-Image-Classification-Search-Space">
-<h2>Example: Building an Image Classification Search Space<a class="headerlink" href="#Example:-Building-an-Image-Classification-Search-Space" title="Permalink to this headline">#</a></h2>
+<h2>Example: Building an Image Classification Search Space<a class="headerlink" href="#Example:-Building-an-Image-Classification-Search-Space" title="Permalink to this heading">#</a></h2>
 <p>Let’s use the features described above to build the following search space for image classification</p>
 <p><img alt="Image classification ss" src="../../../_images/ss_example.png" /></p>
 <p>We can build this succinctly using the <code class="docutils literal notranslate"><span class="pre">repeat_config</span></code> function</p>
@@ -1346,7 +1345,7 @@ d56a2b2d01f75d3f21824f89e5761b4608e6f18e
 </div>
 </section>
 <section id="Tracking-used-architecture-parameters-for-model-de-duplication">
-<h2>Tracking used architecture parameters for model de-duplication<a class="headerlink" href="#Tracking-used-architecture-parameters-for-model-de-duplication" title="Permalink to this headline">#</a></h2>
+<h2>Tracking used architecture parameters for model de-duplication<a class="headerlink" href="#Tracking-used-architecture-parameters-for-model-de-duplication" title="Permalink to this heading">#</a></h2>
 <p>Consider the following example:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
@@ -1649,7 +1648,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

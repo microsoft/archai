@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Exporting Models to ONNX &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/tabs.js"></script>
     <script src="../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/notebooks/nlp/onnx_export';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/notebooks/nlp/onnx_export.html" />
-    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="Quantizing Models with PyTorch" href="torch_quantization.html" />
@@ -427,10 +426,10 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Exporting-Models-to-ONNX">
-<h1>Exporting Models to ONNX<a class="headerlink" href="#Exporting-Models-to-ONNX" title="Permalink to this headline">#</a></h1>
+<h1>Exporting Models to ONNX<a class="headerlink" href="#Exporting-Models-to-ONNX" title="Permalink to this heading">#</a></h1>
 <p>Exporting a pre-trained model to ONNX involves converting the model into a common format that can be easily integrated and deployed across different platforms. The conversion can be done using a tool or library, which converts the model’s architecture, weights, and configurations. This allows the model to be used in various applications, such as edge devices, cloud services, and web-based systems, with improved compatibility and performance.</p>
 <section id="Loading-the-Model">
-<h2>Loading the Model<a class="headerlink" href="#Loading-the-Model" title="Permalink to this headline">#</a></h2>
+<h2>Loading the Model<a class="headerlink" href="#Loading-the-Model" title="Permalink to this heading">#</a></h2>
 <p>The first step is to load any NLP-related model. In this notebook, we will be using a pre-trained GPT-2 model from the Hugging Face’s Hub.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -444,7 +443,7 @@ document.write(`
 </div>
 </section>
 <section id="Exporting-to-ONNX">
-<h2>Exporting to ONNX<a class="headerlink" href="#Exporting-to-ONNX" title="Permalink to this headline">#</a></h2>
+<h2>Exporting to ONNX<a class="headerlink" href="#Exporting-to-ONNX" title="Permalink to this heading">#</a></h2>
 <p>After the model has been loaded, we call Archai’s <code class="docutils literal notranslate"><span class="pre">export_to_onnx()</span></code> method, which wraps all the inner computation of an ONNX export. Additionally, it supports a set of arguments that can be defined according to the input model and task, such as:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">task</span></code>: Task identifier to use proper inputs/outputs.</p></li>
@@ -544,7 +543,7 @@ Model: 499.167738MB
 </div>
 </section>
 <section id="Post-Export-Optimization">
-<h2>Post-Export Optimization<a class="headerlink" href="#Post-Export-Optimization" title="Permalink to this headline">#</a></h2>
+<h2>Post-Export Optimization<a class="headerlink" href="#Post-Export-Optimization" title="Permalink to this heading">#</a></h2>
 <p>For Transformer-based models, ONNX Runtime offers a set of post-optimization tools that enables node fusion and hence, a more optimized graph. Thus, we can call <code class="docutils literal notranslate"><span class="pre">optimize_onnx()</span></code> passing the path of the previously exported ONNX model.</p>
 <p><em>The prints compares the models’ sizes, but is highly recommended to use an external graph inspection tool, such as Netron.</em></p>
 <div class="nbinput docutils container">
@@ -569,7 +568,7 @@ Model-OPT: 498.940725MB
 </div>
 </section>
 <section id="Post-Training-Quantization-(PTQ)">
-<h2>Post-Training Quantization (PTQ)<a class="headerlink" href="#Post-Training-Quantization-(PTQ)" title="Permalink to this headline">#</a></h2>
+<h2>Post-Training Quantization (PTQ)<a class="headerlink" href="#Post-Training-Quantization-(PTQ)" title="Permalink to this heading">#</a></h2>
 <p>Finally, either the exported or post-optimized models can be dynamically quantized using the <code class="docutils literal notranslate"><span class="pre">dynamic_quantization_onnx()</span></code> method.</p>
 <p>Nevertheless, please note that if the model has not been pre-trained with Quantization Aware Training (QAT), it might produce different logits and have its performance diminished.</p>
 <div class="nbinput docutils container">
@@ -913,7 +912,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

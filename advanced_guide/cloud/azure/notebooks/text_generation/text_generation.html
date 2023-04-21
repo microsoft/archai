@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Task: Text Generation &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
-    <script src="../../../../../_static/jquery.js"></script>
-    <script src="../../../../../_static/underscore.js"></script>
     <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/sphinx_highlight.js"></script>
     <script src="../../../../../_static/tabs.js"></script>
     <script src="../../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'advanced_guide/cloud/azure/notebooks/text_generation/text_generation';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/advanced_guide/cloud/azure/notebooks/text_generation/text_generation.html" />
-    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
     <link rel="next" title="Multi-node Search" href="../multi_node_search/multi_node_search.html" />
@@ -432,13 +431,13 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Task:-Text-Generation">
-<h1>Task: Text Generation<a class="headerlink" href="#Task:-Text-Generation" title="Permalink to this headline">#</a></h1>
+<h1>Task: Text Generation<a class="headerlink" href="#Task:-Text-Generation" title="Permalink to this heading">#</a></h1>
 <p>In this Notebook we run Archai’s <a class="reference external" href="https://github.com/microsoft/archai/tree/main/tasks/text_generation">Text Generation</a> task on Azure Machine Learning.</p>
 <p>We’ll use the following components: 1. <a class="reference external" href="./src/search.yaml">Search</a> - Run Lightweight Transformer Search (LTS) to discover architectures that perform well with regards to non-embedding parameters, latency, and memory 2. <a class="reference external" href="./src/train.yaml">Train</a> - Train a chosen architecture 3. <a class="reference external" href="./src/generate_text.yaml">Generate text</a> - Given a trained architecture and a prompt, outputs the generated text</p>
 <p>The components are defined via Yaml (more info <a class="reference external" href="https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-component-pipeline-python#define-component-via-yaml">here</a>) which will call the corresponding Python scripts.</p>
 <p>Note: Our goal is to show how to create and run jobs without spending too much computing resources. Therefore, our goal is not to train a good model – for this purpose please refer to the original task.</p>
 <section id="Prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Permalink to this headline">#</a></h2>
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Permalink to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Python 3.7 or later</p></li>
 <li><p>An Azure subscription</p></li>
@@ -464,7 +463,7 @@ document.write(`
 </div>
 </div>
 <section id="Get-a-handle-to-the-workspace">
-<h3>Get a handle to the workspace<a class="headerlink" href="#Get-a-handle-to-the-workspace" title="Permalink to this headline">#</a></h3>
+<h3>Get a handle to the workspace<a class="headerlink" href="#Get-a-handle-to-the-workspace" title="Permalink to this heading">#</a></h3>
 <p>We load the workspace from a workspace <a class="reference external" href="https://learn.microsoft.com/en-us/azure/machine-learning/how-to-configure-environment#local-and-dsvm-only-create-a-workspace-configuration-file">configuration file</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -477,7 +476,7 @@ document.write(`
 </div>
 </section>
 <section id="Create-CPU-and-GPU-compute-clusters">
-<h3>Create CPU and GPU compute clusters<a class="headerlink" href="#Create-CPU-and-GPU-compute-clusters" title="Permalink to this headline">#</a></h3>
+<h3>Create CPU and GPU compute clusters<a class="headerlink" href="#Create-CPU-and-GPU-compute-clusters" title="Permalink to this heading">#</a></h3>
 <p>We provision a Linux <a class="reference external" href="https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-attach-compute-cluster?tabs=python">compute cluster</a> for the NAS job in this Notebook. See the <a class="reference external" href="https://azure.microsoft.com/en-ca/pricing/details/machine-learning/">full list</a> on VM sizes and prices.</p>
 <p>We also provision a GPU compute cluster, to train the architectures and generate text.</p>
 <div class="nbinput docutils container">
@@ -503,7 +502,7 @@ You already have a cluster named nas-gpu-cluster-NC6, we&#39;ll reuse it as is.
 </div>
 </section>
 <section id="Create-an-environment-based-on-a-YAML-file">
-<h3>Create an environment based on a YAML file<a class="headerlink" href="#Create-an-environment-based-on-a-YAML-file" title="Permalink to this headline">#</a></h3>
+<h3>Create an environment based on a YAML file<a class="headerlink" href="#Create-an-environment-based-on-a-YAML-file" title="Permalink to this heading">#</a></h3>
 <p>Azure Machine Learning maintains a set of CPU and GPU Ubuntu Linux-based base images with common system dependencies. For the set of base images and their corresponding Dockerfiles, see the <a class="reference external" href="https://github.com/Azure/AzureML-Containers">AzureML Containers</a> repo.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -526,7 +525,7 @@ Environment with name aml-archai is registered to workspace, the environment ver
 </div>
 </section>
 <section id="Job-1:-NAS-(Searching-for-Pareto-optimal-Architectures)">
-<h3>Job 1: NAS (Searching for Pareto-optimal Architectures)<a class="headerlink" href="#Job-1:-NAS-(Searching-for-Pareto-optimal-Architectures)" title="Permalink to this headline">#</a></h3>
+<h3>Job 1: NAS (Searching for Pareto-optimal Architectures)<a class="headerlink" href="#Job-1:-NAS-(Searching-for-Pareto-optimal-Architectures)" title="Permalink to this heading">#</a></h3>
 <p>Load the search job from a YAML file and run it.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -735,7 +734,7 @@ Started job: salmon_plum_t9hynvf120
 </div>
 </section>
 <section id="Job-2:-Train-(Train-a-Pareto-architecture-from-Transformer-Flex.)">
-<h3>Job 2: Train (Train a Pareto architecture from Transformer-Flex.)<a class="headerlink" href="#Job-2:-Train-(Train-a-Pareto-architecture-from-Transformer-Flex.)" title="Permalink to this headline">#</a></h3>
+<h3>Job 2: Train (Train a Pareto architecture from Transformer-Flex.)<a class="headerlink" href="#Job-2:-Train-(Train-a-Pareto-architecture-from-Transformer-Flex.)" title="Permalink to this heading">#</a></h3>
 <p>Pick an architecture id (archid) from the CSV file to perform full training.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -789,7 +788,7 @@ Started Job: willing_tree_3b22csbdtg
 </div>
 </section>
 <section id="Job-3:-Generating-text-via-prompt">
-<h3>Job 3: Generating text via prompt<a class="headerlink" href="#Job-3:-Generating-text-via-prompt" title="Permalink to this headline">#</a></h3>
+<h3>Job 3: Generating text via prompt<a class="headerlink" href="#Job-3:-Generating-text-via-prompt" title="Permalink to this heading">#</a></h3>
 <p>Load the generate text job from a YAML file, set the inputs, and run it.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
@@ -950,7 +949,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

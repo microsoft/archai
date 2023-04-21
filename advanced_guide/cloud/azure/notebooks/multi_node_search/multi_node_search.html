@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Multi-node Search &#8212; Archai</title>
   
@@ -40,18 +40,17 @@
 <link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
-    <script src="../../../../../_static/jquery.js"></script>
-    <script src="../../../../../_static/underscore.js"></script>
     <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/sphinx_highlight.js"></script>
     <script src="../../../../../_static/tabs.js"></script>
     <script src="../../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'advanced_guide/cloud/azure/notebooks/multi_node_search/multi_node_search';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/advanced_guide/cloud/azure/notebooks/multi_node_search/multi_node_search.html" />
-    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+    <link rel="icon" href="../../../../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../../search.html" />
     <link rel="next" title="First Time Contributor" href="../../../../../contributing/first_contribution.html" />
@@ -425,7 +424,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Multi-node-Search">
-<h1>Multi-node Search<a class="headerlink" href="#Multi-node-Search" title="Permalink to this headline">#</a></h1>
+<h1>Multi-node Search<a class="headerlink" href="#Multi-node-Search" title="Permalink to this heading">#</a></h1>
 <p>This notebook and accompanying code shows how to run an <a class="reference external" href="https://github.com/microsoft/archai/">Archai</a> Neural Architecture Search (NAS) using an <a class="reference external" href="https://ml.azure.com/">Azure Machine Learning Workspace</a> with partial training of models (on a GPU cluster) providing validation accuracies to guide that search. This notebook requires that you have the <a class="reference external" href="https://learn.microsoft.com/en-us/cli/azure/install-azure-cli">Azure CLI</a> installed and logged in otherwise the create compute cluster cell
 will fail. You will also need to create an Azure ML workspace using [<a class="reference external" href="https://ml.azure.com">https://ml.azure.com</a>] and an Azure storage account. The storage account does not need to be in the same resource group as the workspace.</p>
 <p>This notebook also assumes you have a python environment setup using <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[aml]</span></code> in your Archai repository root. This example requires a <code class="docutils literal notranslate"><span class="pre">config.json</span></code> file containing the information about your Azure subscription, the Azure ML workspace name and resource group, and the azure storage account key and name:</p>
@@ -776,7 +775,8 @@ aml-archai:1.0.0
     <span class="s2">&quot;Full Training Pipeline&quot;</span><span class="p">,</span> <span class="n">hex_config</span><span class="p">,</span> <span class="n">scripts_dir</span><span class="p">,</span> <span class="n">gpu_compute_name</span><span class="p">,</span>
     <span class="n">datastore_path</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">,</span> <span class="n">environment_name</span><span class="p">,</span> <span class="n">full_epochs</span><span class="p">,</span> <span class="n">save_models</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">monitor_component</span> <span class="o">=</span> <span class="n">make_monitor_command</span><span class="p">(</span><span class="n">hex_config</span><span class="p">,</span> <span class="n">scripts_dir</span><span class="p">,</span> <span class="n">results_path</span><span class="p">,</span> <span class="n">environment_name</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+<span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;val_acc&#39;</span><span class="p">]</span>
+<span class="n">monitor_component</span> <span class="o">=</span> <span class="n">make_monitor_command</span><span class="p">(</span><span class="n">hex_config</span><span class="p">,</span> <span class="n">scripts_dir</span><span class="p">,</span> <span class="n">results_path</span><span class="p">,</span> <span class="n">environment_name</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -863,7 +863,7 @@ Started pipeline: amusing_monkey_2248p6qm47
 </div>
 </div>
 <section id="Plots">
-<h2>Plots<a class="headerlink" href="#Plots" title="Permalink to this headline">#</a></h2>
+<h2>Plots<a class="headerlink" href="#Plots" title="Permalink to this heading">#</a></h2>
 <p>This cell can be run multiple times and you will see updates as each iteration finishes. You can even run this later after restarting the jupyter notebook because it is not dependent on variable state it is only dependent on the persistent ‘models’ blob store.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -1086,7 +1086,7 @@ Started pipeline: amusing_monkey_2248p6qm47
 </div>
 </section>
 <section id="Test-ONNX-Runtime-Inference-on-the-Best-Model">
-<h2>Test ONNX Runtime Inference on the Best Model<a class="headerlink" href="#Test-ONNX-Runtime-Inference-on-the-Best-Model" title="Permalink to this headline">#</a></h2>
+<h2>Test ONNX Runtime Inference on the Best Model<a class="headerlink" href="#Test-ONNX-Runtime-Inference-on-the-Best-Model" title="Permalink to this heading">#</a></h2>
 <p>When the search pipeline completes you should have a <code class="docutils literal notranslate"><span class="pre">models.json</span></code> file in the experiment_name output folder and you can use that to find the most accurate model and run it through the ONNX runtime to see if the ONNX inference gets the same accuracy.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
@@ -1304,7 +1304,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

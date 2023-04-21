@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>NasBench-101 &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.supergraph.algos.nasbench101';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.supergraph.algos.nasbench101.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Petridish" href="archai.supergraph.algos.petridish.html" />
@@ -408,17 +407,101 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.base_ops">Base Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_op">Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.config">Configuration</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.graph_util">Graph (Utilities)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_builder">Model Builder</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder">Model Description Builder</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_matrix">Model Matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.base_ops">Base Operators</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.ConvBnRelu"><code class="docutils literal notranslate"><span class="pre">ConvBnRelu</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.ConvBnRelu.forward"><code class="docutils literal notranslate"><span class="pre">ConvBnRelu.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.ConvBnRelu.training"><code class="docutils literal notranslate"><span class="pre">ConvBnRelu.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv3x3BnRelu"><code class="docutils literal notranslate"><span class="pre">Conv3x3BnRelu</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv3x3BnRelu.forward"><code class="docutils literal notranslate"><span class="pre">Conv3x3BnRelu.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv3x3BnRelu.training"><code class="docutils literal notranslate"><span class="pre">Conv3x3BnRelu.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv1x1BnRelu"><code class="docutils literal notranslate"><span class="pre">Conv1x1BnRelu</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv1x1BnRelu.forward"><code class="docutils literal notranslate"><span class="pre">Conv1x1BnRelu.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv1x1BnRelu.training"><code class="docutils literal notranslate"><span class="pre">Conv1x1BnRelu.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.MaxPool3x3"><code class="docutils literal notranslate"><span class="pre">MaxPool3x3</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.MaxPool3x3.forward"><code class="docutils literal notranslate"><span class="pre">MaxPool3x3.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.MaxPool3x3.training"><code class="docutils literal notranslate"><span class="pre">MaxPool3x3.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_op">Operators</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op"><code class="docutils literal notranslate"><span class="pre">NasBench101Op</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op.forward"><code class="docutils literal notranslate"><span class="pre">NasBench101Op.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op.training"><code class="docutils literal notranslate"><span class="pre">NasBench101Op.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.config">Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.config.build_config"><code class="docutils literal notranslate"><span class="pre">build_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.graph_util">Graph (Utilities)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.gen_is_edge_fn"><code class="docutils literal notranslate"><span class="pre">gen_is_edge_fn()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.is_full_dag"><code class="docutils literal notranslate"><span class="pre">is_full_dag()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.num_edges"><code class="docutils literal notranslate"><span class="pre">num_edges()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.hash_module"><code class="docutils literal notranslate"><span class="pre">hash_module()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.permute_graph"><code class="docutils literal notranslate"><span class="pre">permute_graph()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.is_isomorphic"><code class="docutils literal notranslate"><span class="pre">is_isomorphic()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_builder">Model Builder</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_builder.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder">Model Description Builder</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder"><code class="docutils literal notranslate"><span class="pre">NasBench101CellBuilder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.pre_build"><code class="docutils literal notranslate"><span class="pre">NasBench101CellBuilder.pre_build()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.build_cell"><code class="docutils literal notranslate"><span class="pre">NasBench101CellBuilder.build_cell()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.build_nodes"><code class="docutils literal notranslate"><span class="pre">NasBench101CellBuilder.build_nodes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_matrix">Model Matrix</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_matrix.prune"><code class="docutils literal notranslate"><span class="pre">prune()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_metrics_pb2">Model Metrics (PB-2)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_spec">Model Specification</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model">Model</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_exp_runner">Experiment Runner</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_spec">Model Specification</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_spec.ModelSpec"><code class="docutils literal notranslate"><span class="pre">ModelSpec</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_spec.ModelSpec.hash_spec"><code class="docutils literal notranslate"><span class="pre">ModelSpec.hash_spec()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_spec.ModelSpec.visualize"><code class="docutils literal notranslate"><span class="pre">ModelSpec.visualize()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_spec.is_upper_triangular"><code class="docutils literal notranslate"><span class="pre">is_upper_triangular()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model">Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Network"><code class="docutils literal notranslate"><span class="pre">Network</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Network.forward"><code class="docutils literal notranslate"><span class="pre">Network.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Network.training"><code class="docutils literal notranslate"><span class="pre">Network.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Cell.forward"><code class="docutils literal notranslate"><span class="pre">Cell.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Cell.training"><code class="docutils literal notranslate"><span class="pre">Cell.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Projection"><code class="docutils literal notranslate"><span class="pre">Projection()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Truncate"><code class="docutils literal notranslate"><span class="pre">Truncate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.ComputeVertexChannels"><code class="docutils literal notranslate"><span class="pre">ComputeVertexChannels()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_exp_runner">Experiment Runner</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner"><code class="docutils literal notranslate"><span class="pre">PetridishExperimentRunner</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner.model_desc_builder"><code class="docutils literal notranslate"><span class="pre">PetridishExperimentRunner.model_desc_builder()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner.trainer_class"><code class="docutils literal notranslate"><span class="pre">PetridishExperimentRunner.trainer_class()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -431,9 +514,9 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="nasbench-101">
-<h1>NasBench-101<a class="headerlink" href="#nasbench-101" title="Permalink to this headline">#</a></h1>
+<h1>NasBench-101<a class="headerlink" href="#nasbench-101" title="Permalink to this heading">#</a></h1>
 <section id="module-archai.supergraph.algos.nasbench101.base_ops">
-<span id="base-operators"></span><h2>Base Operators<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.base_ops" title="Permalink to this headline">#</a></h2>
+<span id="base-operators"></span><h2>Base Operators<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.base_ops" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.base_ops.ConvBnRelu">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.base_ops.</span></span><span class="sig-name descname"><span class="pre">ConvBnRelu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/base_ops.html#ConvBnRelu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.base_ops.ConvBnRelu" title="Permalink to this definition">#</a></dt>
@@ -535,13 +618,13 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.algos.nasbench101.nasbench101_op">
-<span id="operators"></span><h2>Operators<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.nasbench101_op" title="Permalink to this headline">#</a></h2>
+<span id="operators"></span><h2>Operators<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.nasbench101_op" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.nasbench101_op.</span></span><span class="sig-name descname"><span class="pre">NasBench101Op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op_desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc.OpDesc" title="archai.supergraph.nas.model_desc.OpDesc"><span class="pre">archai.supergraph.nas.model_desc.OpDesc</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">arch_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.arch_params.ArchParams" title="archai.supergraph.nas.arch_params.ArchParams"><span class="pre">archai.supergraph.nas.arch_params.ArchParams</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">affine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_op.html#NasBench101Op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.nasbench101_op.</span></span><span class="sig-name descname"><span class="pre">NasBench101Op</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">op_desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc.OpDesc" title="archai.supergraph.nas.model_desc.OpDesc"><span class="pre">OpDesc</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">arch_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.arch_params.ArchParams" title="archai.supergraph.nas.arch_params.ArchParams"><span class="pre">ArchParams</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">affine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_op.html#NasBench101Op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_op.html#NasBench101Op.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op.forward" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_op.html#NasBench101Op.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op.forward" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -562,7 +645,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.algos.nasbench101.config">
-<span id="configuration"></span><h2>Configuration<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.config" title="Permalink to this headline">#</a></h2>
+<span id="configuration"></span><h2>Configuration<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.config" title="Permalink to this heading">#</a></h2>
 <p>Configuration flags.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.config.build_config">
@@ -572,7 +655,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.algos.nasbench101.graph_util">
-<span id="graph-utilities"></span><h2>Graph (Utilities)<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.graph_util" title="Permalink to this headline">#</a></h2>
+<span id="graph-utilities"></span><h2>Graph (Utilities)<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.graph_util" title="Permalink to this heading">#</a></h2>
 <p>Utility functions used by generate_graph.py.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.graph_util.gen_is_edge_fn">
@@ -593,10 +676,10 @@ matrix is</p>
 [0, 0, 0, 0, 0],
 [0, 0, 0, 0, 0]]</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>bits</strong> – integer which will be interpreted as a bit mask.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>vectorized function that returns True when an edge is present.</p>
 </dd>
 </dl>
@@ -615,10 +698,10 @@ matrix is</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>matrix</strong> – V x V upper-triangular adjacency matrix</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True if the there are no dangling vertices.</p>
 </dd>
 </dl>
@@ -635,14 +718,14 @@ matrix is</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.graph_util.</span></span><span class="sig-name descname"><span class="pre">hash_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labeling</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/graph_util.html#hash_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.graph_util.hash_module" title="Permalink to this definition">#</a></dt>
 <dd><p>Computes a graph-invariance MD5 hash of the matrix and label pair.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>matrix</strong> – np.ndarray square upper-triangular adjacency matrix.</p></li>
 <li><p><strong>labeling</strong> – list of int labels of length equal to both dimensions of
 matrix.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>MD5 hash of the matrix and labeling.</p>
 </dd>
 </dl>
@@ -653,14 +736,14 @@ matrix.</p></li>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.graph_util.</span></span><span class="sig-name descname"><span class="pre">permute_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permutation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/graph_util.html#permute_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.graph_util.permute_graph" title="Permalink to this definition">#</a></dt>
 <dd><p>Permutes the graph and labels based on permutation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph</strong> – np.ndarray adjacency matrix.</p></li>
 <li><p><strong>label</strong> – list of labels of same length as graph dimensions.</p></li>
 <li><p><strong>permutation</strong> – a permutation list of ints of same length as graph dimensions.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>np.ndarray where vertex permutation[v] is vertex v from the original graph</p>
 </dd>
 </dl>
@@ -674,42 +757,42 @@ matrix.</p></li>
 
 </section>
 <section id="module-archai.supergraph.algos.nasbench101.model_builder">
-<span id="model-builder"></span><h2>Model Builder<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.model_builder" title="Permalink to this headline">#</a></h2>
+<span id="model-builder"></span><h2>Model Builder<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.model_builder" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.model_builder.build">
-<span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.model_builder.</span></span><span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">desc_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stem_out_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_stacks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_modules_per_stack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.nn.modules.module.Module</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/model_builder.html#build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.model_builder.build" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.model_builder.</span></span><span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">desc_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stem_out_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_stacks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_modules_per_stack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Module</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/model_builder.html#build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.model_builder.build" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </section>
 <section id="module-archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder">
-<span id="model-description-builder"></span><h2>Model Description Builder<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder" title="Permalink to this headline">#</a></h2>
+<span id="model-description-builder"></span><h2>Model Description Builder<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.</span></span><span class="sig-name descname"><span class="pre">NasBench101CellBuilder</span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_model_desc_builder.html#NasBench101CellBuilder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.pre_build">
-<span class="sig-name descname"><span class="pre">pre_build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_model_desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_model_desc_builder.html#NasBench101CellBuilder.pre_build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.pre_build" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">pre_build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_model_desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">Config</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_model_desc_builder.html#NasBench101CellBuilder.pre_build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.pre_build" title="Permalink to this definition">#</a></dt>
 <dd><p>hook for accomplishing any setup before build starts</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.build_cell">
-<span class="sig-name descname"><span class="pre">build_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_shapes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc.CellDesc" title="archai.supergraph.nas.model_desc.CellDesc"><span class="pre">archai.supergraph.nas.model_desc.CellDesc</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_model_desc_builder.html#NasBench101CellBuilder.build_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.build_cell" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">build_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_shapes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc.CellDesc" title="archai.supergraph.nas.model_desc.CellDesc"><span class="pre">CellDesc</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_model_desc_builder.html#NasBench101CellBuilder.build_cell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.build_cell" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.build_nodes">
-<span class="sig-name descname"><span class="pre">build_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stem_shapes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">archai.common.config.Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc.CellType" title="archai.supergraph.nas.model_desc.CellType"><span class="pre">archai.supergraph.nas.model_desc.CellType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc.NodeDesc" title="archai.supergraph.nas.model_desc.NodeDesc"><span class="pre">archai.supergraph.nas.model_desc.NodeDesc</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_model_desc_builder.html#NasBench101CellBuilder.build_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.build_nodes" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">build_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stem_shapes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_cell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.common.html#archai.common.config.Config" title="archai.common.config.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc.CellType" title="archai.supergraph.nas.model_desc.CellType"><span class="pre">CellType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.model_desc.NodeDesc" title="archai.supergraph.nas.model_desc.NodeDesc"><span class="pre">NodeDesc</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_model_desc_builder.html#NasBench101CellBuilder.build_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.build_nodes" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-archai.supergraph.algos.nasbench101.model_matrix">
-<span id="model-matrix"></span><h2>Model Matrix<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.model_matrix" title="Permalink to this headline">#</a></h2>
+<span id="model-matrix"></span><h2>Model Matrix<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.model_matrix" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.model_matrix.prune">
-<span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.model_matrix.</span></span><span class="sig-name descname"><span class="pre">prune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/model_matrix.html#prune"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.model_matrix.prune" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.model_matrix.</span></span><span class="sig-name descname"><span class="pre">prune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_ops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/model_matrix.html#prune"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.model_matrix.prune" title="Permalink to this definition">#</a></dt>
 <dd><p>Prune the extraneous parts of the graph.</p>
 <dl class="simple">
 <dt>General procedure:</dt><dd><ol class="arabic simple">
@@ -725,10 +808,10 @@ vertices that are not reachable from both the input and output (in reverse).</p>
 
 </section>
 <section id="module-archai.supergraph.algos.nasbench101.model_metrics_pb2">
-<span id="model-metrics-pb-2"></span><h2>Model Metrics (PB-2)<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.model_metrics_pb2" title="Permalink to this headline">#</a></h2>
+<span id="model-metrics-pb-2"></span><h2>Model Metrics (PB-2)<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.model_metrics_pb2" title="Permalink to this heading">#</a></h2>
 </section>
 <section id="module-archai.supergraph.algos.nasbench101.model_spec">
-<span id="model-specification"></span><h2>Model Specification<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.model_spec" title="Permalink to this headline">#</a></h2>
+<span id="model-specification"></span><h2>Model Specification<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.model_spec" title="Permalink to this heading">#</a></h2>
 <p>Model specification for module connectivity individuals.</p>
 <p>This module handles pruning the unused parts of the computation graph but should
 avoid creating any TensorFlow models (this is done inside model_builder.py).</p>
@@ -741,11 +824,11 @@ avoid creating any TensorFlow models (this is done inside model_builder.py).</p>
 <span class="sig-name descname"><span class="pre">hash_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">canonical_ops</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/model_spec.html#ModelSpec.hash_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.model_spec.ModelSpec.hash_spec" title="Permalink to this definition">#</a></dt>
 <dd><p>Computes the isomorphism-invariant graph hash of this spec.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>canonical_ops</strong> – list of operations in the canonical ordering which they
 were assigned (i.e. the order provided in the config[‘available_ops’]).</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>MD5 hash of this spec which can be used to query the dataset.</p>
 </dd>
 </dl>
@@ -767,7 +850,7 @@ were assigned (i.e. the order provided in the config[‘available_ops’]).</p>
 
 </section>
 <section id="module-archai.supergraph.algos.nasbench101.model">
-<span id="model"></span><h2>Model<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.model" title="Permalink to this headline">#</a></h2>
+<span id="model"></span><h2>Model<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.model" title="Permalink to this heading">#</a></h2>
 <p>Builds the Pytorch computational graph.</p>
 <p>Tensors flowing into a single vertex are added together for all vertices
 except the output, which is concatenated instead. Tensors flowing out of input
@@ -850,7 +933,7 @@ channels are divided amongst the vertices that are directly connected to it.
 When the division is not even, some vertices may receive an extra channel to
 compensate.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list of channel counts, in order of the vertices.</p>
 </dd>
 </dl>
@@ -858,18 +941,18 @@ compensate.</p>
 
 </section>
 <section id="module-archai.supergraph.algos.nasbench101.nasbench101_exp_runner">
-<span id="experiment-runner"></span><h2>Experiment Runner<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.nasbench101_exp_runner" title="Permalink to this headline">#</a></h2>
+<span id="experiment-runner"></span><h2>Experiment Runner<a class="headerlink" href="#module-archai.supergraph.algos.nasbench101.nasbench101_exp_runner" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.algos.nasbench101.nasbench101_exp_runner.</span></span><span class="sig-name descname"><span class="pre">PetridishExperimentRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean_expdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_exp_runner.html#PetridishExperimentRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner.model_desc_builder">
-<span class="sig-name descname"><span class="pre">model_desc_builder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.algos.petridish.html#archai.supergraph.algos.petridish.petridish_model_desc_builder.PetridishModelBuilder" title="archai.supergraph.algos.petridish.petridish_model_desc_builder.PetridishModelBuilder"><span class="pre">archai.supergraph.algos.petridish.petridish_model_desc_builder.PetridishModelBuilder</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_exp_runner.html#PetridishExperimentRunner.model_desc_builder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner.model_desc_builder" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_desc_builder</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="archai.supergraph.algos.petridish.html#archai.supergraph.algos.petridish.petridish_model_desc_builder.PetridishModelBuilder" title="archai.supergraph.algos.petridish.petridish_model_desc_builder.PetridishModelBuilder"><span class="pre">PetridishModelBuilder</span></a></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_exp_runner.html#PetridishExperimentRunner.model_desc_builder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner.model_desc_builder" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner.trainer_class">
-<span class="sig-name descname"><span class="pre">trainer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.arch_trainer.ArchTrainer" title="archai.supergraph.nas.arch_trainer.ArchTrainer"><span class="pre">archai.supergraph.nas.arch_trainer.ArchTrainer</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_exp_runner.html#PetridishExperimentRunner.trainer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner.trainer_class" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">trainer_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="archai.supergraph.nas.html#archai.supergraph.nas.arch_trainer.ArchTrainer" title="archai.supergraph.nas.arch_trainer.ArchTrainer"><span class="pre">ArchTrainer</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/archai/supergraph/algos/nasbench101/nasbench101_exp_runner.html#PetridishExperimentRunner.trainer_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner.trainer_class" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -919,17 +1002,101 @@ compensate.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.base_ops">Base Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_op">Operators</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.config">Configuration</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.graph_util">Graph (Utilities)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_builder">Model Builder</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder">Model Description Builder</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_matrix">Model Matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.base_ops">Base Operators</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.ConvBnRelu"><code class="docutils literal notranslate"><span class="pre">ConvBnRelu</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.ConvBnRelu.forward"><code class="docutils literal notranslate"><span class="pre">ConvBnRelu.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.ConvBnRelu.training"><code class="docutils literal notranslate"><span class="pre">ConvBnRelu.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv3x3BnRelu"><code class="docutils literal notranslate"><span class="pre">Conv3x3BnRelu</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv3x3BnRelu.forward"><code class="docutils literal notranslate"><span class="pre">Conv3x3BnRelu.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv3x3BnRelu.training"><code class="docutils literal notranslate"><span class="pre">Conv3x3BnRelu.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv1x1BnRelu"><code class="docutils literal notranslate"><span class="pre">Conv1x1BnRelu</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv1x1BnRelu.forward"><code class="docutils literal notranslate"><span class="pre">Conv1x1BnRelu.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.Conv1x1BnRelu.training"><code class="docutils literal notranslate"><span class="pre">Conv1x1BnRelu.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.MaxPool3x3"><code class="docutils literal notranslate"><span class="pre">MaxPool3x3</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.MaxPool3x3.forward"><code class="docutils literal notranslate"><span class="pre">MaxPool3x3.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.base_ops.MaxPool3x3.training"><code class="docutils literal notranslate"><span class="pre">MaxPool3x3.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_op">Operators</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op"><code class="docutils literal notranslate"><span class="pre">NasBench101Op</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op.forward"><code class="docutils literal notranslate"><span class="pre">NasBench101Op.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_op.NasBench101Op.training"><code class="docutils literal notranslate"><span class="pre">NasBench101Op.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.config">Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.config.build_config"><code class="docutils literal notranslate"><span class="pre">build_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.graph_util">Graph (Utilities)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.gen_is_edge_fn"><code class="docutils literal notranslate"><span class="pre">gen_is_edge_fn()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.is_full_dag"><code class="docutils literal notranslate"><span class="pre">is_full_dag()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.num_edges"><code class="docutils literal notranslate"><span class="pre">num_edges()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.hash_module"><code class="docutils literal notranslate"><span class="pre">hash_module()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.permute_graph"><code class="docutils literal notranslate"><span class="pre">permute_graph()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.graph_util.is_isomorphic"><code class="docutils literal notranslate"><span class="pre">is_isomorphic()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_builder">Model Builder</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_builder.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder">Model Description Builder</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder"><code class="docutils literal notranslate"><span class="pre">NasBench101CellBuilder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.pre_build"><code class="docutils literal notranslate"><span class="pre">NasBench101CellBuilder.pre_build()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.build_cell"><code class="docutils literal notranslate"><span class="pre">NasBench101CellBuilder.build_cell()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_model_desc_builder.NasBench101CellBuilder.build_nodes"><code class="docutils literal notranslate"><span class="pre">NasBench101CellBuilder.build_nodes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_matrix">Model Matrix</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_matrix.prune"><code class="docutils literal notranslate"><span class="pre">prune()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_metrics_pb2">Model Metrics (PB-2)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_spec">Model Specification</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model">Model</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_exp_runner">Experiment Runner</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model_spec">Model Specification</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_spec.ModelSpec"><code class="docutils literal notranslate"><span class="pre">ModelSpec</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_spec.ModelSpec.hash_spec"><code class="docutils literal notranslate"><span class="pre">ModelSpec.hash_spec()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_spec.ModelSpec.visualize"><code class="docutils literal notranslate"><span class="pre">ModelSpec.visualize()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model_spec.is_upper_triangular"><code class="docutils literal notranslate"><span class="pre">is_upper_triangular()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.model">Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Network"><code class="docutils literal notranslate"><span class="pre">Network</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Network.forward"><code class="docutils literal notranslate"><span class="pre">Network.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Network.training"><code class="docutils literal notranslate"><span class="pre">Network.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Cell.forward"><code class="docutils literal notranslate"><span class="pre">Cell.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Cell.training"><code class="docutils literal notranslate"><span class="pre">Cell.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Projection"><code class="docutils literal notranslate"><span class="pre">Projection()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.Truncate"><code class="docutils literal notranslate"><span class="pre">Truncate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.model.ComputeVertexChannels"><code class="docutils literal notranslate"><span class="pre">ComputeVertexChannels()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.algos.nasbench101.nasbench101_exp_runner">Experiment Runner</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner"><code class="docutils literal notranslate"><span class="pre">PetridishExperimentRunner</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner.model_desc_builder"><code class="docutils literal notranslate"><span class="pre">PetridishExperimentRunner.model_desc_builder()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.algos.nasbench101.nasbench101_exp_runner.PetridishExperimentRunner.trainer_class"><code class="docutils literal notranslate"><span class="pre">PetridishExperimentRunner.trainer_class()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -962,7 +1129,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

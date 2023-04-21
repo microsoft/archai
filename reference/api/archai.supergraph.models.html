@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Models &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/tabs.js"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/archai.supergraph.models';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/reference/api/archai.supergraph.models.html" />
-    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="ShakeShake" href="archai.supergraph.models.shakeshake.html" />
@@ -408,18 +407,154 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.alexnet">AlexNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.densenet">DenseNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.googlenet">GoogleNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.inception">Inception</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.mobilenetv2">MobileNetV2</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.pyramidnet">PyramidNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet">ResNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet_orig">ResNet (Original)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet_paper">ResNet (Paper)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakedrop">ShakeDrop</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.vgg">VGG</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.wideresnet">Wide ResNet</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.alexnet">AlexNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.alexnet.AlexNet"><code class="docutils literal notranslate"><span class="pre">AlexNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.alexnet.AlexNet.init_weights"><code class="docutils literal notranslate"><span class="pre">AlexNet.init_weights()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.alexnet.AlexNet.forward"><code class="docutils literal notranslate"><span class="pre">AlexNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.alexnet.AlexNet.training"><code class="docutils literal notranslate"><span class="pre">AlexNet.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.alexnet.alexnet"><code class="docutils literal notranslate"><span class="pre">alexnet()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.densenet">DenseNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.DenseNet"><code class="docutils literal notranslate"><span class="pre">DenseNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.DenseNet.forward"><code class="docutils literal notranslate"><span class="pre">DenseNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.DenseNet.training"><code class="docutils literal notranslate"><span class="pre">DenseNet.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.densenet121"><code class="docutils literal notranslate"><span class="pre">densenet121()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.densenet169"><code class="docutils literal notranslate"><span class="pre">densenet169()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.densenet201"><code class="docutils literal notranslate"><span class="pre">densenet201()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.densenet161"><code class="docutils literal notranslate"><span class="pre">densenet161()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.googlenet">GoogleNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.googlenet.GoogLeNet"><code class="docutils literal notranslate"><span class="pre">GoogLeNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.googlenet.GoogLeNet.forward"><code class="docutils literal notranslate"><span class="pre">GoogLeNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.googlenet.GoogLeNet.training"><code class="docutils literal notranslate"><span class="pre">GoogLeNet.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.googlenet.googlenet"><code class="docutils literal notranslate"><span class="pre">googlenet()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.inception">Inception</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.inception.Inception3"><code class="docutils literal notranslate"><span class="pre">Inception3</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.inception.Inception3.forward"><code class="docutils literal notranslate"><span class="pre">Inception3.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.inception.Inception3.training"><code class="docutils literal notranslate"><span class="pre">Inception3.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.inception.inception_v3"><code class="docutils literal notranslate"><span class="pre">inception_v3()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.mobilenetv2">MobileNetV2</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.mobilenetv2.MobileNetV2"><code class="docutils literal notranslate"><span class="pre">MobileNetV2</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.mobilenetv2.MobileNetV2.forward"><code class="docutils literal notranslate"><span class="pre">MobileNetV2.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.mobilenetv2.MobileNetV2.training"><code class="docutils literal notranslate"><span class="pre">MobileNetV2.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.mobilenetv2.mobilenet_v2"><code class="docutils literal notranslate"><span class="pre">mobilenet_v2()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.pyramidnet">PyramidNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.conv3x3"><code class="docutils literal notranslate"><span class="pre">conv3x3()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.BasicBlock"><code class="docutils literal notranslate"><span class="pre">BasicBlock</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.BasicBlock.outchannel_ratio"><code class="docutils literal notranslate"><span class="pre">BasicBlock.outchannel_ratio</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.BasicBlock.forward"><code class="docutils literal notranslate"><span class="pre">BasicBlock.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.BasicBlock.training"><code class="docutils literal notranslate"><span class="pre">BasicBlock.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.Bottleneck"><code class="docutils literal notranslate"><span class="pre">Bottleneck</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.Bottleneck.outchannel_ratio"><code class="docutils literal notranslate"><span class="pre">Bottleneck.outchannel_ratio</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.Bottleneck.forward"><code class="docutils literal notranslate"><span class="pre">Bottleneck.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.Bottleneck.training"><code class="docutils literal notranslate"><span class="pre">Bottleneck.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.PyramidNet"><code class="docutils literal notranslate"><span class="pre">PyramidNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.PyramidNet.training"><code class="docutils literal notranslate"><span class="pre">PyramidNet.training</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.PyramidNet.pyramidal_make_layer"><code class="docutils literal notranslate"><span class="pre">PyramidNet.pyramidal_make_layer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.PyramidNet.forward"><code class="docutils literal notranslate"><span class="pre">PyramidNet.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet">ResNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.ResNet"><code class="docutils literal notranslate"><span class="pre">ResNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.ResNet.forward"><code class="docutils literal notranslate"><span class="pre">ResNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.ResNet.training"><code class="docutils literal notranslate"><span class="pre">ResNet.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnet18"><code class="docutils literal notranslate"><span class="pre">resnet18()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnet34"><code class="docutils literal notranslate"><span class="pre">resnet34()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnet50"><code class="docutils literal notranslate"><span class="pre">resnet50()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnet101"><code class="docutils literal notranslate"><span class="pre">resnet101()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnet152"><code class="docutils literal notranslate"><span class="pre">resnet152()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnext50_32x4d"><code class="docutils literal notranslate"><span class="pre">resnext50_32x4d()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnext101_32x8d"><code class="docutils literal notranslate"><span class="pre">resnext101_32x8d()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet_orig">ResNet (Original)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_orig.resnet_orig"><code class="docutils literal notranslate"><span class="pre">resnet_orig()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet_paper">ResNet (Paper)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.ResNet"><code class="docutils literal notranslate"><span class="pre">ResNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.ResNet.forward"><code class="docutils literal notranslate"><span class="pre">ResNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.ResNet.training"><code class="docutils literal notranslate"><span class="pre">ResNet.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet20"><code class="docutils literal notranslate"><span class="pre">resnet20()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet32"><code class="docutils literal notranslate"><span class="pre">resnet32()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet44"><code class="docutils literal notranslate"><span class="pre">resnet44()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet56"><code class="docutils literal notranslate"><span class="pre">resnet56()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet110"><code class="docutils literal notranslate"><span class="pre">resnet110()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet1202"><code class="docutils literal notranslate"><span class="pre">resnet1202()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakedrop">ShakeDrop</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDropFunction"><code class="docutils literal notranslate"><span class="pre">ShakeDropFunction</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDropFunction.forward"><code class="docutils literal notranslate"><span class="pre">ShakeDropFunction.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDropFunction.backward"><code class="docutils literal notranslate"><span class="pre">ShakeDropFunction.backward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDrop"><code class="docutils literal notranslate"><span class="pre">ShakeDrop</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDrop.forward"><code class="docutils literal notranslate"><span class="pre">ShakeDrop.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDrop.training"><code class="docutils literal notranslate"><span class="pre">ShakeDrop.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.vgg">VGG</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.VGG"><code class="docutils literal notranslate"><span class="pre">VGG</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.VGG.forward"><code class="docutils literal notranslate"><span class="pre">VGG.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.VGG.training"><code class="docutils literal notranslate"><span class="pre">VGG.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg11"><code class="docutils literal notranslate"><span class="pre">vgg11()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg11_bn"><code class="docutils literal notranslate"><span class="pre">vgg11_bn()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg13"><code class="docutils literal notranslate"><span class="pre">vgg13()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg13_bn"><code class="docutils literal notranslate"><span class="pre">vgg13_bn()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg16"><code class="docutils literal notranslate"><span class="pre">vgg16()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg16_bn"><code class="docutils literal notranslate"><span class="pre">vgg16_bn()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg19_bn"><code class="docutils literal notranslate"><span class="pre">vgg19_bn()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg19"><code class="docutils literal notranslate"><span class="pre">vgg19()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.wideresnet">Wide ResNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.conv3x3"><code class="docutils literal notranslate"><span class="pre">conv3x3()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.conv_init"><code class="docutils literal notranslate"><span class="pre">conv_init()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideBasic"><code class="docutils literal notranslate"><span class="pre">WideBasic</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideBasic.forward"><code class="docutils literal notranslate"><span class="pre">WideBasic.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideBasic.training"><code class="docutils literal notranslate"><span class="pre">WideBasic.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideResNet"><code class="docutils literal notranslate"><span class="pre">WideResNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideResNet.forward"><code class="docutils literal notranslate"><span class="pre">WideResNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideResNet.training"><code class="docutils literal notranslate"><span class="pre">WideResNet.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -432,7 +567,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="models">
-<h1>Models<a class="headerlink" href="#models" title="Permalink to this headline">#</a></h1>
+<h1>Models<a class="headerlink" href="#models" title="Permalink to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="archai.supergraph.models.shakeshake.html">ShakeShake</a><ul>
@@ -444,7 +579,7 @@ document.write(`
 </ul>
 </div>
 <section id="module-archai.supergraph.models.alexnet">
-<span id="alexnet"></span><h2>AlexNet<a class="headerlink" href="#module-archai.supergraph.models.alexnet" title="Permalink to this headline">#</a></h2>
+<span id="alexnet"></span><h2>AlexNet<a class="headerlink" href="#module-archai.supergraph.models.alexnet" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.alexnet.AlexNet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.alexnet.</span></span><span class="sig-name descname"><span class="pre">AlexNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'True'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/alexnet.html#AlexNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.alexnet.AlexNet" title="Permalink to this definition">#</a></dt>
@@ -480,7 +615,7 @@ registered hooks while the latter silently ignores them.</p>
 <dd><p>AlexNet architecture implemented from the paper
 <cite>“ImageNet Classification with Deep Convolutional Neural Networks” &lt;https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks&gt;</cite></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a pre-trained model. In that case, the ‘init_weights’ argument of ‘AlexNet’ class is set to False</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -492,17 +627,17 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.models.densenet">
-<span id="densenet"></span><h2>DenseNet<a class="headerlink" href="#module-archai.supergraph.models.densenet" title="Permalink to this headline">#</a></h2>
+<span id="densenet"></span><h2>DenseNet<a class="headerlink" href="#module-archai.supergraph.models.densenet" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.densenet.DenseNet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.densenet.</span></span><span class="sig-name descname"><span class="pre">DenseNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">growth_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(6,</span> <span class="pre">12,</span> <span class="pre">24,</span> <span class="pre">16)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_init_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bn_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/densenet.html#DenseNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.densenet.DenseNet" title="Permalink to this definition">#</a></dt>
 <dd><p>Densenet-BC model class, based on
 <a class="reference external" href="https://arxiv.org/pdf/1608.06993.pdf">“Densely Connected Convolutional Networks”</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>growth_rate</strong> (int) - how many filters to add each layer (<cite>k</cite> in paper) – </p></li>
-<li><p><strong>block_config</strong> (<em>list of 4 ints</em>) – </p></li>
+<li><p><strong>block_config</strong> (<em>list</em><em> of </em><em>4 ints</em>) – </p></li>
 <li><p><strong>num_init_features</strong> (<em>int</em>) – </p></li>
 <li><p><strong>bn_size</strong> (<em>int</em>) – (i.e. bn_size * k features in the bottleneck layer)</p></li>
 <li><p><strong>drop_rate</strong> (<em>float</em>) – </p></li>
@@ -537,7 +672,7 @@ registered hooks while the latter silently ignores them.</p>
 <dd><p>Densenet-121 model from
 <a class="reference external" href="https://arxiv.org/pdf/1608.06993.pdf">“Densely Connected Convolutional Networks”</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -552,7 +687,7 @@ registered hooks while the latter silently ignores them.</p>
 <dd><p>Densenet-169 model from
 <a class="reference external" href="https://arxiv.org/pdf/1608.06993.pdf">“Densely Connected Convolutional Networks”</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -567,7 +702,7 @@ registered hooks while the latter silently ignores them.</p>
 <dd><p>Densenet-201 model from
 <a class="reference external" href="https://arxiv.org/pdf/1608.06993.pdf">“Densely Connected Convolutional Networks”</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -582,7 +717,7 @@ registered hooks while the latter silently ignores them.</p>
 <dd><p>Densenet-161 model from
 <a class="reference external" href="https://arxiv.org/pdf/1608.06993.pdf">“Densely Connected Convolutional Networks”</a></p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -593,7 +728,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.models.googlenet">
-<span id="googlenet"></span><h2>GoogleNet<a class="headerlink" href="#module-archai.supergraph.models.googlenet" title="Permalink to this headline">#</a></h2>
+<span id="googlenet"></span><h2>GoogleNet<a class="headerlink" href="#module-archai.supergraph.models.googlenet" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.googlenet.GoogLeNet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.googlenet.</span></span><span class="sig-name descname"><span class="pre">GoogLeNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aux_logits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/googlenet.html#GoogLeNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.googlenet.GoogLeNet" title="Permalink to this definition">#</a></dt>
@@ -624,7 +759,7 @@ registered hooks while the latter silently ignores them.</p>
 <dd><p>GoogLeNet (Inception v1) model architecture from
 <a class="reference external" href="https://arxiv.org/abs/1409.4842">“Going Deeper with Convolutions”</a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -639,7 +774,7 @@ was trained on ImageNet. Default: <em>False</em></p></li>
 
 </section>
 <section id="module-archai.supergraph.models.inception">
-<span id="inception"></span><h2>Inception<a class="headerlink" href="#module-archai.supergraph.models.inception" title="Permalink to this headline">#</a></h2>
+<span id="inception"></span><h2>Inception<a class="headerlink" href="#module-archai.supergraph.models.inception" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.inception.Inception3">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.inception.</span></span><span class="sig-name descname"><span class="pre">Inception3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aux_logits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transform_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/inception.html#Inception3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.inception.Inception3" title="Permalink to this definition">#</a></dt>
@@ -675,7 +810,7 @@ registered hooks while the latter silently ignores them.</p>
 N x 3 x 299 x 299, so ensure your images are sized accordingly.</p>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -690,7 +825,7 @@ was trained on ImageNet. Default: <em>False</em></p></li>
 
 </section>
 <section id="module-archai.supergraph.models.mobilenetv2">
-<span id="mobilenetv2"></span><h2>MobileNetV2<a class="headerlink" href="#module-archai.supergraph.models.mobilenetv2" title="Permalink to this headline">#</a></h2>
+<span id="mobilenetv2"></span><h2>MobileNetV2<a class="headerlink" href="#module-archai.supergraph.models.mobilenetv2" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.mobilenetv2.MobileNetV2">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.mobilenetv2.</span></span><span class="sig-name descname"><span class="pre">MobileNetV2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width_mult</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/mobilenetv2.html#MobileNetV2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.mobilenetv2.MobileNetV2" title="Permalink to this definition">#</a></dt>
@@ -721,7 +856,7 @@ registered hooks while the latter silently ignores them.</p>
 <dd><p>Constructs a MobileNetV2 architecture from
 <a class="reference external" href="https://arxiv.org/abs/1801.04381">“MobileNetV2: Inverted Residuals and Linear Bottlenecks”</a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -732,7 +867,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.models.pyramidnet">
-<span id="pyramidnet"></span><h2>PyramidNet<a class="headerlink" href="#module-archai.supergraph.models.pyramidnet" title="Permalink to this headline">#</a></h2>
+<span id="pyramidnet"></span><h2>PyramidNet<a class="headerlink" href="#module-archai.supergraph.models.pyramidnet" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.supergraph.models.pyramidnet.conv3x3">
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.pyramidnet.</span></span><span class="sig-name descname"><span class="pre">conv3x3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_planes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_planes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/pyramidnet.html#conv3x3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.pyramidnet.conv3x3" title="Permalink to this definition">#</a></dt>
@@ -828,7 +963,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.models.resnet">
-<span id="resnet"></span><h2>ResNet<a class="headerlink" href="#module-archai.supergraph.models.resnet" title="Permalink to this headline">#</a></h2>
+<span id="resnet"></span><h2>ResNet<a class="headerlink" href="#module-archai.supergraph.models.resnet" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.resnet.ResNet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.resnet.</span></span><span class="sig-name descname"><span class="pre">ResNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zero_init_residual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width_per_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_stride_with_dilation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/resnet.html#ResNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.resnet.ResNet" title="Permalink to this definition">#</a></dt>
@@ -858,7 +993,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.resnet.</span></span><span class="sig-name descname"><span class="pre">resnet18</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/resnet.html#resnet18"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.resnet.resnet18" title="Permalink to this definition">#</a></dt>
 <dd><p>Constructs a ResNet-18 model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -872,7 +1007,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.resnet.</span></span><span class="sig-name descname"><span class="pre">resnet34</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/resnet.html#resnet34"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.resnet.resnet34" title="Permalink to this definition">#</a></dt>
 <dd><p>Constructs a ResNet-34 model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -886,7 +1021,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.resnet.</span></span><span class="sig-name descname"><span class="pre">resnet50</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/resnet.html#resnet50"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.resnet.resnet50" title="Permalink to this definition">#</a></dt>
 <dd><p>Constructs a ResNet-50 model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -900,7 +1035,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.resnet.</span></span><span class="sig-name descname"><span class="pre">resnet101</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/resnet.html#resnet101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.resnet.resnet101" title="Permalink to this definition">#</a></dt>
 <dd><p>Constructs a ResNet-101 model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -914,7 +1049,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.resnet.</span></span><span class="sig-name descname"><span class="pre">resnet152</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/resnet.html#resnet152"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.resnet.resnet152" title="Permalink to this definition">#</a></dt>
 <dd><p>Constructs a ResNet-152 model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -928,7 +1063,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.resnet.</span></span><span class="sig-name descname"><span class="pre">resnext50_32x4d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/resnet.html#resnext50_32x4d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.resnet.resnext50_32x4d" title="Permalink to this definition">#</a></dt>
 <dd><p>Constructs a ResNeXt-50 32x4d model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -942,7 +1077,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.resnet.</span></span><span class="sig-name descname"><span class="pre">resnext101_32x8d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/resnet.html#resnext101_32x8d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.resnet.resnext101_32x8d" title="Permalink to this definition">#</a></dt>
 <dd><p>Constructs a ResNeXt-101 32x8d model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -953,7 +1088,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.models.resnet_orig">
-<span id="resnet-original"></span><h2>ResNet (Original)<a class="headerlink" href="#module-archai.supergraph.models.resnet_orig" title="Permalink to this headline">#</a></h2>
+<span id="resnet-original"></span><h2>ResNet (Original)<a class="headerlink" href="#module-archai.supergraph.models.resnet_orig" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.supergraph.models.resnet_orig.resnet_orig">
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.resnet_orig.</span></span><span class="sig-name descname"><span class="pre">resnet_orig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/resnet_orig.html#resnet_orig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.resnet_orig.resnet_orig" title="Permalink to this definition">#</a></dt>
@@ -961,7 +1096,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.models.resnet_paper">
-<span id="resnet-paper"></span><h2>ResNet (Paper)<a class="headerlink" href="#module-archai.supergraph.models.resnet_paper" title="Permalink to this headline">#</a></h2>
+<span id="resnet-paper"></span><h2>ResNet (Paper)<a class="headerlink" href="#module-archai.supergraph.models.resnet_paper" title="Permalink to this heading">#</a></h2>
 <p>Properly implemented ResNet-s for CIFAR10 as described in paper [1].</p>
 <p>The implementation and structure of this file is hugely influenced by [2]
 which is implemented for ImageNet and doesn’t have option A for identity.
@@ -1038,17 +1173,44 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.models.shakedrop">
-<span id="shakedrop"></span><h2>ShakeDrop<a class="headerlink" href="#module-archai.supergraph.models.shakedrop" title="Permalink to this headline">#</a></h2>
+<span id="shakedrop"></span><h2>ShakeDrop<a class="headerlink" href="#module-archai.supergraph.models.shakedrop" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.shakedrop.ShakeDropFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.shakedrop.</span></span><span class="sig-name descname"><span class="pre">ShakeDropFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/shakedrop.html#ShakeDropFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.shakedrop.ShakeDropFunction" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.models.shakedrop.ShakeDropFunction.forward">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_drop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/shakedrop.html#ShakeDropFunction.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.shakedrop.ShakeDropFunction.forward" title="Permalink to this definition">#</a></dt>
-<dd><p>Performs the operation.</p>
-<p>This function is to be overridden by all subclasses.</p>
-<p>It must accept a context ctx as the first argument, followed by any
-number of arguments (tensors or other types).</p>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_drop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-1,</span> <span class="pre">1]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/shakedrop.html#ShakeDropFunction.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.shakedrop.ShakeDropFunction.forward" title="Permalink to this definition">#</a></dt>
+<dd><p>This function is to be overridden by all subclasses. There are two ways
+to define forward:</p>
+<p>Usage 1 (Combined forward and ctx):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>It must accept a context ctx as the first argument, followed by any
+number of arguments (tensors or other types).</p></li>
+<li><p>See <span class="xref std std-ref">combining-forward-context</span> for more details</p></li>
+</ul>
+<p>Usage 2 (Separate forward and ctx):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="nd">@staticmethod</span>
+<span class="k">def</span> <span class="nf">setup_context</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">output</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The forward no longer accepts a ctx argument.</p></li>
+<li><p>Instead, you must also override the <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.autograd.Function.setup_context()</span></code>
+staticmethod to handle setting up the <code class="docutils literal notranslate"><span class="pre">ctx</span></code> object.
+<code class="docutils literal notranslate"><span class="pre">output</span></code> is the output of the forward, <code class="docutils literal notranslate"><span class="pre">inputs</span></code> are a Tuple of inputs
+to the forward.</p></li>
+<li><p>See <span class="xref std std-ref">extending-autograd</span> for more details</p></li>
+</ul>
 <p>The context can be used to store arbitrary data that can be then
 retrieved during the backward pass. Tensors should not be stored
 directly on <cite>ctx</cite> (though this is not currently enforced for
@@ -1084,7 +1246,7 @@ output.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.shakedrop.ShakeDrop">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.shakedrop.</span></span><span class="sig-name descname"><span class="pre">ShakeDrop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_drop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-</span> <span class="pre">1,</span> <span class="pre">1]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/shakedrop.html#ShakeDrop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.shakedrop.ShakeDrop" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.shakedrop.</span></span><span class="sig-name descname"><span class="pre">ShakeDrop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p_drop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-1,</span> <span class="pre">1]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/shakedrop.html#ShakeDrop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.shakedrop.ShakeDrop" title="Permalink to this definition">#</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="archai.supergraph.models.shakedrop.ShakeDrop.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/shakedrop.html#ShakeDrop.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.shakedrop.ShakeDrop.forward" title="Permalink to this definition">#</a></dt>
@@ -1108,7 +1270,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.models.vgg">
-<span id="vgg"></span><h2>VGG<a class="headerlink" href="#module-archai.supergraph.models.vgg" title="Permalink to this headline">#</a></h2>
+<span id="vgg"></span><h2>VGG<a class="headerlink" href="#module-archai.supergraph.models.vgg" title="Permalink to this heading">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="archai.supergraph.models.vgg.VGG">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.vgg.</span></span><span class="sig-name descname"><span class="pre">VGG</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/vgg.html#VGG"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.vgg.VGG" title="Permalink to this definition">#</a></dt>
@@ -1138,7 +1300,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.vgg.</span></span><span class="sig-name descname"><span class="pre">vgg11</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/vgg.html#vgg11"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.vgg.vgg11" title="Permalink to this definition">#</a></dt>
 <dd><p>VGG 11-layer model (configuration “A”)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -1152,7 +1314,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.vgg.</span></span><span class="sig-name descname"><span class="pre">vgg11_bn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/vgg.html#vgg11_bn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.vgg.vgg11_bn" title="Permalink to this definition">#</a></dt>
 <dd><p>VGG 11-layer model (configuration “A”) with batch normalization</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -1166,7 +1328,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.vgg.</span></span><span class="sig-name descname"><span class="pre">vgg13</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/vgg.html#vgg13"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.vgg.vgg13" title="Permalink to this definition">#</a></dt>
 <dd><p>VGG 13-layer model (configuration “B”)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -1180,7 +1342,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.vgg.</span></span><span class="sig-name descname"><span class="pre">vgg13_bn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/vgg.html#vgg13_bn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.vgg.vgg13_bn" title="Permalink to this definition">#</a></dt>
 <dd><p>VGG 13-layer model (configuration “B”) with batch normalization</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -1194,7 +1356,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.vgg.</span></span><span class="sig-name descname"><span class="pre">vgg16</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/vgg.html#vgg16"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.vgg.vgg16" title="Permalink to this definition">#</a></dt>
 <dd><p>VGG 16-layer model (configuration “D”)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -1208,7 +1370,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.vgg.</span></span><span class="sig-name descname"><span class="pre">vgg16_bn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/vgg.html#vgg16_bn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.vgg.vgg16_bn" title="Permalink to this definition">#</a></dt>
 <dd><p>VGG 16-layer model (configuration “D”) with batch normalization</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -1222,7 +1384,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.vgg.</span></span><span class="sig-name descname"><span class="pre">vgg19_bn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/vgg.html#vgg19_bn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.vgg.vgg19_bn" title="Permalink to this definition">#</a></dt>
 <dd><p>VGG 19-layer model (configuration ‘E’) with batch normalization</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -1236,7 +1398,7 @@ registered hooks while the latter silently ignores them.</p>
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.vgg.</span></span><span class="sig-name descname"><span class="pre">vgg19</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pretrained</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/vgg.html#vgg19"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.vgg.vgg19" title="Permalink to this definition">#</a></dt>
 <dd><p>VGG 19-layer model (configuration “E”)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pretrained</strong> (<em>bool</em>) – If True, returns a model pre-trained on ImageNet</p></li>
 <li><p><strong>progress</strong> (<em>bool</em>) – If True, displays a progress bar of the download to stderr</p></li>
@@ -1247,7 +1409,7 @@ registered hooks while the latter silently ignores them.</p>
 
 </section>
 <section id="module-archai.supergraph.models.wideresnet">
-<span id="wide-resnet"></span><h2>Wide ResNet<a class="headerlink" href="#module-archai.supergraph.models.wideresnet" title="Permalink to this headline">#</a></h2>
+<span id="wide-resnet"></span><h2>Wide ResNet<a class="headerlink" href="#module-archai.supergraph.models.wideresnet" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="archai.supergraph.models.wideresnet.conv3x3">
 <span class="sig-prename descclassname"><span class="pre">archai.supergraph.models.wideresnet.</span></span><span class="sig-name descname"><span class="pre">conv3x3</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_planes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_planes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/supergraph/models/wideresnet.html#conv3x3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.supergraph.models.wideresnet.conv3x3" title="Permalink to this definition">#</a></dt>
@@ -1351,18 +1513,154 @@ registered hooks while the latter silently ignores them.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.alexnet">AlexNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.densenet">DenseNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.googlenet">GoogleNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.inception">Inception</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.mobilenetv2">MobileNetV2</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.pyramidnet">PyramidNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet">ResNet</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet_orig">ResNet (Original)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet_paper">ResNet (Paper)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakedrop">ShakeDrop</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.vgg">VGG</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.wideresnet">Wide ResNet</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.alexnet">AlexNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.alexnet.AlexNet"><code class="docutils literal notranslate"><span class="pre">AlexNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.alexnet.AlexNet.init_weights"><code class="docutils literal notranslate"><span class="pre">AlexNet.init_weights()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.alexnet.AlexNet.forward"><code class="docutils literal notranslate"><span class="pre">AlexNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.alexnet.AlexNet.training"><code class="docutils literal notranslate"><span class="pre">AlexNet.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.alexnet.alexnet"><code class="docutils literal notranslate"><span class="pre">alexnet()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.densenet">DenseNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.DenseNet"><code class="docutils literal notranslate"><span class="pre">DenseNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.DenseNet.forward"><code class="docutils literal notranslate"><span class="pre">DenseNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.DenseNet.training"><code class="docutils literal notranslate"><span class="pre">DenseNet.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.densenet121"><code class="docutils literal notranslate"><span class="pre">densenet121()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.densenet169"><code class="docutils literal notranslate"><span class="pre">densenet169()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.densenet201"><code class="docutils literal notranslate"><span class="pre">densenet201()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.densenet.densenet161"><code class="docutils literal notranslate"><span class="pre">densenet161()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.googlenet">GoogleNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.googlenet.GoogLeNet"><code class="docutils literal notranslate"><span class="pre">GoogLeNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.googlenet.GoogLeNet.forward"><code class="docutils literal notranslate"><span class="pre">GoogLeNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.googlenet.GoogLeNet.training"><code class="docutils literal notranslate"><span class="pre">GoogLeNet.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.googlenet.googlenet"><code class="docutils literal notranslate"><span class="pre">googlenet()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.inception">Inception</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.inception.Inception3"><code class="docutils literal notranslate"><span class="pre">Inception3</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.inception.Inception3.forward"><code class="docutils literal notranslate"><span class="pre">Inception3.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.inception.Inception3.training"><code class="docutils literal notranslate"><span class="pre">Inception3.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.inception.inception_v3"><code class="docutils literal notranslate"><span class="pre">inception_v3()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.mobilenetv2">MobileNetV2</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.mobilenetv2.MobileNetV2"><code class="docutils literal notranslate"><span class="pre">MobileNetV2</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.mobilenetv2.MobileNetV2.forward"><code class="docutils literal notranslate"><span class="pre">MobileNetV2.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.mobilenetv2.MobileNetV2.training"><code class="docutils literal notranslate"><span class="pre">MobileNetV2.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.mobilenetv2.mobilenet_v2"><code class="docutils literal notranslate"><span class="pre">mobilenet_v2()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.pyramidnet">PyramidNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.conv3x3"><code class="docutils literal notranslate"><span class="pre">conv3x3()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.BasicBlock"><code class="docutils literal notranslate"><span class="pre">BasicBlock</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.BasicBlock.outchannel_ratio"><code class="docutils literal notranslate"><span class="pre">BasicBlock.outchannel_ratio</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.BasicBlock.forward"><code class="docutils literal notranslate"><span class="pre">BasicBlock.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.BasicBlock.training"><code class="docutils literal notranslate"><span class="pre">BasicBlock.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.Bottleneck"><code class="docutils literal notranslate"><span class="pre">Bottleneck</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.Bottleneck.outchannel_ratio"><code class="docutils literal notranslate"><span class="pre">Bottleneck.outchannel_ratio</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.Bottleneck.forward"><code class="docutils literal notranslate"><span class="pre">Bottleneck.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.Bottleneck.training"><code class="docutils literal notranslate"><span class="pre">Bottleneck.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.PyramidNet"><code class="docutils literal notranslate"><span class="pre">PyramidNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.PyramidNet.training"><code class="docutils literal notranslate"><span class="pre">PyramidNet.training</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.PyramidNet.pyramidal_make_layer"><code class="docutils literal notranslate"><span class="pre">PyramidNet.pyramidal_make_layer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.pyramidnet.PyramidNet.forward"><code class="docutils literal notranslate"><span class="pre">PyramidNet.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet">ResNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.ResNet"><code class="docutils literal notranslate"><span class="pre">ResNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.ResNet.forward"><code class="docutils literal notranslate"><span class="pre">ResNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.ResNet.training"><code class="docutils literal notranslate"><span class="pre">ResNet.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnet18"><code class="docutils literal notranslate"><span class="pre">resnet18()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnet34"><code class="docutils literal notranslate"><span class="pre">resnet34()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnet50"><code class="docutils literal notranslate"><span class="pre">resnet50()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnet101"><code class="docutils literal notranslate"><span class="pre">resnet101()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnet152"><code class="docutils literal notranslate"><span class="pre">resnet152()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnext50_32x4d"><code class="docutils literal notranslate"><span class="pre">resnext50_32x4d()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet.resnext101_32x8d"><code class="docutils literal notranslate"><span class="pre">resnext101_32x8d()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet_orig">ResNet (Original)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_orig.resnet_orig"><code class="docutils literal notranslate"><span class="pre">resnet_orig()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.resnet_paper">ResNet (Paper)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.ResNet"><code class="docutils literal notranslate"><span class="pre">ResNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.ResNet.forward"><code class="docutils literal notranslate"><span class="pre">ResNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.ResNet.training"><code class="docutils literal notranslate"><span class="pre">ResNet.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet20"><code class="docutils literal notranslate"><span class="pre">resnet20()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet32"><code class="docutils literal notranslate"><span class="pre">resnet32()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet44"><code class="docutils literal notranslate"><span class="pre">resnet44()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet56"><code class="docutils literal notranslate"><span class="pre">resnet56()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet110"><code class="docutils literal notranslate"><span class="pre">resnet110()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.resnet_paper.resnet1202"><code class="docutils literal notranslate"><span class="pre">resnet1202()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.shakedrop">ShakeDrop</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDropFunction"><code class="docutils literal notranslate"><span class="pre">ShakeDropFunction</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDropFunction.forward"><code class="docutils literal notranslate"><span class="pre">ShakeDropFunction.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDropFunction.backward"><code class="docutils literal notranslate"><span class="pre">ShakeDropFunction.backward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDrop"><code class="docutils literal notranslate"><span class="pre">ShakeDrop</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDrop.forward"><code class="docutils literal notranslate"><span class="pre">ShakeDrop.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.shakedrop.ShakeDrop.training"><code class="docutils literal notranslate"><span class="pre">ShakeDrop.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.vgg">VGG</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.VGG"><code class="docutils literal notranslate"><span class="pre">VGG</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.VGG.forward"><code class="docutils literal notranslate"><span class="pre">VGG.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.VGG.training"><code class="docutils literal notranslate"><span class="pre">VGG.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg11"><code class="docutils literal notranslate"><span class="pre">vgg11()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg11_bn"><code class="docutils literal notranslate"><span class="pre">vgg11_bn()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg13"><code class="docutils literal notranslate"><span class="pre">vgg13()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg13_bn"><code class="docutils literal notranslate"><span class="pre">vgg13_bn()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg16"><code class="docutils literal notranslate"><span class="pre">vgg16()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg16_bn"><code class="docutils literal notranslate"><span class="pre">vgg16_bn()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg19_bn"><code class="docutils literal notranslate"><span class="pre">vgg19_bn()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.vgg.vgg19"><code class="docutils literal notranslate"><span class="pre">vgg19()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.supergraph.models.wideresnet">Wide ResNet</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.conv3x3"><code class="docutils literal notranslate"><span class="pre">conv3x3()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.conv_init"><code class="docutils literal notranslate"><span class="pre">conv_init()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideBasic"><code class="docutils literal notranslate"><span class="pre">WideBasic</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideBasic.forward"><code class="docutils literal notranslate"><span class="pre">WideBasic.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideBasic.training"><code class="docutils literal notranslate"><span class="pre">WideBasic.training</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideResNet"><code class="docutils literal notranslate"><span class="pre">WideResNet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideResNet.forward"><code class="docutils literal notranslate"><span class="pre">WideResNet.forward()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.supergraph.models.wideresnet.WideResNet.training"><code class="docutils literal notranslate"><span class="pre">WideResNet.training</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -1395,7 +1693,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>

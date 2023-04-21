@@ -7,7 +7,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Installation &#8212; Archai</title>
   
@@ -39,16 +39,15 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/tabs.js"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="https://unpkg.com/mermaid@9.4.0/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({startOnLoad:true});</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/installation';</script>
     <link rel="canonical" href="https://microsoft.github.io/archai/getting_started/installation.html" />
-    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Package Structure" href="package_structure.html" />
@@ -422,14 +421,14 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">#</a></h1>
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">#</a></h1>
 <p>There are various methods to install Archai, but it is recommended to use it within a virtual environment, such as <code class="docutils literal notranslate"><span class="pre">conda</span></code> or <code class="docutils literal notranslate"><span class="pre">pyenv</span></code>. This ensures that the software runs in a consistent and isolated environment, and allows for easy management of installed packages and dependencies.</p>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>Archai requires <a class="reference external" href="http://python.org">Python</a> 3.7+ and <a class="reference external" href="https://pytorch.org">PyTorch</a> 1.7.0+.</p>
 </div>
 <section id="pypi">
-<h2>PyPI<a class="headerlink" href="#pypi" title="Permalink to this headline">#</a></h2>
+<h2>PyPI<a class="headerlink" href="#pypi" title="Permalink to this heading">#</a></h2>
 <p>PyPI provides a convenient way to install Python packages, as it allows users to easily search for and download packages, as well as automatically handle dependencies and other installation requirements. This is especially useful for larger Python projects that require multiple packages to be installed and managed.</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>archai
 </pre></div>
@@ -446,7 +445,7 @@ document.write(`
 </ul>
 </section>
 <section id="docker">
-<h2>Docker<a class="headerlink" href="#docker" title="Permalink to this headline">#</a></h2>
+<h2>Docker<a class="headerlink" href="#docker" title="Permalink to this heading">#</a></h2>
 <p>Docker is a useful tool for running experiments because it provides a consistent, isolated environment for the experiment to run in. This ensures that the results of the experiment are not affected by external factors, such as the specific operating system or installed packages on the host machine.</p>
 <p>The <a class="reference external" href="https://github.com/microsoft/archai/tree/main/docker/Dockerfile">docker/Dockerfile</a> provides a development environment to run experiments. Additionally, <a class="reference external" href="https://github.com/microsoft/archai/tree/main/docker/build_image.sh">docker/build_image.sh</a> and <a class="reference external" href="https://github.com/microsoft/archai/tree/main/docker/run_container.sh">docker/run_container.sh</a> provide scripts to build the image and run the container, respectively:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docker
@@ -533,7 +532,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 05, 2023.
+  Last updated on Apr 21, 2023.
   <br/>
 </p>
   </div>
