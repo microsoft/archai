@@ -21,6 +21,8 @@ from archai.discrete_search.evaluators.remote_azure_benchmark import RemoteAzure
 
 from search_space.hgnet import HgnetSegmentationSearchSpace
 from training.partial_training_evaluator import PartialTrainingValIOU
+from aml.training.aml_training_evaluator import AmlPartialTrainingEvaluator
+from aml.util.setup import configure_store
 
 AVAILABLE_ALGOS = {
     'mo_bananas': MoBananasSearch,
@@ -47,21 +49,24 @@ def filter_extra_args(extra_args: List[str], prefix: str) -> List[str]:
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('--dataset_dir', type=Path, help='Face Synthetics dataset directory.', required=True)
-    parser.add_argument('--output_dir', type=Path, help='Output directory.', required=True)
+    parser.add_argument('--dataset_dir', type=Path, help='Face Synthetics dataset directory.')
+    parser.add_argument('--output_dir', type=Path, help='Output directory.', default='output')
     parser.add_argument('--search_config', type=Path, help='Search config file.', default=confs_path / 'cpu_search.yaml')
     parser.add_argument('--serial_training', help='Search config file.', action='store_true')
     parser.add_argument('--gpus_per_job', type=float, help='Number of GPUs used per job (if `serial_training` flag is disabled)',
                         default=0.5)
-    parser.add_argument('--partial_tr_epochs', type=float, help='Number of epochs to run partial training', default=1.0)
+    parser.add_argument('--partial_tr_epochs', type=int, help='Number of epochs to run partial training', default=1)
     parser.add_argument('--seed', type=int, help='Random seed', default=42)
-    parser.add_argument('--max_parameters', type=float, help='Specify a maximum number of parameters in the model (default 50M or 5e7).', default=5e7)
+    parser.add_argument('--timeout', type=int, help='Timeout for partial training (in seconds)(default 10800)', default=10800)
 
     args, extra_args = parser.parse_known_args()
 
+    timeout_seconds = args.timeout
+
     # Filters extra args that have the prefix `search_space`
     search_extra_args = filter_extra_args(extra_args, 'search.')
-    search_config = Config(str(args.search_config), search_extra_args)['search']
+    config = Config(str(args.search_config), search_extra_args, resolve_env_vars=True)
+    search_config = config['search']
 
     # Search space
     ss_config = search_config['search_space']
@@ -73,6 +78,9 @@ def main():
 
     input_shape = (1, search_space.in_channels, *search_space.img_size[::-1])
 
+    partial_training_output = args.output_dir / 'partial_training_logs'
+    os.makedirs(partial_training_output, exist_ok=True)
+
     # Search objectives
     so = SearchObjectives()
 
@@ -81,12 +89,15 @@ def main():
     assert target_name in ['cpu', 'snp']
 
     max_latency = 0.3 if target_name == 'cpu' else 0.185
+    algo_config = search_config['algorithm']
+    algo_params = algo_config.get('params', {})
+    max_parameters = float(algo_params.pop('max_parameters', 5e7))
 
     # Adds a constraint on number of parameters so we don't sample models that are too large
     so.add_constraint(
         'Model Size (b)',
         TorchNumParameters(),
-        constraint=(1e6, args.max_parameters)
+        constraint=(1e6, max_parameters)
     )
 
     # Adds a constrained objective on model latency so we don't pick models that are too slow.
@@ -100,24 +111,17 @@ def main():
         constraint=[0, max_latency]
     )
 
+    aml_training = False
+
     if target_name == 'snp':
         # Gets connection string from env variable
-        env_var_name = target_config.pop('connection_str_env_var')
-        con_str = os.getenv(env_var_name)
-        if not con_str:
-            print("Please set environment variable {env_var_name} containing the Azure storage account connection " +
-                  "string for the Azure storage account you want to use to control this experiment.")
-            sys.exit(1)
-
-        blob_container_name = target_config.pop('blob_container_name', 'models')
-        table_name = target_config.pop('table_name', 'status')
-        partition_key = target_config.pop('partition_key', 'main')
-        storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-        store = ArchaiStore(storage_account_name, storage_account_key, blob_container_name, table_name, partition_key)
-
+        aml_config = config['aml']
+        experiment_name = aml_config.get('experiment_name', 'facesynthetics')
+        store: ArchaiStore = configure_store(aml_config)
         evaluator = RemoteAzureBenchmarkEvaluator(
             input_shape=input_shape,
             store=store,
+            experiment_name=experiment_name,
             onnx_export_kwargs={'opset_version': 11},
             **target_config
         )
@@ -129,20 +133,34 @@ def main():
             compute_intensive=True
         )
 
-    # Dataset provider
-    dataset_provider = FaceSyntheticsDatasetProvider(args.dataset_dir)
+        aml_training = 'training_cluster' in aml_config
 
-    partial_tr_obj = PartialTrainingValIOU(
-        dataset_provider,
-        tr_epochs=args.partial_tr_epochs,
-        output_dir=args.output_dir / 'partial_training_logs'
-    )
-
-    if not args.serial_training:
-        partial_tr_obj = RayParallelEvaluator(
-            partial_tr_obj, num_gpus=args.gpus_per_job,
-            max_calls=1
+    if aml_training:
+        # do the partial training on an AML gpu cluster
+        partial_tr_obj = AmlPartialTrainingEvaluator(
+            config,
+            tr_epochs=int(args.partial_tr_epochs),
+            timeout_seconds=timeout_seconds,
+            local_output=partial_training_output
         )
+    else:
+        if args.dataset_dir is None:
+            raise ValueError('--dataset_dir must be specified if target is not aml')
+
+        # Dataset provider
+        dataset_provider = FaceSyntheticsDatasetProvider(args.dataset_dir)
+
+        partial_tr_obj = PartialTrainingValIOU(
+            dataset_provider,
+            tr_epochs=args.partial_tr_epochs,
+            output_dir=partial_training_output
+        )
+
+        if not args.serial_training:
+            partial_tr_obj = RayParallelEvaluator(
+                partial_tr_obj, num_gpus=args.gpus_per_job,
+                max_calls=1
+            )
 
     so.add_objective(
         'Partial Training Val. IOU',
@@ -152,11 +170,11 @@ def main():
     )
 
     # Search algorithm
-    algo_config = search_config['algorithm']
     algo = AVAILABLE_ALGOS[algo_config['name']](
         search_space, so,
-        output_dir=args.output_dir, seed=args.seed,
-        **algo_config.get('params', {}),
+        output_dir=args.output_dir,
+        seed=args.seed,
+        **algo_params,
     )
 
     algo.search()

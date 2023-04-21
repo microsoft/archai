@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="TopToBottom" Layout="Sugiyama" Offset="-1829.8148940022802,-883.0494917160034" ZoomLevel="1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="..." Bounds="-891.259155273438,-398.550804903068,50,25.96" UseManualLocation="True" />
+    <Node Id="...1" Bounds="-996.17041015625,-122.697003871574,50,25.96" Label="..." UseManualLocation="True" />
+    <Node Id="AzureBlobStore" Category="storage" Bounds="-1193.71833333333,-533.830712207031,106.03,73.6213311767578" Label="azure blob store" UseManualLocation="True" />
+    <Node Id="AzureStatusTable" Category="storage" Bounds="-1192.64078544617,-430.209281030274,112.973333333333,73.6213311767578" Label="azure status table" UseManualLocation="True" />
+    <Node Id="JupyterNotebook" Category="script" Bounds="-1374.80858579,-377.363886517334,115.163333333333,62.964467010498" Label="Jupyter Notebook" UseManualLocation="True" />
+    <Node Id="KubernetesCluster" Category="cluster" Bounds="-1195.17041666667,-264.359319506836,119.78,62.9644670104981" Label="Kubernetes Cluster" UseManualLocation="True" />
+    <Node Id="QualcommDevice" Category="device" Bounds="-767.554234593709,-540.257548474121,115.2,62.96" Label="Qualcomm device" UseManualLocation="True" />
+    <Node Id="QualcommDevice1" Category="device" Bounds="-767.259849828084,-447.297448474121,115.2,62.96" Label="Qualcomm device" UseManualLocation="True" />
+    <Node Id="Runner.py" Category="script" Bounds="-905.306400171916,-584.479938924064,70.4533333333334,62.9644670104981" Label="runner.py" UseManualLocation="True" />
+    <Node Id="Runner.py1" Category="script" Bounds="-905.012036539714,-491.515371913566,70.4533333333334,62.9644670104981" Label="runner.py" UseManualLocation="True" />
+    <Node Id="Runner.py2" Category="script" Bounds="-901.180981852214,-342.590704903068,70.4533333333334,62.9644670104981" Label="runner.py" UseManualLocation="True" />
+    <Node Id="Runner.py3" Category="script" Bounds="-903.170422770182,-249.62613789257,70.4533333333334,62.9644670104981" Label="runner.py" UseManualLocation="True" />
+    <Node Id="Runner.py4" Category="script" Bounds="-901.449353434245,-156.661570882072,70.4533333333334,62.9644670104981" Label="runner.py" UseManualLocation="True" />
+    <Node Id="SnpeQuantiation" Category="quantize" Bounds="-760.452083333333,-255.710307686227,109.126666666667,62.964467010498" Label="snpe quantiation" UseManualLocation="True" />
+    <Node Id="SnpeQuantization" Category="quantize" Bounds="-763.723191502889,-348.674874696725,114.553333333333,62.9644670104981" Label="snpe quantization" UseManualLocation="True" />
+    <Node Id="Test_onnx" Category="test" Bounds="-761.731038004557,-162.745740675729,70.5999999999999,47.96" Label="test_onnx" UseManualLocation="True" />
+    <Node Id="Upload" Category="script" Bounds="-1358,-486,56.9533333333333,62.964467010498" Label="upload" UseManualLocation="True" />
+  </Nodes>
+  <Links>
+    <Link Source="AzureBlobStore" Target="Runner.py" Bounds="-1087.68836914063,-543.888146126435,173.568538449327,35.9021208699053" />
+    <Link Source="AzureBlobStore" Target="Runner.py1" Bounds="-1087.68836914063,-489.782197817309,173.759053025964,23.7223370430618" />
+    <Link Source="AzureBlobStore" Target="Runner.py2" Bounds="-1088.21890281343,-461.505920916907,179.584023885674,121.517239678322" />
+    <Link Source="AzureStatusTable" Target="JupyterNotebook" Bounds="-1250.94000054214,-378.575417826448,58.2992201059451,15.298820648026" />
+    <Link Source="AzureStatusTable" Target="Runner.py" Bounds="-1079.66748046875,-523.59619140625,166.653381347656,105.640502929688" />
+    <Link Source="AzureStatusTable" Target="Runner.py1" Bounds="-1079.66748046875,-451.611999511719,165.948486328125,41.5036010742188" />
+    <Link Source="AzureStatusTable" Target="Runner.py2" Bounds="-1079.66748046875,-379.401794433594,169.876037597656,51.8286743164063" />
+    <Link Source="KubernetesCluster" Target="...1" Bounds="-1093.33052927498,-201.394849319458,97.6659896150068,73.2956685371913" />
+    <Link Source="KubernetesCluster" Target="Runner.py2" Bounds="-1075.39039550781,-298.365678712837,165.566640952845,48.0922930284574" />
+    <Link Source="KubernetesCluster" Target="Runner.py3" Bounds="-1075.39039550781,-229.576487801222,163.233609160429,8.99595989414743" />
+    <Link Source="KubernetesCluster" Target="Runner.py4" Bounds="-1075.39039550781,-208.904464362079,165.585551579934,66.2801678235037" />
+    <Link Source="Runner.py" Target="AzureStatusTable" Bounds="-1072.13012695313,-535.250061035156,166.82373046875,105.237548828125" />
+    <Link Source="Runner.py" Target="QualcommDevice" Bounds="-834.853066838583,-543.269532104768,58.6235405861986,16.1894387709768" />
+    <Link Source="Runner.py1" Target="AzureStatusTable" Bounds="-1070.91955566406,-447.686828613281,165.907531738281,41.6351928710938" />
+    <Link Source="Runner.py1" Target="QualcommDevice1" Bounds="-834.55870320638,-450.305950587842,58.6235177587191,16.1877924281616" />
+    <Link Source="Runner.py2" Target="AzureStatusTable" Bounds="-1071.05505371094,-370.519165039063,169.874084472656,51.8364562988281" />
+    <Link Source="Runner.py2" Target="SnpeQuantization" Bounds="-830.72764851888,-314.664864642865,58.0109886197575,2.21273140591086" />
+    <Link Source="Runner.py3" Target="SnpeQuantiation" Bounds="-832.717089436849,-221.841899441892,63.2713423409264,2.37545015813271" />
+    <Link Source="Runner.py4" Target="Test_onnx" Bounds="-830.996020100911,-134.464308505795,60.3071978911451,5.86127855164511" />
+    <Link Source="Upload" Target="AzureBlobStore" Bounds="-1301.04666666667,-483.110272187314,98.5479867833703,22.1825747724036" />
+    <Link Source="Upload" Target="AzureStatusTable" Bounds="-1301.04666666667,-445.517004029011,99.824346137553,31.5519803774536" />
+  </Links>
+  <Categories>
+    <Category Id="cluster" />
+    <Category Id="device" />
+    <Category Id="quantize" />
+    <Category Id="script" />
+    <Category Id="storage" />
+    <Category Id="test" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="Offset" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="test" ValueLabel="True">
+      <Condition Expression="HasCategory('test')" />
+      <Setter Property="Icon" Value="CodeMap_TestProject" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="storage" ValueLabel="True">
+      <Condition Expression="HasCategory('storage')" />
+      <Setter Property="Icon" Value="pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/Table.png" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="script" ValueLabel="True">
+      <Condition Expression="HasCategory('script')" />
+      <Setter Property="Icon" Value="pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/Script.png" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="quantize" ValueLabel="True">
+      <Condition Expression="HasCategory('quantize')" />
+      <Setter Property="Icon" Value="pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/Gears.png" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="device" ValueLabel="True">
+      <Condition Expression="HasCategory('device')" />
+      <Setter Property="Icon" Value="pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/Device.png" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="cluster" ValueLabel="True">
+      <Condition Expression="HasCategory('cluster')" />
+      <Setter Property="Icon" Value="pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/Network.png" />
+    </Style>
+    <Style TargetType="Node">
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="IconPlacement" Value="Top" />
+    </Style>
+  </Styles>
+</DirectedGraph>

@@ -14,7 +14,7 @@ class PartialTrainingValIOU(ModelEvaluator):
                  output_dir: str, tr_epochs: float = 1.0,
                  batch_size: int = 16, lr: float = 2e-4,
                  tr_dl_workers: int = 8, val_dl_workers: int = 8,
-                 val_check_interval: float = 1):
+                 val_check_interval: float = 1.0):
         self.dataset_provider = dataset_provider
         self.output_dir = Path(output_dir)
         self.tr_epochs = tr_epochs

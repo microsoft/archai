@@ -56,8 +56,12 @@ class JobCompletionMonitor:
                         failed += 1
                         self.store.update_status_entity(e)
                     else:
-                        msg = f"{e['val_acc']}" if 'val_acc' in e else ''
-                        print(f'Training job {id} completed with validation accuracy: {msg}')
+                        if len(self.metric_keys) > 0 and self.metric_keys[0] in e:
+                            key = self.metric_keys[0]
+                            metric = e[key]
+                            print(f'Training job {id} completed with {key} = {metric}')
+                        else:
+                            print(f'Training job {id} completed')
 
             if len(waiting) == 0:
                 break
@@ -131,12 +135,16 @@ def main():
     parser.add_argument('--config', help='bin hexed config json info for MLClient')
     parser.add_argument('--timeout', type=int, help='pipeline timeout in seconds (default 1 hour)', default=3600)
     parser.add_argument('--model_path', required=True, help='mounted path containing the pending.json file')
-    parser.add_argument('--output', required=True, help='folder to write the results to)')
+    parser.add_argument('--output', required=True, help='folder to write the results to')
+    parser.add_argument('--metrics', type=str, help='metrics to return from the azure table')
 
     args = parser.parse_args()
     output = args.output
     timeout = args.timeout
     model_path = args.model_path
+    metrics = []
+    if args.metrics:
+        metrics = [x.strip() for x in args.metrics.split(',')]
 
     print(f"Monitor running with model_path={model_path}")
     if not os.path.isdir(model_path):
@@ -177,7 +185,7 @@ def main():
 
     store = ArchaiStore(storage_account_name, storage_account_key)
 
-    monitor = JobCompletionMonitor(store, ml_client, timeout=timeout)
+    monitor = JobCompletionMonitor(store, ml_client, metrics, timeout=timeout)
     results = monitor.wait(model_ids)
     if output is not None:
         # save the results with updated validation accuracies to models.json
