@@ -16,13 +16,14 @@ from archai.discrete_search.algos import (
     MoBananasSearch, EvolutionParetoSearch, LocalSearch,
     RandomSearch, RegularizedEvolutionSearch
 )
-from archai.discrete_search.evaluators import TorchNumParameters, AvgOnnxLatency, RayParallelEvaluator
+from archai.discrete_search.evaluators import TorchNumParameters, RayParallelEvaluator
 from archai.discrete_search.evaluators.remote_azure_benchmark import RemoteAzureBenchmarkEvaluator
 
 from search_space.hgnet import HgnetSegmentationSearchSpace
 from training.partial_training_evaluator import PartialTrainingValIOU
 from aml.training.aml_training_evaluator import AmlPartialTrainingEvaluator
 from aml.util.setup import configure_store
+from aml.training.onnx_latency import AvgOnnxLatencyEvaluator
 
 AVAILABLE_ALGOS = {
     'mo_bananas': MoBananasSearch,
@@ -100,24 +101,27 @@ def main():
         constraint=(1e6, max_parameters)
     )
 
+    aml_training = False
+    store = None
+    if 'aml' in config:
+        aml_config = config['aml']
+        experiment_name = aml_config.get('experiment_name', 'facesynthetics')
+        store: ArchaiStore = configure_store(aml_config)
+        aml_training = 'training_cluster' in aml_config
+
     # Adds a constrained objective on model latency so we don't pick models that are too slow.
     so.add_objective(
         'CPU ONNX Latency (s)',
-        AvgOnnxLatency(
-            input_shape=input_shape, export_kwargs={'opset_version': 11}
+        AvgOnnxLatencyEvaluator(
+            input_shape=input_shape, export_kwargs={'opset_version': 11}, store=store
         ),
         higher_is_better=False,
         compute_intensive=False,
         constraint=[0, max_latency]
     )
 
-    aml_training = False
-
     if target_name == 'snp':
         # Gets connection string from env variable
-        aml_config = config['aml']
-        experiment_name = aml_config.get('experiment_name', 'facesynthetics')
-        store: ArchaiStore = configure_store(aml_config)
         evaluator = RemoteAzureBenchmarkEvaluator(
             input_shape=input_shape,
             store=store,
@@ -132,8 +136,6 @@ def main():
             higher_is_better=False,
             compute_intensive=True
         )
-
-        aml_training = 'training_cluster' in aml_config
 
     if aml_training:
         # do the partial training on an AML gpu cluster

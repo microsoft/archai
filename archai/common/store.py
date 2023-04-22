@@ -390,7 +390,8 @@ class ArchaiStore:
             self._reset(e, except_list)
 
     def _reset(self, e, except_list=[]):
-        if self.is_locked_by_other(e):
+        name = e['name']
+        if self.is_locked_by_other(name):
             node = self.get_lock(e)
             print(f"Skipping {e['RowKey']} as it is locked by {node}")
         elif self._reset_metrics(e, except_list):

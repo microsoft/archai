@@ -24,9 +24,8 @@ creating a docker image for running in an Azure Kubernetes cluster to do model q
 the Qualcomm Neural Processing SDK. Quantization is time consuming so having an elastic scale speeds
 things up a lot.
 
-1. [Notebooks](notebook/gallery_performance.md) contains a Jupyter Notebook that can visualize the
-results from your Azure "status" table.
-
+1. [Notebook](notebooks/results.ipynb) a simple Jupyter notebook for visualizing the
+results in your Azure table.
 
 ## Workflow
 

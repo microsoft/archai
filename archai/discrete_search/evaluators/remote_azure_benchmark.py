@@ -72,6 +72,15 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         _ = self.store.get_existing_status(unknown_id)
         _ = self.store.list_blobs(unknown_id)
 
+    def _reset(self, entity):
+        changed = False
+        for k in ['mean', 'macs', 'params', 'stdev', 'total_inference_avg', 'error']:
+            if k in entity:
+                del entity[k]
+                changed = True
+        if changed:
+            self.store.update_status_entity(entity)
+
     @overrides
     def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
         # bug in azure ml sdk requires blob store folder names not begin with digits, so we prefix with 'id_'
@@ -88,8 +97,8 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                         print(f"Entry for {archid} already exists with {self.metric_key} = {value}")
                     return
                 else:
-                    # complete but missing the mean, so reset everything so we can try again below.
-                    self.store.reset(archid, ['benchmark_only', 'model_date'])
+                    # complete but missing the mean, so reset the benchmark metrics so we can try again.
+                    self._reset(entity)
             else:
                 # job is still running, let it continue
                 if self.verbose:
