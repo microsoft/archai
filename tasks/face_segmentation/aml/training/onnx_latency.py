@@ -43,6 +43,7 @@ class AvgOnnxLatencyEvaluator(AvgOnnxLatency):
         if self.store is not None:
             archid = f'id_{model.archid}'
             e = self.store.get_status(archid)
+            e['status'] = 'complete'
             e[self.metric_key] = result
             self.store.merge_status_entity(e)
         return result
