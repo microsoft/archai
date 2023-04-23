@@ -52,7 +52,7 @@ def training_component(output_path: str, code_dir: Path, config, training_epochs
     )
 
 
-def start_training_pipeline(description: str, iteration: int, ml_client: MLClient, store: ArchaiStore,
+def start_training_pipeline(description: str, ml_client: MLClient, store: ArchaiStore,
                             model_architectures: List[ArchaiModel],
                             config: Config, training_epochs: int, output_folder: Path):
     """ Creates a new Azure ML Pipeline for training a set of models, updating the status of
@@ -76,7 +76,6 @@ def start_training_pipeline(description: str, iteration: int, ml_client: MLClien
     print(f"Environment: {environment_name}")
     print(f"Experiment: {experiment_name}")
     print(f"Epochs: {training_epochs}")
-    print(f"Iteration: {iteration}")
 
     code_dir = Path('temp_code')
     os.makedirs(code_dir, exist_ok=True)
@@ -109,7 +108,6 @@ def start_training_pipeline(description: str, iteration: int, ml_client: MLClien
         e = store.get_status(model_id)
         e['experiment'] = experiment_name
         e['epochs'] = training_epochs
-        e['iteration'] = iteration
         e['status'] = 'preparing'
         store.merge_status_entity(e)
         models += [{

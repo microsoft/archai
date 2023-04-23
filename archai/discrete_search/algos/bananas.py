@@ -70,7 +70,7 @@ class MoBananasSearch(Searcher):
             seed: Random seed.
 
         """
-
+        super(MoBananasSearch, self).__init__()
         assert isinstance(search_space, BayesOptSearchSpace)
         assert isinstance(search_space, EvolutionarySearchSpace)
 
@@ -250,6 +250,7 @@ class MoBananasSearch(Searcher):
         unseen_pop = self.sample_models(self.init_num_models)
 
         for i in range(self.num_iters):
+            self.on_start_iteration(i + 1)
             logger.info(f"Iteration {i+1}/{self.num_iters}")
             all_pop.extend(unseen_pop)
 
