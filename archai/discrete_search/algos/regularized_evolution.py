@@ -60,6 +60,7 @@ class RegularizedEvolutionSearch(Searcher):
             seed: Random seed.
 
         """
+        super(RegularizedEvolutionSearch, self).__init__()
 
         assert isinstance(
             search_space, EvolutionarySearchSpace
@@ -80,7 +81,7 @@ class RegularizedEvolutionSearch(Searcher):
 
         # Utils
         self.clear_evaluated_models = clear_evaluated_models
-        self.save_pareto_model_weights = save_pareto_model_weights        
+        self.save_pareto_model_weights = save_pareto_model_weights
         self.search_state = SearchResults(search_space, self.so)
         self.seed = seed
         self.rng = random.Random(seed)
@@ -163,6 +164,7 @@ class RegularizedEvolutionSearch(Searcher):
 
         for i in range(self.num_iters):
             self.iter_num = i + 1
+            self.on_start_iteration(self.iter_num)
             logger.info(f"Iteration {i+1}/{self.num_iters}")
 
             if len(iter_members) == 0:

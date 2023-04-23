@@ -33,7 +33,6 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
                  timeout_seconds=3600):
         self.config = config
         self.tr_epochs = int(tr_epochs)
-        self.iteration = 1
         aml_config = config['aml']
         workspace_name = aml_config['workspace_name']
         subscription_id = aml_config['subscription_id']
@@ -62,10 +61,7 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
         model_id = get_valid_arch_id(arch)
         e = self.store.get_status(model_id)
         if self.metric_key in e and e[self.metric_key]:
-            # seems to have already been trained then, so to make this a restartable job we pick up those results.
-            if 'iteration' not in e:
-                e['iteration'] = self.iteration
-                self.store.merge_status_entity(e)
+
             metric = float(e[self.metric_key])
             self.results += [{
                 'id': model_id,
@@ -99,7 +95,7 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
             # happening in parallel which greatly reduces the overall Archai Search process.
             description = f"AmlPartialTrainingEvaluator training {self.tr_epochs} epochs"
             pipeline_job, model_names = start_training_pipeline(
-                description,  self.iteration, self.ml_client, self.store, pending, self.config, self.tr_epochs, self.local_output)
+                description,  self.ml_client, self.store, pending, self.config, self.tr_epochs, self.local_output)
 
             job_id = pipeline_job.name
             print(f'AmlPartialTrainingEvaluator: Started training pipeline: {job_id}')
@@ -144,6 +140,4 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
 
         self.models = []  # reset for next run.
         print(f'AmlPartialTrainingEvaluator: fetch_all returning : {summary}')
-
-        self.iteration += 1
         return metrics

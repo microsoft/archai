@@ -65,7 +65,7 @@ class EvolutionParetoSearch(Searcher):
             seed: Random seed.
 
         """
-
+        super(EvolutionParetoSearch, self).__init__()
         assert isinstance(
             search_space, EvolutionarySearchSpace
         ), f"{str(search_space.__class__)} is not compatible with {str(self.__class__)}"
@@ -234,6 +234,7 @@ class EvolutionParetoSearch(Searcher):
 
         for i in range(self.num_iters):
             self.iter_num = i + 1
+            self.on_start_iteration(self.iter_num)
 
             logger.info(f"Iteration {i+1}/{self.num_iters}")
             self.on_search_iteration_start(unseen_pop)

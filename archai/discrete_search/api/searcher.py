@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 from abc import abstractmethod
-
+from typing import Callable
 from overrides import EnforceOverrides
 
 from archai.discrete_search.api.search_results import SearchResults
@@ -33,8 +33,7 @@ class Searcher(EnforceOverrides):
 
     def __init__(self) -> None:
         """Initialize the searcher."""
-
-        pass
+        self.iteration_callbacks = []
 
     @abstractmethod
     def search(self) -> SearchResults:
@@ -46,3 +45,10 @@ class Searcher(EnforceOverrides):
         """
 
         pass
+
+    def subscribe_start_iteration(self, fn : Callable[[int], None]):
+        self.iteration_callbacks += [fn]
+
+    def on_start_iteration(self, iteration: int):
+        for fn in self.iteration_callbacks:
+            fn(iteration)

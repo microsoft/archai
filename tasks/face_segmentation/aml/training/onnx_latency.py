@@ -36,6 +36,7 @@ class AvgOnnxLatencyEvaluator(AvgOnnxLatency):
             inf_session_kwargs)
         self.store = store
         self.metric_key = metric_key
+        self.iteration = 1
 
     @overrides
     def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
@@ -44,6 +45,10 @@ class AvgOnnxLatencyEvaluator(AvgOnnxLatency):
             archid = f'id_{model.archid}'
             e = self.store.get_status(archid)
             e['status'] = 'complete'
+            e['iteration'] = self.iteration
             e[self.metric_key] = result
             self.store.merge_status_entity(e)
         return result
+
+    def on_start_iteration(self, iteration: int):
+        self.iteration = iteration + 1

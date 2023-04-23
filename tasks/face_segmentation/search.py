@@ -18,7 +18,7 @@ from archai.discrete_search.algos import (
 )
 from archai.discrete_search.evaluators import TorchNumParameters, RayParallelEvaluator
 from archai.discrete_search.evaluators.remote_azure_benchmark import RemoteAzureBenchmarkEvaluator
-
+from archai.discrete_search.api.searcher import Searcher
 from search_space.hgnet import HgnetSegmentationSearchSpace
 from training.partial_training_evaluator import PartialTrainingValIOU
 from aml.training.aml_training_evaluator import AmlPartialTrainingEvaluator
@@ -110,11 +110,13 @@ def main():
         aml_training = 'training_cluster' in aml_config
 
     # Adds a constrained objective on model latency so we don't pick models that are too slow.
+    onnx_evaluator = AvgOnnxLatencyEvaluator(
+        input_shape=input_shape,
+        export_kwargs={'opset_version': 11},
+        store=store)
     so.add_objective(
         'CPU ONNX Latency (s)',
-        AvgOnnxLatencyEvaluator(
-            input_shape=input_shape, export_kwargs={'opset_version': 11}, store=store
-        ),
+        onnx_evaluator,
         higher_is_better=False,
         compute_intensive=False,
         constraint=[0, max_latency]
@@ -172,13 +174,14 @@ def main():
     )
 
     # Search algorithm
-    algo = AVAILABLE_ALGOS[algo_config['name']](
+    algo : Searcher = AVAILABLE_ALGOS[algo_config['name']](
         search_space, so,
         output_dir=args.output_dir,
         seed=args.seed,
         **algo_params,
     )
 
+    algo.subscribe_start_iteration(lambda x: onnx_evaluator.on_start_iteration(x))
     algo.search()
 
 

@@ -47,6 +47,7 @@ class SuccessiveHalvingSearch(Searcher):
             seed: Random seed.
 
         """
+        super(SuccessiveHalvingSearch, self).__init__()
 
         assert isinstance(search_space, DiscreteSearchSpace)
 
@@ -84,6 +85,7 @@ class SuccessiveHalvingSearch(Searcher):
 
                 break
 
+            self.on_start_iteration(i + 1)
             logger.info(f"Iteration {i+1}/{self.num_iters}")
             logger.info(f"Evaluating {len(selected_models)} models with budget {current_budget} ...")
 

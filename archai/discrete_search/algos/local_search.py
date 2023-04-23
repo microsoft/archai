@@ -49,6 +49,7 @@ class LocalSearch(Searcher):
             save_pareto_model_weights: If `True`, saves the weights of the pareto models.
             seed (int, optional): Random seed. Defaults to 1.
         """
+        super(LocalSearch, self).__init__()
         assert isinstance(
             search_space, EvolutionarySearchSpace
         ), f"{str(search_space.__class__)} is not compatible with {str(self.__class__)}"
@@ -150,6 +151,7 @@ class LocalSearch(Searcher):
 
         for i in range(self.num_iters):
             self.iter_num = i + 1
+            self.on_start_iteration(self.iter_num)
             logger.info(f"Iteration {i+1}/{self.num_iters}")
 
             if len(unseen_pop) == 0:
@@ -180,7 +182,7 @@ class LocalSearch(Searcher):
             # Saves search iteration results
             self.search_state.save_search_state(str(self.output_dir / f"search_state_{self.iter_num}.csv"))
             self.search_state.save_pareto_frontier_models(
-                str(self.output_dir / f"pareto_models_iter_{self.iter_num}"), 
+                str(self.output_dir / f"pareto_models_iter_{self.iter_num}"),
                 save_weights=self.save_pareto_model_weights
             )
             self.search_state.save_all_2d_pareto_evolution_plots(str(self.output_dir))
