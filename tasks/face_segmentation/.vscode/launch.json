@@ -12,7 +12,6 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args":[
-                "--search_config", "output/confs/aml_search.yaml"
             ]
         }
     ]
