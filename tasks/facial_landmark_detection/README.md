@@ -1,6 +1,9 @@
 # Download the dataset
 From: https://github.com/microsoft/FaceSynthetics
 
+# Perform Neural architecture search
+
+![Results of NAS](pareto_Partial_training_Validation_Accuracy_vs_onnx_latency_ms.png)
 # Command line to run a training job
 data_dir=/data/public_face_synthetics/dataset_100000
 output_dir=/tmp

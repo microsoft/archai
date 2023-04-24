@@ -130,6 +130,7 @@ extras_require["dev"] = (
     + extras_require["docs"]
     + extras_require["tests"]
     + extras_require["aml"]
+    + extras_require["torchinfo"]
 )
 if os.name != "nt":
     # Support for DeepSpeed is not available on native Windows
