@@ -89,7 +89,7 @@ def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, arg
         metric_logger.meters["img/s"].update(batch_size / (time.time() - start_time))
 
         #here let's draw the image and the points
-        visualization.visualize_batch_data('train_img', epoch, output, (image, target))
+        #visualization.visualize_batch_data('train_img', epoch, output, (image, target))
 
 
 def evaluate(model, criterion, data_loader, epoch, device, print_freq=100, log_suffix=""):
@@ -107,7 +107,7 @@ def evaluate(model, criterion, data_loader, epoch, device, print_freq=100, log_s
             loss = criterion(output, target)
 
             error = average_error (target, output)            
-            visualization.visualize_batch_data('valid_img', epoch, output, (image, target))
+            #visualization.visualize_batch_data('valid_img', epoch, output, (image, target))
 
             #acc1, acc5 = utils.accuracy(output, target, topk=(1, 5))
             # FIXME need to take into account that the datasets

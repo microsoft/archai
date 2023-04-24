@@ -2,16 +2,19 @@
 # Config file for NAS search - Debug run
 #
 
-# search args
-num_iters: 6
-init_num_models: 4 #16 #32
-num_random_mix: 32
-num_crossovers: 4
-mutations_per_parent: 4
-max_unseen_population: 4 #16 #32
+# job args
+seed: 0
+num_jobs_per_gpu: 2
 num_latency_measurements: 15
 num_input_per_latency_measurement: 15
-seed: 0
+
+# search args
+num_iters: 7
+init_num_models: 32
+num_random_mix: 32
+num_crossovers: 8
+mutations_per_parent: 4
+max_unseen_population: 32
 
 # Search space args
 r_range: [1, 2, 3, 4]
@@ -25,9 +28,9 @@ depth_mult_range: [0.25, 0.5, 0.75, 1.0, 1.25]
 
 # model trainer args
 data_path: /data/public_face_synthetics/dataset_100000
-output_dir: /home/wchen/tmp
-#max_num_images: 20000
-max_num_images: 1000
+output_dir: /home/wchen/public_face_landmark_experiments/04_21_2023_fullrun_after_cleanup
+max_num_images: 20000
+#max_num_images: 1000
 train_crop_size: 128 
 epochs: 30 
 batch_size: 128

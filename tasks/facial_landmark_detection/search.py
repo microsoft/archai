@@ -23,6 +23,7 @@ from archai.common.common import logger
 from archai.discrete_search.algos.evolution_pareto import EvolutionParetoSearch
 from archai.discrete_search.api.model_evaluator import ModelEvaluator
 from archai.discrete_search.api.search_objectives import SearchObjectives
+from archai.discrete_search.evaluators.ray import RayParallelEvaluator
 
 import train as model_trainer
 from dataset import FaceLandmarkDataset
@@ -102,7 +103,7 @@ class SearchFaceLandmarkModels():
         search_objectives = SearchObjectives()
         search_objectives.add_objective(
                 'Partial training Validation Accuracy',
-                AccuracyEvaluator(self.trainer_args),
+                RayParallelEvaluator(AccuracyEvaluator(self.trainer_args), num_gpus=1.0/self.search_args.num_jobs_per_gpu, max_calls=1),
                 higher_is_better=False,
                 compute_intensive=True)
         search_objectives.add_objective(
