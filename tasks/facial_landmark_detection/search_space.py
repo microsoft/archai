@@ -10,8 +10,10 @@ from hashlib import sha1
 from typing import List
 
 import numpy as np
+import pandas as pd
 import torch
 from overrides.overrides import overrides
+from pathlib import Path
 
 from archai.common.common import logger
 from archai.discrete_search.api.archai_model import ArchaiModel
@@ -74,6 +76,20 @@ def _gen_tv_mobilenet ( arch_def,
     model = CustomMobileNetV2(inverted_residual_setting=ir_setting, dropout=0, num_classes=num_classes)
 
     return model
+
+def create_model_from_search_results(archid, csv_file : str, num_classes) :
+    csv_path = Path(csv_file)
+    assert csv_path.exists()
+    df = pd.read_csv(csv_path)
+    row = df[df['archid'] == archid]
+    cfg = json.loads(row['config'].to_list()[0])
+
+    model = _gen_tv_mobilenet(cfg['arch_def'], 
+                                channel_multiplier=cfg['channel_multiplier'], 
+                                depth_multiplier=cfg['depth_multiplier'],
+                                num_classes=num_classes)
+    return model
+
 
 class ConfigSearchModel(torch.nn.Module):
     """This is a wrapper class to allow the model to be used in the search space"""

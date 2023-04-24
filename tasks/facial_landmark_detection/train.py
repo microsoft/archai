@@ -28,7 +28,8 @@ from torchvision.transforms.functional import InterpolationMode
 from torchinfo import summary
 
 from dataset import FaceLandmarkDataset
-import visualization
+from search_space import create_model_from_search_results
+#import visualization
 
 try:
     from torchvision import prototype
@@ -281,7 +282,9 @@ def train(args, model: nn.Module = None):
 
     print("Creating model")
     if (model is None):
-        if not args.prototype:
+        if args.search_result_archid:
+            model = create_model_from_search_results(args.search_result_archid, args.search_result_csv)
+        elif not args.prototype:
             model = torchvision.models.__dict__[args.model](pretrained=args.pretrained, num_classes=num_classes)
         else:
             model = prototype.models.__dict__[args.model](weights=args.weights, num_classes=num_classes)
@@ -433,7 +436,10 @@ def get_args_parser(add_help=True):
     parser = argparse.ArgumentParser(description="PyTorch Classification Training", add_help=add_help)
 
     parser.add_argument("--data_path", "--data-path", default="/datasets01/imagenet_full_size/061417/", type=str, help="dataset path")
-    parser.add_argument("--max_num_images", "--max-num-images", default=None, type=int, help="limit to number of images to use in dataset")    
+    parser.add_argument("--max_num_images", "--max-num-images", default=None, type=int, help="limit to number of images to use in dataset")   
+    parser.add_argument("--search_result_archid", "--nas-search-archid", default=None, type=str, help="nas search arch id to use")
+    parser.add_argument("--search_result_csv", "--search_result-csv", default=None, type=str, help="nas search result csv to use")
+ 
     parser.add_argument("--model", default="resnet18", type=str, help="model name")
     parser.add_argument("--device", default="cuda", type=str, help="device (Use cuda or cpu Default: cuda)")
     parser.add_argument(
@@ -588,30 +594,3 @@ if __name__ == "__main__":
         print(f"Final validation error for model {nas.search_args.nas_finalize_archid}: {val_error}")
     """
 
-""" TBD: need to move to trainer? Or delete.
-def _create_model_from_csv(archid, csv_file : str, num_classes, use_tvmodel:bool=False, qat:bool=False) :
-    csv_path = Path(csv_file)
-    assert csv_path.exists()
-    df0 = pd.read_csv(csv_path)#.query('metric == @metric')
-    row = df0[df0['archid'] == archid]
-    cfg = json.loads(row['config'].to_list()[0])
-
-    # Ignore number of classes for now. The classifier layer will be rebuilt after loading pretrained weights
-    # kwargs.pop('num_classes', None) 
-    # wchen: This doesn't seem to work. _load_pretrain_weight already pops the state_dict so it should be safe to fix the num_classes for now.
-    model = _gen_tv_mobilenet(cfg['arch_def'], 
-                                channel_multiplier=cfg['channel_multiplier'], 
-                                depth_multiplier=cfg['depth_multiplier'],
-                                num_classes=num_classes)
-    return model
-
-def _load_pretrain_weight(weight_file: str, model) : 
-    print("=> loading pretrained weight '{}'".format(weight_file))
-    assert path.isfile(weight_file)
-    source_state = torch.load(weight_file)
-    state_dict = source_state['state_dict']
-    state_dict.pop('classifier' + '.weight', None)
-    state_dict.pop('classifier' + '.bias', None)
-    model.load_state_dict(state_dict, strict = False)
-    return model
-"""
