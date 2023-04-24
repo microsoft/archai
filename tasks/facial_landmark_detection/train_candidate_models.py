@@ -30,7 +30,7 @@ for arch_id in pareto_archids:
         'train.py',
         '--data-path', data_dir,
         'max_num_images', str(max_num_images),
-        '--out_dir', output_dir,
+        '--output_dir', output_dir,
         '--nas_search_archid', arch_id,
         '--search_result_csv', csv_file,
         '--train-crop-size', '128',
