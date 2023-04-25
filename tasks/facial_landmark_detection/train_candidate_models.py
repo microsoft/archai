@@ -76,3 +76,5 @@ with open('search_results_with_accuracy.csv', 'w', newline='') as csvfile:
     writer.writeheader()
     for row in merged_data:
         writer.writerow(row)
+
+

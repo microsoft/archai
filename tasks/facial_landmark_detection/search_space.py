@@ -30,6 +30,7 @@ def _gen_tv_mobilenet ( arch_def,
                         depth_multiplier=1.0,
                         num_classes=1000):
     """generate mobilenet v2 from torchvision. Adapted from timm source code"""
+    assert len(arch_def) > 0, 'arch_def is empty'
     ir_setting = []
     for block_def in arch_def:
         parts = block_def[0].split("_")
@@ -83,6 +84,7 @@ def create_model_from_search_results(archid, csv_file : str, num_classes) :
     df = pd.read_csv(csv_path)
     row = df[df['archid'] == archid]
     cfg = json.loads(row['config'].to_list()[0])
+    assert len(cfg) != 0, 'cfg is empty. Make sure the cvs file is valid'
 
     model = _gen_tv_mobilenet(cfg['arch_def'], 
                                 channel_multiplier=cfg['channel_multiplier'], 
