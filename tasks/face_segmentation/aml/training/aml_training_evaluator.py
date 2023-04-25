@@ -62,7 +62,6 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
         model_id = get_valid_arch_id(arch)
         e = self.store.get_status(model_id)
         if self.metric_key in e and e[self.metric_key]:
-
             metric = float(e[self.metric_key])
             self.results += [{
                 'id': model_id,
