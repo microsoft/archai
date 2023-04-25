@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 import os
 import time
 import torch
+import mlflow
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
 
@@ -15,6 +16,16 @@ from search_space.hgnet import StackedHourglass
 from training.pl_trainer import SegmentationTrainingLoop
 from archai.common.store import ArchaiStore
 from archai.common.config import Config
+
+
+def print_auto_logged_info(r):
+    tags = {k: v for k, v in r.data.tags.items() if not k.startswith("mlflow.")}
+    artifacts = [f.path for f in mlflow.MlflowClient().list_artifacts(r.info.run_id, "model")]
+    print("run_id: {}".format(r.info.run_id))
+    print("artifacts: {}".format(artifacts))
+    print("params: {}".format(r.data.params))
+    print("metrics: {}".format(r.data.metrics))
+    print("tags: {}".format(tags))
 
 
 def main():
@@ -28,6 +39,7 @@ def main():
     parser.add_argument('--val_check_interval', type=float, default=1.0)
     parser.add_argument('--model_id', type=str, default=None)
     parser.add_argument('--config', type=Path, default=None)
+    parser.add_argument('--register', help="Specify whether to register the trained model with your mlflow workspace", action="store_true")
     args = parser.parse_args()
 
     model_id = args.model_id
@@ -96,7 +108,10 @@ def main():
             callbacks=callbacks
         )
 
-        trainer.fit(pl_model, tr_dl, val_dl)
+        mlflow.pytorch.autolog(log_models=args.register, registered_model_name=model_id)
+        with mlflow.start_run() as run:
+            trainer.fit(pl_model, tr_dl, val_dl)
+            print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
 
         val_result = trainer.validate(trainer.model, val_dl)
         print(val_result)
