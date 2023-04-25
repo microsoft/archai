@@ -91,7 +91,10 @@ aml:
         - matplotlib
         - mldesigner
         - mlflow
+        - tensorwatch
         - torch
         - torchvision
         - torchaudio
+        - transformers==4.27.4
+        - xformers
         - archai[dev] @ git+https://github.com/microsoft/archai.git

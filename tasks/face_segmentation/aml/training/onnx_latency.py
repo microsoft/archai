@@ -40,12 +40,21 @@ class AvgOnnxLatencyEvaluator(AvgOnnxLatency):
 
     @overrides
     def evaluate(self, model: ArchaiModel, budget: Optional[float] = None) -> float:
+        archid = f'id_{model.archid}'
+        if self.store is not None:
+            e = self.store.get_status(archid)
+            if 'iteration' not in e or e['iteration'] != self.iteration:
+                e['iteration'] = self.iteration
+                self.store.merge_status_entity(e)
+            if self.metric_key in e:
+                # Use the cached value and skip the more expensive Onnx evaluation.
+                # This also ensures maximum re-use of previous training jobs.
+                return e[self.metric_key]
+
         result = super(AvgOnnxLatencyEvaluator, self).evaluate(model, budget)
         if self.store is not None:
-            archid = f'id_{model.archid}'
             e = self.store.get_status(archid)
             e['status'] = 'complete'
-            e['iteration'] = self.iteration
             e[self.metric_key] = result
             self.store.merge_status_entity(e)
         return result
