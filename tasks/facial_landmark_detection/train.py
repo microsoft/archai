@@ -283,7 +283,7 @@ def train(args, model: nn.Module = None):
     print("Creating model")
     if (model is None):
         if args.search_result_archid:
-            model = create_model_from_search_results(args.search_result_archid, args.search_result_csv)
+            model = create_model_from_search_results(args.search_result_archid, args.search_result_csv, num_classes=num_classes)
         elif not args.prototype:
             model = torchvision.models.__dict__[args.model](pretrained=args.pretrained, num_classes=num_classes)
         else:
@@ -437,7 +437,7 @@ def get_args_parser(add_help=True):
 
     parser.add_argument("--data_path", "--data-path", default="/datasets01/imagenet_full_size/061417/", type=str, help="dataset path")
     parser.add_argument("--max_num_images", "--max-num-images", default=None, type=int, help="limit to number of images to use in dataset")   
-    parser.add_argument("--search_result_archid", "--nas-search-archid", default=None, type=str, help="nas search arch id to use")
+    parser.add_argument("--search_result_archid", "--search-result-archid", default=None, type=str, help="nas search arch id to use")
     parser.add_argument("--search_result_csv", "--search_result-csv", default=None, type=str, help="nas search result csv to use")
  
     parser.add_argument("--model", default="resnet18", type=str, help="model name")

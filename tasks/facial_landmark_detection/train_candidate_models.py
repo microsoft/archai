@@ -20,18 +20,19 @@ data_dir = '/data/public_face_synthetics/dataset_100000'
 output_dir = '/home/wchen/public_face_landmark_experiments/04_21_2023_fullrun_after_cleanup/full_train_pareto_models'
 csv_file = 'search_results.csv'
 num_epochs = 100
-max_num_images = 1000
+#max_num_images = 1000
 
 for arch_id in pareto_archids:
- 
+
+    print(f"Training model with arch_id: {arch_id}")
     cmd = [
         'torchrun',
         '--nproc_per_node=4',
         'train.py',
         '--data-path', data_dir,
-#        'max_num_images', str(max_num_images),
+#        '--max_num_images', str(max_num_images),
         '--output_dir', output_dir,
-        '--nas_search_archid', arch_id,
+        '--search_result_archid', arch_id,
         '--search_result_csv', csv_file,
         '--train-crop-size', '128',
         '--epochs', str(num_epochs),
@@ -44,18 +45,22 @@ for arch_id in pareto_archids:
         '-wd', '0.00001'
     ]
 
-    result = subprocess.run(cmd, stdout=subprocess.PIPE, universal_newlines=True)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
 
-    lines = result.stdout.split('\n')
     errors = []
+    while True:
+        output = process.stdout.readline()
+        if output == '' and process.poll() is not None:
+            break
+        if output:
+            print(output.strip())
+            if output.startswith('Test:'):
+                if 'Error' in output:
+                    error_str = output.split()[-1]
+                    error = float(error_str)
+                    errors.append(error)
 
-    for line in lines:
-        if line.startswith('Test:'):
-            if 'Error' in line:
-                error_str = line.split()[-1]
-                error = float(error_str)
-                errors.append(error)
-
+    result = process.poll()
     assert errors and len(errors) != 0 #should have at least one error
     full_training_accuracy[arch_id] = errors[-1]
 
@@ -76,5 +81,3 @@ with open('search_results_with_accuracy.csv', 'w', newline='') as csvfile:
     writer.writeheader()
     for row in merged_data:
         writer.writerow(row)
-
-
