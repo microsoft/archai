@@ -54,6 +54,7 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
         self.store = configure_store(aml_config)
         self.results = []
         self.metric_key = self.config['training'].get('metric_key', 'val_iou')
+        self.failure_rate = 0.25
 
     @overrides
     def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
@@ -102,7 +103,7 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
 
             # wait for all the parallel training jobs to finish
             keys = [self.metric_key]
-            monitor = JobCompletionMonitor(self.store, self.ml_client, keys, job_id, self.timeout)
+            monitor = JobCompletionMonitor(self.store, self.ml_client, keys, job_id, self.timeout, throw_on_failure_rate=self.failure_rate)
             models = monitor.wait(model_names)['models']
             for m in models:
                 id = m['id']
@@ -135,7 +136,10 @@ class AmlPartialTrainingEvaluator(AsyncModelEvaluator):
         # not so good.
         metrics = []
         for m in results['models']:
-            metric = m[self.metric_key]
+            if self.metric_key in m:
+                metric = m[self.metric_key]
+            else:
+                metric = None
             metrics += [metric]
 
         self.models = []  # reset for next run.
