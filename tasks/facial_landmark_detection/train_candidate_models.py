@@ -17,9 +17,9 @@ print(f"Models to be fully trained: {pareto_archids}")
 """Train pareto models with full training data"""
 full_training_accuracy = {}
 data_dir = '/data/public_face_synthetics/dataset_100000'
-output_dir = '/tmp/debug'
+output_dir = '/home/wchen/public_face_landmark_experiments/04_21_2023_fullrun_after_cleanup/full_train_pareto_models'
 csv_file = 'search_results.csv'
-num_epochs = 3
+num_epochs = 100
 max_num_images = 1000
 
 for arch_id in pareto_archids:
@@ -29,7 +29,7 @@ for arch_id in pareto_archids:
         '--nproc_per_node=4',
         'train.py',
         '--data-path', data_dir,
-        'max_num_images', str(max_num_images),
+#        'max_num_images', str(max_num_images),
         '--output_dir', output_dir,
         '--nas_search_archid', arch_id,
         '--search_result_csv', csv_file,
