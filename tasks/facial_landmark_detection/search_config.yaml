@@ -27,8 +27,8 @@ channel_mult_range: [0.25, 0.5, 0.75, 1.0, 1.25]
 depth_mult_range: [0.25, 0.5, 0.75, 1.0, 1.25]
 
 # model trainer args
-data_path: /data/public_face_synthetics/dataset_100000
-output_dir: /home/wchen/public_face_landmark_experiments/04_21_2023_fullrun_after_cleanup
+data_path: face_synthetics/dataset_100000
+output_dir: ./output
 max_num_images: 20000
 #max_num_images: 1000
 train_crop_size: 128 

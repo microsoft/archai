@@ -1,16 +1,14 @@
-#full train all candidate models and construct the final Pareto frontier
-
 import csv
 import subprocess
 
-"""Train pareto models with full training data"""
-full_training_accuracy = {}
-data_dir = '/data/public_face_synthetics/dataset_100000'
-output_dir = '/home/wchen/public_face_landmark_experiments/04_21_2023_fullrun_after_cleanup/full_train_pareto_models'
-csv_file = 'search_results.csv'
-num_epochs = 100
-#max_num_images = 1000
+"""Train the models that are in the pareto front"""
 
+# Please change the following variables to your own path
+data_dir = 'face_synthetics/dataset_100000'
+output_dir = './output'
+csv_file = 'search_results.csv'
+
+# Read the search results and pick the models in the pareto front
 pareto_archids = []
 search_results = []
 with open(csv_file, 'r') as csvfile:
@@ -19,9 +17,11 @@ with open(csv_file, 'r') as csvfile:
         search_results.append(row)
         if row['is_pareto'] == 'True':
             pareto_archids.append(row['archid'])
-print(f"Models to be fully trained: {pareto_archids}")
+print(f"Models to be trained: {pareto_archids}")
 
-
+# Train the models with subprocess call
+training_accuracy = {}
+num_epochs = 100
 for arch_id in pareto_archids:
 
     print(f"Training model with arch_id: {arch_id}")
@@ -30,7 +30,6 @@ for arch_id in pareto_archids:
         '--nproc_per_node=4',
         'train.py',
         '--data-path', data_dir,
-#        '--max_num_images', str(max_num_images),
         '--output_dir', output_dir,
         '--search_result_archid', arch_id,
         '--search_result_csv', csv_file,
@@ -62,19 +61,19 @@ for arch_id in pareto_archids:
 
     result = process.poll()
     assert errors and len(errors) != 0 #should have at least one error
-    full_training_accuracy[arch_id] = errors[-1]
+    training_accuracy[arch_id] = errors[-1]
 
-# Merge with full_training_accuracy dictionary
+# Merge training accuracy to search_results
 merged_data = []
 for row in search_results:
     arch_id = row['archid']
-    if arch_id in full_training_accuracy:
-        row['Full training Validation Accuracy'] = full_training_accuracy[arch_id]
+    if arch_id in training_accuracy:
+        row['Full training Validation Accuracy'] = training_accuracy[arch_id]
     else:
         row['Full training Validation Accuracy'] = ''
     merged_data.append(row)
 
-# Write merged data to search_results_with_accuracy.csv
+# Write to csv
 fieldnames = search_results[0].keys()
 with open('search_results_with_accuracy.csv', 'w', newline='') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
