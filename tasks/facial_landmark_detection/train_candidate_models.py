@@ -3,17 +3,6 @@
 import csv
 import subprocess
 
-pareto_archids = []
-search_results = []
-with open('search_results.csv', 'r') as csvfile:
-    reader = csv.DictReader(csvfile)
-    for row in reader:
-        search_results.append(row)
-        if row['is_pareto'] == 'True':
-            pareto_archids.append(row['archid'])
-
-print(f"Models to be fully trained: {pareto_archids}")
-
 """Train pareto models with full training data"""
 full_training_accuracy = {}
 data_dir = '/data/public_face_synthetics/dataset_100000'
@@ -21,6 +10,17 @@ output_dir = '/home/wchen/public_face_landmark_experiments/04_21_2023_fullrun_af
 csv_file = 'search_results.csv'
 num_epochs = 100
 #max_num_images = 1000
+
+pareto_archids = []
+search_results = []
+with open(csv_file, 'r') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        search_results.append(row)
+        if row['is_pareto'] == 'True':
+            pareto_archids.append(row['archid'])
+print(f"Models to be fully trained: {pareto_archids}")
+
 
 for arch_id in pareto_archids:
 

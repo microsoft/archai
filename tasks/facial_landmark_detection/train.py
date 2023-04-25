@@ -1,27 +1,15 @@
-import sys
-"""if ('--debug' in sys.argv):
-    import debugpy
-    debugpy.listen(5678)
-    print("Waiting for debugger")
-    debugpy.wait_for_client()
-"""
-
-import pathlib 
-root = pathlib.Path(__file__).parent.absolute()
-sys.path.append(str(root))
-
+"""Adapted from torchvision https://github.com/pytorch/vision/blob/main/references/classification/train.py"""
 import datetime
 import os
 import time
 import warnings
 
-#import presets
 import torch
 import torch.utils.data
 import torchvision
 import transforms
 import utils
-#from sampler import RASampler
+
 from torch import nn
 from torch.utils.data.dataloader import default_collate
 from torchvision.transforms.functional import InterpolationMode
@@ -29,12 +17,6 @@ from torchinfo import summary
 
 from dataset import FaceLandmarkDataset
 from search_space import create_model_from_search_results
-#import visualization
-
-try:
-    from torchvision import prototype
-except ImportError:
-    prototype = None
 
 def average_error(target, output):
     errors = target - output  # shape (B, K, 2)
@@ -81,17 +63,10 @@ def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, arg
 
         error = average_error (target, output)
 
-        #acc1, acc5 = utils.accuracy(output, target, topk=(1, 5))
         batch_size = image.shape[0]
         metric_logger.update(loss=loss.item(), lr=optimizer.param_groups[0]["lr"])
-        #metric_logger.meters["acc1"].update(acc1.item(), n=batch_size)
-        #metric_logger.meters["acc5"].update(acc5.item(), n=batch_size)
         metric_logger.meters["error"].update(error, n=batch_size)
         metric_logger.meters["img/s"].update(batch_size / (time.time() - start_time))
-
-        #here let's draw the image and the points
-        #visualization.visualize_batch_data('train_img', epoch, output, (image, target))
-
 
 def evaluate(model, criterion, data_loader, epoch, device, print_freq=100, log_suffix=""):
     model.eval()
@@ -108,16 +83,12 @@ def evaluate(model, criterion, data_loader, epoch, device, print_freq=100, log_s
             loss = criterion(output, target)
 
             error = average_error (target, output)            
-            #visualization.visualize_batch_data('valid_img', epoch, output, (image, target))
 
-            #acc1, acc5 = utils.accuracy(output, target, topk=(1, 5))
             # FIXME need to take into account that the datasets
             # could have been padded in distributed setup
             batch_size = image.shape[0]
             metric_logger.update(loss=loss.item())
             metric_logger.meters["error"].update(error, n=batch_size)
-            #metric_logger.meters["acc1"].update(acc1.item(), n=batch_size)
-            #metric_logger.meters["acc5"].update(acc5.item(), n=batch_size)
             num_processed_samples += batch_size
 
     # gather the stats from all processes
@@ -142,79 +113,17 @@ def evaluate(model, criterion, data_loader, epoch, device, print_freq=100, log_s
     print(f"{header} Error {metric_logger.error.global_avg:.4f}")
     return float(metric_logger.error.global_avg)
 
-def _get_cache_path(filepath):
-    import hashlib
-
-    h = hashlib.sha1(filepath.encode()).hexdigest()
-    cache_path = os.path.join("~", ".torch", "vision", "datasets", "imagefolder", h[:10] + ".pt")
-    cache_path = os.path.expanduser(cache_path)
-    return cache_path
-
 
 def load_data(traindir, valdir, args):
     # Data loading code
     print("Loading data")
     val_resize_size, val_crop_size, train_crop_size = args.val_resize_size, args.val_crop_size, args.train_crop_size
-    interpolation = InterpolationMode(args.interpolation)
 
     print("Loading training data")
     st = time.time()
-    cache_path = _get_cache_path(traindir)
-    if args.cache_dataset and os.path.exists(cache_path):
-        # Attention, as the transforms are also cached!
-        print(f"Loading dataset_train from {cache_path}")
-        dataset, _ = torch.load(cache_path)
-    else:
-        auto_augment_policy = getattr(args, "auto_augment", None)
-        random_erase_prob = getattr(args, "random_erase", 0.0)
-        assert (val_crop_size ==  train_crop_size)
-        dataset = FaceLandmarkDataset (traindir, limit=args.max_num_images, crop_size=train_crop_size)
-        """
-        dataset = torchvision.datasets.ImageFolder(
-            traindir,
-            presets.ClassificationPresetTrain(
-                crop_size=train_crop_size,
-                interpolation=interpolation,
-                auto_augment_policy=auto_augment_policy,
-                random_erase_prob=random_erase_prob,
-            ),
-        )
-        """
-        if args.cache_dataset:
-            print(f"Saving dataset_train to {cache_path}")
-            utils.mkdir(os.path.dirname(cache_path))
-            utils.save_on_master((dataset, traindir), cache_path)
+    assert (val_crop_size ==  train_crop_size)
+    dataset = FaceLandmarkDataset (traindir, limit=args.max_num_images, crop_size=train_crop_size)
     print("Took", time.time() - st)
-    """
-    print("Loading validation data")
-    cache_path = _get_cache_path(valdir)
-    if args.cache_dataset and os.path.exists(cache_path):
-        # Attention, as the transforms are also cached!
-        print(f"Loading dataset_test from {cache_path}")
-        dataset_test, _ = torch.load(cache_path)
-    else:
-        if not args.prototype:
-            preprocessing = presets.ClassificationPresetEval(
-                crop_size=val_crop_size, resize_size=val_resize_size, interpolation=interpolation
-            )
-        else:
-            if args.weights:
-                weights = prototype.models.get_weight(args.weights)
-                preprocessing = weights.transforms()
-            else:
-                preprocessing = prototype.transforms.ImageNetEval(
-                    crop_size=val_crop_size, resize_size=val_resize_size, interpolation=interpolation
-                )
-
-        dataset_test = torchvision.datasets.ImageFolder(
-            valdir,
-            preprocessing,
-        )
-        if args.cache_dataset:
-            print(f"Saving dataset_test to {cache_path}")
-            utils.mkdir(os.path.dirname(cache_path))
-            utils.save_on_master((dataset_test, valdir), cache_path)
-    """
 
     validation_dataset_size = int(len(dataset) * 0.1)
     dataset_train, dataset_test = torch.utils.data.random_split(dataset, [len(dataset) - validation_dataset_size, validation_dataset_size])
@@ -222,9 +131,6 @@ def load_data(traindir, valdir, args):
 
     print("Creating data loaders")
     if args.distributed:
-#        if hasattr(args, "ra_sampler") and args.ra_sampler:
-#            train_sampler = RASampler(dataset, shuffle=True, repetitions=args.ra_reps)
-#        else:
         train_sampler = torch.utils.data.distributed.DistributedSampler(dataset)
         test_sampler = torch.utils.data.distributed.DistributedSampler(dataset_test, shuffle=False)
     else:
@@ -235,10 +141,6 @@ def load_data(traindir, valdir, args):
 
 
 def train(args, model: nn.Module = None):
-    if args.prototype and prototype is None:
-        raise ImportError("The prototype module couldn't be found. Please install the latest torchvision nightly.")
-    if not args.prototype and args.weights:
-        raise ValueError("The weights parameter works only in prototype mode. Please pass the --prototype argument.")
     if args.output_dir:
         utils.mkdir(args.output_dir)
 
@@ -259,7 +161,6 @@ def train(args, model: nn.Module = None):
 
     collate_fn = None
     num_classes = dataset.dataset.num_landmarks
-    #num_classes = 10
     mixup_transforms = []
     if args.mixup_alpha > 0.0:
         mixup_transforms.append(transforms.RandomMixup(num_classes, p=1.0, alpha=args.mixup_alpha))
@@ -284,10 +185,8 @@ def train(args, model: nn.Module = None):
     if (model is None):
         if args.search_result_archid:
             model = create_model_from_search_results(args.search_result_archid, args.search_result_csv, num_classes=num_classes)
-        elif not args.prototype:
-            model = torchvision.models.__dict__[args.model](pretrained=args.pretrained, num_classes=num_classes)
         else:
-            model = prototype.models.__dict__[args.model](weights=args.weights, num_classes=num_classes)
+            model = torchvision.models.__dict__[args.model](weights=args.weights, num_classes=num_classes)
     model.to(device)
 
     if args.distributed and args.sync_bn:
@@ -295,7 +194,6 @@ def train(args, model: nn.Module = None):
 
     print (summary(model, input_size=(1, 3, 192, 192)))
 
-    #criterion = nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
     criterion = nn.MSELoss()
 
     if args.norm_weight_decay is None:
@@ -467,9 +365,7 @@ def get_args_parser(add_help=True):
         type=float,
         help="weight decay for Normalization layers (default: None, same value as --wd)",
     )
-    parser.add_argument(
-        "--label-smoothing", default=0.0, type=float, help="label smoothing (default: 0.0)", dest="label_smoothing"
-    )
+
     parser.add_argument("--mixup-alpha", default=0.0, type=float, help="mixup alpha (default: 0.0)")
     parser.add_argument("--cutmix-alpha", default=0.0, type=float, help="cutmix alpha (default: 0.0)")
     parser.add_argument("--lr_scheduler", "--lr-scheduler", default="steplr", type=str, help="the lr scheduler (default: steplr)")
@@ -485,12 +381,6 @@ def get_args_parser(add_help=True):
     parser.add_argument("--resume", default="", type=str, help="path of checkpoint")
     parser.add_argument("--start-epoch", default=0, type=int, metavar="N", help="start epoch")
     parser.add_argument(
-        "--cache-dataset",
-        dest="cache_dataset",
-        help="Cache the datasets for quicker initialization. It also serializes the transforms",
-        action="store_true",
-    )
-    parser.add_argument(
         "--sync-bn",
         dest="sync_bn",
         help="Use sync batch norm",
@@ -502,14 +392,6 @@ def get_args_parser(add_help=True):
         help="Only test the model",
         action="store_true",
     )
-    parser.add_argument(
-        "--pretrained",
-        dest="pretrained",
-        help="Use pre-trained models from the modelzoo",
-        action="store_true",
-    )
-    parser.add_argument("--auto-augment", default=None, type=str, help="auto augment policy (default: None)")
-    parser.add_argument("--random-erase", default=0.0, type=float, help="random erasing probability (default: 0.0)")
 
     # Mixed precision training parameters
     parser.add_argument("--amp", action="store_true", help="Use torch.cuda.amp for mixed precision training")
@@ -535,9 +417,7 @@ def get_args_parser(add_help=True):
     parser.add_argument(
         "--use-deterministic-algorithms", action="store_true", help="Forces the use of deterministic algorithms only."
     )
-    parser.add_argument(
-        "--interpolation", default="bilinear", type=str, help="the interpolation method (default: bilinear)"
-    )
+
     parser.add_argument(
         "--val-resize-size", default=128, type=int, help="the resize size used for validation (default: 128)"
     )
@@ -548,18 +428,8 @@ def get_args_parser(add_help=True):
         "--train_crop_size", "--train-crop-size", default=128, type=int, help="the random crop size used for training (default: 128)"
     )
     parser.add_argument("--clip-grad-norm", default=None, type=float, help="the maximum gradient norm (default None)")
-    parser.add_argument("--ra-sampler", action="store_true", help="whether to use Repeated Augmentation in training")
-    parser.add_argument(
-        "--ra-reps", default=3, type=int, help="number of repetitions for Repeated Augmentation (default: 3)"
-    )
 
-    # Prototype models only
-    parser.add_argument(
-        "--prototype",
-        dest="prototype",
-        help="Use prototype model builders instead those from main area",
-        action="store_true",
-    )
+
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
 
     return parser
@@ -568,29 +438,3 @@ def get_args_parser(add_help=True):
 if __name__ == "__main__":
     args, _ = get_args_parser().parse_known_args()
     train(args)
-
-    ###To be moved to trainder
-    """
-        model = _create_model_from_csv (
-            nas.search_args.nas_finalize_archid,
-            nas.search_args.nas_finalize_models_csv,
-            num_classes=NUM_LANDMARK_CLASSES)
-
-        print(f'Loading weights from {str(nas.search_args.nas_finalize_pretrained_weight_file)}')
-        if (not nas.search_args.nas_load_nonqat_weights):
-            if (nas.search_args.nas_finalize_pretrained_weight_file is not None) :
-                model = _load_pretrain_weight(nas.search_args.nas_finalize_pretrained_weight_file, model)
-
-        if (nas.search_args.nas_use_tvmodel):
-            model.classifier = torch.nn.Sequential(torch.nn.Dropout(0.2), torch.nn.Linear(model.last_channel, NUM_LANDMARK_CLASSES))
-
-        # Load pretrained weights after fixing classifier as the weights match the exact network architecture
-        if (nas.search_args.nas_load_nonqat_weights):
-            assert os.path.exists(nas.search_args.nas_finalize_pretrained_weight_file)
-            print(f'Loading weights from previous non-QAT training {nas.search_args.nas_finalize_pretrained_weight_file}')
-            model.load_state_dict(torch.load(nas.search_args.nas_finalize_pretrained_weight_file))
-
-        val_error = model_trainer.train(nas.trainer_args, model)
-        print(f"Final validation error for model {nas.search_args.nas_finalize_archid}: {val_error}")
-    """
-
