@@ -55,9 +55,10 @@ def main():
             print(f'Locking entity {model_id}')
             e = store.lock(model_id, 'training')
             if e is None:
-                e = store.get_status(model_id)
-                node = e['node']
-                raise Exception(f'Entity should not be locked by: "{node}"')
+                # force the reset of this lock so the training job can take it!
+                # might be a left over from previous failed job.
+                store.unlock_entity(store.get_status(model_id))
+                e = store.lock(model_id, 'training')
 
             pipeline_id = os.getenv('AZUREML_ROOT_RUN_ID')
             if pipeline_id is not None:
