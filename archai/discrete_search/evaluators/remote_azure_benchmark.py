@@ -1,29 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
-
-import datetime
-import logging
-import platform
 import time
+import datetime
+import uuid
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import torch
-from azure.core.exceptions import ResourceNotFoundError
-from azure.data.tables import TableServiceClient, UpdateMode
-from azure.storage.blob import BlobServiceClient
 from overrides import overrides
 
 from archai.discrete_search.api.archai_model import ArchaiModel
 from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
-
-
-def _get_utc_date() -> str:
-    current_date = datetime.datetime.now()
-    current_date = current_date.replace(tzinfo=datetime.timezone.utc)
-
-    return current_date.isoformat()
+from archai.common.store import ArchaiStore
 
 
 class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
@@ -37,15 +26,14 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
     def __init__(
         self,
         input_shape: Union[Tuple, List[Tuple]],
-        connection_string: str,
-        blob_container_name: str,
-        table_name: str,
+        store: ArchaiStore,
+        experiment_name: str,
         metric_key: str,
-        partition_key: str,
         overwrite: Optional[bool] = True,
         max_retries: Optional[int] = 5,
         retry_interval: Optional[int] = 120,
         onnx_export_kwargs: Optional[Dict[str, Any]] = None,
+        verbose: bool = False
     ) -> None:
         """Initialize the evaluator.
 
@@ -60,160 +48,151 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
             max_retries: Maximum number of retries in `fetch_all`.
             retry_interval: Interval between each retry attempt.
             onnx_export_kwargs: Dictionary containing key-value arguments for `torch.onnx.export`.
-
+            verbose: Whether to print debug messages.
         """
 
         # TODO: Make this class more general / less pipeline-specific
+        self.store = store
         input_shapes = [input_shape] if isinstance(input_shape, tuple) else input_shape
         self.sample_input = tuple([torch.rand(*input_shape) for input_shape in input_shapes])
-        self.blob_container_name = blob_container_name
-        self.blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-
-        self.table_name = table_name
-        self.table_service_client = TableServiceClient.from_connection_string(
-            connection_string, logging_enable=False, logging_level="ERROR"
-        )
-
-        # Changes the Azure logging level to ERROR to avoid unnecessary output
-        logger = logging.getLogger("azure.core.pipeline.policies.http_logging_policy")
-        logger.setLevel(logging.ERROR)
-
+        self.experiment_name = experiment_name
         self.metric_key = metric_key
-        self.partition_key = partition_key
         self.overwrite = overwrite
         self.max_retries = max_retries
         self.retry_interval = retry_interval
         self.onnx_export_kwargs = onnx_export_kwargs or dict()
+        self.verbose = verbose
+        self.results = {}
 
         # Architecture list
         self.archids = []
 
-    def __contains__(self, rowkey_id: str) -> bool:
-        try:
-            self._get_entity(rowkey_id)
-        except ResourceNotFoundError:
-            return False
+        # Test connection string works
+        unknown_id = str(uuid.uuid4())
+        _ = self.store.get_existing_status(unknown_id)
+        _ = self.store.list_blobs(unknown_id)
 
-        return True
-
-    @property
-    def table_client(self) -> Any:
-        """Return the table client."""
-
-        return self.table_service_client.create_table_if_not_exists(self.table_name)
-
-    def _upload_blob(self, src_path: str, dst_path: str) -> None:
-        """Upload a file to Azure Blob storage.
-
-        Args:
-            src_path: Path to the source file.
-            dst_path: Path to the destination file.
-
-        """
-
-        src_path = Path(src_path)
-        assert src_path.is_file(), f"{src_path} does not exist or is not a file"
-
-        blob_client = self.blob_service_client.get_blob_client(container=self.blob_container_name, blob=dst_path)
-
-        with open(src_path, "rb") as data:
-            blob_client.upload_blob(data, overwrite=self.overwrite)
-
-    def _get_entity(self, rowkey_id: str) -> Dict[str, Any]:
-        """Return the entity with the given `rowkey_id`.
-
-        Args:
-            rowkey_id: Row key of the entity.
-
-        Returns:
-            Entity dictionary.
-
-        """
-
-        return self.table_client.get_entity(partition_key=self.partition_key, row_key=rowkey_id)
-
-    def _update_entity(self, rowkey_id: str, entity_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """Update the entity with the given `rowkey_id`.
-
-        Args:
-            rowkey_id: Row key of the entity.
-            entity_dict: Dictionary containing the entity properties.
-
-        Returns:
-            Entity dictionary.
-
-        """
-
-        entity = {"PartitionKey": self.partition_key, "RowKey": rowkey_id}
-        entity.update(entity_dict)
-
-        return self.table_client.upsert_entity(entity, mode=UpdateMode.REPLACE)
+    def _reset(self, entity):
+        changed = False
+        for k in ['mean', 'macs', 'params', 'stdev', 'total_inference_avg', 'error']:
+            if k in entity:
+                del entity[k]
+                changed = True
+        if changed:
+            self.store.update_status_entity(entity)
 
     @overrides
     def send(self, arch: ArchaiModel, budget: Optional[float] = None) -> None:
-        archid = str(arch.archid)
+        # bug in azure ml sdk requires blob store folder names not begin with digits, so we prefix with 'id_'
+        archid = f'id_{arch.archid}'
 
         # Checks if architecture was already benchmarked
-        if archid in self:
-            entity = self._get_entity(archid)
+        entity = self.store.get_existing_status(archid)
+        if entity is not None:
             if entity["status"] == "complete":
+                if self.metric_key in entity:
+                    if self.verbose:
+                        value = entity[self.metric_key]
+                        self.archids.append(archid)
+                        print(f"Entry for {archid} already exists with {self.metric_key} = {value}")
+                    return
+                else:
+                    # complete but missing the mean, so reset the benchmark metrics so we can try again.
+                    self._reset(entity)
+            else:
+                # job is still running, let it continue
+                if self.verbose:
+                    print(f"Job for {archid} is running...")
                 self.archids.append(archid)
                 return
 
-            if self.metric_key in entity and entity[self.metric_key]:
-                self.archids.append(archid)
-                return
+        entity = self.store.get_status(archid)  # this is a get or create operation.
+        entity["benchmark_only"] = 1
+        entity["model_date"] = self.store.get_utc_date()
+        entity["model_name"] = "model.onnx"
+        self.store.update_status_entity(entity)  # must be an update, not a merge.
+        self.store.lock_entity(entity, "uploading")
+        try:
+            with TemporaryDirectory() as tmp_dir:
+                tmp_dir = Path(tmp_dir)
 
-        entity = {
-            "status": "uploading",
-            "name": archid,
-            "node": platform.node(),
-            "benchmark_only": 1,
-            "model_date": _get_utc_date(),
-            "model_name": "model.onnx",
-        }
+                # Uploads ONNX file to blob storage and updates the table entry
+                arch.arch.to("cpu")
+                file_name = str(tmp_dir / "model.onnx")
+                # Exports model to ONNX
+                torch.onnx.export(
+                    arch.arch,
+                    self.sample_input,
+                    file_name,
+                    input_names=[f"input_{i}" for i in range(len(self.sample_input))],
+                    **self.onnx_export_kwargs,
+                )
 
-        with TemporaryDirectory() as tmp_dir:
-            tmp_dir = Path(tmp_dir)
+                self.store.upload_blob(f'{self.experiment_name}/{archid}', file_name, "model.onnx")
+                entity["status"] = "new"
+        except Exception as e:
+            entity["error"] = str(e)
+        finally:
+            self.store.unlock_entity(entity)
 
-            # Uploads ONNX file to blob storage and updates the table entry
-            arch.arch.to("cpu")
-
-            # Exports model to ONNX
-            torch.onnx.export(
-                arch.arch,
-                self.sample_input,
-                str(tmp_dir / "model.onnx"),
-                input_names=[f"input_{i}" for i in range(len(self.sample_input))],
-                **self.onnx_export_kwargs,
-            )
-
-            self._update_entity(archid, entity)
-            self._upload_blob(str(tmp_dir / "model.onnx"), f"{archid}/model.onnx")
-
-        # Updates model status
-        del entity["node"]
-        entity["status"] = "new"
-
-        self._update_entity(archid, entity)
         self.archids.append(archid)
+
+        if self.verbose:
+            print(f"Sent {archid} to Remote Benchmark")
 
     @overrides
     def fetch_all(self) -> List[Union[float, None]]:
-        results = [None for _ in self.archids]
+        results = [None] * len(self.archids)
+        completed = [False] * len(self.archids)
 
-        for _ in range(self.max_retries):
+        # retries defines how long we wait for progress, as soon as we see something complete we
+        # reset this counter because we are making progress.
+        retries = self.max_retries
+        start = time.time()
+        count = 0
+        while retries > 0:
             for i, archid in enumerate(self.archids):
-                if archid in self:
-                    entity = self._get_entity(archid)
+                if not completed[i]:
+                    entity = self.store.get_existing_status(archid)
+                    if entity is not None:
+                        if self.metric_key in entity and entity[self.metric_key]:
+                            results[i] = entity[self.metric_key]
+                        if "error" in entity:
+                            error = entity["error"]
+                            print(f"Skipping architecture {archid} because of remote error: {error}")
+                            completed[i] = True
+                            retries = self.max_retries
+                        elif entity["status"] == "complete":
+                            print(f"Architecture {archid} is complete with {self.metric_key}={ results[i]}")
+                            completed[i] = True
+                            retries = self.max_retries
 
-                    if self.metric_key in entity and entity[self.metric_key]:
-                        results[i] = entity[self.metric_key]
-
-            if all(r is not None for r in results):
+            if all(completed):
                 break
 
+            count = sum(1 for c in completed if c)
+
+            if self.verbose:
+                remaining = len(self.archids) - count
+                estimate = (time.time() - start) / (count + 1) * remaining
+
+                status_dict = {
+                    "complete": count,
+                    "total": len(results),
+                    "time_remaining": str(datetime.timedelta(seconds=estimate))
+                }
+
+                print(
+                    f"Waiting for results. Current status: {status_dict}\n"
+                    f"Pending Archids: {[archid for archid, status in zip(self.archids, results) if status is None]}"
+                )
+
             time.sleep(self.retry_interval)
+            retries += 1
+
+        count = sum(1 for c in completed if c)
+        if count == 0:
+            raise Exception("Something is wrong, the uploaded models are not being processed. Please check your SNPE remote runner setup.")
 
         # Resets state
         self.archids = []

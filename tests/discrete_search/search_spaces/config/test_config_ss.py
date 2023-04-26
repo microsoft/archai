@@ -50,7 +50,7 @@ def tree_c2():
 
 def test_param_sharing(rng, tree_c1):
     tree = ArchParamTree(tree_c1)
-    
+
     for _ in range(10):
         config = tree.sample_config(rng)
         p1 = config.pick('param1')
@@ -68,10 +68,10 @@ def test_repeat_config_share(rng, tree_c1):
 
     for _ in range(10):
         config = tree.sample_config(rng)
-        
+
         for param_block in config.pick('param_list'):
             par4 = param_block.pick('param4')
-            
+
             assert len(set(
                 p.pick('constant') for p in par4
             )) == 1
@@ -93,35 +93,47 @@ def test_ss(rng, tree_c2, tmp_path_factory):
     tmp_path = tmp_path_factory.mktemp('test_ss')
 
     tree = ArchParamTree(tree_c2)
-    
+
     def use_arch(c):
         if c.pick('p1'):
             return
-        
+
         if c.pick('p2'):
             return
-    
-    ss = ConfigSearchSpace(use_arch, tree, seed=1)
-    m = ss.random_sample()
-    ss.save_arch(m, tmp_path / 'arch.json')
 
-    m2 = ss.load_arch(tmp_path / 'arch.json')
-    assert m.archid == m2.archid
+    cache = []
+    for _ in range(2):
+        ids = []
 
-    m3 = ss.mutate(m)
-    m4 = ss.crossover([m3, m2])
+        ss = ConfigSearchSpace(use_arch, tree, seed=1)
+        m = ss.random_sample()
+        ids += [m.archid]
+        ss.save_arch(m, tmp_path / 'arch.json')
+
+        m2 = ss.load_arch(tmp_path / 'arch.json')
+        assert m.archid == m2.archid
+
+        m3 = ss.mutate(m)
+
+        ids += [m3.archid]
+        m4 = ss.crossover([m3, m2])
+        ids += [m4.archid]
+        cache += [ids]
+
+    # make sure the archid's returned are repeatable so that search jobs can be restartable.
+    assert cache[0] == cache[1]
 
 
 def test_ss_archid(rng, tree_c2):
     tree = ArchParamTree(tree_c2)
-    
+
     def use_arch(c):
         if c.pick('p1'):
             return
-        
+
         if c.pick('p2'):
             return
-    
+
     ss = ConfigSearchSpace(use_arch, tree, seed=1)
     archids = set()
 
@@ -130,5 +142,3 @@ def test_ss_archid(rng, tree_c2):
         archids.add(config.archid)
 
     assert len(archids) == 3 # Will fail with probability approx 1/2^100
-
-

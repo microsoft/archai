@@ -1,0 +1,100 @@
+search:
+  search_space:
+    name: hgnet
+
+    params:
+      num_classes: 18
+      img_size: [256, 256] # (w, h)
+      in_channels: 3
+      op_subset: ['conv3x3', 'conv5x5', 'conv7x7']
+      stem_strides: [2]
+
+      # Number of downsampling blocks (without counting stem conv)
+      num_blocks: 5
+
+      # Maximum number of layers in downsampling blocks
+      downsample_block_max_ops: 4
+
+      # Maximum number of layers in skip blocks
+      skip_block_max_ops: 2
+
+      # Maximum number of layers in upsampling blocks
+      upsample_block_max_ops: 4
+
+      # Maximum number of layers after the final upsampling layer
+      post_upsample_max_ops: 2
+
+  algorithm:
+    name: evolution_pareto
+
+    params:
+      num_iters: 20
+      init_num_models: 20
+      mutations_per_parent: 5
+      num_crossovers: 6
+      max_unseen_population: 20
+      num_random_mix: 6
+      max_parameters: 5e7
+      # we are training elsewhere, so tell the search not to try and save them locally!
+      save_pareto_model_weights: false
+
+  target:
+    name: snp
+    metric_key: mean
+    max_retries: 15
+    retry_interval: 60
+    verbose: true
+
+training:
+  # https://learn.microsoft.com/en-us/answers/questions/1215210/limited-gpu-ram
+  batch_size: 16
+  learning_rate: 2e-4
+  partial_training_epochs: 1
+  metric_key: val_iou
+
+aml:
+  connection_str: ${MODEL_STORAGE_CONNECTION_STRING}
+  blob_container_name: models
+  experiment_name: facesynthetics
+  partition_key: main
+  subscription_id: ${AZURE_SUBSCRIPTION_ID}
+  resource_group: ${AML_RESOURCE_GROUP}
+  workspace_name: ${AML_WORKSPACE_NAME}
+  timeout: 18000
+
+  search_cluster:
+    name: nas-cpu-cluster-D14-v2
+    size: Standard_D14_v2
+    location: westus2
+
+  training_cluster:
+    name: nas-gpu-cluster-NC6
+    size: Standard_NC6
+    location: westus2
+    max_instances: 20
+
+  environment:
+    name: facesynthetics-nas-env
+    channels:
+      - conda-forge
+      - pytorch
+      - nvidia
+    dependencies:
+      - python=3.10
+      - pip
+      - pip:
+        - azure-ai-ml==1.5.0
+        - azure-storage-blob
+        - azure-data-tables
+        - azure-identity
+        - azureml-mlflow
+        - matplotlib
+        - mldesigner
+        - mlflow
+        - tensorwatch
+        - torch
+        - torchvision
+        - torchaudio
+        - transformers==4.27.4
+        - xformers
+        - archai[dev] @ git+https://github.com/microsoft/archai.git

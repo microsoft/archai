@@ -19,9 +19,9 @@ jobs:
     name: Lints with `flake8` and run unit tests with `pytest`
     strategy:
       fail-fast: false
-      matrix:        
+      matrix:
         platform: [ windows-latest, ubuntu-latest ]
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10"]
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Pulls the repository

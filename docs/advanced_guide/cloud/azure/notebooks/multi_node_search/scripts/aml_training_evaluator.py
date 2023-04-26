@@ -11,7 +11,7 @@ from archai.discrete_search.api.model_evaluator import AsyncModelEvaluator
 from azure.ai.ml import MLClient, command, Input, Output, dsl
 from archai.common.store import ArchaiStore
 from shutil import copyfile
-from monitor import JobCompletionMonitor
+from archai.common.monitor import JobCompletionMonitor
 from training_pipeline import start_training_pipeline
 from utils import copy_code_folder
 
@@ -73,7 +73,9 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         print(f'AmlTrainingValAccuracy: Started training pipeline: {job_id}')
 
         # wait for all the parallel training jobs to finish
-        monitor = JobCompletionMonitor(self.store, self.ml_client, job_id, self.timeout)
+        metric_key = 'vac_acc'
+        keys = [metric_key]
+        monitor = JobCompletionMonitor(self.store, self.ml_client, keys, job_id, self.timeout)
         results = monitor.wait(model_names)
 
         # save the results to the output folder (which is mapped by the AML pipeline to our
@@ -93,7 +95,7 @@ class AmlTrainingValAccuracy(AsyncModelEvaluator):
         # not so good.
         accuracies = []
         for i, m in enumerate(results['models']):
-            val_acc = m['val_acc']
+            val_acc = m[metric_key]
             accuracies += [val_acc]
 
         print(f'AmlTrainingValAccuracy: fetch_all returning : {accuracies}')

@@ -7,10 +7,13 @@ import sys
 import logging
 import datetime
 import platform
+import time
 import numpy as np
+import re
 from torch import Tensor
 from azure.data.tables import TableServiceClient, UpdateMode, EntityProperty, EdmType
 from azure.storage.blob import BlobClient, ContainerClient
+from azure.core.exceptions import ResourceNotFoundError
 from shutil import rmtree
 
 
@@ -19,26 +22,27 @@ CONNECTION_NAME = 'MODEL_STORAGE_CONNECTION_STRING'
 
 class ArchaiStore:
     """ArchaiStore wraps an Azure 'status' Table and associated Blob Storage used to provide a backing
-    store and collating status for long running jobs.  This is actually a general purpose utility class
-    that could be used for anything.
+    store for models and an associated table for collating status of long running jobs.  This is actually a general
+    purpose utility class that could be used for anything.
 
-    The naming scheme is such that each Entity in the table has a 'name' property which is a simple
-    friendly name or a guid, and this row will have an associated folder in the blob storage container
-    with the same name where models and other peripheral files can be stored.
+    The naming scheme is such that each Entity in the table has a 'name' property which is a simple friendly name or a
+    guid, and this row will have an associated folder in the blob storage container with the same name where models and
+    other peripheral files can be stored.
 
-    The 'status' table supports a locking concept that allows the status table to be used as a way of
-    coordinating jobs across multiple machines where each machine grabs free work, locks that row until
-    the work is done, uploads new files, and updates the status to 'complete' then unlocks that row.
-    So this ArchaiStore can be used as the backing store for a simple distributed job scheduler.
+    The 'status' table supports a locking concept that allows the status table to be used as a way of coordinating jobs
+    across multiple machines where each machine grabs free work, locks that row until the work is done, uploads new
+    files, and updates the status to 'complete' then unlocks that row. So this ArchaiStore can be used as the backing
+    store for a simple distributed job scheduler.
 
     This also has a convenient command line interface provided below.
     """
-    def __init__(self, storage_account_name, storage_account_key, blob_container_name='models', status_table_name='status'):
+    def __init__(self, storage_account_name, storage_account_key, blob_container_name='models', table_name='status', partition_key='main'):
         self.storage_account_key = storage_account_key
         self.storage_account_name = storage_account_name
         self.storage_connection_string = f'DefaultEndpointsProtocol=https;AccountName={storage_account_name};AccountKey={storage_account_key};EndpointSuffix=core.windows.net'
         self.blob_container_name = blob_container_name
-        self.status_table_name = status_table_name
+        self.status_table_name = table_name
+        self.partition_key = partition_key
         self.service = None
         self.table_client = None
         self.container_client = None
@@ -84,9 +88,20 @@ class ArchaiStore:
 
     def _get_table_client(self):
         if not self.table_client:
-            if not self.service:
-                self.service = self._get_status_table_service()
-            self.table_client = self.service.create_table_if_not_exists(self.status_table_name)
+            for i in range(6):
+                try:
+                    if not self.service:
+                        self.service = self._get_status_table_service()
+                    self.table_client = self.service.create_table_if_not_exists(self.status_table_name)
+                    return self.table_client
+                except Exception as e:
+                    self.service = None
+                    if i == 5:
+                        raise e
+                    else:
+                        print(f"### error getting table client, sleeping 1 second and trying again: {e}")
+                        time.sleep(1)
+
         return self.table_client
 
     def _get_container_client(self, name):
@@ -106,55 +121,77 @@ class ArchaiStore:
         container = self._get_container_client(self.blob_container_name)  # make sure container exists.
         return BlobClient.from_connection_string(self.storage_connection_string, container_name=container.container_name, blob_name=name)
 
+    def _retry_table_operation(self, function, label, retries=5, expected=[]):
+        for i in range(retries + 1):
+            try:
+                self._get_table_client()
+                result = function()
+                return result
+            except Exception as e:
+                if "Bad Request" in str(e):
+                    raise e
+                for t in expected:
+                    if isinstance(e, t):
+                        return None
+                print(f"error {label}: {e}")
+                if i == 5:
+                    raise e
+                time.sleep(1)
+                print("trying again in 1 second")
+                self.table_client = None
+                self.service = None
+
+    def _query(self, query):
+        entities = []
+        for e in self.table_client.query_entities(query_filter=query):
+            entities += [e]
+        return entities
+
     def get_all_status_entities(self, status=None, not_equal=False):
         """ Get all status entities with optional status column filter.
         For example, pass "status=complete" to find all status rows that
         have the status "complete".  Pass not_equal of True if you want
         to check the status is not equal to the given value.
         """
-        table_client = self._get_table_client()
-
-        entities = []
-        query = "PartitionKey eq 'main'"
+        query = f"PartitionKey eq '{self.partition_key}'"
         if status:
             if not_equal:
                 query += f" and status ne '{status}'"
             else:
                 query += f" and status eq '{status}'"
 
-        try:
-            # find all properties (just use list_entities?)
-            for e in table_client.query_entities(query_filter=query):
-                entities += [self._wrap_numeric_types(e)]
-
-        except Exception as e:
-            print(f"### error reading table: {e}")
-
-        return entities
+        results = self._retry_table_operation(lambda: self._query(query),
+                                              label='reading table')
+        unwrapped = []
+        for e in results:
+            unwrapped += [self._unwrap_numeric_types(e)]
+        return unwrapped
 
     def get_status(self, name):
         """ Get or create a new status entity with the given name.
         The returned entity is a python dictionary where the name can be retrieved
         using e['name'], you can then add keys to that dictionary and call update_status_entity. """
-        table_client = self._get_table_client()
-
-        try:
-            entity = table_client.get_entity(partition_key='main', row_key=name)
-            entity = self._unwrap_numeric_types(entity)
-        except Exception:
+        entity = self._retry_table_operation(lambda: self.table_client.get_entity(partition_key=self.partition_key, row_key=name),
+                                             label='reading entity',
+                                             expected=[ResourceNotFoundError])
+        if entity is None:
             entity = {
-                'PartitionKey': 'main',
+                'PartitionKey': self.partition_key,
                 'RowKey': name,
                 'name': name,
                 'status': 'new'
             }
-        return entity
+            self.update_status_entity(entity)
+
+        return self._unwrap_numeric_types(entity)
 
     def _wrap_numeric_types(self, entity):
         e = {}
         for k in entity.keys():
             v = entity[k]
-            if isinstance(v, int):
+            if isinstance(v, bool):
+                e[k] = v
+            elif isinstance(v, int):
                 e[k] = EntityProperty(v, EdmType.INT64)
             elif isinstance(v, float):
                 e[k] = float(v)  # this is casting np.float to float.
@@ -174,36 +211,26 @@ class ArchaiStore:
 
     def get_existing_status(self, name):
         """ Find the given entity by name, and return it, or return None if the name is not found."""
-        table_client = self._get_table_client()
-        try:
-            entity = table_client.get_entity(partition_key='main', row_key=name)
-            entity = self._unwrap_numeric_types(entity)
-        except Exception:
-            return None
-        return entity
+        entity = self._retry_table_operation(lambda: self.table_client.get_entity(partition_key=self.partition_key, row_key=name),
+                                             label='reading entity',
+                                             expected=[ResourceNotFoundError])
+        if entity is not None:
+            return self._unwrap_numeric_types(entity)
+        return None
 
     def get_updated_status(self, e):
         """ Return an updated version of the entity by querying the table again, this way you
         can pick up any changes that another process may have made. """
-        table_client = self._get_table_client()
-        try:
-            entity = table_client.get_entity(partition_key=e['PartitionKey'], row_key=e['RowKey'])
-            entity = self._unwrap_numeric_types(entity)
-        except Exception:
-            return None
-        return entity
+        return self.get_existing_status(e['RowKey'])
 
     def update_status_entity(self, entity):
         """ This method replaces everything in the entity store with what you have here.
         The entity can store strings, bool, float, int, datetime, so anything like a python list
         is best serialized using json.dumps and stored as a string, the you can use json.loads to
         parse it later. """
-        # Note that for things larger than Int32 we need to use EntityProperty with EdmType.INT64, and
-        # so we do that automatically here for the user so they don't have to, and get entity will turn
-        # the result back into a python integer than can be larger than Int32.
-        table_client = self._get_table_client()
         entity = self._wrap_numeric_types(entity)
-        table_client.upsert_entity(entity=entity, mode=UpdateMode.REPLACE)
+        self._retry_table_operation(lambda: self.table_client.upsert_entity(entity=entity, mode=UpdateMode.REPLACE),
+                                    label='update entity')
 
     def merge_status_entity(self, entity):
         """ This method merges everything in the entity store with what you have here. So you can
@@ -213,9 +240,9 @@ class ArchaiStore:
         The entity can store strings, bool, float, int, datetime, so anything like a python list
         is best serialized using json.dumps and stored as a string, the you can use json.loads to
         parse it later."""
-        table_client = self._get_table_client()
         entity = self._wrap_numeric_types(entity)
-        table_client.update_entity(entity=entity, mode=UpdateMode.MERGE)
+        self._retry_table_operation(lambda: self.table_client.update_entity(entity=entity, mode=UpdateMode.MERGE),
+                                    label='merge entity')
 
     def update_status(self, name, status, priority=None):
         """ This is a simple wrapper that gets the entity by name, and updates the status field.
@@ -223,7 +250,6 @@ class ArchaiStore:
         entity = self.get_existing_status(name)
         if entity is None:
             entity = self.get_status(name)
-            self.update_status_entity(entity)
 
         entity['status'] = status
         if priority:
@@ -236,16 +262,14 @@ class ArchaiStore:
         See delete_blobs for that.  """
         e = self.get_existing_status(name)
         if e is not None:
-            table_client = self._get_table_client()
-            table_client.delete_entity(e)
+            self.delete_status_entity(e)
 
     def delete_status_entity(self, e):
         """ Delete the status entry with this name, note this does not delete any associated blobs.
         See delete_blobs for that.  """
-        table_client = self._get_table_client()
-        e = self.get_existing_status(e['name'])
-        if e is not None:
-            table_client.delete_entity(e)
+        self._retry_table_operation(lambda: self.table_client.delete_entity(e),
+                                    label='deleting status',
+                                    expected=[ResourceNotFoundError])
 
     def upload_blob(self, folder_name, file, blob_name=None):
         """ Upload the given file to the blob store, under the given folder name.
@@ -272,7 +296,6 @@ class ArchaiStore:
         e = self.get_existing_status(name)
         if e is None:
             e = self.get_status(name)
-            self.update_status_entity(e)
         return self.lock_entity(e, status)
 
     def lock_entity(self, e, status):
@@ -282,8 +305,8 @@ class ArchaiStore:
         running job is allocated to a particular node in a distributed cluster using this
         locking mechanism.  Be sure to call unlock when done, preferably in a try/finally block. """
         node_id = self._get_node_id()
-        if 'node' in e and e['node'] != node_id:
-            name = e['name']
+        name = e['name']
+        if self.is_locked_by_other(name):
             print(f"The model {name} is locked by {e['node']}")
             return None
         e['status'] = status
@@ -314,7 +337,7 @@ class ArchaiStore:
         if e is None:
             return False
         node_id = self._get_node_id()
-        return 'node' in e and e['node'] != node_id
+        return 'node' in e and e['node'] and e['node'] != node_id
 
     def unlock(self, name):
         """ Unlock the entity (regardless of who owns it - so use carefully, preferably only
@@ -356,20 +379,22 @@ class ArchaiStore:
                 print(f"Unlocking job {name} on node {node}")
                 self.merge_status_entity(e)
 
-    def reset(self, name):
+    def reset(self, name, except_list=[]):
         """ This resets all properties on the given entity that are not primary keys,
-        'name' or 'status'. This will not touch a node that is locked by another.  """
+        'name' or 'status' and are not in the given except_list.
+        This will not touch a node that is locked by another computer.  """
         e = self.get_existing_status(name)
         if not e:
             print(f"Entity {name} not found")
         else:
-            self._reset(e)
+            self._reset(e, except_list)
 
-    def _reset(self, e):
-        if self.is_locked_by_other(e):
+    def _reset(self, e, except_list=[]):
+        name = e['name']
+        if self.is_locked_by_other(name):
             node = self.get_lock(e)
             print(f"Skipping {e['RowKey']} as it is locked by {node}")
-        elif self._reset_metrics(e):
+        elif self._reset_metrics(e, except_list):
             e['status'] = 'reset'
             print(f"Resetting entity {e['RowKey']}")
             self.update_status_entity(e)
@@ -379,11 +404,11 @@ class ArchaiStore:
         for e in self.get_all_status_entities():
             self._reset(e)
 
-    def _reset_metrics(self, entity):
+    def _reset_metrics(self, entity, except_list=[]):
         # now clear all data to force a full re-run of everything.
         modified = False
         for key in list(entity.keys()):
-            if key != 'PartitionKey' and key != 'RowKey' and key != 'name' and key != 'status' and key != 'node':
+            if key != 'PartitionKey' and key != 'RowKey' and key != 'name' and key != 'status' and key != 'node' and key not in except_list:
                 del entity[key]
                 modified = True
         return modified
@@ -458,22 +483,25 @@ class ArchaiStore:
     def download(self, name, folder, specific_file=None):
         """ Download files from the given folder name from our associated blob container
         and return a list of the local paths to all downloaded files.  If an optional specific_file is
-        given then it tries to find and download that file only.  Returns a list of local files created. """
+        given then it tries to find and download that file only.  Returns a list of local files created.
+        The specific_file can be a regular expression like '*.onnx'. """
         container = self._get_container_client(self.blob_container_name)
         if not container.exists():
-            return (False, None)
+            return []
 
         if not os.path.isdir(folder):
             os.makedirs(folder)
         local_file = None
         prefix = f'{name}/'
         downloaded = []
+        if specific_file:
+            specific_file_re = re.compile(specific_file)
 
         for blob in container.list_blobs(name_starts_with=prefix):
             file_name = blob.name[len(prefix):]
             download = False
             if specific_file:
-                if specific_file != file_name:
+                if not specific_file_re.match(file_name):
                     continue
                 else:
                     download = True
@@ -498,8 +526,6 @@ class ArchaiStore:
                     downloaded += [local_file]
                 except Exception as e:
                     print(f"### Error downloading blob '{blob}' to local file: {e}")
-                if specific_file:
-                    break
 
         return downloaded
 
@@ -512,6 +538,11 @@ class ArchaiStore:
             if specific_file and file_name != specific_file:
                 continue
             container.delete_blob(blob)
+
+    def list_blobs(self, prefix=None):
+        """ List all the blobs associated with the given prefix. """
+        container = self._get_container_client(self.blob_container_name)
+        return [blob.name for blob in container.list_blobs(name_starts_with=prefix)]
 
     def print_entities(self, entities, columns=None):
         keys = []
@@ -542,14 +573,23 @@ def status(con_str, args):
     parser.add_argument('--not_equal', '-ne', help='Switch the match to a not-equal comparison.', action="store_true")
     parser.add_argument('--locked', help='Find entities that are locked by a node.', action="store_true")
     parser.add_argument('--cols', help='Comma separated list of columns to report (default is to print all)')
+    parser.add_argument('--table', help='Table name to use (default "status")', default='status')
     args = parser.parse_args(args)
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
-    entities = store.get_all_status_entities(args.status, args.not_equal)
-    if args.locked:
-        entities = [e for e in entities if 'node' in e and e['node']]
-    if args.name:
-        entities = [e for e in entities if 'name' in e and e['name'] == args.name]
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=args.table)
+
+    if args.name is not None:
+        e = store.get_existing_status(args.name)
+        if e is None:
+            entities = []
+        else:
+            entities = [e]
+    else:
+        entities = store.get_all_status_entities(args.status, args.not_equal)
+        if args.locked:
+            entities = [e for e in entities if 'node' in e and e['node']]
+        if args.name:
+            entities = [e for e in entities if 'name' in e and e['name'] == args.name]
 
     columns = None
     if args.cols:
@@ -565,9 +605,10 @@ def upload(con_str, args):
     parser.add_argument('--priority', type=int, help='Optional priority override for this job. ' +
                         'Larger numbers mean lower priority')
     parser.add_argument('--reset', help='Reset stats for the model if it exists already.', action="store_true")
+    parser.add_argument('--table', help='Table name to use (default "status")', default='status')
     args = parser.parse_args(args)
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=args.table)
     store.upload(args.name, args.file, args.reset, priority=args.priority)
 
 
@@ -579,9 +620,10 @@ def batch_upload(con_str, args):
     parser.add_argument('--reset', help='Reset stats for any models we are overriding.', action="store_true")
     parser.add_argument('--priority', type=int, help='Optional priority override for these jobs. ' +
                         'Larger numbers mean lower priority')
+    parser.add_argument('--table', help='Table name to use (default "status")', default='status')
     args = parser.parse_args(args)
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=args.table)
     store.batch_upload(args.path, args.override, args.reset, priority=args.priority)
 
 
@@ -590,10 +632,11 @@ def download(con_str, args):
         description="Download assets from azure blob store using friendly name.")
     parser.add_argument('--name', help='Friendly name of model to download (if not provided it downloads them all')
     parser.add_argument('--file', help='The optional name of the files to download instead of getting them all.')
+    parser.add_argument('--table', help='Table name to use (default "status")', default='status')
     args = parser.parse_args(args)
 
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=args.table)
     friendly_name = args.name
     if not friendly_name:
         friendly_names = [e['name'] for e in store.get_all_status_entities()]
@@ -601,11 +644,10 @@ def download(con_str, args):
         friendly_names = [friendly_name]
 
     specific_file = args.file
-    all_files = False if specific_file else True
 
     for friendly_name in friendly_names:
-        found, model, file = store.download(friendly_name, friendly_name, specific_file, all_files)
-        if not found and specific_file:
+        downloaded = store.download(friendly_name, friendly_name, specific_file)
+        if len(downloaded) == 0 and specific_file:
             print(f"file {specific_file} not found")
 
 
@@ -613,10 +655,11 @@ def delete(con_str, args):
     parser = argparse.ArgumentParser(description='Delete a model from azure using its friendly name')
     parser.add_argument('name', help='The friendly name allocated by the upload script.')
     parser.add_argument('--file', help='Delete just the one file associated with the friendly name.')
+    parser.add_argument('--table', help='Table name to use (default "status")', default='status')
     args = parser.parse_args(args)
 
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=args.table)
     store.delete_blobs(args.name, args.file)
     if not args.file:
         store.delete_status(args.name)
@@ -626,9 +669,10 @@ def reset(con_str, args):
     parser = argparse.ArgumentParser(
         description='Reset the named entity.')
     parser.add_argument('name', help='The friendly name to reset or "*" to reset all rows', default=None)
+    parser.add_argument('--table', help='Table name to use (default "status")', default='status')
     args = parser.parse_args(args)
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=args.table)
     if args.name == "*":
         store.reset_all()
     else:
@@ -639,10 +683,23 @@ def unlock(con_str, args):
     parser = argparse.ArgumentParser(
         description='Unlock all jobs for given node or unlock all jobs.')
     parser.add_argument('--node', help='Optional node name (default None).')
+    parser.add_argument('--table', help='Table name to use (default "status")', default='status')
     args = parser.parse_args(args)
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=args.table)
     store.unlock_all(args.node)
+
+
+def lock(con_str, args):
+    parser = argparse.ArgumentParser(
+        description='Lock the named entity.')
+    parser.add_argument('name', help='The name of the entity to lock')
+    parser.add_argument('--status', help='The new status of the entity (default "busy")', default='busy')
+    parser.add_argument('--table', help='Table name to use (default "status")', default='status')
+    args = parser.parse_args(args)
+    storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name=args.table)
+    store.lock(args.name, args.status)
 
 
 if __name__ == '__main__':
@@ -672,6 +729,8 @@ if __name__ == '__main__':
         reset(con_str, args)
     elif cmd == 'unlock':
         unlock(con_str, args)
+    elif cmd == 'lock':
+        lock(con_str, args)
     else:
         print(f"Unknown command: {cmd}, expecting one of status, upload, download, delete, lock, unlock")
         sys.exit(1)

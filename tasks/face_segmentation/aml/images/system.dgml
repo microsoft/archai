@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="TopToBottom" Layout="Sugiyama" Offset="-820.8108333333334,-384.5347442626953" ZoomLevel="1" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="AmlTraining" Category="aml" Bounds="178.281669209798,-42.1863471113841,158.853333333333,78.924467010498" Label="aml training &#xD;&#xA;(AmlPartialTrainingEvaluator)" UseManualLocation="True" />
+    <Node Id="AzureMLPipelines" Category="aml" Bounds="455.9075,-19.9970294464111,120.336666666667,62.9644670104981" Label="Azure ML Pipelines" UseManualLocation="True" />
+    <Node Id="BlobStore(models)" Category="storage" Bounds="372.473597513835,72.9675375640869,116.526666666667,89.5813311767578" Label="blob store &#xD;&#xA;(models &amp; results)" UseManualLocation="True" />
+    <Node Id="RemoteDeviceInferenceTesting" Category="remote" Bounds="72.2816666666666,170.359651075872,206.316666666667,78.9244670104981" Label="remote device inference testing &#xD;&#xA;(RemoteAzureBenchmarkEvaluator)" UseManualLocation="True" />
+    <Node Id="Search" Category="search" Bounds="0,0,53.9833333333333,62.964467010498" Label="search" UseManualLocation="True" />
+    <Node Id="TableResults" Category="storage" Bounds="210.715582682292,66.738219899114,84.0966666666666,73.6213311767578" Label="table results" UseManualLocation="True" />
+  </Nodes>
+  <Links>
+    <Link Source="AmlTraining" Target="AzureMLPipelines" Bounds="337.135002543131,1.64407801566514,109.786077444833,6.03785408365997" />
+    <Link Source="AmlTraining" Target="BlobStore(models)" Bounds="314.38133986177,36.7381198991139,50.7064047608595,35.3076040473083" />
+    <Link Source="AmlTraining" Target="TableResults" Bounds="254.894834328378,36.7381198991139,0.977495669259497,21.0098250749297" />
+    <Link Source="AzureMLPipelines" Target="BlobStore(models)" Bounds="448.526763916016,42.9674377441406,44.100830078125,25.0390167236328" />
+    <Link Source="BlobStore(models)" Target="AzureMLPipelines" Bounds="451.671051025391,47.7068099975586,44.4396362304688,25.2607269287109" />
+    <Link Source="RemoteDeviceInferenceTesting" Target="TableResults" Bounds="204.152602969458,147.637053103474,16.5328942653301,22.7225979723975" />
+    <Link Source="Search" Target="AmlTraining" Bounds="53.9833333333333,10.3717085435882,115.395650767872,17.1087060975231" />
+    <Link Source="Search" Target="RemoteDeviceInferenceTesting" Bounds="52.7301876549027,62.403421700363,84.1039893644507,101.039033450549" />
+    <Link Source="TableResults" Target="Search" Bounds="62.5571377644598,42.8347555073116,148.158444917832,47.2922740456947" />
+  </Links>
+  <Categories>
+    <Category Id="aml" />
+    <Category Id="remote" />
+    <Category Id="search" />
+    <Category Id="storage" />
+  </Categories>
+  <Properties>
+    <Property Id="Bounds" DataType="System.Windows.Rect" />
+    <Property Id="Expression" DataType="System.String" />
+    <Property Id="GraphDirection" DataType="Microsoft.VisualStudio.Diagrams.Layout.LayoutOrientation" />
+    <Property Id="GroupLabel" DataType="System.String" />
+    <Property Id="IsEnabled" DataType="System.Boolean" />
+    <Property Id="Label" Label="Label" Description="Displayable label of an Annotatable object" DataType="System.String" />
+    <Property Id="Layout" DataType="System.String" />
+    <Property Id="Offset" DataType="System.String" />
+    <Property Id="TargetType" DataType="System.Type" />
+    <Property Id="UseManualLocation" DataType="System.Boolean" />
+    <Property Id="Value" DataType="System.String" />
+    <Property Id="ValueLabel" DataType="System.String" />
+    <Property Id="ZoomLevel" DataType="System.String" />
+  </Properties>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="storage" ValueLabel="True">
+      <Condition Expression="HasCategory('storage')" />
+      <Setter Property="Icon" Value="pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/Table.png" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="remote" ValueLabel="True">
+      <Condition Expression="HasCategory('remote')" />
+      <Setter Property="Icon" Value="pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/CellPhone.png" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="search" ValueLabel="True">
+      <Condition Expression="HasCategory('search')" />
+      <Setter Property="Icon" Value="pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/Gears.png" />
+    </Style>
+    <Style TargetType="Node" GroupLabel="aml" ValueLabel="True">
+      <Condition Expression="HasCategory('aml')" />
+      <Setter Property="Icon" Value="pack://application:,,,/Microsoft.VisualStudio.Progression.GraphControl;component/Icons/Network.png" />
+    </Style>
+    <Style TargetType="Node">
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="IconPlacement" Value="Top" />
+    </Style>
+  </Styles>
+</DirectedGraph>

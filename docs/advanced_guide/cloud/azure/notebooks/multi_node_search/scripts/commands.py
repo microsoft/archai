@@ -46,12 +46,13 @@ def make_train_model_command(output_path, code_dir, environment_name, id,
     )
 
 
-def make_monitor_command(hex_config, code_dir, results_uri, environment_name, timeout=3600):
+def make_monitor_command(hex_config, code_dir, results_uri, environment_name, metrics=[], timeout=3600):
     """ This command waits up to some timeout for all the given training jobs to complete
      and returns the validation accuracy results """
 
     fixed_args = f'--config "{hex_config}" ' + \
-                 f'--timeout {timeout} '
+                 f'--timeout {timeout} ' + \
+                 f'--metrics {",".join(metrics)}'
 
     # this node depends on training and is therefore also not deterministic, so we set is_deterministic=False
     # which disables pipeline caching.

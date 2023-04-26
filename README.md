@@ -37,7 +37,7 @@ To install Archai via PyPI, the following command can be executed:
 pip install archai
 ```
 
-**Archai requires Python 3.7+ and PyTorch 1.7.0+ to function properly.**
+**Archai requires Python 3.8+ and PyTorch 1.7.0+ to function properly.**
 
 For further information, please consult the [installation guide](https://microsoft.github.io/archai/getting_started/installation.html).
 
@@ -121,6 +121,7 @@ The algorithm will iterate through different network architectures, evaluate the
 To demonstrate and showcase the capabilities/functionalities of Archai, a set of end-to-end tasks are provided:
 
 * [Text Generation](https://github.com/microsoft/archai/blob/main/tasks/text_generation).
+* [Face Segmentation](https://github.com/microsoft/archai/blob/main/tasks/face_segmentation).
 
 ## Documentation
 

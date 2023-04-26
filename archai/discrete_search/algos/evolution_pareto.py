@@ -65,7 +65,7 @@ class EvolutionParetoSearch(Searcher):
             seed: Random seed.
 
         """
-
+        super(EvolutionParetoSearch, self).__init__()
         assert isinstance(
             search_space, EvolutionarySearchSpace
         ), f"{str(search_space.__class__)} is not compatible with {str(self.__class__)}"
@@ -118,6 +118,7 @@ class EvolutionParetoSearch(Searcher):
 
             _, valid_indices = self.so.validate_constraints(sample)
             valid_sample += [sample[i] for i in valid_indices]
+            nb_tries += 1
 
         return valid_sample[:num_models]
 
@@ -143,6 +144,7 @@ class EvolutionParetoSearch(Searcher):
             nb_tries = 0
 
             while len(candidates) < mutations_per_parent and nb_tries < patience:
+                nb_tries += 1
                 mutated_model = self.search_space.mutate(p)
                 mutated_model.metadata["parent"] = p.archid
 
@@ -152,7 +154,6 @@ class EvolutionParetoSearch(Searcher):
                 if mutated_model.archid not in self.seen_archs:
                     mutated_model.metadata["generation"] = self.iter_num
                     candidates[mutated_model.archid] = mutated_model
-                nb_tries += 1
             mutations.update(candidates)
 
         return list(mutations.values())
@@ -176,7 +177,7 @@ class EvolutionParetoSearch(Searcher):
         children, children_ids = [], set()
 
         if len(parents) >= 2:
-            pairs = [random.sample(parents, 2) for _ in range(num_crossovers)]
+            pairs = [self.rng.sample(parents, 2) for _ in range(num_crossovers)]
             for p1, p2 in pairs:
                 child = self.search_space.crossover([p1, p2])
                 nb_tries = 0
@@ -215,7 +216,7 @@ class EvolutionParetoSearch(Searcher):
 
         """
 
-        random.shuffle(current_pop)
+        self.rng.shuffle(current_pop)
         return current_pop[: self.max_unseen_population]
 
     @overrides
@@ -233,6 +234,7 @@ class EvolutionParetoSearch(Searcher):
 
         for i in range(self.num_iters):
             self.iter_num = i + 1
+            self.on_start_iteration(self.iter_num)
 
             logger.info(f"Iteration {i+1}/{self.num_iters}")
             self.on_search_iteration_start(unseen_pop)
@@ -241,6 +243,8 @@ class EvolutionParetoSearch(Searcher):
             logger.info(f"Calculating search objectives {list(self.so.objective_names)} for {len(unseen_pop)} models ...")
 
             results = self.so.eval_all_objs(unseen_pop)
+            if len(results) == 0:
+                raise Exception("Search is finding no valid models")
             self.search_state.add_iteration_results(
                 unseen_pop,
                 results,

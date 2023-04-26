@@ -14,11 +14,14 @@ def test_store():
         return
 
     storage_account_name, storage_account_key = ArchaiStore.parse_connection_string(con_str)
-    store = ArchaiStore(storage_account_name, storage_account_key)
+    store = ArchaiStore(storage_account_name, storage_account_key, table_name='unittest')
     name = str(uuid.uuid4())
     try:
         entities = store.get_all_status_entities()
         assert len([x for x in entities if x['name'] == name]) == 0
+
+        e = store.get_existing_status(name)
+        assert e is None
 
         e = store.get_status(name)
         assert e['status'] == 'new'
@@ -51,6 +54,13 @@ def test_store():
 
         store.unlock(name)
         assert not store.is_locked(name)
+
+        e = store.get_existing_status(name)
+        e['node'] = 'fake'
+        store.merge_status_entity(e)
+
+        f = store.lock_entity(e, 'busy')
+        assert f is None
 
         with tempfile.TemporaryDirectory() as tmpdir:
             store.download(name, tmpdir)
