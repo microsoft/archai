@@ -1,4 +1,4 @@
-"""This is from torchvision source code"""
+"""This is from torchvision source code: https://github.com/pytorch/vision/blob/main/references/classification/utils.py"""
 import copy
 import datetime
 import errno
