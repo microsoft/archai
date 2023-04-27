@@ -20,6 +20,7 @@ from search_space.hgnet import HgnetSegmentationSearchSpace
 from archai.discrete_search.evaluators.remote_azure_benchmark import RemoteAzureBenchmarkEvaluator
 from aml.util.setup import configure_store
 
+
 def main():
     # input and output arguments
     parser = argparse.ArgumentParser(description="Runs Snapdragon F1 scoring on the final fully trained models.")
