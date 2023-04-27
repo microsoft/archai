@@ -1,6 +1,5 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
-
 import json
 import os
 from pathlib import Path

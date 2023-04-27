@@ -13,6 +13,18 @@ spec:
       labels:
         app: snpe-quantizer
     spec:
+      affinity:
+        # See https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#more-practical-use-cases
+        # The quantizer is processor intensive, so we do not want more than one per node.
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - snpe-quantizer
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - name: snpe-quantizer
         image: snpecontainerregistry001.azurecr.io/quantizer:1.0
