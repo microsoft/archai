@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 """Search space for facial landmark detection task"""
 
 import copy
@@ -91,18 +94,6 @@ def create_model_from_search_results(archid, csv_file : str, num_classes) :
                                 depth_multiplier=cfg['depth_multiplier'],
                                 num_classes=num_classes)
     return model
-
-
-class ConfigSearchModel(torch.nn.Module):
-    """This is a wrapper class to allow the model to be used in the search space"""
-    def __init__(self, model : ArchaiModel, archid: str, metadata : dict):
-        super().__init__()
-        self.model = model
-        self.archid = archid
-        self.metadata = metadata
-    
-    def forward(self, x):
-        return self.model.forward(x)
 
 class DiscreteSearchSpaceMobileNetV2(DiscreteSearchSpace):
     def __init__(self, args, num_classes=140):
@@ -203,7 +194,7 @@ class DiscreteSearchSpaceMobileNetV2(DiscreteSearchSpace):
 
         logger.info(f"{sys._getframe(0).f_code.co_name} return archid = {arch.archid} with config = {arch.metadata}")
         
-        return ArchaiModel(arch=arch, archid=arch.archid, metadata={'config': arch.metadata})
+        return arch
 
     @overrides
     def save_arch(self, model: ArchaiModel, file: str):
@@ -215,9 +206,8 @@ class DiscreteSearchSpaceMobileNetV2(DiscreteSearchSpace):
     def load_arch(self, file: str):
         metadata = json.load(open(file))
         config = json.loads(metadata['config'])
-        arch = ConfigSearchModel(config)
-        
-        return ArchaiModel(arch=arch, archid=arch.archid, metadata={'config': arch.metadata})
+        arch = self._create_uniq_arch(config)        
+        return arch
 
     @overrides
     def save_model_weights(self, model: ArchaiModel, file: str):
@@ -289,7 +279,7 @@ class DiscreteSearchSpaceMobileNetV2(DiscreteSearchSpace):
 
         model = _gen_tv_mobilenet(cfg['arch_def'], channel_multiplier=cfg['channel_multiplier'], depth_multiplier=cfg['depth_multiplier'], \
                 num_classes=self.num_classes)
-        arch = ConfigSearchModel(model, archid, cfg_str)
+        arch = ArchaiModel(model, archid, metadata={'config' : cfg_str})
 
         return arch
 
@@ -308,7 +298,7 @@ class ConfigSearchSpaceExt(DiscreteSearchSpaceMobileNetV2, EvolutionarySearchSpa
         assert (arch != None)
         logger.info(f"{sys._getframe(0).f_code.co_name} return archid = {arch.archid} with config = {arch.metadata}")
         
-        return ArchaiModel(arch=arch, archid=arch.archid, metadata={'config' : arch.metadata})
+        return arch
     
     @overrides
     def crossover(self, model_list: List[ArchaiModel]) -> ArchaiModel:
@@ -331,7 +321,7 @@ class ConfigSearchSpaceExt(DiscreteSearchSpaceMobileNetV2, EvolutionarySearchSpa
         assert (arch != None)
         logger.info(f"{sys._getframe(0).f_code.co_name} return archid = {arch.archid} with config = {arch.metadata}")
         
-        return ArchaiModel(arch=arch, archid=arch.archid, metadata={'config' : arch.metadata})
+        return arch
 
     @overrides
     def encode(self, model: ArchaiModel) -> np.ndarray:

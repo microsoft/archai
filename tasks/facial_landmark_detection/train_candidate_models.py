@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 import csv
 import subprocess
 
@@ -46,7 +49,7 @@ for arch_id in pareto_archids:
 
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
 
-    errors = []
+    val_errors = []
     while True:
         output = process.stdout.readline()
         if output == '' and process.poll() is not None:
@@ -56,26 +59,26 @@ for arch_id in pareto_archids:
             if output.startswith('Test:'):
                 if 'Error' in output:
                     error_str = output.split()[-1]
-                    error = float(error_str)
-                    errors.append(error)
+                    val_error = float(error_str)
+                    val_errors.append(val_error)
 
     result = process.poll()
-    assert errors and len(errors) != 0 #should have at least one error
-    training_accuracy[arch_id] = errors[-1]
+    assert val_errors and len(val_errors) != 0 #should have at least one error
+    training_accuracy[arch_id] = val_errors[-1]
 
 # Merge training accuracy to search_results
 merged_data = []
 for row in search_results:
     arch_id = row['archid']
     if arch_id in training_accuracy:
-        row['Full training Validation Accuracy'] = training_accuracy[arch_id]
+        row['Full_Training_Validation_Error'] = training_accuracy[arch_id]
     else:
-        row['Full training Validation Accuracy'] = ''
+        row['Full_training_Validation_Error'] = ''
     merged_data.append(row)
 
 # Write to csv
 fieldnames = search_results[0].keys()
-with open('search_results_with_accuracy.csv', 'w', newline='') as csvfile:
+with open('search_results_with_full_validation_error.csv', 'w', newline='') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
     for row in merged_data:

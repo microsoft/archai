@@ -1,14 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import sys
-# to be removed before merging
-if ('--debug' in sys.argv):
-    import debugpy
-    debugpy.listen(5678)
-    print("Waiting for debugger")
-    debugpy.wait_for_client()
-
 import math
 import os
 from argparse import ArgumentParser
@@ -29,18 +21,18 @@ import train as model_trainer
 from dataset import FaceLandmarkDataset
 from latency import AvgOnnxLatency
 from search_space import ConfigSearchSpaceExt
-class AccuracyEvaluator(ModelEvaluator):
+class ValidationErrorEvaluator(ModelEvaluator):
     
-    def __init__(self, lit_args) -> None:
-        self.lit_args = lit_args
+    def __init__(self, args) -> None:
+        self.args = args
 
     @overrides
     def evaluate(self, model, dataset_provider, budget = None) -> float:
-        logger.info(f"evaluating {model.arch.archid}")
+        logger.info(f"evaluating {model.archid}")
 
-        val_error = model_trainer.train(self.lit_args, model.arch) #, model.arch.archid, dataset_provider)
+        val_error = model_trainer.train(self.args, model.arch) 
         if (math.isnan(val_error)):
-            logger.info(f"Warning: model {model.arch.archid} has val_error NaN. Set to 10000.0 to avoid corrupting the Pareto front.")
+            logger.info(f"Warning: model {model.archid} has val_error NaN. Set to 10000.0 to avoid corrupting the Pareto front.")
             val_error = 10000.0
         return val_error
 
@@ -62,38 +54,25 @@ class SearchFaceLandmarkModels():
         config_parser.add_argument("--config", required=True, type=Path, help='YAML config file specifying default arguments')
         
         parser = ArgumentParser(conflict_handler="resolve", description='NAS for Facial Landmark Detection.')
+        parser.add_argument("--data_path", required=False, type=Path)
         parser.add_argument("--output_dir", required=True, type=Path)
         parser.add_argument('--num_jobs_per_gpu', required=False, type=int, default=1)
 
-        def convert_args_dict_to_list(d):
-            if d is None:
-                return []
-
-            new_list = []
-            for key, val in d.items():
-                new_list.append(f"--{key}")
-                new_list.append(f"{val}")
-
-            return new_list
-
-        def _parse_args_from_config():
+        def _parse_args_from_config(parser_to_use):            
             args_config, remaining = config_parser.parse_known_args()
             if args_config.config:
                 with open(args_config.config, 'r') as f:
                     cfg = yaml.safe_load(f)
                     # The usual defaults are overridden if a config file is specified.
-                    parser.set_defaults(**cfg)
+                    parser_to_use.set_defaults(**cfg)
+            # The parser to be used parses the rest of the known command line args.
+            args, _ = parser_to_use.parse_known_args(remaining)
 
-            # The main arg parser parses the rest of the known command line args.
-            args, remaining_args = parser.parse_known_args(remaining)
-            # Args in the config file will be returned as a list of strings to
-            # be further used by the trainer
-            remaining_args = remaining_args + convert_args_dict_to_list(cfg) if cfg else None
+            return args
 
-            return args, remaining_args
-
-        self.search_args, remaining_args = _parse_args_from_config()
-        self.trainer_args, _ = model_trainer.get_args_parser().parse_known_args(remaining_args)
+        #parse twice to get the search args and trainer args
+        self.search_args = _parse_args_from_config(parser)
+        self.trainer_args = _parse_args_from_config(model_trainer.get_args_parser())
 
     def search(self):
 
@@ -102,15 +81,15 @@ class SearchFaceLandmarkModels():
 
         search_objectives = SearchObjectives()
         search_objectives.add_objective(
-                'Partial training Validation Accuracy',
-                RayParallelEvaluator(AccuracyEvaluator(self.trainer_args), num_gpus=1.0/self.search_args.num_jobs_per_gpu, max_calls=1),
-                higher_is_better=False,
-                compute_intensive=True)
-        search_objectives.add_objective(
-                "onnx_latency (ms)",
+                "Onnx_Latency_(ms)",
                 OnnxLatencyEvaluator(self.search_args),
                 higher_is_better=False,
                 compute_intensive=False)
+        search_objectives.add_objective(
+                'Partial_Training_Validation_Error',
+                RayParallelEvaluator(ValidationErrorEvaluator(self.trainer_args), num_gpus=1.0/self.search_args.num_jobs_per_gpu, max_calls=1),
+                higher_is_better=False,
+                compute_intensive=True)
 
         algo = EvolutionParetoSearch(
             search_space=ss,        
@@ -130,7 +109,7 @@ class SearchFaceLandmarkModels():
         results_df = search_results.get_search_state_df()
         ids = results_df.archid.values.tolist()
         if (len(set(ids)) > len(ids)):
-            print("Duplidated models detected in nas results. This is not supposed to happen.")
+            print("Duplicated models detected in nas results. This is not supposed to happen.")
             assert (False)
 
         configs = []
@@ -140,9 +119,9 @@ class SearchFaceLandmarkModels():
         config_df = pd.DataFrame({'archid' : ids, 'config' : configs})
         config_df = results_df.merge(config_df)
 
-        output_csv_name = '-'.join(['search',
+        output_csv_name = '-'.join(['search-results',
                                     datetime.now().strftime("%Y%m%d-%H%M%S"),
-                                    'output.csv'])
+                                    '.csv'])
         output_csv_path = os.path.join(self.search_args.output_dir, output_csv_name)
         config_df.to_csv(output_csv_path)
         return

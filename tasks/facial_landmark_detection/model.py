@@ -8,6 +8,7 @@ from torch import nn, Tensor
 from torchvision.models._utils import _make_divisible
 from torchvision.ops.misc import Conv2dNormActivation
 
+#Adapted from https://github.com/pytorch/vision/blob/main/torchvision/models/mobilenetv2.py
 class CustomInvertedResidual(nn.Module):
     def __init__(
         self, inp: int, oup: int, stride: int, expand_ratio: int, kernel: int, norm_layer: Optional[Callable[..., nn.Module]] = None
@@ -15,7 +16,7 @@ class CustomInvertedResidual(nn.Module):
         super().__init__()
         self.stride = stride
         if stride not in [1, 2]:
-            raise ValueError(f"stride should be 1 or 2 insted of {stride}")
+            raise ValueError(f"stride should be 1 or 2 instead of {stride}")
 
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d

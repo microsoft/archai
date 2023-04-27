@@ -9,7 +9,10 @@ import torch
 from PIL import Image
 from torch.utils.data import Dataset
 
+from archai.common.utils import download_and_extract_zip
+
 import transforms
+
 
 class FaceLandmarkDataset(Dataset):
     """Dataset class for Microsoft Face Synthetics dataset.
@@ -33,7 +36,14 @@ class FaceLandmarkDataset(Dataset):
 
         pattern = os.path.join(directory, "[0-9][0-9][0-9][0-9][0-9][0-9].png") #don't load *_seg.png files
         self.png_files = glob.glob(pattern) 
-        assert len(self.png_files) > 0, f"Can't find any PNG image in folder: {directory}"
+        
+        if len(self.png_files) < 100000:
+            zip_url = 'https://facesyntheticspubwedata.blob.core.windows.net/iccv-2021/dataset_100000.zip'
+            download_and_extract_zip(zip_url, directory)
+            self.png_files = glob.glob(pattern)
+        
+        assert len(self.png_files) > 0, f"Can't find any PNG files in {directory}"
+
         if limit is not None:
             self.png_files = self.png_files[:limit]
         self.transform = transforms.FaceLandmarkTransform(crop_size = crop_size)
