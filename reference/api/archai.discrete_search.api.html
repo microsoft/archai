@@ -502,6 +502,8 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.api.searcher">Searcher</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.api.searcher.Searcher"><code class="docutils literal notranslate"><span class="pre">Searcher</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.api.searcher.Searcher.search"><code class="docutils literal notranslate"><span class="pre">Searcher.search()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.api.searcher.Searcher.subscribe_start_iteration"><code class="docutils literal notranslate"><span class="pre">Searcher.subscribe_start_iteration()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.api.searcher.Searcher.on_start_iteration"><code class="docutils literal notranslate"><span class="pre">Searcher.on_start_iteration()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1301,6 +1303,16 @@ subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.searcher.Searcher.subscribe_start_iteration">
+<span class="sig-name descname"><span class="pre">subscribe_start_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/api/searcher.html#Searcher.subscribe_start_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.searcher.Searcher.subscribe_start_iteration" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="archai.discrete_search.api.searcher.Searcher.on_start_iteration">
+<span class="sig-name descname"><span class="pre">on_start_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iteration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/archai/discrete_search/api/searcher.html#Searcher.on_start_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#archai.discrete_search.api.searcher.Searcher.on_start_iteration" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1443,6 +1455,8 @@ subclass should be decorated with <cite>&#64;overrides</cite> to ensure they are
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-archai.discrete_search.api.searcher">Searcher</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.api.searcher.Searcher"><code class="docutils literal notranslate"><span class="pre">Searcher</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.api.searcher.Searcher.search"><code class="docutils literal notranslate"><span class="pre">Searcher.search()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.api.searcher.Searcher.subscribe_start_iteration"><code class="docutils literal notranslate"><span class="pre">Searcher.subscribe_start_iteration()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#archai.discrete_search.api.searcher.Searcher.on_start_iteration"><code class="docutils literal notranslate"><span class="pre">Searcher.on_start_iteration()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1479,7 +1493,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 21, 2023.
+  Last updated on Apr 27, 2023.
   <br/>
 </p>
   </div>

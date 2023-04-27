@@ -474,7 +474,7 @@ document.write(`
 <span class="sd">            seed: Random seed.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
+        <span class="nb">super</span><span class="p">(</span><span class="n">EvolutionParetoSearch</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
             <span class="n">search_space</span><span class="p">,</span> <span class="n">EvolutionarySearchSpace</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">search_space</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="si">}</span><span class="s2"> is not compatible with </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -643,6 +643,7 @@ document.write(`
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_iters</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_start_iteration</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_num</span><span class="p">)</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Iteration </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_iters</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_search_iteration_start</span><span class="p">(</span><span class="n">unseen_pop</span><span class="p">)</span>
@@ -758,7 +759,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 21, 2023.
+  Last updated on Apr 27, 2023.
   <br/>
 </p>
   </div>

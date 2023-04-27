@@ -411,7 +411,7 @@ document.write(`
 <span class="c1"># Licensed under the MIT license.</span>
 
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
-
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span> <span class="nn">overrides</span> <span class="kn">import</span> <span class="n">EnforceOverrides</span>
 
 <span class="kn">from</span> <span class="nn">archai.discrete_search.api.search_results</span> <span class="kn">import</span> <span class="n">SearchResults</span>
@@ -442,8 +442,7 @@ document.write(`
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the searcher.&quot;&quot;&quot;</span>
-
-        <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iteration_callbacks</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="Searcher.search"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.searcher.Searcher.search">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">search</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchResults</span><span class="p">:</span>
@@ -454,7 +453,14 @@ document.write(`
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span></div></div>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Searcher.subscribe_start_iteration"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.searcher.Searcher.subscribe_start_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">subscribe_start_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span> <span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iteration_callbacks</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fn</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Searcher.on_start_iteration"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.api.html#archai.discrete_search.api.searcher.Searcher.on_start_iteration">[docs]</a>    <span class="k">def</span> <span class="nf">on_start_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iteration_callbacks</span><span class="p">:</span>
+            <span class="n">fn</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span></div></div>
 </pre></div>
 
                 </article>
@@ -499,7 +505,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 21, 2023.
+  Last updated on Apr 27, 2023.
   <br/>
 </p>
   </div>

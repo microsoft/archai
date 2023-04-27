@@ -442,7 +442,8 @@ document.write(`
         <span class="n">max_retries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">retry_interval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">120</span><span class="p">,</span>
         <span class="n">onnx_export_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">benchmark_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the evaluator.</span>
 
@@ -472,6 +473,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">onnx_export_kwargs</span> <span class="o">=</span> <span class="n">onnx_export_kwargs</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_only</span> <span class="o">=</span> <span class="n">benchmark_only</span>
 
         <span class="c1"># Architecture list</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">archids</span> <span class="o">=</span> <span class="p">[]</span>
@@ -480,6 +482,15 @@ document.write(`
         <span class="n">unknown_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get_existing_status</span><span class="p">(</span><span class="n">unknown_id</span><span class="p">)</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="n">unknown_id</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entity</span><span class="p">):</span>
+        <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;macs&#39;</span><span class="p">,</span> <span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="s1">&#39;stdev&#39;</span><span class="p">,</span> <span class="s1">&#39;total_inference_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;error&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">entity</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">entity</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                <span class="n">changed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">changed</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">update_status_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
 
 <div class="viewcode-block" id="RemoteAzureBenchmarkEvaluator.send"><a class="viewcode-back" href="../../../../reference/api/archai.discrete_search.evaluators.html#archai.discrete_search.evaluators.remote_azure_benchmark.RemoteAzureBenchmarkEvaluator.send">[docs]</a>    <span class="nd">@overrides</span>
     <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">ArchaiModel</span><span class="p">,</span> <span class="n">budget</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -497,8 +508,8 @@ document.write(`
                         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entry for </span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s2"> already exists with </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_key</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="k">return</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># complete but missing the mean, so reset everything so we can try again below.</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">archid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;benchmark_only&#39;</span><span class="p">,</span> <span class="s1">&#39;model_date&#39;</span><span class="p">])</span>
+                    <span class="c1"># complete but missing the mean, so reset the benchmark metrics so we can try again.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># job is still running, let it continue</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
@@ -507,34 +518,41 @@ document.write(`
                 <span class="k">return</span>
 
         <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get_status</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>  <span class="c1"># this is a get or create operation.</span>
-        <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;benchmark_only&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">benchmark_only</span><span class="p">:</span>
+            <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;benchmark_only&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;model_date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">get_utc_date</span><span class="p">()</span>
         <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;model_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;model.onnx&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">update_status_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>  <span class="c1"># must be an update, not a merge.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">lock_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="s2">&quot;uploading&quot;</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
-                <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
 
-                <span class="c1"># Uploads ONNX file to blob storage and updates the table entry</span>
-                <span class="n">arch</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
-                <span class="n">file_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_dir</span> <span class="o">/</span> <span class="s2">&quot;model.onnx&quot;</span><span class="p">)</span>
-                <span class="c1"># Exports model to ONNX</span>
-                <span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
-                    <span class="n">arch</span><span class="o">.</span><span class="n">arch</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">sample_input</span><span class="p">,</span>
-                    <span class="n">file_name</span><span class="p">,</span>
-                    <span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;input_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_input</span><span class="p">))],</span>
-                    <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">onnx_export_kwargs</span><span class="p">,</span>
-                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">arch</span><span class="o">.</span><span class="n">arch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
+                    <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">upload_blob</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;model.onnx&quot;</span><span class="p">)</span>
-                <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;new&quot;</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="k">finally</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">unlock_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+                    <span class="c1"># Uploads ONNX file to blob storage and updates the table entry</span>
+                    <span class="n">arch</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+                    <span class="n">file_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_dir</span> <span class="o">/</span> <span class="s2">&quot;model.onnx&quot;</span><span class="p">)</span>
+                    <span class="c1"># Exports model to ONNX</span>
+                    <span class="n">torch</span><span class="o">.</span><span class="n">onnx</span><span class="o">.</span><span class="n">export</span><span class="p">(</span>
+                        <span class="n">arch</span><span class="o">.</span><span class="n">arch</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sample_input</span><span class="p">,</span>
+                        <span class="n">file_name</span><span class="p">,</span>
+                        <span class="n">input_names</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;input_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_input</span><span class="p">))],</span>
+                        <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">onnx_export_kwargs</span><span class="p">,</span>
+                    <span class="p">)</span>
 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">upload_blob</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;model.onnx&quot;</span><span class="p">)</span>
+                    <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;new&quot;</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># then the blob store must already have a model.onnx file!</span>
+            <span class="n">blobs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">list_blobs</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_name</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">archid</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;model.onnx&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">blobs</span><span class="p">:</span>
+                <span class="n">entity</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;model.onnx is missing&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">unlock_entity</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">archids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">archid</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
@@ -641,7 +659,7 @@ By Microsoft
   
   <div class="footer-item">
     <p class="last-updated">
-  Last updated on Apr 21, 2023.
+  Last updated on Apr 27, 2023.
   <br/>
 </p>
   </div>
