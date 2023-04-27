@@ -76,7 +76,7 @@ def main():
         mlflow.pytorch.autolog(log_models=save_models, registered_model_name=name)
         with mlflow.start_run() as run:
             trainer.fit(model, data)
-        print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
+            print_auto_logged_info(mlflow.get_run(run_id=run.info.run_id))
 
         result = trainer.validate(model, data)
         val_acc = result[0]['accuracy']

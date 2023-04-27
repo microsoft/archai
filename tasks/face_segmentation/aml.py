@@ -85,7 +85,7 @@ def search_component(config, environment_name, seed, modelstore_path, output_pat
     )
 
 
-def main(output_dir: Path, experiment_name: str, seed: int):
+def main(output_dir: Path, experiment_name: str, seed: int, data_prep_only: bool):
     if output_dir.exists():
         rmtree(str(output_dir))
     output_dir.mkdir(parents=True)
@@ -170,13 +170,18 @@ def main(output_dir: Path, experiment_name: str, seed: int):
             name=experiment_name
         )
 
-        search_job = search_component(config, environment_name, seed, results_path, output_dir)(
-            data=data_prep_job.outputs.data
-        )
+        if data_prep_only:
+            return {
+                "results": data_prep_job.outputs.data
+            }
+        else:
+            search_job = search_component(config, environment_name, seed, results_path, output_dir)(
+                data=data_prep_job.outputs.data
+            )
 
-        return {
-            "results": search_job.outputs.results
-        }
+            return {
+                "results": search_job.outputs.results
+            }
 
     pipeline_job = ml_client.jobs.create_or_update(
         archai_search_pipeline(),
@@ -198,7 +203,8 @@ if __name__ == '__main__':
     parser.add_argument('--output_dir', type=Path, help='Output directory for downloading results.', default='output')
     parser.add_argument('--experiment_name', default='facesynthetics')
     parser.add_argument('--seed', type=int, help='Random seed', default=42)
+    parser.add_argument('--test', help='Run only the data_prep step to test environment is working', action="store_true")
 
     args = parser.parse_args()
-    rc = main(args.output_dir, args.experiment_name, args.seed)
+    rc = main(args.output_dir, args.experiment_name, args.seed, args.test)
     sys.exit(rc)
