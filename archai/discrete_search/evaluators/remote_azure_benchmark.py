@@ -33,7 +33,8 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         max_retries: Optional[int] = 5,
         retry_interval: Optional[int] = 120,
         onnx_export_kwargs: Optional[Dict[str, Any]] = None,
-        verbose: bool = False
+        verbose: bool = False,
+        benchmark_only: bool = True
     ) -> None:
         """Initialize the evaluator.
 
@@ -63,6 +64,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         self.onnx_export_kwargs = onnx_export_kwargs or dict()
         self.verbose = verbose
         self.results = {}
+        self.benchmark_only = benchmark_only
 
         # Architecture list
         self.archids = []
@@ -107,7 +109,8 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                 return
 
         entity = self.store.get_status(archid)  # this is a get or create operation.
-        entity["benchmark_only"] = 1
+        if self.benchmark_only:
+            entity["benchmark_only"] = 1
         entity["model_date"] = self.store.get_utc_date()
         entity["model_name"] = "model.onnx"
         self.store.update_status_entity(entity)  # must be an update, not a merge.

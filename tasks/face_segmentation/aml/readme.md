@@ -25,7 +25,15 @@ the Qualcomm Neural Processing SDK. Quantization is time consuming so having an 
 things up a lot.
 
 1. [Notebook](notebooks/results.ipynb) a simple Jupyter notebook for visualizing the
-results in your Azure table.
+results found in your Azure table.
+
+   The jupyter notebook can be used to visualize the results of the search iterations as they are
+happening.  The following is a snapshot after 10 iterations are completed where the darker colors
+are the early iterations and the brighter colors are the most recent iterations. The pareto frontier
+models are in yellow. This clearly shows the general trend of model improvement over time on each new
+iteration.
+
+   ![snapshot](images/iteration10.png)
 
 ## Workflow
 

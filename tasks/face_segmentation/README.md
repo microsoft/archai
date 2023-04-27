@@ -38,7 +38,6 @@ configurations based on the desired target (CPU or Snapdragon processor), `searc
 * [cpu_search.yaml](confs/cpu_search.yaml)
 * [snp_search.yaml](confs/snp_search.yaml)
 
-Note: to use `snp_search.yaml` you will need to follow the [Azure ML setup instructions](aml/readme.md).
 
 By default, `search.py` will run multiple partial training jobs using Ray (2 jobs per GPU). To change the number of gpus
 per job, set `--gpus_per_job`, or use the `--serial_training` flag to disable parallel training jobs altogether.
@@ -46,6 +45,15 @@ per job, set `--gpus_per_job`, or use the `--serial_training` flag to disable pa
 The pareto architecture files selected by the search algorithm can be found under `[output_dir]/pareto_models_iter_XX`.
 A table with the partial training performance and other objectives can be found in the
 `[output_dir]/search_state_XX.csv` file.
+
+## Running the Search on Azure ML
+
+You can run the `aml.py` script to start the search on Azure ML and perform the
+partial training in parallel also on Azure ML.
+
+See [Azure ML setup instructions](aml/readme.md).
+
+Note: to use `snp_search.yaml` you will also need to follow these instructions.
 
 ## Final Training
 
