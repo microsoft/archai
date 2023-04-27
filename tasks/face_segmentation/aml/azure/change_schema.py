@@ -15,6 +15,7 @@ def change_schema(store: ArchaiStore):
         status = e['status']
         if status == 'preparing':
             e['status'] = 'complete'
+            e['epochs'] = 1
             name = e['name']
             print(f'fixing {name}')
             store.merge_status_entity(e)
