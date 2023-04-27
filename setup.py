@@ -124,14 +124,13 @@ extras_require["aml"] = filter_dependencies(
     "lightning",
     "torchvision",
 )
-
+/home/wchen/archai_face_landmark/docker
 extras_require["dev"] = (
     extras_require["cv"]
     + extras_require["nlp"]
     + extras_require["docs"]
     + extras_require["tests"]
     + extras_require["aml"]
-    + extras_require["torchinfo"]
 )
 if os.name != "nt":
     # Support for DeepSpeed is not available on native Windows

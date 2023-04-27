@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 """Adapted from torchvision https://github.com/pytorch/vision/blob/main/references/classification/train.py"""
 import datetime
 import os
@@ -324,7 +327,7 @@ def get_args_parser(add_help=True):
 
     parser = argparse.ArgumentParser(description="PyTorch Classification Training", add_help=add_help)
 
-    parser.add_argument("--data_path", "--data-path", default="/datasets01/imagenet_full_size/061417/", type=str, help="dataset path")
+    parser.add_argument("--data_path", "--data-path", default=None, type=str, help="dataset path")
     parser.add_argument("--max_num_images", "--max-num-images", default=None, type=int, help="limit to number of images to use in dataset")   
     parser.add_argument("--search_result_archid", "--search-result-archid", default=None, type=str, help="nas search arch id to use")
     parser.add_argument("--search_result_csv", "--search_result-csv", default=None, type=str, help="nas search result csv to use")
