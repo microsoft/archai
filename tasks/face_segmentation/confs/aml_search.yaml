@@ -91,6 +91,7 @@ aml:
         - matplotlib
         - mldesigner
         - mlflow
+        - tqdm
         - tensorwatch
         - torch
         - torchvision
