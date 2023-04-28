@@ -21,11 +21,13 @@ from torchinfo import summary
 from dataset import FaceLandmarkDataset
 from search_space import create_model_from_search_results
 
+
 def average_error(target, output):
     errors = target - output  # shape (B, K, 2)
     norm = torch.norm(errors, dim=-1)  # shape (B, K)
     return norm.mean()
-        
+
+
 def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, args, model_ema=None, scaler=None):
     model.train()
     metric_logger = utils.MetricLogger(delimiter="  ")
@@ -37,7 +39,7 @@ def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, arg
         start_time = time.time()
         image, target = image.to(device), target.to(device)
         target = torch.squeeze(target)
-        
+
         with torch.cuda.amp.autocast(enabled=scaler is not None):
             output = model(image)
             output = torch.reshape(output, target.shape)
@@ -64,12 +66,13 @@ def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, arg
                 # Reset ema buffer to keep copying weights during warmup period
                 model_ema.n_averaged.fill_(0)
 
-        error = average_error (target, output)
+        error = average_error(target, output)
 
         batch_size = image.shape[0]
         metric_logger.update(loss=loss.item(), lr=optimizer.param_groups[0]["lr"])
         metric_logger.meters["error"].update(error, n=batch_size)
         metric_logger.meters["img/s"].update(batch_size / (time.time() - start_time))
+
 
 def evaluate(model, criterion, data_loader, epoch, device, print_freq=100, log_suffix=""):
     model.eval()
@@ -85,7 +88,7 @@ def evaluate(model, criterion, data_loader, epoch, device, print_freq=100, log_s
             output = torch.reshape(output, target.shape)
             loss = criterion(output, target)
 
-            error = average_error (target, output)            
+            error = average_error(target, output)
 
             # FIXME need to take into account that the datasets
             # could have been padded in distributed setup
@@ -112,24 +115,26 @@ def evaluate(model, criterion, data_loader, epoch, device, print_freq=100, log_s
 
     metric_logger.synchronize_between_processes()
 
-    #print(f"{header} Acc@1 {metric_logger.acc1.global_avg:.3f} Acc@5 {metric_logger.acc5.global_avg:.3f}")
+    # print(f"{header} Acc@1 {metric_logger.acc1.global_avg:.3f} Acc@5 {metric_logger.acc5.global_avg:.3f}")
     print(f"{header} Error {metric_logger.error.global_avg:.4f}")
     return float(metric_logger.error.global_avg)
 
 
-def load_data(traindir, valdir, args):
+def load_data(traindir, args):
     # Data loading code
     print("Loading data")
-    val_resize_size, val_crop_size, train_crop_size = args.val_resize_size, args.val_crop_size, args.train_crop_size
+    _, val_crop_size, train_crop_size = args.val_resize_size, args.val_crop_size, args.train_crop_size
 
     print("Loading training data")
     st = time.time()
-    assert (val_crop_size ==  train_crop_size)
-    dataset = FaceLandmarkDataset (traindir, limit=args.max_num_images, crop_size=train_crop_size)
+    assert val_crop_size == train_crop_size
+    dataset = FaceLandmarkDataset(traindir, limit=args.max_num_images, crop_size=train_crop_size)
     print("Took", time.time() - st)
 
     validation_dataset_size = int(len(dataset) * 0.1)
-    dataset_train, dataset_test = torch.utils.data.random_split(dataset, [len(dataset) - validation_dataset_size, validation_dataset_size])
+    dataset_train, dataset_test = torch.utils.data.random_split(
+        dataset, [len(dataset) - validation_dataset_size, validation_dataset_size]
+    )
     dataset = dataset_train
 
     print("Creating data loaders")
@@ -158,11 +163,8 @@ def train(args, model: nn.Module = None):
     else:
         torch.backends.cudnn.benchmark = True
 
-    train_dir = os.path.join(args.data_path, "train")
-    val_dir = os.path.join(args.data_path, "val")
-    dataset, dataset_test, train_sampler, test_sampler = load_data(args.data_path, val_dir, args)
+    dataset, dataset_test, train_sampler, test_sampler = load_data(args.data_path, args)
 
-    collate_fn = None
     num_classes = dataset.dataset.num_landmarks
     data_loader = torch.utils.data.DataLoader(
         dataset,
@@ -176,9 +178,11 @@ def train(args, model: nn.Module = None):
     )
 
     print("Creating model")
-    if (model is None):
+    if model is None:
         if args.search_result_archid:
-            model = create_model_from_search_results(args.search_result_archid, args.search_result_csv, num_classes=num_classes)
+            model = create_model_from_search_results(
+                args.search_result_archid, args.search_result_csv, num_classes=num_classes
+            )
         else:
             model = torchvision.models.__dict__[args.model](weights=args.weights, num_classes=num_classes)
     model.to(device)
@@ -186,7 +190,7 @@ def train(args, model: nn.Module = None):
     if args.distributed and args.sync_bn:
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
 
-    print (summary(model, input_size=(1, 3, 192, 192)))
+    print(summary(model, input_size=(1, 3, 192, 192)))
 
     criterion = nn.MSELoss()
 
@@ -328,14 +332,29 @@ def get_args_parser(add_help=True):
     parser = argparse.ArgumentParser(description="PyTorch Classification Training", add_help=add_help)
 
     parser.add_argument("--data_path", "--data-path", default=None, type=str, help="dataset path")
-    parser.add_argument("--max_num_images", "--max-num-images", default=None, type=int, help="limit to number of images to use in dataset")   
-    parser.add_argument("--search_result_archid", "--search-result-archid", default=None, type=str, help="nas search arch id to use")
-    parser.add_argument("--search_result_csv", "--search_result-csv", default=None, type=str, help="nas search result csv to use")
- 
+    parser.add_argument(
+        "--max_num_images",
+        "--max-num-images",
+        default=None,
+        type=int,
+        help="limit to number of images to use in dataset",
+    )
+    parser.add_argument(
+        "--search_result_archid", "--search-result-archid", default=None, type=str, help="nas search arch id to use"
+    )
+    parser.add_argument(
+        "--search_result_csv", "--search_result-csv", default=None, type=str, help="nas search result csv to use"
+    )
+
     parser.add_argument("--model", default="resnet18", type=str, help="model name")
     parser.add_argument("--device", default="cuda", type=str, help="device (Use cuda or cpu Default: cuda)")
     parser.add_argument(
-        "-b", "--batch_size", "--batch-size", default=32, type=int, help="images per gpu, the total batch size is $NGPU x batch_size"
+        "-b",
+        "--batch_size",
+        "--batch-size",
+        default=32,
+        type=int,
+        help="images per gpu, the total batch size is $NGPU x batch_size",
     )
     parser.add_argument("--epochs", default=90, type=int, metavar="N", help="number of total epochs to run")
     parser.add_argument(
@@ -362,13 +381,17 @@ def get_args_parser(add_help=True):
 
     parser.add_argument("--mixup-alpha", default=0.0, type=float, help="mixup alpha (default: 0.0)")
     parser.add_argument("--cutmix-alpha", default=0.0, type=float, help="cutmix alpha (default: 0.0)")
-    parser.add_argument("--lr_scheduler", "--lr-scheduler", default="steplr", type=str, help="the lr scheduler (default: steplr)")
+    parser.add_argument(
+        "--lr_scheduler", "--lr-scheduler", default="steplr", type=str, help="the lr scheduler (default: steplr)"
+    )
     parser.add_argument("--lr-warmup-epochs", default=0, type=int, help="the number of epochs to warmup (default: 0)")
     parser.add_argument(
         "--lr-warmup-method", default="constant", type=str, help="the warmup method (default: constant)"
     )
     parser.add_argument("--lr-warmup-decay", default=0.01, type=float, help="the decay for lr")
-    parser.add_argument("--lr_step_size", "--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs")
+    parser.add_argument(
+        "--lr_step_size", "--lr-step-size", default=30, type=int, help="decrease lr every step-size epochs"
+    )
     parser.add_argument("--lr_gamma", "--lr-gamma", default=0.1, type=float, help="decrease lr by a factor of lr-gamma")
     parser.add_argument("--print-freq", default=10, type=int, help="print frequency")
     parser.add_argument("--output_dir", "--output-dir", default=".", type=str, help="path to save outputs")
@@ -419,10 +442,13 @@ def get_args_parser(add_help=True):
         "--val-crop-size", default=128, type=int, help="the central crop size used for validation (default: 128)"
     )
     parser.add_argument(
-        "--train_crop_size", "--train-crop-size", default=128, type=int, help="the random crop size used for training (default: 128)"
+        "--train_crop_size",
+        "--train-crop-size",
+        default=128,
+        type=int,
+        help="the random crop size used for training (default: 128)",
     )
     parser.add_argument("--clip-grad-norm", default=None, type=float, help="the maximum gradient norm (default None)")
-
 
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
 
