@@ -4,8 +4,6 @@ import argparse
 import sys
 from archai.discrete_search.api import ArchaiModel
 from archai.common.config import Config
-from aml.training.aml_training_evaluator import AmlPartialTrainingEvaluator
-from search_space.hgnet import HgnetSegmentationSearchSpace
 from archai.discrete_search.evaluators.remote_azure_benchmark import RemoteAzureBenchmarkEvaluator
 from aml.util.setup import configure_store
 
@@ -23,6 +21,9 @@ def main():
     metric_key = 'final_val_iou'
     search_config = config['search']
     ss_config = search_config['search_space']
+    ss_params = ss_config['params']
+    in_channels = ss_params['in_channels']
+    img_size = ss_params['img_size']
     target_config = search_config.get('target', {})
     target_name = target_config.pop('name', 'cpu')
     device_evaluator = None
@@ -43,7 +44,7 @@ def main():
 
     # the RemoteAzureBenchmarkEvaluator only needs the archid actually, doesn't need the nn.Module.
     models = []
-    for i in fully_trained:
+    for e in fully_trained:
         id = e['name']
         e['status'] = 'preparing'
         if 'benchmark_only' in e:
@@ -54,12 +55,7 @@ def main():
     # kick off remote device training without the benchmark_only flag so we get the
     # F1 scores for these fully trained models.  Note the above results_path ensures the trained
     # models are uploaded back to our models blob store.
-    search_space = HgnetSegmentationSearchSpace(
-        seed=42,  # not important in this case.
-        **ss_config.get('params', {}),
-    )
-
-    input_shape = (1, search_space.in_channels, *search_space.img_size[::-1])
+    input_shape = (1, in_channels, *img_size[::-1])
     device_evaluator = RemoteAzureBenchmarkEvaluator(
         input_shape=input_shape,
         store=store,
