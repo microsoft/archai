@@ -126,7 +126,6 @@ if __name__ == "__main__":
     algo = EvolutionParetoSearch(
         space,
         search_objectives,
-        None,
         args.output_dir,
         num_iters=args.num_iters,
         init_num_models=args.init_num_models,
