@@ -8,10 +8,17 @@ from torch import nn, Tensor
 from torchvision.models._utils import _make_divisible
 from torchvision.ops.misc import Conv2dNormActivation
 
-#Adapted from https://github.com/pytorch/vision/blob/main/torchvision/models/mobilenetv2.py
+
+# Adapted from https://github.com/pytorch/vision/blob/main/torchvision/models/mobilenetv2.py
 class CustomInvertedResidual(nn.Module):
     def __init__(
-        self, inp: int, oup: int, stride: int, expand_ratio: int, kernel: int, norm_layer: Optional[Callable[..., nn.Module]] = None
+        self,
+        inp: int,
+        oup: int,
+        stride: int,
+        expand_ratio: int,
+        kernel: int,
+        norm_layer: Optional[Callable[..., nn.Module]] = None,
     ) -> None:
         super().__init__()
         self.stride = stride
@@ -57,7 +64,8 @@ class CustomInvertedResidual(nn.Module):
         else:
             return self.conv(x)
 
-# 
+
+#
 # Adapted from torchvision MobileNetV2 to allow for different kernel sizes
 # to be passed in instead of default value of 3
 class CustomMobileNetV2(nn.Module):
@@ -126,7 +134,9 @@ class CustomMobileNetV2(nn.Module):
             output_channel = _make_divisible(c * width_mult, round_nearest)
             for i in range(n):
                 stride = s if i == 0 else 1
-                features.append(block(input_channel, output_channel, stride, expand_ratio=t, kernel=k, norm_layer=norm_layer))
+                features.append(
+                    block(input_channel, output_channel, stride, expand_ratio=t, kernel=k, norm_layer=norm_layer)
+                )
                 input_channel = output_channel
         # building last several layers
         features.append(

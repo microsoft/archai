@@ -32,25 +32,24 @@ class FaceLandmarkDataset(Dataset):
         __getitem__(index): Returns the image and landmarks of the sample at the given index.
         num_landmarks(): Returns the number of landmarks in each sample.
     """
-    def __init__(self, directory, limit=None, crop_size = 128):
 
-        pattern = os.path.join(directory, "[0-9][0-9][0-9][0-9][0-9][0-9].png") #don't load *_seg.png files
-        self.png_files = glob.glob(pattern) 
-        
+    def __init__(self, directory, limit=None, crop_size=128):
+        pattern = os.path.join(directory, "[0-9][0-9][0-9][0-9][0-9][0-9].png")  # don't load *_seg.png files
+        self.png_files = glob.glob(pattern)
+
         if len(self.png_files) < 100000:
-            zip_url = 'https://facesyntheticspubwedata.blob.core.windows.net/iccv-2021/dataset_100000.zip'
+            zip_url = "https://facesyntheticspubwedata.blob.core.windows.net/iccv-2021/dataset_100000.zip"
             download_and_extract_zip(zip_url, directory)
             self.png_files = glob.glob(pattern)
-        
+
         assert len(self.png_files) > 0, f"Can't find any PNG files in {directory}"
 
         if limit is not None:
             self.png_files = self.png_files[:limit]
-        self.transform = transforms.FaceLandmarkTransform(crop_size = crop_size)
+        self.transform = transforms.FaceLandmarkTransform(crop_size=crop_size)
         self._num_landmarks = None
 
     def __len__(self):
-
         return len(self.png_files)
 
     def __getitem__(self, index):
@@ -66,9 +65,8 @@ class FaceLandmarkDataset(Dataset):
         png_file = self.png_files[index]
         image = Image.open(png_file)
         label_file = png_file.replace(".png", "_ldmks.txt")
-        label = np.loadtxt(label_file, dtype=np.single) 
+        label = np.loadtxt(label_file, dtype=np.single)
         assert label.size > 0, "Can't find data in landmarks file: f{label_file}"
-        #label[:, 1] = image.height - label[:, 1]  #flip due to the landmarks Y definition
 
         sample = transforms.Sample(image=image, landmarks=label)
         assert sample is not None
@@ -76,7 +74,7 @@ class FaceLandmarkDataset(Dataset):
         assert sample_transformed is not None
 
         return sample_transformed.image, sample_transformed.landmarks
-    
+
     @property
     def num_landmarks(self):
         """
