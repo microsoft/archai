@@ -120,10 +120,10 @@ def evaluate(model, criterion, data_loader, epoch, device, print_freq=100, log_s
     return float(metric_logger.error.global_avg)
 
 
-def load_data(traindir, valdir, args):
+def load_data(traindir, args):
     # Data loading code
     print("Loading data")
-    val_resize_size, val_crop_size, train_crop_size = args.val_resize_size, args.val_crop_size, args.train_crop_size
+    _, val_crop_size, train_crop_size = args.val_resize_size, args.val_crop_size, args.train_crop_size
 
     print("Loading training data")
     st = time.time()
@@ -163,11 +163,8 @@ def train(args, model: nn.Module = None):
     else:
         torch.backends.cudnn.benchmark = True
 
-    train_dir = os.path.join(args.data_path, "train")
-    val_dir = os.path.join(args.data_path, "val")
-    dataset, dataset_test, train_sampler, test_sampler = load_data(args.data_path, val_dir, args)
+    dataset, dataset_test, train_sampler, test_sampler = load_data(args.data_path, args)
 
-    collate_fn = None
     num_classes = dataset.dataset.num_landmarks
     data_loader = torch.utils.data.DataLoader(
         dataset,
