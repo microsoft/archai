@@ -32,7 +32,6 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         overwrite: Optional[bool] = True,
         max_retries: Optional[int] = 5,
         retry_interval: Optional[int] = 120,
-        reset : bool = True,
         onnx_export_kwargs: Optional[Dict[str, Any]] = None,
         verbose: bool = False,
         benchmark_only: bool = True
@@ -67,7 +66,6 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         self.verbose = verbose
         self.results = {}
         self.benchmark_only = benchmark_only
-        self.reset = reset
 
         # Architecture list
         self.archids = []
@@ -101,8 +99,8 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                         self.archids.append(archid)
                         print(f"Entry for {archid} already exists with {self.metric_key} = {value}")
                     return
-                elif self.reset:
-                    # complete but missing the mean, so reset the benchmark metrics so we can try again.
+                else:
+                    # force quantization to happen again in case the model has been retrained.
                     self._reset(entity)
             else:
                 # job is still running, let it continue
