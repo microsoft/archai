@@ -25,6 +25,8 @@ def main():
     in_channels = ss_params['in_channels']
     img_size = ss_params['img_size']
     target_config = search_config.get('target', {})
+    # change the metric key to the one used for Snapdragon F1 scoring
+    target_config['metric_key'] = 'f1_1k'
     target_name = target_config.pop('name', 'cpu')
     device_evaluator = None
 
@@ -39,18 +41,15 @@ def main():
             fully_trained += [e]
 
     if len(fully_trained) == 0:
-        print(f"No fully trained models found with required metric '{metric_key}'")
+        print(f"No 'complete' models found with required metric '{metric_key}'")
         sys.exit(1)
 
     # the RemoteAzureBenchmarkEvaluator only needs the archid actually, doesn't need the nn.Module.
     models = []
     for e in fully_trained:
         id = e['name']
-        e['status'] = 'preparing'
         if 'benchmark_only' in e:
-            del e['benchmark_only']
-        store.update_status_entity(e)
-        models += [ArchaiModel(None, archid=id[3:])]
+            models += [ArchaiModel(None, archid=id[3:])]
 
     # kick off remote device training without the benchmark_only flag so we get the
     # F1 scores for these fully trained models.  Note the above results_path ensures the trained
@@ -60,6 +59,7 @@ def main():
         input_shape=input_shape,
         store=store,
         experiment_name=experiment_name,
+        reset=False,  # do not reset the inference metrics
         onnx_export_kwargs={'opset_version': 11},
         benchmark_only=0,  # do full F1 scoring this time.
         **target_config

@@ -27,13 +27,19 @@ things up a lot.
 1. [Notebook](notebooks/results.ipynb) a simple Jupyter notebook for visualizing the
 results found in your Azure table.
 
-   The jupyter notebook can be used to visualize the results of the search iterations as they are
-happening.  The following is a snapshot after 10 iterations are completed where the darker colors
-are the early iterations and the brighter colors are the most recent iterations. The pareto frontier
-models are in yellow. This clearly shows the general trend of model improvement over time on each new
-iteration.
+## Results
 
-   ![snapshot](images/iteration10.png)
+The jupyter notebook can be used to visualize the results of the search iterations as they are
+happening.  The following is a an animation of the complete 20 search iterations where the darker
+colors are the early iterations and the brighter colors are the most recent iterations. The pareto
+frontier models are highlighted in yellow. This clearly shows the general trend of model improvement
+over time on each new iteration.
+
+![snapshot](images/animation.gif)
+
+The following animation shows only the pareto models from each search iteration:
+
+![snapshot](images/pareto.gif)
 
 ## Workflow
 

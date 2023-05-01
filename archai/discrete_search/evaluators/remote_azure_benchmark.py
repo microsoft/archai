@@ -32,6 +32,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         overwrite: Optional[bool] = True,
         max_retries: Optional[int] = 5,
         retry_interval: Optional[int] = 120,
+        reset : bool = True,
         onnx_export_kwargs: Optional[Dict[str, Any]] = None,
         verbose: bool = False,
         benchmark_only: bool = True
@@ -48,6 +49,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
             overwrite: Whether to overwrite existing models.
             max_retries: Maximum number of retries in `fetch_all`.
             retry_interval: Interval between each retry attempt.
+            reset: Whether to reset the metrics.
             onnx_export_kwargs: Dictionary containing key-value arguments for `torch.onnx.export`.
             verbose: Whether to print debug messages.
         """
@@ -65,6 +67,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         self.verbose = verbose
         self.results = {}
         self.benchmark_only = benchmark_only
+        self.reset = reset
 
         # Architecture list
         self.archids = []
@@ -98,7 +101,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                         self.archids.append(archid)
                         print(f"Entry for {archid} already exists with {self.metric_key} = {value}")
                     return
-                else:
+                elif self.reset:
                     # complete but missing the mean, so reset the benchmark metrics so we can try again.
                     self._reset(entity)
             else:
@@ -111,8 +114,8 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         entity = self.store.get_status(archid)  # this is a get or create operation.
         if self.benchmark_only:
             entity["benchmark_only"] = 1
-        entity["model_date"] = self.store.get_utc_date()
-        entity["model_name"] = "model.onnx"
+        elif 'benchmark_only' in entity:
+            del entity['benchmark_only']
         self.store.update_status_entity(entity)  # must be an update, not a merge.
         self.store.lock_entity(entity, "uploading")
 
@@ -134,14 +137,20 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                     )
 
                     self.store.upload_blob(f'{self.experiment_name}/{archid}', file_name, "model.onnx")
+                    entity["model_date"] = self.store.get_utc_date()
+                    entity["model_name"] = "model.onnx"
                     entity["status"] = "new"
             except Exception as e:
                 entity["error"] = str(e)
+                entity["status"] = "error"
         else:
             # then the blob store must already have a model.onnx file!
-            blobs = self.store.list_blobs(f'{self.experiment_name}/{archid}')
-            if 'model.onnx' not in blobs:
-                entity["error"] = "model.onnx is missing"
+            blobs = self.store.list_blobs(f'{self.experiment_name}/{archid}/model.onnx')
+            if len(blobs) < 1:
+                print(f"model.onnx is missing for architecture {archid}")
+                return
+            else:
+                entity['status'] = 'ready'
 
         self.store.unlock_entity(entity)
         self.archids.append(archid)
