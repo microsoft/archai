@@ -55,8 +55,6 @@ def main():
     for e in store.get_all_status_entities(status='complete'):
         if metric_key in e:
             fully_trained += [e]
-            # make sure we re-quantize the new fully trained model.
-            reset_dlc(store, experiment_name, e)
 
     if len(fully_trained) == 0:
         print(f"No 'complete' models found with required metric '{metric_key}'")
@@ -66,12 +64,11 @@ def main():
     models = []
     for e in fully_trained:
         name = e['name']
+        # if this has not been F1 scored yet then add it to our list.
         if 'benchmark_only' in e:
             models += [ArchaiModel(None, archid=name[3:])]
-            prefix = f'{experiment_name}/{name}'
             # make sure we re-quantize the new fully trained model.
-            store.delete_blobs(prefix, 'model.dlc')
-            store.delete_blobs(prefix, 'model.quant.dlc')
+            reset_dlc(store, experiment_name, e)
 
     # kick off remote device training without the benchmark_only flag so we get the
     # F1 scores for these fully trained models.  Note the above results_path ensures the trained
