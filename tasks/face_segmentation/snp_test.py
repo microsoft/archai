@@ -8,6 +8,22 @@ from archai.discrete_search.evaluators.remote_azure_benchmark import RemoteAzure
 from aml.util.setup import configure_store
 
 
+def reset_dlc(store, experiment_name, entity):
+    """ Reset the qualcomm dlc files and associated metrics for the given entity."""
+    changed = False
+    name = entity['name']
+    prefix = f'{experiment_name}/{name}'
+    print(f"Resetting .dlc files for model {name}")
+    store.delete_blobs(prefix, 'model.dlc')
+    store.delete_blobs(prefix, 'model.quant.dlc')
+    for k in ['mean', 'macs', 'params', 'stdev', 'total_inference_avg', 'error', 'f1_1k', 'f1_10k', 'f1_1k_f', 'f1_10k_f']:
+        if k in entity:
+            del entity[k]
+            changed = True
+    if changed:
+        store.update_status_entity(entity)
+
+
 def main():
     # input and output arguments
     parser = argparse.ArgumentParser(description="Runs Snapdragon F1 scoring on the final fully trained models produced by train_pareto.py.")
@@ -39,6 +55,8 @@ def main():
     for e in store.get_all_status_entities(status='complete'):
         if metric_key in e:
             fully_trained += [e]
+            # make sure we re-quantize the new fully trained model.
+            reset_dlc(store, experiment_name, e)
 
     if len(fully_trained) == 0:
         print(f"No 'complete' models found with required metric '{metric_key}'")
@@ -47,9 +65,13 @@ def main():
     # the RemoteAzureBenchmarkEvaluator only needs the archid actually, doesn't need the nn.Module.
     models = []
     for e in fully_trained:
-        id = e['name']
+        name = e['name']
         if 'benchmark_only' in e:
-            models += [ArchaiModel(None, archid=id[3:])]
+            models += [ArchaiModel(None, archid=name[3:])]
+            prefix = f'{experiment_name}/{name}'
+            # make sure we re-quantize the new fully trained model.
+            store.delete_blobs(prefix, 'model.dlc')
+            store.delete_blobs(prefix, 'model.quant.dlc')
 
     # kick off remote device training without the benchmark_only flag so we get the
     # F1 scores for these fully trained models.  Note the above results_path ensures the trained
@@ -59,7 +81,6 @@ def main():
         input_shape=input_shape,
         store=store,
         experiment_name=experiment_name,
-        reset=False,  # do not reset the inference metrics
         onnx_export_kwargs={'opset_version': 11},
         benchmark_only=0,  # do full F1 scoring this time.
         **target_config
