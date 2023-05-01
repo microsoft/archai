@@ -28,8 +28,8 @@ def main():
     config = Config(args.config, resolve_env_vars=True)
     aml_config = config['aml']
     store = configure_store(aml_config)
-
-    evaluator = AmlPartialTrainingEvaluator(config, args.output, args.epochs, args.timeout)
+    output_path = Path(os.path.realpath(args.output))
+    evaluator = AmlPartialTrainingEvaluator(config, output_path, args.epochs, args.timeout)
     store = evaluator.store
 
     experiment_name = aml_config['experiment_name']
