@@ -26,10 +26,16 @@ from archai.discrete_search.api.search_space import (
     EvolutionarySearchSpace,
 )
 
+from quantizable_model import CustomQuantizableMobileNetV2
 from model import CustomMobileNetV2
 
 
-def _gen_tv_mobilenet(arch_def, channel_multiplier=1.0, depth_multiplier=1.0, num_classes=1000):
+def _gen_tv_mobilenet(arch_def,
+                      channel_multiplier=1.0,
+                      depth_multiplier=1.0,
+                      num_classes=1000,
+                      qat: bool = False,
+                      qat_skip_layers: int = 0):
     """generate mobilenet v2 from torchvision. Adapted from timm source code"""
     assert len(arch_def) > 0, "arch_def is empty"
     ir_setting = []
@@ -75,12 +81,15 @@ def _gen_tv_mobilenet(arch_def, channel_multiplier=1.0, depth_multiplier=1.0, nu
 
         ir_setting.append([t, c, n, s, k])
 
-    model = CustomMobileNetV2(inverted_residual_setting=ir_setting, dropout=0, num_classes=num_classes)
+    if qat:
+        model = CustomQuantizableMobileNetV2(num_skip_qat_layers=qat_skip_layers, inverted_residual_setting=ir_setting, dropout=0, num_classes=num_classes)
+    else:
+        model = CustomMobileNetV2(inverted_residual_setting=ir_setting, dropout=0, num_classes=num_classes)
 
     return model
 
 
-def create_model_from_search_results(archid, csv_file: str, num_classes):
+def create_model_from_search_results(archid, csv_file: str, num_classes: int, qat: bool = False, qat_skip_layers: int = 0) :
     csv_path = Path(csv_file)
     assert csv_path.exists()
     df = pd.read_csv(csv_path)
@@ -93,6 +102,8 @@ def create_model_from_search_results(archid, csv_file: str, num_classes):
         channel_multiplier=cfg["channel_multiplier"],
         depth_multiplier=cfg["depth_multiplier"],
         num_classes=num_classes,
+        qat=qat,
+        qat_skip_layers=qat_skip_layers,
     )
     return model
 

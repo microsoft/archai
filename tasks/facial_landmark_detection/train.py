@@ -2,6 +2,7 @@
 # Licensed under the MIT license.
 
 """Adapted from torchvision https://github.com/pytorch/vision/blob/main/references/classification/train.py"""
+import copy
 import datetime
 import os
 import time
@@ -16,6 +17,7 @@ import utils
 from torch import nn
 from torch.utils.data.dataloader import default_collate
 from torchvision.transforms.functional import InterpolationMode
+from torchvision.models.quantization.mobilenetv2 import _replace_relu
 from torchinfo import summary
 
 from dataset import FaceLandmarkDataset
@@ -148,6 +150,22 @@ def load_data(traindir, args):
     return dataset, dataset_test, train_sampler, test_sampler
 
 
+def setup_qat(model: nn.Module) -> None:
+    assert model is not None
+
+    _replace_relu(model)
+
+    model.eval()
+
+    # Modify quantization engine as appropriate for the target platform
+    model.setup_qconfig('fbgemm')
+    model.classifier.qconfig = None
+
+    model.fuse_model(is_qat=True)
+
+    torch.ao.quantization.prepare_qat(model.train(), inplace=True)
+
+
 def train(args, model: nn.Module = None):
     if args.output_dir:
         utils.mkdir(args.output_dir)
@@ -181,8 +199,15 @@ def train(args, model: nn.Module = None):
     if model is None:
         if args.search_result_archid:
             model = create_model_from_search_results(
-                args.search_result_archid, args.search_result_csv, num_classes=num_classes
-            )
+                args.search_result_archid,
+                args.search_result_csv,
+                num_classes=num_classes,
+                qat=args.qat,
+                qat_skip_layers=args.qat_skip_layers)
+
+            if (args.qat):
+                print('Preparing for QAT')
+                setup_qat(model)
         else:
             model = torchvision.models.__dict__[args.model](weights=args.weights, num_classes=num_classes)
     model.to(device)
@@ -306,8 +331,15 @@ def train(args, model: nn.Module = None):
         if model_ema:
             val_error = evaluate(model_ema, criterion, data_loader_test, device=device, log_suffix="EMA")
         if args.output_dir:
+            model_to_save = model_without_ddp
+            if (args.qat):
+                model_to_save = copy.deepcopy(model_without_ddp)
+                model_to_save.eval()
+                model_to_save.to(torch.device("cpu"))
+                torch.ao.quantization.convert(model_to_save, inplace=True)
+
             checkpoint = {
-                "model": model_without_ddp.state_dict(),
+                "model": model_to_save.state_dict(),
                 "optimizer": optimizer.state_dict(),
                 "lr_scheduler": lr_scheduler.state_dict(),
                 "epoch": epoch,
@@ -449,6 +481,11 @@ def get_args_parser(add_help=True):
         help="the random crop size used for training (default: 128)",
     )
     parser.add_argument("--clip-grad-norm", default=None, type=float, help="the maximum gradient norm (default None)")
+
+    parser.add_argument("--qat", help="Performs quantization aware training", action="store_true")
+    parser.add_argument(
+        "--qat_skip_layers", default=0, type=int, help="Number of layers to be skipped from quantization when performing QAT"
+    )
 
     parser.add_argument("--weights", default=None, type=str, help="the weights enum name to load")
 

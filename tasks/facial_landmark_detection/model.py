@@ -117,10 +117,10 @@ class CustomMobileNetV2(nn.Module):
                 [6, 320, 1, 1, 3],
             ]
 
-        # only check the first element, assuming user knows t,c,n,s,k are required
-        if len(inverted_residual_setting) == 0 or len(inverted_residual_setting[0]) != 5:
+        # check inverted_residual_setting for validity - t,c,n,s,k are required
+        if len(inverted_residual_setting) == 0 or any(len(ir) != 5 for ir in inverted_residual_setting):
             raise ValueError(
-                f"inverted_residual_setting should be non-empty or a 4-element list, got {inverted_residual_setting}"
+                f"inverted_residual_setting should be non-empty or a 5-element list, got {inverted_residual_setting}"
             )
 
         # building first layer

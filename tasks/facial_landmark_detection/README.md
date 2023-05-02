@@ -57,6 +57,16 @@ The trained models will be saved in the models directory. You can modify the out
 The training using the parameters in train_candidate_models.py produces another CSV file (search_results_with_full_validation_error.csv) with validation error data added from the training. The following graph is produced with such data:
 ![Results of full training](Full_Training_Validation_Error_vs_onnx_latency_(ms).png)
 
+## Quantization Aware Training
+To perform QAT on a selected model, use the --qat option which utilizes the quantizable version of the model to perform the training. 
+If needed for higher accuracy, use the --qat_skip_layers <# of layers> to partially quantize the model with specified number of layers left in floating point.
+
+```bash
+torchrun --nproc_per_node=4 train.py --data-path $data_dir --output_dir $output_dir --nas_search_archid $arch_id --search_result_csv $csv \
+    --train-crop-size 128 --epochs 100 --search_result_archid 3484fc6b \
+    --batch-size 32 --lr 0.001 --opt adamw --lr-scheduler steplr --lr-step-size 100 --lr-gamma 0.5 -wd 0.00001 --qat
+```
+
 ## References
 
 [1] "3D Face Reconstruction with Dense Landmarks", Microsoft Research, 2018. https://www.microsoft.com/en-us/research/publication/3d-face-reconstruction-with-dense-landmarks/
