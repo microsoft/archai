@@ -16,7 +16,7 @@ def reset_dlc(store, experiment_name, entity):
     print(f"Resetting .dlc files for model {name}")
     store.delete_blobs(prefix, 'model.dlc')
     store.delete_blobs(prefix, 'model.quant.dlc')
-    for k in ['mean', 'macs', 'params', 'stdev', 'total_inference_avg', 'error', 'f1_1k', 'f1_10k', 'f1_1k_f', 'f1_10k_f']:
+    for k in ['mean', 'macs', 'params', 'stdev', 'total_inference_avg', 'error', 'f1_1k', 'f1_10k', 'f1_1k_f', 'f1_onnx', 'pipeline_id']:
         if k in entity:
             del entity[k]
             changed = True

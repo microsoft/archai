@@ -41,13 +41,15 @@ The following animation shows only the pareto models from each search iteration:
 
 ![snapshot](images/pareto.gif)
 
-When the search completes you can run `train_pareto.py` to fully train the pareto models then you
-can run `snp_test.py` to compute the F1 scores for these fully trained models on your Qualcomm
+When the search completes you can run [train_pareto.py](../../train_pareto.py) to fully train the pareto models then you
+can run [snp_test.py](../../snp_test.py) to compute the F1 scores for these fully trained models on your Qualcomm
 hardware, the following is a plot you can get from the notebook showing the final results.  Notice
 that the Qualcomm hardware mostly matches our earlier `val_iou` pareto curve, but not exactly, which
-is why it is always good to test your models on the target hardware.
+is why it is always good to test your models on the target hardware.  Even better if that testing
+can be done in the search loop so that the search finds models that work well on the target
+hardware, as we have done in this example:
 
-![errors](images/final_result.png)
+![errors](images/final_results.png)
 
 ## Workflow
 
