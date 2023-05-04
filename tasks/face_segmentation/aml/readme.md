@@ -10,7 +10,7 @@ The code is organized into:
 of selected models on a GPU cluster in Azure ML.
 
 1. [SNPE Device](snpe/readme.md) code that uses [Microsoft
-Olive](https://github.com/microsoft/olive) to drive the the
+Olive](https://github.com/microsoft/olive) to drive the
 [Qualcomm Neural Processing SDK](https://developer.qualcomm.com/software/qualcomm-neural-processing-sdk) to talk
 to the device, convert ONNX models to .dlc, quantize them, and test them on one or more
 [Qualcomm 888 dev kits](https://developer.qualcomm.com/hardware/snapdragon-888-hdk).
@@ -37,29 +37,32 @@ over time on each new iteration.
 
 ![snapshot](images/animation.gif)
 
-The following animation shows only the pareto models from each search iteration:
+The following animation shows only the pareto models from each search iteration. These are the
+models that get mutated during the evolutionary pareto search, all the other models have lower
+validation scores and are discarded:
 
 ![snapshot](images/pareto.gif)
 
-When the search completes you can run [train_pareto.py](../../train_pareto.py) to fully train the pareto models then you
-can run [snp_test.py](../../snp_test.py) to compute the F1 scores for these fully trained models on your Qualcomm
-hardware, the following is a plot you can get from the notebook showing the final results.  Notice
-that the Qualcomm hardware mostly matches our earlier `val_iou` pareto curve, but not exactly, which
-is why it is always good to test your models on the target hardware.  Even better if that testing
-can be done in the search loop so that the search finds models that work well on the target
-hardware, as we have done in this example:
+When the search completes you can run [train_pareto.py](../../train_pareto.py) to fully train the
+pareto models then you can run [snp_test.py](../../snp_test.py) to compute the F1 scores for these
+fully trained models on your Qualcomm hardware, the following is a plot you can get from the
+notebook showing the final results.  Notice that the Qualcomm hardware mostly matches our earlier
+`val_iou` pareto curve, but not exactly. The dots shown in gray have fallen off the pareto frontier.
+This is why it is always good to test your models on the target hardware.  Even better if that
+testing can be done in the search loop so that the search finds models that work well on the target
+hardware, as we have done in this face segmentation example:
 
 ![errors](images/final_results.png)
 
 ## Workflow
 
-The overall workflow begins with the top level [aml.py](../../aml.py) script which
-starts with an Archai Search that contains an `AmlPartialTrainingEvaluator` and a
-`RemoteAzureBenchmarkEvaluator`.  The remote benchmark evaluator performs inference latency testing
-on Qualcomm hardware.  The `AmlPartialTrainingEvaluator` then kicks off one new Azure ML
-training pipeline for each batch of new model architectures that need to be partially trained, it
-stores the validation IOU results in an Azure blob store and an Azure table so the search can get
-those results and use them to figure out the next iteration of the search algorithm:
+The overall workflow begins with the top level [aml.py](../../aml.py) script which starts with an
+Archai Search that contains an `AmlPartialTrainingEvaluator` and a `RemoteAzureBenchmarkEvaluator`.
+The remote benchmark evaluator performs inference latency testing on Qualcomm hardware.  The
+`AmlPartialTrainingEvaluator` then kicks off one new Azure ML training pipeline for each batch of
+new model architectures that need to be partially trained, it stores the validation IOU results in
+an Azure blob store and an Azure table so the search can get those results and use them to figure
+out the next iteration of the search algorithm:
 
 ![system](images/system.png)
 
@@ -67,18 +70,20 @@ See [AML Training Readme](training/readme.md) for more information.
 
 ## Remote Inference Testing
 
-The remote inference testing workflow looks like this, the `RemoteAzureBenchmarkEvaluator` uploads models to the same
-Azure blob store, and adds a row to the status table.  This triggers remote instances of the [runner.py](azure/runner.py) script
-to process these new models on an attached Qualcomm device.  Optionally some of the work can be done in the cloud
-using a Kubernetes cluster, this includes model quantization and accuracy testing using the ONNX runtime.
-The workflow looks like this:
+The remote inference testing workflow looks like this, the `RemoteAzureBenchmarkEvaluator` uploads
+models to the same Azure blob store, and adds a row to the status table.  This triggers remote
+instances of the [runner.py](azure/runner.py) script to process these new models on an attached
+Qualcomm device.  Optionally some of the work can be done in the cloud using a Kubernetes cluster,
+this includes model quantization and accuracy testing using the ONNX runtime. The workflow looks
+like this:
 
 ![snpe](images/snpe.png)
 
-Each instance of `runner.py` looks for work, and executes it in priority order where the prioritization is defined by
-the `find_work_prioritized` function in the runner.  This script is completely restartable, and can distribute the work
-across multiple instances of the runner script.  Each instance will pick up where a previous one left off based on what
-it finds in your Azure status table. The prioritization maps to the columns of the status table as follows:
+Each instance of `runner.py` looks for work, and executes it in priority order where the
+prioritization is defined by the `find_work_prioritized` function in the runner.  This script is
+completely restartable, and can distribute the work across multiple instances of the runner script.
+Each instance will pick up where a previous one left off based on what it finds in your Azure status
+table. The prioritization maps to the columns of the status table as follows:
 
 1. **macs:** convert to .dlc and post Macs score and `snpe-dlc-viewer` output and do model quantization (runs on Linux) - priority 20
 1. **total_inference_avg** run `snpe_bench.py` with quantized model on Qualcomm device DSP - priority 30
