@@ -25,7 +25,7 @@ Note that the paths need to be modified to match what is on your system.
 ## Results
 At the end of the search job, the following graph is generated:
 
-![Results of NAS](pareto_Partial_training_Validation_Accuracy_vs_onnx_latency_ms.png)
+![Results of NAS](pareto_Onnx_Latency_ms_vs_Partial_Training_Validation_Error.png)
 
 The search also produces a CSV file (search-results-[date]-[time].csv) containing more details of the search results. An example of this file is included in this repository (search_results.csv).
 
@@ -34,7 +34,7 @@ The search also produces a CSV file (search-results-[date]-[time].csv) containin
 To train a particular architecture identified by its ID (e.g., 58626d23) using the entire dataset and more epochs, run the following command:
 
 ```bash
-torchrun --nproc_per_node=4 train.py --data-path $data_dir --output_dir $output_dir --nas_search_archid $arch_id --search_result_csv $csv \
+torchrun --nproc_per_node=4 train.py --data-path $data_dir --output_dir $output_dir --nas_search_archid $arch_id --search_result_csv $csv_path \
     --train-crop-size 128 --epochs 100 \
     --batch-size 32 --lr 0.001 --opt adamw --lr-scheduler steplr --lr-step-size 100 --lr-gamma 0.5 -wd 0.00001
 ```
