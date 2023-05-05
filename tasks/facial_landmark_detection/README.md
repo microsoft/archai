@@ -25,7 +25,7 @@ Note that the paths need to be modified to match what is on your system.
 ## Results
 At the end of the search job, the following graph is generated:
 
-![Results of NAS](pareto_Onnx_Latency_ms_vs_Partial_Training_Validation_Error.png)
+![Results of NAS](Partial_Training_Validation_Error_vs_onnx_Latency_ms.png)
 
 The search also produces a CSV file (search-results-[date]-[time].csv) containing more details of the search results. An example of this file is included in this repository (search_results.csv).
 
@@ -34,7 +34,7 @@ The search also produces a CSV file (search-results-[date]-[time].csv) containin
 To train a particular architecture identified by its ID (e.g., 58626d23) using the entire dataset and more epochs, run the following command:
 
 ```bash
-torchrun --nproc_per_node=4 train.py --data-path $data_dir --output_dir $output_dir --nas_search_archid $arch_id --search_result_csv $csv_path \
+torchrun --nproc_per_node=4 train.py --data-path $data_dir --output_dir $output_dir --nas_search_archid $arch_id --search_result_csv $csv_file \
     --train-crop-size 128 --epochs 100 \
     --batch-size 32 --lr 0.001 --opt adamw --lr-scheduler steplr --lr-step-size 100 --lr-gamma 0.5 -wd 0.00001
 ```
@@ -49,13 +49,13 @@ To train all models on the Pareto frontier, run the following command:
 python train_candidate_models.py
 ```
 
-Note that this script assumes that the search results CSV file (search_results.csv) is located in the same directory as the script. If the CSV file is located elsewhere, you can modify the csv_path variable in the script to point to the correct location.
+Note that this script assumes that the search results CSV file (search_results.csv) is located in the same directory as the script. If the CSV file is located elsewhere, you can modify the csv_file variable in the script to point to the correct location.
 
 The trained models will be saved in the models directory. You can modify the output_dir variable in the script to specify a different output directory if desired.
 
 ## Results
 The training using the parameters in train_candidate_models.py produces another CSV file (search_results_with_full_validation_error.csv) with validation error data added from the training. The following graph is produced with such data:
-![Results of full training](Full_Training_Validation_Error_vs_onnx_latency_(ms).png)
+![Results of full training](Full_Training_Validation_Error_vs_onnx_latency_ms.png)
 
 ## References
 
