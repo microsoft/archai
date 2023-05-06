@@ -718,8 +718,10 @@ def monitor(experiment, dataset, use_device, benchmark_only, subset_list, no_qua
         # other jobs were add/completed in parallel while this was executing.
         priority, entity = queue.dequeue()
         name = entity['name']
+        locked = False
         try:
             entity = lock_job(entity)
+            locked = True
             benchmark_only_flag = is_benchmark_only(entity, benchmark_only)
             gc.collect()
             tracemalloc.start()
@@ -741,7 +743,8 @@ def monitor(experiment, dataset, use_device, benchmark_only, subset_list, no_qua
             else:
                 # bug in the script somewhere... don't leave the node locked.
                 log_error(error_type, value, stack)
-                unlock_job(entity)
+                if locked:
+                    unlock_job(entity)
                 sys.exit(1)
 
         time.sleep(10)  # give other machines a chance to grab work so we don't get stuck in retry loops.

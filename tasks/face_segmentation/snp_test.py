@@ -4,10 +4,24 @@ import argparse
 import sys
 from archai.discrete_search.api import ArchaiModel
 from archai.common.config import Config
-from aml.training.aml_training_evaluator import AmlPartialTrainingEvaluator
-from search_space.hgnet import HgnetSegmentationSearchSpace
 from archai.discrete_search.evaluators.remote_azure_benchmark import RemoteAzureBenchmarkEvaluator
 from aml.util.setup import configure_store
+
+
+def reset_dlc(store, experiment_name, entity):
+    """ Reset the qualcomm dlc files and associated metrics for the given entity."""
+    changed = False
+    name = entity['name']
+    prefix = f'{experiment_name}/{name}'
+    print(f"Resetting .dlc files for model {name}")
+    store.delete_blobs(prefix, 'model.dlc')
+    store.delete_blobs(prefix, 'model.quant.dlc')
+    for k in ['mean', 'macs', 'params', 'stdev', 'total_inference_avg', 'error', 'f1_1k', 'f1_10k', 'f1_1k_f', 'f1_onnx', 'pipeline_id']:
+        if k in entity:
+            del entity[k]
+            changed = True
+    if changed:
+        store.update_status_entity(entity)
 
 
 def main():
@@ -23,7 +37,12 @@ def main():
     metric_key = 'final_val_iou'
     search_config = config['search']
     ss_config = search_config['search_space']
+    ss_params = ss_config['params']
+    in_channels = ss_params['in_channels']
+    img_size = ss_params['img_size']
     target_config = search_config.get('target', {})
+    # change the metric key to the one used for Snapdragon F1 scoring
+    target_config['metric_key'] = 'f1_1k'
     target_name = target_config.pop('name', 'cpu')
     device_evaluator = None
 
@@ -38,28 +57,23 @@ def main():
             fully_trained += [e]
 
     if len(fully_trained) == 0:
-        print(f"No fully trained models found with required metric '{metric_key}'")
+        print(f"No 'complete' models found with required metric '{metric_key}'")
         sys.exit(1)
 
     # the RemoteAzureBenchmarkEvaluator only needs the archid actually, doesn't need the nn.Module.
     models = []
-    for i in fully_trained:
-        id = e['name']
-        e['status'] = 'preparing'
+    for e in fully_trained:
+        name = e['name']
+        # if this has not been F1 scored yet then add it to our list.
         if 'benchmark_only' in e:
-            del e['benchmark_only']
-        store.update_status_entity(e)
-        models += [ArchaiModel(None, archid=id[3:])]
+            models += [ArchaiModel(None, archid=name[3:])]
+            # make sure we re-quantize the new fully trained model.
+            reset_dlc(store, experiment_name, e)
 
     # kick off remote device training without the benchmark_only flag so we get the
     # F1 scores for these fully trained models.  Note the above results_path ensures the trained
     # models are uploaded back to our models blob store.
-    search_space = HgnetSegmentationSearchSpace(
-        seed=42,  # not important in this case.
-        **ss_config.get('params', {}),
-    )
-
-    input_shape = (1, search_space.in_channels, *search_space.img_size[::-1])
+    input_shape = (1, in_channels, *img_size[::-1])
     device_evaluator = RemoteAzureBenchmarkEvaluator(
         input_shape=input_shape,
         store=store,

@@ -48,6 +48,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
             overwrite: Whether to overwrite existing models.
             max_retries: Maximum number of retries in `fetch_all`.
             retry_interval: Interval between each retry attempt.
+            reset: Whether to reset the metrics.
             onnx_export_kwargs: Dictionary containing key-value arguments for `torch.onnx.export`.
             verbose: Whether to print debug messages.
         """
@@ -99,7 +100,7 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                         print(f"Entry for {archid} already exists with {self.metric_key} = {value}")
                     return
                 else:
-                    # complete but missing the mean, so reset the benchmark metrics so we can try again.
+                    # force quantization to happen again in case the model has been retrained.
                     self._reset(entity)
             else:
                 # job is still running, let it continue
@@ -111,8 +112,8 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
         entity = self.store.get_status(archid)  # this is a get or create operation.
         if self.benchmark_only:
             entity["benchmark_only"] = 1
-        entity["model_date"] = self.store.get_utc_date()
-        entity["model_name"] = "model.onnx"
+        elif 'benchmark_only' in entity:
+            del entity['benchmark_only']
         self.store.update_status_entity(entity)  # must be an update, not a merge.
         self.store.lock_entity(entity, "uploading")
 
@@ -134,14 +135,20 @@ class RemoteAzureBenchmarkEvaluator(AsyncModelEvaluator):
                     )
 
                     self.store.upload_blob(f'{self.experiment_name}/{archid}', file_name, "model.onnx")
+                    entity["model_date"] = self.store.get_utc_date()
+                    entity["model_name"] = "model.onnx"
                     entity["status"] = "new"
             except Exception as e:
                 entity["error"] = str(e)
+                entity["status"] = "error"
         else:
             # then the blob store must already have a model.onnx file!
-            blobs = self.store.list_blobs(f'{self.experiment_name}/{archid}')
-            if 'model.onnx' not in blobs:
-                entity["error"] = "model.onnx is missing"
+            blobs = self.store.list_blobs(f'{self.experiment_name}/{archid}/model.onnx')
+            if len(blobs) < 1:
+                print(f"model.onnx is missing for architecture {archid}")
+                return
+            else:
+                entity['status'] = 'ready'
 
         self.store.unlock_entity(entity)
         self.archids.append(archid)

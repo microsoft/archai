@@ -28,8 +28,8 @@ def main():
     config = Config(args.config, resolve_env_vars=True)
     aml_config = config['aml']
     store = configure_store(aml_config)
-
-    evaluator = AmlPartialTrainingEvaluator(config, args.output, args.epochs, args.timeout)
+    output_path = Path(os.path.realpath(args.output))
+    evaluator = AmlPartialTrainingEvaluator(config, output_path, args.epochs, args.timeout)
     store = evaluator.store
 
     experiment_name = aml_config['experiment_name']
@@ -54,9 +54,7 @@ def main():
         print(f"No models found with required metrics '{metric_key}' and '{target_metric_key}'")
         sys.exit(1)
 
-    points = np.array(points)
-    sorted = points[points[:, 0].argsort()]
-    pareto = calc_pareto_frontier(sorted)
+    sorted, pareto = calc_pareto_frontier(points)
     print(f'Found {len(pareto)} models on pareto frontier')
 
     # change the key so the evaluator updates a different field this time and
