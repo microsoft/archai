@@ -159,9 +159,8 @@ def setup_qat(model: nn.Module) -> None:
 
     # Modify quantization engine as appropriate for the target platform
     model.setup_qconfig('fbgemm')
-    model.classifier.qconfig = None
 
-    model.fuse_model(is_qat=True)
+    model.fuse_model()
 
     torch.ao.quantization.prepare_qat(model.train(), inplace=True)
 

@@ -26,7 +26,7 @@ from archai.discrete_search.api.search_space import (
     EvolutionarySearchSpace,
 )
 
-from quantizable_model import CustomQuantizableMobileNetV2
+from quantizable_model import CustomQuantizableMobileNetV2, CustomQuantizableInvertedResidual
 from model import CustomMobileNetV2
 
 
@@ -82,7 +82,7 @@ def _gen_tv_mobilenet(arch_def,
         ir_setting.append([t, c, n, s, k])
 
     if qat:
-        model = CustomQuantizableMobileNetV2(num_skip_qat_layers=qat_skip_layers, inverted_residual_setting=ir_setting, dropout=0, num_classes=num_classes)
+        model = CustomQuantizableMobileNetV2(block=CustomQuantizableInvertedResidual, num_skip_qat_layers=qat_skip_layers, inverted_residual_setting=ir_setting, dropout=0, num_classes=num_classes)
     else:
         model = CustomMobileNetV2(inverted_residual_setting=ir_setting, dropout=0, num_classes=num_classes)
 

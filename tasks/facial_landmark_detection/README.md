@@ -59,13 +59,18 @@ The training using the parameters in train_candidate_models.py produces another 
 
 ## Quantization Aware Training
 To perform QAT on a selected model, use the --qat option which utilizes the quantizable version of the model to perform the training. 
-If needed for higher accuracy, use the --qat_skip_layers <# of layers> to partially quantize the model with specified number of layers left in floating point.
+If needed for higher accuracy, use the --qat_skip_layers <# of layers> to partially quantize the model with specified number of layers, from the bottom, left in floating point.
 
 ```bash
-torchrun --nproc_per_node=4 train.py --data-path $data_dir --output_dir $output_dir --nas_search_archid $arch_id --search_result_csv $csv \
-    --train-crop-size 128 --epochs 100 --search_result_archid 3484fc6b \
+torchrun --nproc_per_node=4 train.py --data-path $data_dir --output_dir $output_dir --search_result_archid $arch_id --search_result_csv $csv \
+    --train-crop-size 128 --epochs 100 \
     --batch-size 32 --lr 0.001 --opt adamw --lr-scheduler steplr --lr-step-size 100 --lr-gamma 0.5 -wd 0.00001 --qat
 ```
+### Results
+
+Floating-point model test error : 0.0197
+
+Quantized model test error      : 0.0203
 
 ## References
 

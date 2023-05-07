@@ -52,7 +52,8 @@ class CustomQuantizableMobileNetV2(CustomMobileNetV2):
         for f in qat_features:
             x = f(x)
 
-        x = self.dequant(x)
+        if (self.num_skip_qat_layers > 0):
+            x = self.dequant(x)
 
         # Pass data through features not to be quantized
         for f in non_qat_features:
@@ -61,19 +62,23 @@ class CustomQuantizableMobileNetV2(CustomMobileNetV2):
         x = nn.functional.adaptive_avg_pool2d(x, (1, 1))
         x = flatten(x, 1)
         x = self.classifier(x)
+
+        if (self.num_skip_qat_layers == 0):
+            x = self.dequant(x)
+
         return x
 
     def setup_qconfig(self, engine: str) -> None:
         # Disable quantization config for layers that are NOT to be quantized
         torch.backends.quantized.engine = engine
         self.qconfig = torch.quantization.get_default_qat_qconfig(engine)
-        self.classifier.qconfig = None
+
         for f in self.features[len(self.features) - self.num_skip_qat_layers:]:
             f.qconfig = None
 
-    def fuse_model(self, is_qat: Optional[bool] = None) -> None:
+    def fuse_model(self) -> None:
         for m in self.modules():
             if type(m) is Conv2dNormActivation:
-                _fuse_modules(m, ["0", "1", "2"], is_qat, inplace=True)
+                _fuse_modules(m, ["0", "1", "2"], is_qat=True, inplace=True)
             if type(m) is CustomQuantizableInvertedResidual:
-                m.fuse_model(is_qat)
+                m.fuse_model(is_qat=True)

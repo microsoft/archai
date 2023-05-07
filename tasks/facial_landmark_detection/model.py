@@ -71,7 +71,7 @@ class CustomInvertedResidual(nn.Module):
 class CustomMobileNetV2(nn.Module):
     def __init__(
         self,
-        num_classes: int = 1000,
+        num_classes: int,
         width_mult: float = 1.0,
         inverted_residual_setting: Optional[List[List[int]]] = None,
         round_nearest: int = 8,
@@ -94,7 +94,6 @@ class CustomMobileNetV2(nn.Module):
 
         """
         super().__init__()
-        # _log_api_usage_once(self)
 
         if block is None:
             block = CustomInvertedResidual
