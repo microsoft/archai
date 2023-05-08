@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT license.
+
 from typing import Any, Optional
 
 from torch import nn, Tensor, flatten
@@ -9,7 +12,7 @@ from model import CustomInvertedResidual, CustomMobileNetV2
 from torchvision.ops import Conv2dNormActivation
 from torchvision.models.quantization.utils import _fuse_modules
 
-
+# Adapted from https://github.com/pytorch/vision/blob/main/torchvision/models/quantization/mobilenetv2.py
 class CustomQuantizableInvertedResidual(CustomInvertedResidual):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
