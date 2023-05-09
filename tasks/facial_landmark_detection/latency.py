@@ -69,7 +69,7 @@ class AvgOnnxLatency:
             self.sample_input,
             exported_model_buffer,
             input_names=[f"input_{i}" for i in range(len(self.sample_input))],
-            opset_version=11,
+            opset_version=13,
             **self.export_kwargs,
         )
         exported_model_buffer.seek(0)
