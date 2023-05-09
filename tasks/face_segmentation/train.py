@@ -144,6 +144,8 @@ def main():
             e['status'] = 'failed'
             e['error'] = str(ex)
             store.unlock_entity(e)
+        else:
+            print(ex)
 
 
 if __name__ == '__main__':
