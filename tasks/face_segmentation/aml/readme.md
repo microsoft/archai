@@ -1,5 +1,9 @@
 # Readme
 
+See Demo Video:
+
+ [![Demo Video](images/video.png)](https://youtu.be/a8MfuyYpRQA)
+
 This folder contains code that automates the search, partial training and inference latency testing in [Azure
 ML](https://azure.microsoft.com/en-us/products/machine-learning/). The inference testing of ONNX models can be performed
 across one or more machines that are connected via USB to Qualcomm 888 boards.
