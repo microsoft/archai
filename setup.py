@@ -56,6 +56,7 @@ dependencies = [
     "tensorwatch",
     "tk",
     "tokenizers>=0.10.3",
+    "torchinfo",
     "torchvision",
     "tqdm",
     "transformers==4.27.4",
@@ -125,12 +126,17 @@ extras_require["aml"] = filter_dependencies(
     "torchvision",
 )
 
+extras_require["tasks"] = filter_dependencies(
+    "torchinfo"
+)
+
 extras_require["dev"] = (
     extras_require["cv"]
     + extras_require["nlp"]
     + extras_require["docs"]
     + extras_require["tests"]
     + extras_require["aml"]
+    + extras_require["tasks"]
 )
 if os.name != "nt":
     # Support for DeepSpeed is not available on native Windows
