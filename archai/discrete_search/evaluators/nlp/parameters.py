@@ -29,7 +29,7 @@ class NonEmbeddingParamsProxy(ModelEvaluator):
 
         """
 
-        self.exclude_cls = [nn.Embedding] or exclude_cls
+        self.exclude_cls = exclude_cls or [nn.Embedding] 
         self.trainable_only = trainable_only
 
     @overrides
