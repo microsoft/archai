@@ -51,11 +51,11 @@ def main():
         sys.exit(1)
 
     store = configure_store(aml_config)
-    fully_trained = []
-    for e in store.get_all_status_entities(status='complete'):
-        if metric_key in e:
-            fully_trained += [e]
-
+    fully_trained = [
+        e for e in store.get_all_status_entities(status='complete')
+        if metric_key in e
+    ]
+    
     if len(fully_trained) == 0:
         print(f"No 'complete' models found with required metric '{metric_key}'")
         sys.exit(1)
