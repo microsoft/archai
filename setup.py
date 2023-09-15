@@ -17,7 +17,6 @@ dependencies = [
     "einops",
     "flake8>=5.0.4",
     "flash-attn",
-    "fftconv @ git+https://github.com/HazyResearch/H3.git#egg=fftconv&subdirectory=csrc/fftconv",
     "gorilla>=0.4.0",
     "h5py",
     "hyperopt",
@@ -86,7 +85,7 @@ extras_require["nlp"] = filter_dependencies(
 )
 
 extras_require["deepspeed"] = filter_dependencies("deepspeed", "mlflow")
-extras_require["flash-attn"] = filter_dependencies("flash-attn", "fftconv")
+extras_require["flash-attn"] = filter_dependencies("flash-attn")
 extras_require["xformers"] = filter_dependencies("xformers")
 
 extras_require["docs"] = filter_dependencies(

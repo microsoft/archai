@@ -7,7 +7,10 @@ import torch.nn.functional as F
 
 from einops import rearrange
 
-from fftconv import fftconv_fwd, fftconv_bwd
+try:
+    from fftconv import fftconv_fwd, fftconv_bwd
+except ImportError:
+    raise ImportError("`fftconv` module not found. Please run `pip install git+https://github.com/HazyResearch/H3.git#egg=fftconv&subdirectory=csrc/fftconv`.")
 
 @torch.jit.script
 def _mul_sum(y, q):
