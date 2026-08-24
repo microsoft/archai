@@ -18,15 +18,15 @@ jobs:
       security-events: write
     steps:
       - name: Pulls the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
         with:
           fetch-depth: 0
       - name: Runs DevSkim
-        uses: microsoft/devskim-action@v1
+        uses: microsoft/devskim-action@4b5047945a44163b94642a1cecc0d93a3f428cc6 # v1.0.16
         with:
           should-scan-archives: false
           output-filename: devskim-results.sarif
       - name: Uploads scanning results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@b8d3b6e8af63cde30bdc382c0bc28114f4346c88 # v2.28.1
         with:
           sarif_file: devskim-results.sarif
