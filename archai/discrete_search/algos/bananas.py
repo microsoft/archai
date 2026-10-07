@@ -167,6 +167,7 @@ class MoBananasSearch(Searcher):
             nb_tries = 0
 
             while len(candidates) < mutations_per_parent and nb_tries < patience:
+                nb_tries += 1
                 mutated_model = self.search_space.mutate(p)
                 mutated_model.metadata["parent"] = p.archid
 
@@ -175,8 +176,6 @@ class MoBananasSearch(Searcher):
 
                 if mutated_model.archid not in self.seen_archs:
                     candidates[mutated_model.archid] = mutated_model
-
-                nb_tries += 1
 
             mutations.update(candidates)
 
