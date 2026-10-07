@@ -135,6 +135,7 @@ class RegularizedEvolutionSearch(Searcher):
             nb_tries = 0
 
             while len(candidates) < mutations_per_parent and nb_tries < patience:
+                nb_tries += 1
                 mutated_model = self.search_space.mutate(p)
                 mutated_model.metadata["parent"] = p.archid
 
@@ -144,7 +145,6 @@ class RegularizedEvolutionSearch(Searcher):
                 if mutated_model.archid not in self.seen_archs:
                     mutated_model.metadata["generation"] = self.iter_num
                     candidates[mutated_model.archid] = mutated_model
-                nb_tries += 1
             mutations.update(candidates)
 
         return list(mutations.values())

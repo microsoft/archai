@@ -37,3 +37,32 @@ def test_bananas(output_dir, search_space, search_objectives, surrogate_model):
     # Checks if all registered models satisfy constraints
     _, valid_models = search_objectives.validate_constraints(all_models)
     assert len(valid_models) == len(all_models)
+
+
+def test_bananas_mutate_parents_stops_on_invalid_mutations(
+    output_dir, search_space, search_objectives, surrogate_model, monkeypatch
+):
+    algo = MoBananasSearch(
+        search_space=search_space,
+        search_objectives=search_objectives,
+        output_dir=output_dir,
+        surrogate_model=surrogate_model,
+        num_iters=2,
+        init_num_models=5,
+    )
+
+    mutate_calls = []
+
+    def counting_mutate(model):
+        mutate_calls.append(model.archid)
+        # Fails instead of hanging if `patience` is not honored
+        assert len(mutate_calls) <= 3
+        return mutate(model)
+
+    mutate = search_space.mutate
+    monkeypatch.setattr(search_space, "mutate", counting_mutate)
+    monkeypatch.setattr(algo.so, "is_model_valid", lambda model: False)
+
+    parent = search_space.random_sample()
+    assert algo.mutate_parents([parent], mutations_per_parent=1, patience=3) == []
+    assert len(mutate_calls) == 3

@@ -38,3 +38,34 @@ def test_regularized_evolution(output_dir, search_space, search_objectives, surr
     # Checks if all registered models satisfy constraints
     _, valid_models = search_objectives.validate_constraints(all_models)
     assert len(valid_models) == len(all_models)
+
+
+def test_regularized_evolution_mutate_parents_stops_on_invalid_mutations(
+    output_dir, search_space, search_objectives, monkeypatch
+):
+    algo = RegularizedEvolutionSearch(
+        search_space=search_space,
+        search_objectives=search_objectives,
+        output_dir=output_dir,
+        num_iters=2,
+        init_num_models=4,
+        pareto_sample_size=4,
+        history_size=10,
+        seed=1,
+    )
+
+    mutate_calls = []
+
+    def counting_mutate(model):
+        mutate_calls.append(model.archid)
+        # Fails instead of hanging if `patience` is not honored
+        assert len(mutate_calls) <= 3
+        return mutate(model)
+
+    mutate = search_space.mutate
+    monkeypatch.setattr(search_space, "mutate", counting_mutate)
+    monkeypatch.setattr(algo.so, "is_model_valid", lambda model: False)
+
+    parent = search_space.random_sample()
+    assert algo.mutate_parents([parent], mutations_per_parent=1, patience=3) == []
+    assert len(mutate_calls) == 3
